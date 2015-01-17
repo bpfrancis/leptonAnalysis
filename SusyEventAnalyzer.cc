@@ -725,11 +725,10 @@ void SusyEventAnalyzer::Acceptance() {
   for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
 
   vector<TTree*> signalTrees, signalTrees_JECup, signalTrees_JECdown;
-  vector<TTree*> noSigmaIetaIetaTrees, noChHadIsoTrees,
-    eQCDTrees,
-    eQCDnoSigmaIetaIetaTrees, eQCDnoChHadIsoTrees,
-    muQCDTrees,
-    muQCDnoSigmaIetaIetaTrees, muQCDnoChHadIsoTrees;
+  vector<TTree*> noSigmaIetaIetaTrees, noSigmaIetaIetaTrees_JECup, noSigmaIetaIetaTrees_JECdown;
+  vector<TTree*> noChHadIsoTrees, noChHadIsoTrees_JECup, noChHadIsoTrees_JECdown;
+  vector<TTree*> eQCDTrees, eQCDnoSigmaIetaIetaTrees, eQCDnoChHadIsoTrees,
+    muQCDTrees, muQCDnoSigmaIetaIetaTrees, muQCDnoChHadIsoTrees;
   
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
@@ -753,9 +752,30 @@ void SusyEventAnalyzer::Acceptance() {
     noSigmaIetaIetaTrees.push_back(tree);
   }
   for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noSigmaIetaIetaTree_JECup", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noSigmaIetaIetaTrees_JECup.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noSigmaIetaIetaTree_JECdown", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noSigmaIetaIetaTrees_JECdown.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_noChHadIsoTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     noChHadIsoTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noChHadIsoTree_JECup", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noChHadIsoTrees_JECup.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noChHadIsoTree_JECdown", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noChHadIsoTrees_JECdown.push_back(tree);
   }
 
   for(int i = 0; i < nChannels; i++) {
@@ -993,40 +1013,44 @@ void SusyEventAnalyzer::Acceptance() {
 	      }
 	    }
 	    
-	    if(jetSyst == kCentral) {
-
-	      if(photonMode == kNoSigmaIetaIeta) {
-		if(qcdMode == kSignal) {
+	    if(photonMode == kNoSigmaIetaIeta) {
+	      if(qcdMode == kSignal) {
+		if(jetSyst == kCentral) {
 		  nCnt[5][chan]++;
 		  noSigmaIetaIetaTrees[chan]->Fill();
 		}
-		else if(qcdMode == kElectronQCD) {
-		  nCnt[6][chan]++;
-		  eQCDnoSigmaIetaIetaTrees[chan]->Fill();
-		}
-		else if(qcdMode == kMuonQCD) {
-		  nCnt[7][chan]++;
-		  muQCDnoSigmaIetaIetaTrees[chan]->Fill();
-		}
+		else if(jetSyst == kJECup) noSigmaIetaIetaTrees_JECup[chan]->Fill();
+		else if(jetSyst == kJECdown) noSigmaIetaIetaTrees_JECdown[chan]->Fill();
 	      }
-	      
-	      if(photonMode == kNoChHadIso) {
-		if(qcdMode == kSignal) {
+	      else if(qcdMode == kElectronQCD && jetSyst == kCentral) {
+		nCnt[6][chan]++;
+		eQCDnoSigmaIetaIetaTrees[chan]->Fill();
+	      }
+	      else if(qcdMode == kMuonQCD && jetSyst == kCentral) {
+		nCnt[7][chan]++;
+		muQCDnoSigmaIetaIetaTrees[chan]->Fill();
+	      }
+	    }
+	    
+	    if(photonMode == kNoChHadIso) {
+	      if(qcdMode == kSignal) {
+		if(jetSyst == kCentral) {
 		  nCnt[8][chan]++;
 		  noChHadIsoTrees[chan]->Fill();
 		}
-		else if(qcdMode == kElectronQCD) {
-		  nCnt[9][chan]++;
-		  eQCDnoChHadIsoTrees[chan]->Fill();
-		}
-		else if(qcdMode == kMuonQCD) {
-		  nCnt[10][chan]++;
-		  muQCDnoChHadIsoTrees[chan]->Fill();
-		}
+		else if(jetSyst == kJECup) noChHadIsoTrees_JECup[chan]->Fill();
+		else if(jetSyst == kJECdown) noChHadIsoTrees_JECdown[chan]->Fill();
 	      }
-	      
+	      else if(qcdMode == kElectronQCD && jetSyst == kCentral) {
+		nCnt[9][chan]++;
+		eQCDnoChHadIsoTrees[chan]->Fill();
+	      }
+	      else if(qcdMode == kMuonQCD && jetSyst == kCentral) {
+		nCnt[10][chan]++;
+		muQCDnoChHadIsoTrees[chan]->Fill();
+	      }
 	    }
-
+	      
 	  } // for channels
 
 	} // for photon modes
