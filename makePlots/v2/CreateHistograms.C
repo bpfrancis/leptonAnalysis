@@ -91,8 +91,8 @@ void CreateHistograms(int nPhotons_req = 1) {
     hMaker->BookHistogram("leadSigmaIetaIeta", 200, 0., 0.1);      // 22
     hMaker->BookHistogram("leadChargedHadronIso", 35, 0, 15.0);
     hMaker->BookHistogram("mLepGammaLead", nKinematicBins_1g, xbins_kinematic_1g);
-    hMaker->BookHistogram("cosTheta_leadPhoton_l", 200, -1., 1.);
-    hMaker->BookHistogram("cosTheta_leadPhoton_b_min", 200, -1., 1.);
+    hMaker->BookHistogram("cosTheta_leadPhoton_l", 50, -1., 1.);
+    hMaker->BookHistogram("cosTheta_leadPhoton_b_min", 50, -1., 1.);
     hMaker->BookHistogram("dR_leadPhoton_l", 120, 0., 6.);
     hMaker->BookHistogram("dR_leadPhoton_b_min", 120, 0., 6.);
     hMaker->BookHistogram("dEta_leadPhoton_l", 120, 0., 6.);
@@ -147,8 +147,8 @@ void CreateHistograms(int nPhotons_req = 1) {
     hMaker->BookHistogram("mLepGammaTrail", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("mLepGammaGamma", nKinematicBins_2g, xbins_kinematic_2g);
 
-    hMaker->BookHistogram("cosTheta_leadPhoton_l", 200, -1., 1.);
-    hMaker->BookHistogram("cosTheta_leadPhoton_b_min", 200, -1., 1.);
+    hMaker->BookHistogram("cosTheta_leadPhoton_l", 50, -1., 1.);
+    hMaker->BookHistogram("cosTheta_leadPhoton_b_min", 50, -1., 1.);
     hMaker->BookHistogram("dR_leadPhoton_l", 120, 0., 6.);
     hMaker->BookHistogram("dR_leadPhoton_b_min", 120, 0., 6.);
     hMaker->BookHistogram("dEta_leadPhoton_l", 120, 0., 6.);
@@ -156,8 +156,8 @@ void CreateHistograms(int nPhotons_req = 1) {
     hMaker->BookHistogram("dPhi_leadPhoton_l", 120, 0., 6.2);
     hMaker->BookHistogram("dPhi_leadPhoton_b_min", 120, 0., 6.2);
 
-    hMaker->BookHistogram("cosTheta_trailPhoton_l", 200, -1., 1.);
-    hMaker->BookHistogram("cosTheta_trailPhoton_b_min", 200, -1., 1.);
+    hMaker->BookHistogram("cosTheta_trailPhoton_l", 50, -1., 1.);
+    hMaker->BookHistogram("cosTheta_trailPhoton_b_min", 50, -1., 1.);
     hMaker->BookHistogram("dR_trailPhoton_l", 120, 0., 6.);
     hMaker->BookHistogram("dR_trailPhoton_b_min", 120, 0., 6.);
     hMaker->BookHistogram("dEta_trailPhoton_l", 120, 0., 6.);
@@ -171,13 +171,25 @@ void CreateHistograms(int nPhotons_req = 1) {
   hMaker->HistogramData("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
   hMaker->HistogramQCD("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
   hMaker->HistogramMCBackground("../inputs/signal_contamination_ttA_2to5.root", "ttA_2to5",
-				0.9081 * 2, true, true);
+				0.9081 * 2, false, true);
+  hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep",
+				245.8 * 0.105, true, true);
+  hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsSemiLep.root", "ttJetsSemiLep",
+				245.8 * 0.438, true, true);
+  hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsHadronic.root", "ttJetsHadronic",
+				245.8 * 0.0457, true, true);
 
   hMaker->SetSigmaIetaIetaCut(-1. * sigmaIetaIetaCut);
   hMaker->HistogramData("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
   hMaker->HistogramQCD("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
   hMaker->HistogramMCBackground("../inputs/signal_contamination_ttA_2to5.root", "ttA_2to5",
-				0.9081 * 2, true, true);
+				0.9081 * 2, false, true);
+  hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep",
+				245.8 * 0.105, true, true);
+  hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsSemiLep.root", "ttJetsSemiLep",
+				245.8 * 0.438, true, true);
+  hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsHadronic.root", "ttJetsHadronic",
+				245.8 * 0.0457, true, true);
 
   delete hMaker;
 
