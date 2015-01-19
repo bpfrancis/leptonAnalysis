@@ -1367,20 +1367,16 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     }
 
     double min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[0]->caloPosition));
+    int min_b_index = -1;
+    for(unsigned int i = 0; i < btags_corrP4.size(); i++) {
+      min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[0]->caloPosition));
+      min_b_index = i;
+    }
     treeMap["dR_leadPhoton_b_min"] = min_b_angle;
+    treeMap["dEta_leadPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[0]->caloPosition.Eta());
+    treeMap["dPhi_leadPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[0]->caloPosition.Phi())
+    treeMap["cosTheta_leadPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[0]->caloPosition));
 
-    min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, fabs(btags_corrP4[i].Eta() - photons[0]->caloPosition.Eta()));
-    treeMap["dEta_leadPhoton_b_min"] = min_b_angle;
-
-    min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, TVector2::Phi_mpi_pi(btags_corrP4[i].Phi() - photons[0]->caloPosition.Phi()));
-    treeMap["dPhi_leadPhoton_b_min"] = min_b_angle;
-
-    min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, TMath::Cos(btags_corrP4[i].Angle(photons[0]->caloPosition)));
-    treeMap["cosTheta_leadPhoton_b_min"] = min_b_angle;
   }
   else {
     treeMap["dR_leadPhoton_l"] = -1.;
@@ -1408,20 +1404,16 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     }
 
     double min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[1]->caloPosition));
+    int min_b_index = -1;
+    for(unsigned int i = 0; i < btags_corrP4.size(); i++) {
+      min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[1]->caloPosition));
+      min_b_index = i;
+    }
     treeMap["dR_trailPhoton_b_min"] = min_b_angle;
+    treeMap["dEta_trailPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[1]->caloPosition.Eta());
+    treeMap["dPhi_trailPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[1]->caloPosition.Phi())
+    treeMap["cosTheta_trailPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[1]->caloPosition));
 
-    min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, fabs(btags_corrP4[i].Eta() - photons[1]->caloPosition.Eta()));
-    treeMap["dEta_trailPhoton_b_min"] = min_b_angle;
-
-    min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, TVector2::Phi_mpi_pi(btags_corrP4[i].Phi() - photons[1]->caloPosition.Phi()));
-    treeMap["dPhi_trailPhoton_b_min"] = min_b_angle;
-
-    min_b_angle = 999.;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) min_b_angle = min(min_b_angle, TMath::Cos(btags_corrP4[i].Angle(photons[1]->caloPosition)));
-    treeMap["cosTheta_trailPhoton_b_min"] = min_b_angle;
   }
   else {
     treeMap["dR_trailPhoton_l"] = -1.;

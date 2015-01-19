@@ -883,7 +883,6 @@ void SusyEventAnalyzer::Acceptance() {
       for(int jetSyst = kCentral; jetSyst < kNumJetSytematics; jetSyst++) {
 	for(int photonMode = kSignalPhotons; photonMode < kNumPhotonModes; photonMode++) {
 
-	  if(jetSyst != kCentral && photonMode != kSignalPhotons) continue;
 	  if(qcdMode != kSignal && jetSyst != kCentral) continue;
 
 	  if(jetSyst == kJERup || jetSyst == kJERdown) continue;
@@ -2031,7 +2030,6 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
       for(int jetSyst = kCentral; jetSyst < kNumJetSytematics; jetSyst++) {
 	for(int photonMode = kSignalPhotons; photonMode < kNumPhotonModes; photonMode++) {
 
-	  if(jetSyst != kCentral && photonMode != kSignalPhotons) continue;
 	  if(qcdMode != kSignal && jetSyst != kCentral) continue;
 
 	  if(jetSyst == kJERup || jetSyst == kJERdown) continue;
