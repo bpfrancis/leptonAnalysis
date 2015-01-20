@@ -1,12 +1,10 @@
-void Plot() {
+void Go(TString variable, bool logy, int rebin) {
 
   gROOT->Reset();
   gROOT->SetBatch(true);
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0000);
   gStyle->SetOptTitle(0);
-
-  TString variable = "dR_leadPhoton_l";
 
   TFile * f_data_gamma = new TFile("data_ele_bjj_gamma.root", "READ");
   TFile * f_data_fake = new TFile("data_ele_bjj_fake.root", "READ");
@@ -38,16 +36,18 @@ void Plot() {
   h_ttJets_fake->Add((TH1D*)f_ttJetsHadronic_fake->Get(variable));
   h_ttJets_fake->Add(h_ttA_fake);
 
-  TCanvas * can = new TCanvas("canvas", "Plot", 10, 10, 800, 800);
-  //can->SetLogy(true);
+  TCanvas * can = new TCanvas("canvas_"+variable, "Plot", 10, 10, 800, 800);
+  can->SetLogy(logy);
 
-  h_data_gamma->Rebin(5);
-  h_data_fake->Rebin(5);
-
-  h_ttJets_gamma->Rebin(5);
-  h_ttJets_fake->Rebin(5);
-  h_ttA_gamma->Rebin(5);
-  h_ttA_fake->Rebin(5);
+  if(rebin > 0) {
+    h_data_gamma->Rebin(rebin);
+    h_data_fake->Rebin(rebin);
+    
+    h_ttJets_gamma->Rebin(rebin);
+    h_ttJets_fake->Rebin(rebin);
+    h_ttA_gamma->Rebin(rebin);
+    h_ttA_fake->Rebin(rebin);
+  }
 
   h_data_gamma->Scale(1./h_data_gamma->Integral());
   h_data_fake->Scale(1./h_data_fake->Integral());
@@ -66,17 +66,32 @@ void Plot() {
   h_data_gamma->Draw("e1");
   h_ttJets_gamma->Draw("hist same");
   h_ttA_gamma->Draw("hist same");
-  can->SaveAs("gamma.png");
+  can->SaveAs("plots/gamma_"+variable+".png");
 
   h_data_fake->Draw("e1");
   h_ttA_fake->Draw("hist same");
   h_ttJets_fake->Draw("hist same");
-  can->SaveAs("fake.png");
+  can->SaveAs("plots/fake_"+variable+".png");
 
   h_ttJets_gamma->SetLineColor(kBlue);
   h_ttJets_fake->SetLineColor(kRed);
-  h_ttJets_gamma->Draw("hist");
-  h_ttJets_fake->Draw("hist same");
-  can->SaveAs("ttJets.png");
+  h_ttJets_gamma->Draw("e1");
+  h_ttJets_fake->Draw("e1 same");
+  can->SaveAs("plots/ttJets_"+variable+".png");
+
+  cout << "KS ttJets_" << variable << " gamma/fake: " << h_ttJets_gamma->KolmogorovTest(h_ttJets_fake) << endl;
+
+}
+
+void Plot() {
+
+  // Go(TString variable, bool logy)
+  Go("pfMET", true, 0);
+  Go("HT_jets", true, 0);
+  Go("leadPhotonEta", false, 5);
+  Go("leadPhotonEt", true, 2);
+  Go("ele_pt", true, 2);
+  Go("ele_eta", false, 5);
+
 
 }

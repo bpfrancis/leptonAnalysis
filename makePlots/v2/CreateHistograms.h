@@ -22,8 +22,8 @@ class HistogramMaker : public TObject {
   HistogramMaker(TString chan, TString treeType, int nRequiredPhotons, double cutMET, double cutSigmaIetaIeta);
   ~HistogramMaker();
 
-  void BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi);
-  void BookHistogram(TString variable, Int_t nBins, Double_t* customBins);
+  void BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue = false);
+  void BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue = false);
 
   void BookHistogram2D(TString var_x, TString var_y, Int_t nBins_x, Float_t xlo, Float_t xhi, Int_t nBins_y, Float_t ylo, Float_t yhi, Float_t zlo = 0.0, Float_t zhi = -1.0);
 
@@ -115,6 +115,7 @@ class HistogramMaker : public TObject {
   int photonReq;
   double metCut;
   double sigmaIetaIetaCut;
+  vector<bool> absValue;
 };
 
 HistogramMaker::HistogramMaker(TString chan, TString treeType, int nRequiredPhotons, double cutMET, double cutSigmaIetaIeta) {
@@ -128,6 +129,7 @@ HistogramMaker::HistogramMaker(TString chan, TString treeType, int nRequiredPhot
 
   variables.clear();
   variables_2d.clear();
+  absValue.clear();
 
   histograms.clear();
   histograms_btagUp.clear();
@@ -150,6 +152,7 @@ HistogramMaker::~HistogramMaker() {
 
   variables.clear();
   variables_2d.clear();
+  absValue.clear();
 
   histograms.clear();
   histograms_btagUp.clear();
@@ -189,6 +192,7 @@ void HistogramMaker::HistogramData(TString input) {
     if(metCut > 0. && vars[1] >= metCut) continue;
     
     for(unsigned int i = 0; i < variables.size(); i++) {
+      if(absValue[i]) vars[i] = fabs(vars[i]);
       if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
 
       if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
@@ -269,6 +273,7 @@ void HistogramMaker::HistogramQCD(TString input) {
     
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(absValue[i]) vars[i] = fabs(vars[i]);
 
       if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
@@ -421,6 +426,7 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
 
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(absValue[i]) vars[i] = fabs(vars[i]);
 
       if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
@@ -555,6 +561,7 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
 
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(absValue[i]) vars[i] = fabs(vars[i]);
       if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
 	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
@@ -601,6 +608,7 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
 
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(absValue[i]) vars[i] = fabs(vars[i]);
       if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
 	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
@@ -649,7 +657,8 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
 
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
-      
+      if(absValue[i]) vars[i] = fabs(vars[i]);
+
       if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
 	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
@@ -781,9 +790,10 @@ void HistogramMaker::LoadPhotonSFs(TString fileName) {
 
 }
 
-void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi) {
+void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue = false) {
   
   variables.push_back(variable);
+  absValue.push_back(doAbsValue);
 
   TH1D * h = new TH1D("h_"+variable, "h_"+variable, nBins, xlo, xhi);
   h->Sumw2();
@@ -843,9 +853,10 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
 
 }
 
-void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* customBins) {
+void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue = false) {
 
   variables.push_back(variable);
+  absValue.push_back(doAbsValue);
 
   TH1D * h = new TH1D("h_"+variable, "h_"+variable, nBins, customBins);
   h->Sumw2();

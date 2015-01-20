@@ -82,11 +82,11 @@ void CreateHistograms(int nPhotons_req = 1) {
     hMaker->BookHistogram("w_mT", nKinematicBins_1g, xbins_kinematic_1g);    // 13
     hMaker->BookHistogram("m3", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("ele_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
-    hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
+    hMaker->BookHistogram("ele_eta", 60, 0., 2.5, true);                   // 16
     hMaker->BookHistogram("muon_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
-    hMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
+    hMaker->BookHistogram("muon_eta", 60, 0., 2.5, true);
     hMaker->BookHistogram("leadPhotonEt", nKinematicBins_1g, xbins_kinematic_1g); // 19
-    hMaker->BookHistogram("leadPhotonEta", 40, -1.5, 1.5);                  // 20
+    hMaker->BookHistogram("leadPhotonEta", 40, 0., 1.5, true);                  // 20
     hMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159); // 21
     hMaker->BookHistogram("leadSigmaIetaIeta", 200, 0., 0.1);      // 22
     hMaker->BookHistogram("leadChargedHadronIso", 35, 0, 15.0);
@@ -121,11 +121,11 @@ void CreateHistograms(int nPhotons_req = 1) {
     hMaker->BookHistogram("w_mT", nKinematicBins_2g, xbins_kinematic_2g);    // 13
     hMaker->BookHistogram("m3", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("ele_pt", nKinematicBins_2g, xbins_kinematic_2g);  // 15
-    hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
+    hMaker->BookHistogram("ele_eta", 60, 0., 2.5, true);                   // 16
     hMaker->BookHistogram("muon_pt", nKinematicBins_2g, xbins_kinematic_2g); // 17
-    hMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
+    hMaker->BookHistogram("muon_eta", 60, 0., 2.5, true);
     hMaker->BookHistogram("leadPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 19
-    hMaker->BookHistogram("leadPhotonEta", 40, -1.5, 1.5);                  // 20
+    hMaker->BookHistogram("leadPhotonEta", 40, 0., 1.5, true);                  // 20
     hMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159);
     hMaker->BookHistogram("leadSigmaIetaIeta", 200, 0., 0.1);
     hMaker->BookHistogram("leadChargedHadronIso", 35, 0, 15.0);
@@ -136,7 +136,7 @@ void CreateHistograms(int nPhotons_req = 1) {
 
     hMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 24
     hMaker->BookHistogram("trailPhotonPhi", 63, -3.14159, 3.14159);          // 25
-    hMaker->BookHistogram("trailPhotonEta", 40, -1.5, 1.5);                  // 26
+    hMaker->BookHistogram("trailPhotonEta", 40, 0., 1.5, true);                  // 26
     hMaker->BookHistogram("trailSigmaIetaIeta", 200, 0, 0.1);                // 27
     hMaker->BookHistogram("trailChargedHadronIso", 35, 0, 15.0);
     hMaker->BookHistogram("diEMpT", nKinematicBins_2g, xbins_kinematic_2g);
@@ -168,8 +168,8 @@ void CreateHistograms(int nPhotons_req = 1) {
 
 
 
-  hMaker->HistogramData("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
-  hMaker->HistogramQCD("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
+  hMaker->HistogramData("../inputs/SingleElectron.root");
+  hMaker->HistogramQCD("../inputs/SingleElectron.root");
   hMaker->HistogramMCBackground("../inputs/signal_contamination_ttA_2to5.root", "ttA_2to5",
 				0.9081 * 2, false, true);
   hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep",
@@ -180,8 +180,8 @@ void CreateHistograms(int nPhotons_req = 1) {
 				245.8 * 0.0457, true, true);
 
   hMaker->SetSigmaIetaIetaCut(-1. * sigmaIetaIetaCut);
-  hMaker->HistogramData("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
-  hMaker->HistogramQCD("/eos/uscms/store/user/bfrancis/inputs_v2/SingleElectron.root");
+  hMaker->HistogramData("../inputs/SingleElectron.root");
+  hMaker->HistogramQCD("../inputs/SingleElectron.root");
   hMaker->HistogramMCBackground("../inputs/signal_contamination_ttA_2to5.root", "ttA_2to5",
 				0.9081 * 2, false, true);
   hMaker->HistogramMCBackground("../inputs/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep",
