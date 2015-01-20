@@ -3,7 +3,6 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TROOT.h"
-#include "TMath.h"
 
 #include <vector>
 #include <iostream>
@@ -11,6 +10,7 @@
 #include <string>
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
 
 using namespace std;
 
@@ -795,6 +795,10 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
   
   variables.push_back(variable);
   absValue.push_back(doAbsValue);
+  if(doAbsValue) {
+    xlo = 0.;
+    nBins *= 2;
+  }
 
   TH1D * h = new TH1D("h_"+variable, "h_"+variable, nBins, xlo, xhi);
   h->Sumw2();
