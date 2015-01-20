@@ -23,8 +23,8 @@ class HistogramMaker : public TObject {
   HistogramMaker(TString chan, TString treeType, int nRequiredPhotons, double cutMET, double cutSigmaIetaIeta);
   ~HistogramMaker();
 
-  void BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue);
-  void BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue);
+  void BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue = false);
+  void BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue = false);
 
   void BookHistogram2D(TString var_x, TString var_y, Int_t nBins_x, Float_t xlo, Float_t xhi, Int_t nBins_y, Float_t ylo, Float_t yhi, Float_t zlo = 0.0, Float_t zhi = -1.0);
 
@@ -791,7 +791,7 @@ void HistogramMaker::LoadPhotonSFs(TString fileName) {
 
 }
 
-void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue = false) {
+void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue) {
   
   variables.push_back(variable);
   absValue.push_back(doAbsValue);
@@ -858,7 +858,7 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
 
 }
 
-void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue = false) {
+void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue) {
 
   variables.push_back(variable);
   absValue.push_back(doAbsValue);
