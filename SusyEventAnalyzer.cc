@@ -149,6 +149,7 @@ void SusyEventAnalyzer::CalculateBtagEfficiency() {
   vector<float> csvValues;
   vector<susy::Muon*> tightMuons, looseMuons;
   vector<susy::Electron*> tightEles, looseEles;
+  vector<susy::Photon*> photons;
   vector<BtagInfo> tagInfos;
 
   // start event looping
@@ -170,6 +171,7 @@ void SusyEventAnalyzer::CalculateBtagEfficiency() {
     looseMuons.clear();
     tightEles.clear();
     looseEles.clear();
+    photons.clear();
     pfJets.clear();
     btags.clear();
     pfJets_corrP4.clear();
@@ -193,11 +195,19 @@ void SusyEventAnalyzer::CalculateBtagEfficiency() {
     }
     if(!passHLT) continue;
 
+    findPhotons(event, 
+		    photons,
+		    tightMuons, looseMuons,
+		    tightEles, looseEles,
+		    HT,
+		    true, true);
+
     TLorentzVector hadronicSystem(0., 0., 0., 0.);
 
     findJets(event, 
 	     tightMuons, looseMuons,
 	     tightEles, looseEles,
+	     photons,
 	     pfJets, btags,
 	     sf,
 	     tagInfos, csvValues, 
