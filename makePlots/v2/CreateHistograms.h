@@ -60,20 +60,20 @@ class HistogramMaker : public TObject {
   
   void GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, TString chan, Float_t& central, Float_t& up, Float_t& down);
   void GetLeptonSF(vector<Float_t> vars, TString chan, Float_t& central, Float_t& up, Float_t& down) { 
-    if(chan.Contains("ele")) GetLeptonSF(vars[15], vars[16], chan, central, up, down);
-    else GetLeptonSF(vars[17], vars[18], chan, central, up, down);
+    if(chan.Contains("ele")) GetLeptonSF(varNumber["ele_pt"], varNumber["ele_eta"], chan, central, up, down);
+    else GetLeptonSF(varNumber["muon_pt"], varNumber["muon_eta"], chan, central, up, down);
   };
   
   void GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta, Float_t trail_photon_et, Float_t trail_photon_eta, Float_t nphotons, 
 		   Float_t& central, Float_t& up, Float_t& down);
   void GetPhotonSF(vector<Float_t> vars, Float_t& central, Float_t& up, Float_t& down) { 
-    if(vars[0] == 0) {
+    if(varNumber["Nphotons"] == 0) {
       central = 1.;
       up = 1.;
       down = 1.;
     }
-    else if(vars[0] == 1 && vars.size() >= 21) GetPhotonSF(vars[19], vars[20], -1., -1., vars[0], central, up, down); 
-    else if(vars.size() >= 27) GetPhotonSF(vars[19], vars[20], vars[24], vars[26], vars[0], central, up, down);
+    else if(varNumber["Nphotons"] == 1 && vars.size() >= 21) GetPhotonSF(varNumber["leadPhotonEt"], varNumber["leadPhotonEta"], -1., -1., varNumber["Nphotons"], central, up, down); 
+    else if(vars.size() >= 27) GetPhotonSF(varNumber["leadPhotonEt"], varNumber["leadPhotonEta"], varNumber["trailPhotonEt"], varNumber["trailPhotonEta"], varNumber["Nphotons"], central, up, down);
   };
 
   void SetSigmaIetaIetaCut(double cut) { sigmaIetaIetaCut = cut; }
@@ -82,6 +82,8 @@ class HistogramMaker : public TObject {
 
   vector<TString> variables;
   vector<pair<TString, TString> > variables_2d;
+
+  map<TString, unsigned int> varNumber;
 
   vector<TH1D*> histograms;
   vector<TH1D*> histograms_btagUp;
@@ -190,22 +192,22 @@ void HistogramMaker::HistogramData(TString input) {
   for(int nEvent = 0; nEvent < tree->GetEntries(); nEvent++) {
     tree->GetEntry(nEvent);
 
-    if(metCut > 0. && vars[1] >= metCut) continue;
+    if(metCut > 0. && varNumber["pfMET"] >= metCut) continue;
     
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(absValue[i]) vars[i] = fabs(vars[i]);
-      if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(variables[i] != "Nphotons" && (int)varNumber["Nphotons"] != photonReq && photonReq >= 0) continue;
 
-      if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
+      if(variables[i] != "leadSigmaIetaIeta" && varNumber["Nphotons"] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["leadSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["leadSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
-      if(variables[i] != "trailSigmaIetaIeta" && vars[0] >= 2) {
+      if(variables[i] != "trailSigmaIetaIeta" && varNumber["Nphotons"] >= 2) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[27] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[27] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["trailSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["trailSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
       histograms[i]->Fill(vars[i]);
@@ -273,19 +275,19 @@ void HistogramMaker::HistogramQCD(TString input) {
     if(metCut > 0. && vars[1] >= metCut) continue;
     
     for(unsigned int i = 0; i < variables.size(); i++) {
-      if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(variables[i] != "Nphotons" && (int)varNumber["Nphotons"] != photonReq && photonReq >= 0) continue;
       if(absValue[i]) vars[i] = fabs(vars[i]);
 
-      if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
+      if(variables[i] != "leadSigmaIetaIeta" && varNumber["Nphotons"] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["leadSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["leadSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
-      if(variables[i] != "trailSigmaIetaIeta" && vars[0] >= 2) {
+      if(variables[i] != "trailSigmaIetaIeta" && varNumber["Nphotons"] >= 2) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[27] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[27] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["trailSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["trailSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
       histograms[i]->Fill(vars[i]);
@@ -426,19 +428,19 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
     Float_t addError2_btagOnly =  puWeight*puWeight*btagWeightErr*btagWeightErr;
 
     for(unsigned int i = 0; i < variables.size(); i++) {
-      if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(variables[i] != "Nphotons" && (int)varNumber["Nphotons"] != photonReq && photonReq >= 0) continue;
       if(absValue[i]) vars[i] = fabs(vars[i]);
 
-      if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
+      if(variables[i] != "leadSigmaIetaIeta" && varNumber["Nphotons"] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["leadSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["leadSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
-      if(variables[i] != "trailSigmaIetaIeta" && vars[0] >= 2) {
+      if(variables[i] != "trailSigmaIetaIeta" && varNumber["Nphotons"] >= 2) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[27] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[27] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["trailSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["trailSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
@@ -561,17 +563,17 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
     if(reweightTop) totalWeight *= topPtReweighting;
 
     for(unsigned int i = 0; i < variables.size(); i++) {
-      if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(variables[i] != "Nphotons" && (int)varNumber["Nphotons"] != photonReq && photonReq >= 0) continue;
       if(absValue[i]) vars[i] = fabs(vars[i]);
-      if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
+      if(variables[i] != "leadSigmaIetaIeta" && varNumber["Nphotons"] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["leadSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["leadSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
-      if(variables[i] != "trailSigmaIetaIeta" && vars[0] >= 2) {
+      if(variables[i] != "trailSigmaIetaIeta" && varNumber["Nphotons"] >= 2) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[27] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[27] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["trailSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["trailSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
       histograms_JECUp[i]->Fill(vars[i], totalWeight);
@@ -608,17 +610,17 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
     if(reweightTop) totalWeight *= topPtReweighting;
 
     for(unsigned int i = 0; i < variables.size(); i++) {
-      if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(variables[i] != "Nphotons" && (int)varNumber["Nphotons"] != photonReq && photonReq >= 0) continue;
       if(absValue[i]) vars[i] = fabs(vars[i]);
-      if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
+      if(variables[i] != "leadSigmaIetaIeta" && varNumber["Nphotons"] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["leadSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["leadSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
-      if(variables[i] != "trailSigmaIetaIeta" && vars[0] >= 2) {
+      if(variables[i] != "trailSigmaIetaIeta" && varNumber["Nphotons"] >= 2) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[27] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[27] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["trailSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["trailSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
       histograms_JECDown[i]->Fill(vars[i], totalWeight);
@@ -657,19 +659,19 @@ void HistogramMaker::HistogramMCBackground(TString fileName, TString scanName,
     Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
 
     for(unsigned int i = 0; i < variables.size(); i++) {
-      if(variables[i] != "Nphotons" && (int)vars[0] != photonReq && photonReq >= 0) continue;
+      if(variables[i] != "Nphotons" && (int)varNumber["Nphotons"] != photonReq && photonReq >= 0) continue;
       if(absValue[i]) vars[i] = fabs(vars[i]);
 
-      if(variables[i] != "leadSigmaIetaIeta" && vars[0] >= 1) {
+      if(variables[i] != "leadSigmaIetaIeta" && varNumber["Nphotons"] >= 1) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["leadSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["leadSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
-      if(variables[i] != "trailSigmaIetaIeta" && vars[0] >= 2) {
+      if(variables[i] != "trailSigmaIetaIeta" && varNumber["Nphotons"] >= 2) {
 	// negative cut means invert (ie require fake), so reject passing photons
-	if(sigmaIetaIetaCut < 0 && vars[27] < -1. * sigmaIetaIetaCut) continue;
-	if(sigmaIetaIetaCut >= 0 && vars[27] >= sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut < 0 && varNumber["trailSigmaIetaIeta"] < -1. * sigmaIetaIetaCut) continue;
+	if(sigmaIetaIetaCut >= 0 && varNumber["trailSigmaIetaIeta"] >= sigmaIetaIetaCut) continue;
       }
 
       Float_t oldError = histograms_mcQCD[i]->GetBinError(histograms_mcQCD[i]->FindBin(vars[i]));
@@ -794,6 +796,8 @@ void HistogramMaker::LoadPhotonSFs(TString fileName) {
 void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue) {
   
   variables.push_back(variable);
+  varNumber[variable] = variables.size();
+
   absValue.push_back(doAbsValue);
   if(doAbsValue) {
     xlo = 0.;
@@ -861,6 +865,8 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
 void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue) {
 
   variables.push_back(variable);
+  varNumber[variable] = variables.size();
+
   absValue.push_back(doAbsValue);
 
   TH1D * h = new TH1D("h_"+variable, "h_"+variable, nBins, customBins);

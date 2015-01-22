@@ -53,30 +53,41 @@ void Go(TString variable, bool logy, int rebin) {
   h_data_fake->Scale(1./h_data_fake->Integral());
 
   h_ttJets_gamma->SetLineColor(kGray);
+  h_ttJets_gamma->SetLineWidth(3);
   h_ttJets_gamma->Scale(1./h_ttJets_gamma->Integral());
   h_ttJets_fake->SetLineColor(kGray);
+  h_ttJets_fake->SetLineWidth(3);
   h_ttJets_fake->Scale(1./h_ttJets_fake->Integral());
   
   h_ttA_gamma->SetLineColor(8);
+  h_ttA_gamma->SetLineWidth(3);
   h_ttA_gamma->Scale(1./h_ttA_gamma->Integral());
   h_ttA_fake->SetLineColor(8);
+  h_ttA_fake->SetLineWidth(3);
   h_ttA_fake->Scale(1./h_ttA_fake->Integral());
 
-
-  h_data_gamma->Draw("e1");
-  h_ttJets_gamma->Draw("hist same");
-  h_ttA_gamma->Draw("hist same");
+  //h_data_gamma->Draw("e1");
+  h_ttJets_gamma->Draw("e1");
+  h_ttA_gamma->Draw("e1 same");
   can->SaveAs("plots/gamma_"+variable+".png");
 
-  h_data_fake->Draw("e1");
-  h_ttA_fake->Draw("hist same");
-  h_ttJets_fake->Draw("hist same");
+  //h_data_fake->Draw("e1");
+  h_ttA_fake->Draw("e1");
+  h_ttJets_fake->Draw("e1 same");
   can->SaveAs("plots/fake_"+variable+".png");
 
+  h_ttJets_gamma->SetLineWidth(1);
+  h_ttJets_fake->SetLineWidth(1);
   h_ttJets_gamma->SetLineColor(kBlue);
   h_ttJets_fake->SetLineColor(kRed);
-  h_ttJets_gamma->Draw("e1");
-  h_ttJets_fake->Draw("e1 same");
+  if(h_ttJets_gamma->GetMaximum() > h_ttJets_fake->GetMaximum()) {
+    h_ttJets_gamma->Draw("e1");
+    h_ttJets_fake->Draw("e1 same");
+  }
+  else {
+    h_ttJets_fake->Draw("e1");
+    h_ttJets_gamma->Draw("e1 same");
+  }
   can->SaveAs("plots/ttJets_"+variable+".png");
 
   cout << "KS ttJets_" << variable << " gamma/fake: " << h_ttJets_gamma->KolmogorovTest(h_ttJets_fake) << endl;
@@ -92,6 +103,16 @@ void Plot() {
   Go("leadPhotonEt", true, 2);
   Go("ele_pt", true, 2);
   Go("ele_eta", false, 5);
+  Go("cosTheta_leadPhoton_l", false, 2);
+  Go("cosTheta_leadPhoton_b_min", false, 2);
+  Go("dR_leadPhoton_l", false, 2);
+  Go("dR_leadPhoton_b_min", false, 2);
+  Go("m3", true, 0);
+  Go("w_mT", true, 0);
+  Go("Njets", true, 0);
+  Go("HT", true, 0);
+  Go("jet1_pt", true, 0);
+  Go("jet2_pt", true, 0);
 
 
 }
