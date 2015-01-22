@@ -3288,12 +3288,12 @@ void PlotMaker::DrawPlot(int variableNumber, TString variable, bool needsQCD,
   for(unsigned int i = 0; i < mcHistograms_pdfDown.size(); i++) mcHistograms_pdfDown[i][variableNumber]->Write();
   for(unsigned int i = 0; i < mcHistograms_topPtUp.size(); i++) mcHistograms_topPtUp[i][variableNumber]->Write();
   for(unsigned int i = 0; i < mcHistograms_topPtDown.size(); i++) mcHistograms_topPtDown[i][variableNumber]->Write();
-  for(unsigned int i = 0; i < mcHistograms_JECUp.size(); i++) mcHistograms_JECUp[i][variableNumber]->Write();
-  for(unsigned int i = 0; i < mcHistograms_JECDown.size(); i++) mcHistograms_JECDown[i][variableNumber]->Write();
-  for(unsigned int i = 0; i < mcHistograms_leptonSFUp.size(); i++) mcHistograms_leptonSFUp[i][variableNumber]->Write();
-  for(unsigned int i = 0; i < mcHistograms_leptonSFDown.size(); i++) mcHistograms_leptonSFDown[i][variableNumber]->Write();
-  for(unsigned int i = 0; i < mcHistograms_photonSFUp.size(); i++) mcHistograms_photonSFUp[i][variableNumber]->Write();
-  for(unsigned int i = 0; i < mcHistograms_photonSFDown.size(); i++) mcHistograms_photonSFDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_JECup.size(); i++) mcHistograms_JECup[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_JECdown.size(); i++) mcHistograms_JECdown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_leptonSFup.size(); i++) mcHistograms_leptonSFup[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_leptonSFdown.size(); i++) mcHistograms_leptonSFdown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_photonSFup.size(); i++) mcHistograms_photonSFup[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_photonSFdown.size(); i++) mcHistograms_photonSFdown[i][variableNumber]->Write();
 
   for(unsigned int i = 0; i < mcQCDHistograms.size(); i++) mcQCDHistograms[i][variableNumber]->Write();
   
