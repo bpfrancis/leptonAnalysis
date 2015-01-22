@@ -1349,16 +1349,24 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       treeMap["cosTheta_leadPhoton_l"] = TMath::Cos(tightMuons[0]->momentum.Angle(photons[0]->caloPosition));
     }
 
-    double min_b_angle = 999.;
-    int min_b_index = -1;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) {
-      min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[0]->caloPosition));
-      min_b_index = i;
+    if(btags_corrP4.size() > 0) {
+      double min_b_angle = 999.;
+      int min_b_index = -1;
+      for(unsigned int i = 0; i < btags_corrP4.size(); i++) {
+	min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[0]->caloPosition));
+	min_b_index = i;
+      }
+      treeMap["dR_leadPhoton_b_min"] = min_b_angle;
+      treeMap["dEta_leadPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[0]->caloPosition.Eta());
+      treeMap["dPhi_leadPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[0]->caloPosition.Phi());
+      treeMap["cosTheta_leadPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[0]->caloPosition));
     }
-    treeMap["dR_leadPhoton_b_min"] = min_b_angle;
-    treeMap["dEta_leadPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[0]->caloPosition.Eta());
-    treeMap["dPhi_leadPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[0]->caloPosition.Phi());
-    treeMap["cosTheta_leadPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[0]->caloPosition));
+    else {
+      treeMap["dR_leadPhoton_b_min"] = -2.;
+      treeMap["dEta_leadPhoton_b_min"] = -2.;
+      treeMap["dPhi_leadPhoton_b_min"] = -200.;
+      treeMap["cosTheta_leadPhoton_b_min"] = -200.;
+    }
 
   }
   else {
@@ -1366,10 +1374,10 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     treeMap["dEta_leadPhoton_l"] = -1.;
     treeMap["dPhi_leadPhoton_l"] = -100.;
     treeMap["cosTheta_leadPhoton_l"] = -100.;
-    treeMap["dR_leadPhoton_l"] = -1.;
-    treeMap["dEta_leadPhoton_l"] = -1.;
-    treeMap["dPhi_leadPhoton_l"] = -100.;
-    treeMap["cosTheta_leadPhoton_l"] = -100.;
+    treeMap["dR_leadPhoton_b_min"] = -1.;
+    treeMap["dEta_leadPhoton_b_min"] = -1.;
+    treeMap["dPhi_leadPhoton_b_min"] = -100.;
+    treeMap["cosTheta_leadPhoton_b_min"] = -100.;
   }
 
   if(photons.size() > 1) {
@@ -1386,16 +1394,24 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       treeMap["cosTheta_trailPhoton_l"] = TMath::Cos(tightMuons[0]->momentum.Angle(photons[1]->caloPosition));
     }
 
-    double min_b_angle = 999.;
-    int min_b_index = -1;
-    for(unsigned int i = 0; i < btags_corrP4.size(); i++) {
-      min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[1]->caloPosition));
-      min_b_index = i;
+    if(btags_corrP4.size() > 0) {
+      double min_b_angle = 999.;
+      int min_b_index = -1;
+      for(unsigned int i = 0; i < btags_corrP4.size(); i++) {
+	min_b_angle = min(min_b_angle, (double)deltaR(btags_corrP4[i], photons[1]->caloPosition));
+	min_b_index = i;
+      }
+      treeMap["dR_trailPhoton_b_min"] = min_b_angle;
+      treeMap["dEta_trailPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[1]->caloPosition.Eta());
+      treeMap["dPhi_trailPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[1]->caloPosition.Phi());
+      treeMap["cosTheta_trailPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[1]->caloPosition));
     }
-    treeMap["dR_trailPhoton_b_min"] = min_b_angle;
-    treeMap["dEta_trailPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[1]->caloPosition.Eta());
-    treeMap["dPhi_trailPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[1]->caloPosition.Phi());
-    treeMap["cosTheta_trailPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[1]->caloPosition));
+    else {
+      treeMap["dR_trailPhoton_b_min"] = -2.;
+      treeMap["dEta_trailPhoton_b_min"] = -2.;
+      treeMap["dPhi_trailPhoton_b_min"] = -200.;
+      treeMap["cosTheta_trailPhoton_b_min"] = -200.;
+    }
 
   }
   else {
@@ -1403,10 +1419,10 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     treeMap["dEta_trailPhoton_l"] = -1.;
     treeMap["dPhi_trailPhoton_l"] = -100.;
     treeMap["cosTheta_trailPhoton_l"] = -100.;
-    treeMap["dR_trailPhoton_l"] = -1.;
-    treeMap["dEta_trailPhoton_l"] = -1.;
-    treeMap["dPhi_trailPhoton_l"] = -100.;
-    treeMap["cosTheta_trailPhoton_l"] = -100.;
+    treeMap["dR_trailPhoton_b_min"] = -1.;
+    treeMap["dEta_trailPhoton_b_min"] = -1.;
+    treeMap["dPhi_trailPhoton_b_min"] = -100.;
+    treeMap["cosTheta_trailPhoton_b_min"] = -100.;
   }
 
   // Transverse W mass
