@@ -354,10 +354,10 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
     pMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
     pMaker->BookHistogram("leadPhotonEt", nKinematicBins_1g, xbins_kinematic_1g); // 19
     pMaker->BookHistogram("leadPhotonEta", 40, -1.5, 1.5);                  // 20
-    pMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159);
-    pMaker->BookHistogram("leadSigmaIetaIeta", 40, 0., 0.02);
-    pMaker->BookHistogram("leadChargedHadronIso", 35, 0, 15.0);
-    pMaker->BookHistogram("mLepGammaLead", nKinematicBins_1g, xbins_kinematic_1g);
+    pMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159); // 21
+    pMaker->BookHistogram("leadSigmaIetaIeta", 40, 0., 0.02);      // 22
+    pMaker->BookHistogram("leadChargedHadronIso", 35, 0, 15.0);    // 23
+    pMaker->BookHistogram("mLepGammaLead", nKinematicBins_1g, xbins_kinematic_1g); // 24
     
     pMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 80, 0., 0.04, 20, 0., 350.);
     pMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
@@ -386,17 +386,17 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
     pMaker->BookHistogram("leadPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 19
     pMaker->BookHistogram("leadPhotonEta", 40, -1.5, 1.5);                  // 20
     pMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159);
-    pMaker->BookHistogram("leadSigmaIetaIeta", 40, 0., 0.02);
+    pMaker->BookHistogram("leadSigmaIetaIeta", 40, 0., 0.02); // 22
     pMaker->BookHistogram("leadChargedHadronIso", 35, 0, 15.0);
     pMaker->BookHistogram("mLepGammaLead", nKinematicBins_2g, xbins_kinematic_2g);
     
     pMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 80, 0., 0.04, 20, 0., 350.);
     pMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
 
-    pMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 24
-    pMaker->BookHistogram("trailPhotonPhi", 63, -3.14159, 3.14159);          // 25
-    pMaker->BookHistogram("trailPhotonEta", 40, -1.5, 1.5);                  // 26
-    pMaker->BookHistogram("trailSigmaIetaIeta", 40, 0, 0.02);
+    pMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 25
+    pMaker->BookHistogram("trailPhotonPhi", 63, -3.14159, 3.14159);          // 26
+    pMaker->BookHistogram("trailPhotonEta", 40, -1.5, 1.5);                  // 27
+    pMaker->BookHistogram("trailSigmaIetaIeta", 40, 0, 0.02);                // 28
     pMaker->BookHistogram("trailChargedHadronIso", 35, 0, 15.0);
     pMaker->BookHistogram("diEMpT", nKinematicBins_2g, xbins_kinematic_2g);
     pMaker->BookHistogram("diJetPt", nKinematicBins_2g, xbins_kinematic_2g);

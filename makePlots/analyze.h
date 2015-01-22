@@ -284,7 +284,7 @@ class PlotMaker : public TObject {
       down = 1.;
     }
     else if(vars[0] == 1 && vars.size() >= 21) GetPhotonSF(vars[19], vars[20], -1., -1., vars[0], central, up, down); 
-    else if(vars.size() >= 27) GetPhotonSF(vars[19], vars[20], vars[24], vars[26], vars[0], central, up, down);
+    else if(vars.size() >= 27) GetPhotonSF(vars[19], vars[20], vars[25], vars[27], vars[0], central, up, down);
   };
   
  private:
