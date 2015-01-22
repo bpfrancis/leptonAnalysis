@@ -177,7 +177,7 @@ void fillPotHoles(TH2D *h) {
   for(int ix=1; ix <= nbinsX; ix++) {
     for(int iy=1; iy <= nbinsY; iy++) {
       double val = h->GetBinContent(ix,iy);
-      if(TMath::IsNaN(val)) h->SetBinContent(ix,iy,0); // checking for NAN
+      if(isnan(val)) h->SetBinContent(ix,iy,0); // checking for NAN
     }
   }
 

@@ -401,13 +401,13 @@ class PlotMaker : public TObject {
   TString channelLabel;
 
   bool displayKStest;
+  int channelNum;
   bool blinded;
 
   bool useWHIZARD;
 
   int photonMode;
 
-  int channelNum;
   int photonReq;
 };
 
@@ -4010,7 +4010,7 @@ void PlotMaker::CreateTable() {
       (this_leptonSFdown - this_val)*(this_leptonSFdown - this_val) +
       (this_photonSFdown - this_val)*(this_photonSFdown - this_val);
     
-    fprintf(tableFile, "sigbval%dx:%.1f\nsigberrorup%dx:%.2f\nsigberrordown%dx:%.2f\nsigbstaterror%dx:.2f\n", 
+    fprintf(tableFile, "sigbval%dx:%.1f\nsigberrorup%dx:%.2f\nsigberrordown%dx:%.2f\nsigbstaterror%dx:%.2f\n", 
 	    i+1, this_val, 
 	    i+1, sqrt(this_staterr2 + this_syserr2_up), 
 	    i+1, sqrt(this_staterr2 + this_syserr2_down),
