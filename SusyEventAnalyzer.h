@@ -156,7 +156,7 @@ class SusyEventAnalyzer {
   void findJets_inMC(susy::Event& ev, 
 		     vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		     vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
-		     vecotr<susy::Photon*> photons,
+		     vector<susy::Photon*> photons,
 		     vector<susy::PFJet*>& pfJets, vector<susy::PFJet*>& btags, 
 		     ScaleFactorInfo sf,
 		     vector<BtagInfo>& tagInfos, vector<float>& csvValues, 
@@ -1357,7 +1357,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     }
     treeMap["dR_leadPhoton_b_min"] = min_b_angle;
     treeMap["dEta_leadPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[0]->caloPosition.Eta());
-    treeMap["dPhi_leadPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[0]->caloPosition.Phi())
+    treeMap["dPhi_leadPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[0]->caloPosition.Phi());
     treeMap["cosTheta_leadPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[0]->caloPosition));
 
   }
@@ -1394,7 +1394,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     }
     treeMap["dR_trailPhoton_b_min"] = min_b_angle;
     treeMap["dEta_trailPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[1]->caloPosition.Eta());
-    treeMap["dPhi_trailPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[1]->caloPosition.Phi())
+    treeMap["dPhi_trailPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[1]->caloPosition.Phi());
     treeMap["cosTheta_trailPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[1]->caloPosition));
 
   }
