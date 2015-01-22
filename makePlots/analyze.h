@@ -3277,6 +3277,24 @@ void PlotMaker::DrawPlot(int variableNumber, TString variable, bool needsQCD,
   h_gg[variableNumber]->Write();
   if(needsQCD) h_qcd[variableNumber]->Write();
   for(unsigned int i = 0; i < mcHistograms.size(); i++) mcHistograms[i][variableNumber]->Write();
+
+  for(unsigned int i = 0; i < mcHistograms_btagWeightUp.size(); i++) mcHistograms_btagWeightUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_btagWeightDown.size(); i++) mcHistograms_btagWeightDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_puWeightUp.size(); i++) mcHistograms_puWeightUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_puWeightDown.size(); i++) mcHistograms_puWeightDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_scaleUp.size(); i++) mcHistograms_scaleUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_scaleDown.size(); i++) mcHistograms_scaleDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_pdfUp.size(); i++) mcHistograms_pdfUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_pdfDown.size(); i++) mcHistograms_pdfDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_topPtUp.size(); i++) mcHistograms_topPtUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_topPtDown.size(); i++) mcHistograms_topPtDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_JECUp.size(); i++) mcHistograms_JECUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_JECDown.size(); i++) mcHistograms_JECDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_leptonSFUp.size(); i++) mcHistograms_leptonSFUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_leptonSFDown.size(); i++) mcHistograms_leptonSFDown[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_photonSFUp.size(); i++) mcHistograms_photonSFUp[i][variableNumber]->Write();
+  for(unsigned int i = 0; i < mcHistograms_photonSFDown.size(); i++) mcHistograms_photonSFDown[i][variableNumber]->Write();
+
   for(unsigned int i = 0; i < mcQCDHistograms.size(); i++) mcQCDHistograms[i][variableNumber]->Write();
   
   TH1D *bkg, 
