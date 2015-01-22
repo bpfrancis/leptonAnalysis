@@ -425,7 +425,7 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
 
   else pMaker->NormalizeQCD();
 
-  pMaker->CreateFSRPlot(fSigA, fSigB);
+  //pMaker->CreateFSRPlot(fSigA, fSigB);
 
   pMaker->CreateTable();
   pMaker->CreateAllDatacards(channel, nPhotons_req, nBtagReq);

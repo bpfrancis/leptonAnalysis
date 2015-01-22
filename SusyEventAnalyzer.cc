@@ -303,11 +303,6 @@ void SusyEventAnalyzer::Data() {
     h_metFilter->GetYaxis()->SetBinLabel(i+1, metFilterNames[i]);
   }
 
-  TH1D * h_dR_gamma_ele = new TH1D("dR_gamma_ele", "dR between photons and electrons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_muon = new TH1D("dR_gamma_muon", "dR between photons and muons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_jet = new TH1D("dR_gamma_jet", "dR between photons and jets (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_photon = new TH1D("dR_gamma_photon", "dR between photons and other photons (N-1)", 100, 0, 10);
-
   /////////////////////////////////
   // Reweighting trees
   /////////////////////////////////
@@ -522,30 +517,25 @@ void SusyEventAnalyzer::Data() {
 	  continue;
 	}
 	
+	findPhotons(event, 
+		    photons,
+		    tightMuons, looseMuons,
+		    tightEles, looseEles,
+		    HT,
+		    (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+
 	float HT_jets = 0.;
 	TLorentzVector hadronicSystem(0., 0., 0., 0.);
 	
 	findJets(event, 
 		 tightMuons, looseMuons,
 		 tightEles, looseEles,
+		 photons,
 		 pfJets, btags,
 		 sf,
 		 tagInfos, csvValues, 
 		 pfJets_corrP4, btags_corrP4, 
 		 HT_jets, hadronicSystem);
-	
-	findPhotons(event, 
-		    photons,
-		    pfJets_corrP4,
-		    tightMuons, looseMuons,
-		    tightEles, looseEles,
-		    pfJets,
-		    HT,
-		    h_dR_gamma_ele,
-		    h_dR_gamma_muon,
-		    h_dR_gamma_jet,
-		    h_dR_gamma_photon,
-		    (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
 	
 	SetTreeValues(treeMap,
 		      event,
@@ -680,11 +670,6 @@ void SusyEventAnalyzer::Acceptance() {
 
   TH2D * h_ttA_phaseSpace = new TH2D("ttA_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
   TH2D * h_ttbar_phaseSpace = new TH2D("ttbar_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
-
-  TH1D * h_dR_gamma_ele = new TH1D("dR_gamma_ele", "dR between photons and electrons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_muon = new TH1D("dR_gamma_muon", "dR between photons and muons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_jet = new TH1D("dR_gamma_jet", "dR between photons and jets (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_photon = new TH1D("dR_gamma_photon", "dR between photons and other photons (N-1)", 100, 0, 10);
 
   const int nTreeVariables = 101;
 
@@ -921,31 +906,26 @@ void SusyEventAnalyzer::Acceptance() {
 	  }
 	  if(!passHLT) continue;
 	  
+	  findPhotons(event, 
+		      photons,
+		      tightMuons, looseMuons,
+		      tightEles, looseEles,
+		      HT,
+		      (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+
 	  float HT_jets = 0.;
 	  TLorentzVector hadronicSystem(0., 0., 0., 0.);
 	  
 	  findJets_inMC(event, 
 			tightMuons, looseMuons,
 			tightEles, looseEles,
+			photons,
 			pfJets, btags,
 			sf,
 			tagInfos, csvValues, 
 			pfJets_corrP4, btags_corrP4, 
 			HT_jets, hadronicSystem,
 			jetSyst);
-	  
-	  findPhotons(event, 
-		      photons,
-		      pfJets_corrP4,
-		      tightMuons, looseMuons,
-		      tightEles, looseEles,
-		      pfJets,
-		      HT,
-		      h_dR_gamma_ele,
-		      h_dR_gamma_muon,
-		      h_dR_gamma_jet,
-		      h_dR_gamma_photon,
-		      (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
 	  
 	  float btagWeight[nChannels];
 	  float btagWeightUp[nChannels];
@@ -1099,11 +1079,6 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
       nCnt[i][j] = 0;
     }
   }
-
-  TH1D * h_dR_gamma_ele = new TH1D("dR_gamma_ele", "dR between photons and electrons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_muon = new TH1D("dR_gamma_muon", "dR between photons and muons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_jet = new TH1D("dR_gamma_jet", "dR between photons and jets (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_photon = new TH1D("dR_gamma_photon", "dR between photons and other photons (N-1)", 100, 0, 10);
 
   /////////////////////////////////
   // Reweighting trees
@@ -1423,12 +1398,20 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
 	  continue;
 	}
 	
+	findPhotons(event, 
+		    photons,
+		    tightMuons, looseMuons,
+		    tightEles, looseEles,
+		    HT,
+		    (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+
 	float HT_jets = 0.;
 	TLorentzVector hadronicSystem(0., 0., 0., 0.);
 	
 	findJets(event, 
 		 tightMuons, looseMuons,
 		 tightEles, looseEles,
+		 photons,
 		 pfJets, btags,
 		 sf,
 		 tagInfos, csvValues, 
@@ -1437,19 +1420,6 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
 	
 	if(btags.size() != 0) continue;
 
-	findPhotons(event, 
-		    photons,
-		    pfJets_corrP4,
-		    tightMuons, looseMuons,
-		    tightEles, looseEles,
-		    pfJets,
-		    HT,
-		    h_dR_gamma_ele,
-		    h_dR_gamma_muon,
-		    h_dR_gamma_jet,
-		    h_dR_gamma_photon,
-		    (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
-	
 	susy::MET* pfMet = &(event.metMap.find("pfMet")->second);
 	pfMET_ = pfMet->met();
 
@@ -1661,11 +1631,6 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
   out->cd();
 
   TH1D * h_nEvents = new TH1D("nEvents"+output_code_t, "nEvents"+output_code_t, 1, 0, 1);
-
-  TH1D * h_dR_gamma_ele = new TH1D("dR_gamma_ele", "dR between photons and electrons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_muon = new TH1D("dR_gamma_muon", "dR between photons and muons (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_jet = new TH1D("dR_gamma_jet", "dR between photons and jets (N-1)", 100, 0, 10);
-  TH1D * h_dR_gamma_photon = new TH1D("dR_gamma_photon", "dR between photons and other photons (N-1)", 100, 0, 10);
 
   Float_t pfMET_, Njets_, Nbtags_, Nphotons_, HT_, HT_jets_, hadronic_pt_,
     leadLeptonPt_, leadLeptonPhi_, leadLeptonEta_,
@@ -2070,31 +2035,26 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
 	  }
 	  if(!passHLT) continue;
 	  
+	  findPhotons(event, 
+		      photons,
+		      tightMuons, looseMuons,
+		      tightEles, looseEles,
+		      HT,
+		      (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+
 	  float HT_jets = 0.;
 	  TLorentzVector hadronicSystem(0., 0., 0., 0.);
 	  
 	  findJets_inMC(event, 
 			tightMuons, looseMuons,
 			tightEles, looseEles,
+			photons,
 			pfJets, btags,
 			sf,
 			tagInfos, csvValues, 
 			pfJets_corrP4, btags_corrP4, 
 			HT_jets, hadronicSystem,
 			jetSyst);
-	  
-	  findPhotons(event, 
-		      photons,
-		      pfJets_corrP4,
-		      tightMuons, looseMuons,
-		      tightEles, looseEles,
-		      pfJets,
-		      HT,
-		      h_dR_gamma_ele,
-		      h_dR_gamma_muon,
-		      h_dR_gamma_jet,
-		      h_dR_gamma_photon,
-		      (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
 	  
 	  if(btags.size() != 0) continue;
 

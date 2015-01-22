@@ -138,20 +138,15 @@ class SusyEventAnalyzer {
 		     float& HT, int mode);
   void findPhotons(susy::Event& ev, 
 		   vector<susy::Photon*>& photons,
-		   vector<TLorentzVector> pfJets_corrP4,
 		   vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		   vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
-		   vector<susy::PFJet*> pfJets,
 		   float& HT, 
-		   TH1D*& h_dR_gamma_ele,
-		   TH1D*& h_dR_gamma_muon,
-		   TH1D*& h_dR_gamma_jet,
-		   TH1D*& h_dR_gamma_photon,
 		   bool requireSigmaIetaIeta, bool requireChHadIso);
   // in data
   void findJets(susy::Event& ev, 
 		vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
+		vector<susy::Photon*> photons,
 		vector<susy::PFJet*>& pfJets, vector<susy::PFJet*>& btags, 
 		ScaleFactorInfo sf,
 		vector<BtagInfo>& tagInfos, vector<float>& csvValues, 
@@ -161,6 +156,7 @@ class SusyEventAnalyzer {
   void findJets_inMC(susy::Event& ev, 
 		     vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		     vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
+		     vecotr<susy::Photon*> photons,
 		     vector<susy::PFJet*>& pfJets, vector<susy::PFJet*>& btags, 
 		     ScaleFactorInfo sf,
 		     vector<BtagInfo>& tagInfos, vector<float>& csvValues, 
@@ -463,15 +459,9 @@ double SusyEventAnalyzer::dZcorrection(TVector3& beamSpot, susy::Track& track) c
 
 void SusyEventAnalyzer::findPhotons(susy::Event& ev, 
 				    vector<susy::Photon*>& photons,
-				    vector<TLorentzVector> pfJets_corrP4,
 				    vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 				    vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
-				    vector<susy::PFJet*> pfJets,
 				    float& HT, 
-				    TH1D*& h_dR_gamma_ele,
-				    TH1D*& h_dR_gamma_muon,
-				    TH1D*& h_dR_gamma_jet,
-				    TH1D*& h_dR_gamma_photon,
 				    bool requireSigmaIetaIeta, bool requireChHadIso) {
   
   map<TString, vector<susy::Photon> >::iterator phoMap = ev.photons.find("photons");
@@ -487,20 +477,9 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 
 	float this_dR;
 
-	for(unsigned int k = 0; k < pfJets_corrP4.size(); k++) {
-	  this_dR = deltaR(pfJets_corrP4[k], it->caloPosition);
-	  if(!requireSigmaIetaIeta || !requireChHadIso) h_dR_gamma_jet->Fill(this_dR);
-	  if(this_dR < 0.5) {
-	    // if loosening cut on dR(gamma, b) but not non-btagged jets, then only call it an overlap if the jet's not btagged
-	    if(useDeltaRCutsOnPhotons) overlap = true;
-	    else if(btagger == "CSVM" && pfJets[k]->bTagDiscriminators[susy::kCSV] <= 0.679) overlap = true;
-	  }
-	}
-
 	if(useDeltaRCutsOnPhotons) {
 	  for(unsigned int i = 0; i < tightMuons.size(); i++) {
 	    this_dR = deltaR(tightMuons[i]->momentum, it->caloPosition);
-	    if(!requireSigmaIetaIeta || !requireChHadIso) h_dR_gamma_muon->Fill(this_dR);
 	    if(this_dR < 0.5) overlap = true;
 	  }
 	  
@@ -510,7 +489,6 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 	  
 	  for(unsigned int i = 0; i < tightEles.size(); i++) {
 	    this_dR = deltaR(tightEles[i]->momentum, it->caloPosition);
-	    if(!requireSigmaIetaIeta || !requireChHadIso) h_dR_gamma_ele->Fill(this_dR);
 	    if(this_dR < 0.5) overlap = true;
 	  }
 	  
@@ -521,7 +499,6 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 	  
 	for(unsigned int i = 0; i < photons.size(); i++) {
 	  this_dR = deltaR(photons[i]->caloPosition, it->caloPosition);
-	  if(!requireSigmaIetaIeta || !requireChHadIso) h_dR_gamma_photon->Fill(this_dR);
 	  if(this_dR < 0.5) overlap = true;
 	}
 	
@@ -544,6 +521,7 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 void SusyEventAnalyzer::findJets(susy::Event& ev,
 				 vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 				 vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
+				 vector<susy::Photon*> photons,
 				 vector<susy::PFJet*>& pfJets, vector<susy::PFJet*>& btags, 
 				 ScaleFactorInfo sf,
 				 vector<BtagInfo>& tagInfos, vector<float>& csvValues, 
@@ -565,6 +543,8 @@ void SusyEventAnalyzer::findJets(susy::Event& ev,
       if(!isGoodJet(*it, corrP4)) continue;
       if(JetOverlapsElectron(corrP4, tightEles, looseEles)) continue;
       if(JetOverlapsMuon(corrP4, tightMuons, looseMuons)) continue;
+      if(useDeltaRCutsOnPhotons && JetsOverlapsPhoton(corrP4, photons)) continue;
+      if(!useDeltaRCutsOnPhotons && btagger == "CSVM" && it->bTagDiscriminators[susy::kCSV] <= 0.679 && JetsOverlapsPhoton(corrP4, photons)) continue;
 
       pfJets.push_back(&*it);
       csvValues.push_back(it->bTagDiscriminators[susy::kCSV]);
@@ -600,6 +580,7 @@ void SusyEventAnalyzer::findJets(susy::Event& ev,
 void SusyEventAnalyzer::findJets_inMC(susy::Event& ev, 
 				      vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 				      vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
+				      vector<susy::Photon*> photons,
 				      vector<susy::PFJet*>& pfJets, vector<susy::PFJet*>& btags, 
 				      ScaleFactorInfo sf,
 				      vector<BtagInfo>& tagInfos, vector<float>& csvValues, 
@@ -626,6 +607,8 @@ void SusyEventAnalyzer::findJets_inMC(susy::Event& ev,
       if(!isGoodJet(*it, corrP4)) continue;
       if(JetOverlapsElectron(corrP4, tightEles, looseEles)) continue;
       if(JetOverlapsMuon(corrP4, tightMuons, looseMuons)) continue;
+      if(useDeltaRCutsOnPhotons && JetsOverlapsPhoton(corrP4, photons)) continue;
+      if(!useDeltaRCutsOnPhotons && btagger == "CSVM" && it->bTagDiscriminators[susy::kCSV] <= 0.679 && JetsOverlapsPhoton(corrP4, photons)) continue;
 
       pfJets.push_back(&*it);
       csvValues.push_back(it->bTagDiscriminators[susy::kCSV]);

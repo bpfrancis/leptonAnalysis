@@ -32,6 +32,13 @@ float deltaR_jetLep(TLorentzVector& p1, TLorentzVector& p2) {
   return dR;
 }
 
+float deltaR_jetPhoton(TLorentzVector& p1, TVector3& p2) {
+  float dEta = p1.Eta() - p2.Eta();
+  float dPhi = TVector2::Phi_mpi_pi(p1.Phi() - p2.Phi());
+  float dR = sqrt(dEta*dEta + dPhi*dPhi);
+  return dR;
+}
+
 bool JetOverlapsElectron(TLorentzVector corrP4, vector<susy::Electron*> isoEles, vector<susy::Electron*> looseEles) {
 
   bool same_ele = false;
@@ -72,4 +79,18 @@ bool JetOverlapsMuon(TLorentzVector corrP4, vector<susy::Muon*> isoMuons, vector
   }
   
   return same_muon;
+}
+
+bool JetsOverlapsPhoton(TLorentzVector corrP4, vector<susy::Photon*> photons) {
+  
+  bool same_photon = false;
+
+  for(unsigned int i = 0; i < photons.size(); i++) {
+    if(deltaR_jetPhoton(corrP4, photons[i]->caloPosition) < 0.5) {
+      same_photon = true;
+      break;
+    }
+  }
+
+  return same_photon;
 }
