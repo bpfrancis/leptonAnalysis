@@ -1317,8 +1317,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	}
 	else {
-	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	}
       }
 
@@ -1351,8 +1351,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	}
 	else {
-	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	}
       }
 
@@ -1419,8 +1419,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	  }
 	  else {
-	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	  }
 	}
 
@@ -1599,8 +1599,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	      if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	    }
 	    else {
-	      if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	      if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	    }
 	  }
 
@@ -1646,8 +1646,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	      if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	    }
 	    else {
-	      if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	      if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	    }
 	  }
 	  
@@ -1705,8 +1705,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	  }
 	  else {
-	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	  }
 	}
 
@@ -1769,8 +1769,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	}
 	else {
-	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	}
       }
 
@@ -1895,8 +1895,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	  }
 	  else {
-	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	  }
 	}
 	
@@ -1932,8 +1932,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	  }
 	  else {
-	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	  }
 	}
 	
@@ -1980,8 +1980,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	}
 	else {
-	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	}
       }
 
@@ -2106,8 +2106,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	  }
 	  else {
-	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	  }
 	}
 	
@@ -2143,8 +2143,8 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	  }
 	  else {
-	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	  }
 	}
 	
@@ -2449,8 +2449,8 @@ void PlotMaker::RefillQCD(TH1D * weights, double metCut, int nPhotons_req, int n
 	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
 	}
 	else {
-	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
-	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 0 && vars[22] < -1. * sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < -1. * sigmaIetaIetaCut) continue;
 	}
       }
 
