@@ -31,7 +31,7 @@
 
 using namespace std;
 
-void analyze(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int photonMode, double sigmaIetaIetaCut, double cutOnSigma) {
+void analyze(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int photonMode, double sigmaIetaIetaCut, double cutOnSigmaIetaIeta) {
 
   gROOT->Reset();
   gROOT->SetBatch(true);

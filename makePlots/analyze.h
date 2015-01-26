@@ -192,10 +192,7 @@ class PlotMaker : public TObject {
   ClassDef(PlotMaker, 1);
 
  public:
-  PlotMaker(Int_t lumi,
-	    int chanNo,
-	    bool blind,
-	    int photonsReq);
+  PlotMaker(Int_t lumi, int chanNo, bool blind, int photonsReq, double sigmaCut, double cutOnSigma);
 
   ~PlotMaker();
   
@@ -420,7 +417,7 @@ intLumi_int(lumi),
   blinded(blind),
   photonReq(photonsReq),
   sigmaIetaIetaCut(sigmaCut),
-  cutOnSigmaIetaIetaCut(cutOnSigma)
+  cutOnSigmaIetaIeta(cutOnSigma)
 {
   req = channels[chanNo];
 
