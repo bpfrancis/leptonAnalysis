@@ -918,7 +918,7 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
 
 }
 
-void fitPhotons(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int photonMode) {
+void fitPhotons(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int photonMode, double sigmaIetaIetaCut, double cutOnSigmaIetaIeta) {
 
   if(nPhotons_req != 1) return;
 
@@ -949,7 +949,7 @@ void fitPhotons(TString input, bool addMC, int channel, int intLumi_int, double 
 
   TCanvas * can = new TCanvas("canvas", "Plot", 10, 10, 2000, 2000);
 
-  PlotMaker * pMaker = new PlotMaker(intLumi_int, channel, blinded, nPhotons_req);
+  PlotMaker * pMaker = new PlotMaker(intLumi_int, channel, blinded, nPhotons_req, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
   pMaker->LoadLeptonSFs("../data/lepton_SF_8TeV_53x_baseline.root");
   pMaker->LoadPhotonSFs("../data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
