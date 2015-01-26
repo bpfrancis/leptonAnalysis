@@ -151,23 +151,3 @@ bool is_loosePhoton_noSigmaIetaIeta(susy::Photon gamma, float rho) {
   
   return false;
 }
-
-bool is_loosePhoton_noChHadIso(susy::Photon gamma, float rho) {
-
-  if(fabs(gamma.caloPosition.Eta()) < 1.4442 &&
-     gamma.momentum.Et() > 20.0 &&
-     gamma.hadTowOverEm < 0.05 &&
-     gamma.passelectronveto &&
-     neutralHadronIso_corrected(gamma, rho) < 3.5 + 0.04*gamma.momentum.Pt() &&
-     photonIso_corrected(gamma, rho) < 1.3 + 0.005*gamma.momentum.Pt() &&
-     gamma.sigmaIetaIeta < 0.012 &&
-     gamma.r9 < 1.0 &&
-     gamma.sigmaIetaIeta > 0.001 &&
-     gamma.sigmaIphiIphi > 0.001) {
-    
-    return true;
-
-  }
-  
-  return false;
-}

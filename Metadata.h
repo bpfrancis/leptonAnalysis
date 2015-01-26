@@ -11,12 +11,10 @@ using namespace std;
 
 enum searchModes {kSignal, kElectronQCD, kMuonQCD, kNumSearchModes};
 
-enum photonCutModes {kSignalPhotons, kNoSigmaIetaIeta, kNoChHadIso, kNumPhotonModes};
+enum photonCutModes {kSignalPhotons, kNoSigmaIetaIeta, kNumPhotonModes};
 
 enum jetSystematicMode {kCentral, kJECup, kJECdown, kJERup, kJERdown, kNumJetSytematics};
 
-const int nCategories = 5;
-TString categories[nCategories] = {"signal", "eQCD", "muQCD", "noSigmaIetaIeta", "noChHadIso"};
 const int nChannels = 6;
 
 TString channels[nChannels] = {"ele_jjj_veto", "muon_jjj_veto",

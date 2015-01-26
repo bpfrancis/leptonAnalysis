@@ -141,7 +141,7 @@ class SusyEventAnalyzer {
 		   vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		   vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 		   float& HT, 
-		   bool requireSigmaIetaIeta, bool requireChHadIso);
+		   bool requireSigmaIetaIeta);
   // in data
   void findJets(susy::Event& ev, 
 		vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
@@ -462,16 +462,15 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 				    vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 				    vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 				    float& HT, 
-				    bool requireSigmaIetaIeta, bool requireChHadIso) {
+				    bool requireSigmaIetaIeta) {
   
   map<TString, vector<susy::Photon> >::iterator phoMap = ev.photons.find("photons");
   if(phoMap != event.photons.end()) {
     for(vector<susy::Photon>::iterator it = phoMap->second.begin();
 	it != phoMap->second.end(); it++) {
       
-      if((requireSigmaIetaIeta && requireChHadIso && is_loosePhoton(*it, event.rho25)) ||
-	 (!requireSigmaIetaIeta && requireChHadIso && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
-	 (requireSigmaIetaIeta && !requireChHadIso && is_loosePhoton_noChHadIso(*it, event.rho25))) {
+      if((requireSigmaIetaIeta && is_loosePhoton(*it, event.rho25)) ||
+	 (!requireSigmaIetaIeta && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25))) {
 
 	bool overlap = false;
 
@@ -1265,6 +1264,16 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     else treeMap["TopPtReweighting"] = TopPtReweighting(event_);
   }
   treeMap["Nphotons"] = photons.size();
+
+  int nGamma = 0;
+  int nFake = 0;
+  for(unsigned int i = 0; i < photons.size(); i++) {
+    if(photons[i]->sigmaIetaIeta < 0.012) nGamma++;
+    else nFake++;
+  }
+  treeMap["Ngamma"] = nGamma;
+  treeMap["Nfake"] = nFake;
+
   treeMap["Njets"] = pfJets.size();
   treeMap["Nbtags"] = btags.size();
   treeMap["HT_jets"] = HT_jets;

@@ -200,7 +200,7 @@ void SusyEventAnalyzer::CalculateBtagEfficiency() {
 		    tightMuons, looseMuons,
 		    tightEles, looseEles,
 		    HT,
-		    true, true);
+		    true);
 
     TLorentzVector hadronicSystem(0., 0., 0., 0.);
 
@@ -317,13 +317,14 @@ void SusyEventAnalyzer::Data() {
   // Reweighting trees
   /////////////////////////////////
 
-  const int nTreeVariables = 92;
+  const int nTreeVariables = 94;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
     "pfMET_sysShift", "pfMET_sysShift_phi",
     "pfMET_t1", "pfMET_t1p2", "pfMET_t01", "pfMET_t01p2", "pfNoPUMET", "pfMVAMET",
     "Njets", "Nbtags", "Nphotons", "Nmuons", "Nelectrons",
+    "Ngamma", "Nfake",
     "HT", "HT_jets", "hadronic_pt", 
     "w_mT", "w_mT_t1", "w_mT_t1p2", "w_mT_t01", "w_mT_t01p2", "w_mT_nopumet", "w_mT_mvamet",
     "m3",
@@ -351,12 +352,9 @@ void SusyEventAnalyzer::Data() {
   map<TString, float> treeMap;
   for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
 
-  vector<TTree*> signalTrees, 
-    noSigmaIetaIetaTrees, noChHadIsoTrees,
-    eQCDTrees,
-    eQCDnoSigmaIetaIetaTrees, eQCDnoChHadIsoTrees,
-    muQCDTrees,
-    muQCDnoSigmaIetaIetaTrees, muQCDnoChHadIsoTrees;
+  vector<TTree*> signalTrees noSigmaIetaIetaTrees,
+    eQCDTrees, eQCDnoSigmaIetaIetaTrees,
+    muQCDTrees, muQCDnoSigmaIetaIetaTrees;
 
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
@@ -367,11 +365,6 @@ void SusyEventAnalyzer::Data() {
     TTree * tree = new TTree(channels[i]+"_noSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     noSigmaIetaIetaTrees.push_back(tree);
-  }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_noChHadIsoTree", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    noChHadIsoTrees.push_back(tree);
   }
 
   for(int i = 0; i < nChannels; i++) {
@@ -384,11 +377,6 @@ void SusyEventAnalyzer::Data() {
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     eQCDnoSigmaIetaIetaTrees.push_back(tree);
   }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_eQCDnoChHadIsoTree", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    eQCDnoChHadIsoTrees.push_back(tree);
-  }
 
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_muQCDTree", "An event tree for final analysis");
@@ -399,11 +387,6 @@ void SusyEventAnalyzer::Data() {
     TTree * tree = new TTree(channels[i]+"_muQCDnoSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     muQCDnoSigmaIetaIetaTrees.push_back(tree);
-  }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_muQCDnoChHadIsoTree", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    muQCDnoChHadIsoTrees.push_back(tree);
   }
       
   ScaleFactorInfo sf(btagger);
@@ -532,7 +515,7 @@ void SusyEventAnalyzer::Data() {
 		    tightMuons, looseMuons,
 		    tightEles, looseEles,
 		    HT,
-		    (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+		    (photonMode != kNoSigmaIetaIeta));
 
 	float HT_jets = 0.;
 	TLorentzVector hadronicSystem(0., 0., 0., 0.);
@@ -600,21 +583,6 @@ void SusyEventAnalyzer::Data() {
 	    }
 	  }
 
-	  if(photonMode == kNoChHadIso) {
-	    if(qcdMode == kSignal) {
-	      nCnt[8][chan]++;
-	      noChHadIsoTrees[chan]->Fill();
-	    }
-	    else if(qcdMode == kElectronQCD) {
-	      nCnt[9][chan]++;
-	      eQCDnoChHadIsoTrees[chan]->Fill();
-	    }
-	    else if(qcdMode == kMuonQCD) {
-	      nCnt[10][chan]++;
-	      muQCDnoChHadIsoTrees[chan]->Fill();
-	    }
-	  }
-
 	} // loop over jet/btag req channels
     
 	///////////////////////////////////
@@ -639,9 +607,6 @@ void SusyEventAnalyzer::Data() {
     cout << "noSigmaIetaIeta      " << channels[i] << " events : " << nCnt[5][i] << endl;
     cout << "eQCDnoSigmaIetaIeta  " << channels[i] << " events : " << nCnt[6][i] << endl;
     cout << "muQCDnoSigmaIetaIeta " << channels[i] << " events : " << nCnt[7][i] << endl;
-    cout << "noChHadIso           " << channels[i] << " events : " << nCnt[8][i] << endl;
-    cout << "eQCDnoChHadIso       " << channels[i] << " events : " << nCnt[9][i] << endl;
-    cout << "muQCDnoChHadIso      " << channels[i] << " events : " << nCnt[10][i] << endl;
   }
   cout << "-----------------------------------------------" << endl;
   cout << endl;
@@ -681,13 +646,14 @@ void SusyEventAnalyzer::Acceptance() {
   TH2D * h_ttA_phaseSpace = new TH2D("ttA_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
   TH2D * h_ttbar_phaseSpace = new TH2D("ttbar_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
 
-  const int nTreeVariables = 101;
+  const int nTreeVariables = 103;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
     "pfMET_sysShift", "pfMET_sysShift_phi",
     "pfMET_t1", "pfMET_t1p2", "pfMET_t01", "pfMET_t01p2", "pfNoPUMET", "pfMVAMET", "genMET",
     "Njets", "Nbtags", "Nphotons", "Nmuons", "Nelectrons",
+    "Ngamma", "Nfake",
     "HT", "HT_jets", "hadronic_pt", 
     "w_mT", "w_mT_t1", "w_mT_t1p2", "w_mT_t01", "w_mT_t01p2", "w_mT_nopumet", "w_mT_mvamet", "w_mT_genmet",
     "m3",
@@ -721,9 +687,8 @@ void SusyEventAnalyzer::Acceptance() {
 
   vector<TTree*> signalTrees, signalTrees_JECup, signalTrees_JECdown;
   vector<TTree*> noSigmaIetaIetaTrees, noSigmaIetaIetaTrees_JECup, noSigmaIetaIetaTrees_JECdown;
-  vector<TTree*> noChHadIsoTrees, noChHadIsoTrees_JECup, noChHadIsoTrees_JECdown;
-  vector<TTree*> eQCDTrees, eQCDnoSigmaIetaIetaTrees, eQCDnoChHadIsoTrees,
-    muQCDTrees, muQCDnoSigmaIetaIetaTrees, muQCDnoChHadIsoTrees;
+  vector<TTree*> eQCDTrees, eQCDnoSigmaIetaIetaTrees,
+    muQCDTrees, muQCDnoSigmaIetaIetaTrees;
   
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
@@ -758,22 +723,6 @@ void SusyEventAnalyzer::Acceptance() {
   }
 
   for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_noChHadIsoTree", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    noChHadIsoTrees.push_back(tree);
-  }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_noChHadIsoTree_JECup", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    noChHadIsoTrees_JECup.push_back(tree);
-  }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_noChHadIsoTree_JECdown", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    noChHadIsoTrees_JECdown.push_back(tree);
-  }
-
-  for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_eQCDTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     eQCDTrees.push_back(tree);
@@ -782,11 +731,6 @@ void SusyEventAnalyzer::Acceptance() {
     TTree * tree = new TTree(channels[i]+"_eQCDnoSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     eQCDnoSigmaIetaIetaTrees.push_back(tree);
-  }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_eQCDnoChHadIsoTree", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    eQCDnoChHadIsoTrees.push_back(tree);
   }
 
   for(int i = 0; i < nChannels; i++) {
@@ -798,11 +742,6 @@ void SusyEventAnalyzer::Acceptance() {
     TTree * tree = new TTree(channels[i]+"_muQCDnoSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     muQCDnoSigmaIetaIetaTrees.push_back(tree);
-  }
-  for(int i = 0; i < nChannels; i++) {
-    TTree * tree = new TTree(channels[i]+"_muQCDnoChHadIsoTree", "An event tree for final analysis");
-    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
-    muQCDnoChHadIsoTrees.push_back(tree);
   }
 
   ScaleFactorInfo sf(btagger);
@@ -921,7 +860,7 @@ void SusyEventAnalyzer::Acceptance() {
 		      tightMuons, looseMuons,
 		      tightEles, looseEles,
 		      HT,
-		      (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+		      (photonMode != kNoSigmaIetaIeta));
 
 	  float HT_jets = 0.;
 	  TLorentzVector hadronicSystem(0., 0., 0., 0.);
@@ -1020,25 +959,6 @@ void SusyEventAnalyzer::Acceptance() {
 		muQCDnoSigmaIetaIetaTrees[chan]->Fill();
 	      }
 	    }
-	    
-	    if(photonMode == kNoChHadIso) {
-	      if(qcdMode == kSignal) {
-		if(jetSyst == kCentral) {
-		  nCnt[8][chan]++;
-		  noChHadIsoTrees[chan]->Fill();
-		}
-		else if(jetSyst == kJECup) noChHadIsoTrees_JECup[chan]->Fill();
-		else if(jetSyst == kJECdown) noChHadIsoTrees_JECdown[chan]->Fill();
-	      }
-	      else if(qcdMode == kElectronQCD && jetSyst == kCentral) {
-		nCnt[9][chan]++;
-		eQCDnoChHadIsoTrees[chan]->Fill();
-	      }
-	      else if(qcdMode == kMuonQCD && jetSyst == kCentral) {
-		nCnt[10][chan]++;
-		muQCDnoChHadIsoTrees[chan]->Fill();
-	      }
-	    }
 	      
 	  } // for channels
 
@@ -1062,9 +982,6 @@ void SusyEventAnalyzer::Acceptance() {
     cout << "noSigmaIetaIeta      " << channels[i] << " events : " << nCnt[5][i] << endl;
     cout << "eQCDnoSigmaIetaIeta  " << channels[i] << " events : " << nCnt[6][i] << endl;
     cout << "muQCDnoSigmaIetaIeta " << channels[i] << " events : " << nCnt[7][i] << endl;
-    cout << "noChHadIso           " << channels[i] << " events : " << nCnt[8][i] << endl;
-    cout << "eQCDnoChHadIso       " << channels[i] << " events : " << nCnt[9][i] << endl;
-    cout << "muQCDnoChHadIso      " << channels[i] << " events : " << nCnt[10][i] << endl;
   }
   cout << endl;
   cout << "----------------Continues, info----------------" << endl;
@@ -1108,214 +1025,154 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
 
   TTree * signalTree = new TTree(channelName+"_signalTree", "tree");
   TTree * noSigmaIetaIetaTree = new TTree(channelName+"_noSigmaIetaIetaTree", "tree");
-  TTree * noChHadIsoTree = new TTree(channelName+"_noChHadIsoTree", "tree");
 
   TTree * QCDTree = new TTree(channelName+"_QCDTree", "tree");
   TTree * QCDnoSigmaIetaIetaTree = new TTree(channelName+"_QCDnoSigmaIetaIetaTree", "tree");
-  TTree * QCDnoChHadIsoTree = new TTree(channelName+"_QCDnoChHadIsoTree", "tree");
 
   signalTree->Branch("pfMET", &pfMET_);
   noSigmaIetaIetaTree->Branch("pfMET", &pfMET_);
-  noChHadIsoTree->Branch("pfMET", &pfMET_);
   QCDTree->Branch("pfMET", &pfMET_);
   QCDnoSigmaIetaIetaTree->Branch("pfMET", &pfMET_);
-  QCDnoChHadIsoTree->Branch("pfMET", &pfMET_);
 
   signalTree->Branch("Nphotons", &Nphotons_);
   noSigmaIetaIetaTree->Branch("Nphotons", &Nphotons_);
-  noChHadIsoTree->Branch("Nphotons", &Nphotons_);
   QCDTree->Branch("Nphotons", &Nphotons_);
   QCDnoSigmaIetaIetaTree->Branch("Nphotons", &Nphotons_);
-  QCDnoChHadIsoTree->Branch("Nphotons", &Nphotons_);
 
   signalTree->Branch("Njets", &Njets_);
   noSigmaIetaIetaTree->Branch("Njets", &Njets_);
-  noChHadIsoTree->Branch("Njets", &Njets_);
   QCDTree->Branch("Njets", &Njets_);
   QCDnoSigmaIetaIetaTree->Branch("Njets", &Njets_);
-  QCDnoChHadIsoTree->Branch("Njets", &Njets_);
 
   signalTree->Branch("HT", &HT_);
   noSigmaIetaIetaTree->Branch("HT", &HT_);
-  noChHadIsoTree->Branch("HT", &HT_);
   QCDTree->Branch("HT", &HT_);
   QCDnoSigmaIetaIetaTree->Branch("HT", &HT_);
-  QCDnoChHadIsoTree->Branch("HT", &HT_);
 
   signalTree->Branch("HT_jets", &HT_jets_);
   noSigmaIetaIetaTree->Branch("HT_jets", &HT_jets_);
-  noChHadIsoTree->Branch("HT_jets", &HT_jets_);
   QCDTree->Branch("HT_jets", &HT_jets_);
   QCDnoSigmaIetaIetaTree->Branch("HT_jets", &HT_jets_);
-  QCDnoChHadIsoTree->Branch("HT_jets", &HT_jets_);
 
   signalTree->Branch("hadronic_pt", &hadronic_pt_);
   noSigmaIetaIetaTree->Branch("hadronic_pt", &hadronic_pt_);
-  noChHadIsoTree->Branch("hadronic_pt", &hadronic_pt_);
   QCDTree->Branch("hadronic_pt", &hadronic_pt_);
   QCDnoSigmaIetaIetaTree->Branch("hadronic_pt", &hadronic_pt_);
-  QCDnoChHadIsoTree->Branch("hadronic_pt", &hadronic_pt_);
 
   signalTree->Branch("leadLeptonPt", &leadLeptonPt_);
   noSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  noChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
 
   signalTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   noSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  noChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
 
   signalTree->Branch("leadLeptonEta", &leadLeptonEta_);
   noSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  noChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  QCDnoChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
 
   signalTree->Branch("leadLeptonPt", &leadLeptonPt_);
   noSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  noChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
 
   signalTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   noSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  noChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
 
   signalTree->Branch("leadLeptonEta", &leadLeptonEta_);
   noSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  noChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  QCDnoChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
 
   signalTree->Branch("leadPhotonEt", &leadPhotonEt_);
   noSigmaIetaIetaTree->Branch("leadPhotonEt", &leadPhotonEt_);
-  noChHadIsoTree->Branch("leadPhotonEt", &leadPhotonEt_);
   QCDTree->Branch("leadPhotonEt", &leadPhotonEt_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhotonEt", &leadPhotonEt_);
-  QCDnoChHadIsoTree->Branch("leadPhotonEt", &leadPhotonEt_);
 
   signalTree->Branch("leadPhotonEta", &leadPhotonEta_);
   noSigmaIetaIetaTree->Branch("leadPhotonEta", &leadPhotonEta_);
-  noChHadIsoTree->Branch("leadPhotonEta", &leadPhotonEta_);
   QCDTree->Branch("leadPhotonEta", &leadPhotonEta_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhotonEta", &leadPhotonEta_);
-  QCDnoChHadIsoTree->Branch("leadPhotonEta", &leadPhotonEta_);
 
   signalTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   noSigmaIetaIetaTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
-  noChHadIsoTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   QCDTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
-  QCDnoChHadIsoTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   
   signalTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
   noSigmaIetaIetaTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
-  noChHadIsoTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
   QCDTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
-  QCDnoChHadIsoTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
 
   signalTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
   noSigmaIetaIetaTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
-  noChHadIsoTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
   QCDTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
-  QCDnoChHadIsoTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
 
   signalTree->Branch("trailPhotonEt", &trailPhotonEt_);
   noSigmaIetaIetaTree->Branch("trailPhotonEt", &trailPhotonEt_);
-  noChHadIsoTree->Branch("trailPhotonEt", &trailPhotonEt_);
   QCDTree->Branch("trailPhotonEt", &trailPhotonEt_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhotonEt", &trailPhotonEt_);
-  QCDnoChHadIsoTree->Branch("trailPhotonEt", &trailPhotonEt_);
 
   signalTree->Branch("trailPhotonEta", &trailPhotonEta_);
   noSigmaIetaIetaTree->Branch("trailPhotonEta", &trailPhotonEta_);
-  noChHadIsoTree->Branch("trailPhotonEta", &trailPhotonEta_);
   QCDTree->Branch("trailPhotonEta", &trailPhotonEta_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhotonEta", &trailPhotonEta_);
-  QCDnoChHadIsoTree->Branch("trailPhotonEta", &trailPhotonEta_);
 
   signalTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
   noSigmaIetaIetaTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
-  noChHadIsoTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
   QCDTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
-  QCDnoChHadIsoTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
 
   signalTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
   noSigmaIetaIetaTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
-  noChHadIsoTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
   QCDTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
-  QCDnoChHadIsoTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
 
   signalTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
   noSigmaIetaIetaTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
-  noChHadIsoTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
   QCDTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
-  QCDnoChHadIsoTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
 
   signalTree->Branch("photon_invmass", &photon_invmass_);
   noSigmaIetaIetaTree->Branch("photon_invmass", &photon_invmass_);
-  noChHadIsoTree->Branch("photon_invmass", &photon_invmass_);
   QCDTree->Branch("photon_invmass", &photon_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("photon_invmass", &photon_invmass_);
-  QCDnoChHadIsoTree->Branch("photon_invmass", &photon_invmass_);
 
   signalTree->Branch("photon_diempt", &photon_diempt_);
   noSigmaIetaIetaTree->Branch("photon_diempt", &photon_diempt_);
-  noChHadIsoTree->Branch("photon_diempt", &photon_diempt_);
   QCDTree->Branch("photon_diempt", &photon_diempt_);
   QCDnoSigmaIetaIetaTree->Branch("photon_diempt", &photon_diempt_);
-  QCDnoChHadIsoTree->Branch("photon_diempt", &photon_diempt_);
 
   signalTree->Branch("z_invmass", &z_invmass_);
   noSigmaIetaIetaTree->Branch("z_invmass", &z_invmass_);
-  noChHadIsoTree->Branch("z_invmass", &z_invmass_);
   QCDTree->Branch("z_invmass", &z_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("z_invmass", &z_invmass_);
-  QCDnoChHadIsoTree->Branch("z_invmass", &z_invmass_);
 
   signalTree->Branch("z_diempt", &z_diempt_);
   noSigmaIetaIetaTree->Branch("z_diempt", &z_diempt_);
-  noChHadIsoTree->Branch("z_diempt", &z_diempt_);
   QCDTree->Branch("z_diempt", &z_diempt_);
   QCDnoSigmaIetaIetaTree->Branch("z_diempt", &z_diempt_);
-  QCDnoChHadIsoTree->Branch("z_diempt", &z_diempt_);
 
   signalTree->Branch("zg_invmass", &zg_invmass_);
   noSigmaIetaIetaTree->Branch("zg_invmass", &zg_invmass_);
-  noChHadIsoTree->Branch("zg_invmass", &zg_invmass_);
   QCDTree->Branch("zg_invmass", &zg_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("zg_invmass", &zg_invmass_);
-  QCDnoChHadIsoTree->Branch("zg_invmass", &zg_invmass_);
 
   signalTree->Branch("zgg_invmass", &zgg_invmass_);
   noSigmaIetaIetaTree->Branch("zgg_invmass", &zgg_invmass_);
-  noChHadIsoTree->Branch("zgg_invmass", &zgg_invmass_);
   QCDTree->Branch("zgg_invmass", &zgg_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("zgg_invmass", &zgg_invmass_);
-  QCDnoChHadIsoTree->Branch("zgg_invmass", &zgg_invmass_);
 
   signalTree->Branch("nPV", &nPV_);
   noSigmaIetaIetaTree->Branch("nPV", &nPV_);
-  noChHadIsoTree->Branch("nPV", &nPV_);
   QCDTree->Branch("nPV", &nPV_);
   QCDnoSigmaIetaIetaTree->Branch("nPV", &nPV_);
-  QCDnoChHadIsoTree->Branch("nPV", &nPV_);
 
   ScaleFactorInfo sf(btagger);
 
@@ -1413,7 +1270,7 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
 		    tightMuons, looseMuons,
 		    tightEles, looseEles,
 		    HT,
-		    (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+		    (photonMode != kNoSigmaIetaIeta));
 
 	float HT_jets = 0.;
 	TLorentzVector hadronicSystem(0., 0., 0., 0.);
@@ -1570,17 +1427,6 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
 	  }
 	}
 
-	if(photonMode == kNoChHadIso) {
-	  if(qcdMode == kSignal) {
-	    nCnt[8][0]++;
-	    noChHadIsoTree->Fill();
-	  }
-	  else {
-	    nCnt[9][0]++;
-	    QCDnoChHadIsoTree->Fill();
-	  }
-	}
-
 	///////////////////////////////////
     
       } // for photon modes
@@ -1603,9 +1449,6 @@ void SusyEventAnalyzer::ZGammaData(bool runElectrons) {
     cout << "noSigmaIetaIeta      " << channels[i] << " events : " << nCnt[5][i] << endl;
     cout << "eQCDnoSigmaIetaIeta  " << channels[i] << " events : " << nCnt[6][i] << endl;
     cout << "muQCDnoSigmaIetaIeta " << channels[i] << " events : " << nCnt[7][i] << endl;
-    cout << "noChHadIso           " << channels[i] << " events : " << nCnt[8][i] << endl;
-    cout << "eQCDnoChHadIso       " << channels[i] << " events : " << nCnt[9][i] << endl;
-    cout << "muQCDnoChHadIso      " << channels[i] << " events : " << nCnt[10][i] << endl;
   }
   cout << "-----------------------------------------------" << endl;
   cout << endl;
@@ -1659,277 +1502,199 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
 
   TTree * signalTree = new TTree(channelName+"_signalTree", "tree");
   TTree * noSigmaIetaIetaTree = new TTree(channelName+"_noSigmaIetaIetaTree", "tree");
-  TTree * noChHadIsoTree = new TTree(channelName+"_noChHadIsoTree", "tree");
 
   TTree * QCDTree = new TTree(channelName+"_QCDTree", "tree");
   TTree * QCDnoSigmaIetaIetaTree = new TTree(channelName+"_QCDnoSigmaIetaIetaTree", "tree");
-  TTree * QCDnoChHadIsoTree = new TTree(channelName+"_QCDnoChHadIsoTree", "tree");
 
   signalTree->Branch("pfMET", &pfMET_);
   noSigmaIetaIetaTree->Branch("pfMET", &pfMET_);
-  noChHadIsoTree->Branch("pfMET", &pfMET_);
   QCDTree->Branch("pfMET", &pfMET_);
   QCDnoSigmaIetaIetaTree->Branch("pfMET", &pfMET_);
-  QCDnoChHadIsoTree->Branch("pfMET", &pfMET_);
 
   signalTree->Branch("Nphotons", &Nphotons_);
   noSigmaIetaIetaTree->Branch("Nphotons", &Nphotons_);
-  noChHadIsoTree->Branch("Nphotons", &Nphotons_);
   QCDTree->Branch("Nphotons", &Nphotons_);
   QCDnoSigmaIetaIetaTree->Branch("Nphotons", &Nphotons_);
-  QCDnoChHadIsoTree->Branch("Nphotons", &Nphotons_);
 
   signalTree->Branch("Njets", &Njets_);
   noSigmaIetaIetaTree->Branch("Njets", &Njets_);
-  noChHadIsoTree->Branch("Njets", &Njets_);
   QCDTree->Branch("Njets", &Njets_);
   QCDnoSigmaIetaIetaTree->Branch("Njets", &Njets_);
-  QCDnoChHadIsoTree->Branch("Njets", &Njets_);
 
   signalTree->Branch("HT", &HT_);
   noSigmaIetaIetaTree->Branch("HT", &HT_);
-  noChHadIsoTree->Branch("HT", &HT_);
   QCDTree->Branch("HT", &HT_);
   QCDnoSigmaIetaIetaTree->Branch("HT", &HT_);
-  QCDnoChHadIsoTree->Branch("HT", &HT_);
 
   signalTree->Branch("HT_jets", &HT_jets_);
   noSigmaIetaIetaTree->Branch("HT_jets", &HT_jets_);
-  noChHadIsoTree->Branch("HT_jets", &HT_jets_);
   QCDTree->Branch("HT_jets", &HT_jets_);
   QCDnoSigmaIetaIetaTree->Branch("HT_jets", &HT_jets_);
-  QCDnoChHadIsoTree->Branch("HT_jets", &HT_jets_);
 
   signalTree->Branch("hadronic_pt", &hadronic_pt_);
   noSigmaIetaIetaTree->Branch("hadronic_pt", &hadronic_pt_);
-  noChHadIsoTree->Branch("hadronic_pt", &hadronic_pt_);
   QCDTree->Branch("hadronic_pt", &hadronic_pt_);
   QCDnoSigmaIetaIetaTree->Branch("hadronic_pt", &hadronic_pt_);
-  QCDnoChHadIsoTree->Branch("hadronic_pt", &hadronic_pt_);
 
   signalTree->Branch("leadLeptonPt", &leadLeptonPt_);
   noSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  noChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
 
   signalTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   noSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  noChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
 
   signalTree->Branch("leadLeptonEta", &leadLeptonEta_);
   noSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  noChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  QCDnoChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
 
   signalTree->Branch("leadLeptonPt", &leadLeptonPt_);
   noSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  noChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDTree->Branch("leadLeptonPt", &leadLeptonPt_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPt", &leadLeptonPt_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPt", &leadLeptonPt_);
 
   signalTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   noSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  noChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
-  QCDnoChHadIsoTree->Branch("leadLeptonPhi", &leadLeptonPhi_);
 
   signalTree->Branch("leadLeptonEta", &leadLeptonEta_);
   noSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  noChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDTree->Branch("leadLeptonEta", &leadLeptonEta_);
   QCDnoSigmaIetaIetaTree->Branch("leadLeptonEta", &leadLeptonEta_);
-  QCDnoChHadIsoTree->Branch("leadLeptonEta", &leadLeptonEta_);
 
   signalTree->Branch("leadPhotonEt", &leadPhotonEt_);
   noSigmaIetaIetaTree->Branch("leadPhotonEt", &leadPhotonEt_);
-  noChHadIsoTree->Branch("leadPhotonEt", &leadPhotonEt_);
   QCDTree->Branch("leadPhotonEt", &leadPhotonEt_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhotonEt", &leadPhotonEt_);
-  QCDnoChHadIsoTree->Branch("leadPhotonEt", &leadPhotonEt_);
 
   signalTree->Branch("leadPhotonEta", &leadPhotonEta_);
   noSigmaIetaIetaTree->Branch("leadPhotonEta", &leadPhotonEta_);
-  noChHadIsoTree->Branch("leadPhotonEta", &leadPhotonEta_);
   QCDTree->Branch("leadPhotonEta", &leadPhotonEta_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhotonEta", &leadPhotonEta_);
-  QCDnoChHadIsoTree->Branch("leadPhotonEta", &leadPhotonEta_);
 
   signalTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   noSigmaIetaIetaTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
-  noChHadIsoTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   QCDTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
-  QCDnoChHadIsoTree->Branch("leadPhotonPhi", &leadPhotonPhi_);
   
   signalTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
   noSigmaIetaIetaTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
-  noChHadIsoTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
   QCDTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
-  QCDnoChHadIsoTree->Branch("leadPhoton_chHadIso", &leadPhoton_chHadIso_);
 
   signalTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
   noSigmaIetaIetaTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
-  noChHadIsoTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
   QCDTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
   QCDnoSigmaIetaIetaTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
-  QCDnoChHadIsoTree->Branch("leadPhoton_sIetaIeta", &leadPhoton_sIetaIeta_);
 
   signalTree->Branch("trailPhotonEt", &trailPhotonEt_);
   noSigmaIetaIetaTree->Branch("trailPhotonEt", &trailPhotonEt_);
-  noChHadIsoTree->Branch("trailPhotonEt", &trailPhotonEt_);
   QCDTree->Branch("trailPhotonEt", &trailPhotonEt_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhotonEt", &trailPhotonEt_);
-  QCDnoChHadIsoTree->Branch("trailPhotonEt", &trailPhotonEt_);
 
   signalTree->Branch("trailPhotonEta", &trailPhotonEta_);
   noSigmaIetaIetaTree->Branch("trailPhotonEta", &trailPhotonEta_);
-  noChHadIsoTree->Branch("trailPhotonEta", &trailPhotonEta_);
   QCDTree->Branch("trailPhotonEta", &trailPhotonEta_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhotonEta", &trailPhotonEta_);
-  QCDnoChHadIsoTree->Branch("trailPhotonEta", &trailPhotonEta_);
 
   signalTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
   noSigmaIetaIetaTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
-  noChHadIsoTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
   QCDTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
-  QCDnoChHadIsoTree->Branch("trailPhotonPhi", &trailPhotonPhi_);
 
   signalTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
   noSigmaIetaIetaTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
-  noChHadIsoTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
   QCDTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
-  QCDnoChHadIsoTree->Branch("trailPhoton_chHadIso", &trailPhoton_chHadIso_);
 
   signalTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
   noSigmaIetaIetaTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
-  noChHadIsoTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
   QCDTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
   QCDnoSigmaIetaIetaTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
-  QCDnoChHadIsoTree->Branch("trailPhoton_sIetaIeta", &trailPhoton_sIetaIeta_);
 
   signalTree->Branch("photon_invmass", &photon_invmass_);
   noSigmaIetaIetaTree->Branch("photon_invmass", &photon_invmass_);
-  noChHadIsoTree->Branch("photon_invmass", &photon_invmass_);
   QCDTree->Branch("photon_invmass", &photon_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("photon_invmass", &photon_invmass_);
-  QCDnoChHadIsoTree->Branch("photon_invmass", &photon_invmass_);
 
   signalTree->Branch("photon_diempt", &photon_diempt_);
   noSigmaIetaIetaTree->Branch("photon_diempt", &photon_diempt_);
-  noChHadIsoTree->Branch("photon_diempt", &photon_diempt_);
   QCDTree->Branch("photon_diempt", &photon_diempt_);
   QCDnoSigmaIetaIetaTree->Branch("photon_diempt", &photon_diempt_);
-  QCDnoChHadIsoTree->Branch("photon_diempt", &photon_diempt_);
 
   signalTree->Branch("z_invmass", &z_invmass_);
   noSigmaIetaIetaTree->Branch("z_invmass", &z_invmass_);
-  noChHadIsoTree->Branch("z_invmass", &z_invmass_);
   QCDTree->Branch("z_invmass", &z_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("z_invmass", &z_invmass_);
-  QCDnoChHadIsoTree->Branch("z_invmass", &z_invmass_);
 
   signalTree->Branch("z_diempt", &z_diempt_);
   noSigmaIetaIetaTree->Branch("z_diempt", &z_diempt_);
-  noChHadIsoTree->Branch("z_diempt", &z_diempt_);
   QCDTree->Branch("z_diempt", &z_diempt_);
   QCDnoSigmaIetaIetaTree->Branch("z_diempt", &z_diempt_);
-  QCDnoChHadIsoTree->Branch("z_diempt", &z_diempt_);
 
   signalTree->Branch("zg_invmass", &zg_invmass_);
   noSigmaIetaIetaTree->Branch("zg_invmass", &zg_invmass_);
-  noChHadIsoTree->Branch("zg_invmass", &zg_invmass_);
   QCDTree->Branch("zg_invmass", &zg_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("zg_invmass", &zg_invmass_);
-  QCDnoChHadIsoTree->Branch("zg_invmass", &zg_invmass_);
 
   signalTree->Branch("zgg_invmass", &zgg_invmass_);
   noSigmaIetaIetaTree->Branch("zgg_invmass", &zgg_invmass_);
-  noChHadIsoTree->Branch("zgg_invmass", &zgg_invmass_);
   QCDTree->Branch("zgg_invmass", &zgg_invmass_);
   QCDnoSigmaIetaIetaTree->Branch("zgg_invmass", &zgg_invmass_);
-  QCDnoChHadIsoTree->Branch("zgg_invmass", &zgg_invmass_);
 
   signalTree->Branch("nPV", &nPV_);
   noSigmaIetaIetaTree->Branch("nPV", &nPV_);
-  noChHadIsoTree->Branch("nPV", &nPV_);
   QCDTree->Branch("nPV", &nPV_);
   QCDnoSigmaIetaIetaTree->Branch("nPV", &nPV_);
-  QCDnoChHadIsoTree->Branch("nPV", &nPV_);
 
   signalTree->Branch("pileupWeight", &pileupWeight_);
   noSigmaIetaIetaTree->Branch("pileupWeight", &pileupWeight_);
-  noChHadIsoTree->Branch("pileupWeight", &pileupWeight_);
   QCDTree->Branch("pileupWeight", &pileupWeight_);
   QCDnoSigmaIetaIetaTree->Branch("pileupWeight", &pileupWeight_);
-  QCDnoChHadIsoTree->Branch("pileupWeight", &pileupWeight_);
   
   signalTree->Branch("pileupWeightErr", &pileupWeightErr_);
   noSigmaIetaIetaTree->Branch("pileupWeightErr", &pileupWeightErr_);
-  noChHadIsoTree->Branch("pileupWeightErr", &pileupWeightErr_);
   QCDTree->Branch("pileupWeightErr", &pileupWeightErr_);
   QCDnoSigmaIetaIetaTree->Branch("pileupWeightErr", &pileupWeightErr_);
-  QCDnoChHadIsoTree->Branch("pileupWeightErr", &pileupWeightErr_);
 
   signalTree->Branch("pileupWeightUp", &pileupWeightUp_);
   noSigmaIetaIetaTree->Branch("pileupWeightUp", &pileupWeightUp_);
-  noChHadIsoTree->Branch("pileupWeightUp", &pileupWeightUp_);
   QCDTree->Branch("pileupWeightUp", &pileupWeightUp_);
   QCDnoSigmaIetaIetaTree->Branch("pileupWeightUp", &pileupWeightUp_);
-  QCDnoChHadIsoTree->Branch("pileupWeightUp", &pileupWeightUp_);
 
   signalTree->Branch("pileupWeightDown", &pileupWeightDown_);
   noSigmaIetaIetaTree->Branch("pileupWeightDown", &pileupWeightDown_);
-  noChHadIsoTree->Branch("pileupWeightDown", &pileupWeightDown_);
   QCDTree->Branch("pileupWeightDown", &pileupWeightDown_);
   QCDnoSigmaIetaIetaTree->Branch("pileupWeightDown", &pileupWeightDown_);
-  QCDnoChHadIsoTree->Branch("pileupWeightDown", &pileupWeightDown_);
 
   signalTree->Branch("btagWeight", &btagWeight_);
   noSigmaIetaIetaTree->Branch("btagWeight", &btagWeight_);
-  noChHadIsoTree->Branch("btagWeight", &btagWeight_);
   QCDTree->Branch("btagWeight", &btagWeight_);
   QCDnoSigmaIetaIetaTree->Branch("btagWeight", &btagWeight_);
-  QCDnoChHadIsoTree->Branch("btagWeight", &btagWeight_);
   
   signalTree->Branch("btagWeightErr", &btagWeightErr_);
   noSigmaIetaIetaTree->Branch("btagWeightErr", &btagWeightErr_);
-  noChHadIsoTree->Branch("btagWeightErr", &btagWeightErr_);
   QCDTree->Branch("btagWeightErr", &btagWeightErr_);
   QCDnoSigmaIetaIetaTree->Branch("btagWeightErr", &btagWeightErr_);
-  QCDnoChHadIsoTree->Branch("btagWeightErr", &btagWeightErr_);
 
   signalTree->Branch("btagWeightUp", &btagWeightUp_);
   noSigmaIetaIetaTree->Branch("btagWeightUp", &btagWeightUp_);
-  noChHadIsoTree->Branch("btagWeightUp", &btagWeightUp_);
   QCDTree->Branch("btagWeightUp", &btagWeightUp_);
   QCDnoSigmaIetaIetaTree->Branch("btagWeightUp", &btagWeightUp_);
-  QCDnoChHadIsoTree->Branch("btagWeightUp", &btagWeightUp_);
 
   signalTree->Branch("btagWeightDown", &btagWeightDown_);
   noSigmaIetaIetaTree->Branch("btagWeightDown", &btagWeightDown_);
-  noChHadIsoTree->Branch("btagWeightDown", &btagWeightDown_);
   QCDTree->Branch("btagWeightDown", &btagWeightDown_);
   QCDnoSigmaIetaIetaTree->Branch("btagWeightDown", &btagWeightDown_);
-  QCDnoChHadIsoTree->Branch("btagWeightDown", &btagWeightDown_);
 
   signalTree->Branch("TopPtReweighting", &TopPtReweighting_);
   noSigmaIetaIetaTree->Branch("TopPtReweighting", &TopPtReweighting_);
-  noChHadIsoTree->Branch("TopPtReweighting", &TopPtReweighting_);
   QCDTree->Branch("TopPtReweighting", &TopPtReweighting_);
   QCDnoSigmaIetaIetaTree->Branch("TopPtReweighting", &TopPtReweighting_);
-  QCDnoChHadIsoTree->Branch("TopPtReweighting", &TopPtReweighting_);
 
   ScaleFactorInfo sf(btagger);
   TFile * btagEfficiency = new TFile("btagEfficiency"+output_code_t+".root", "READ");
@@ -2050,7 +1815,7 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
 		      tightMuons, looseMuons,
 		      tightEles, looseEles,
 		      HT,
-		      (photonMode != kNoSigmaIetaIeta), (photonMode != kNoChHadIso));
+		      (photonMode != kNoSigmaIetaIeta));
 
 	  float HT_jets = 0.;
 	  TLorentzVector hadronicSystem(0., 0., 0., 0.);
@@ -2223,17 +1988,6 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
 	    }
 	  }
 	  
-	  if(photonMode == kNoChHadIso) {
-	    if(qcdMode == kSignal) {
-	      nCnt[8][0]++;
-	      noChHadIsoTree->Fill();
-	    }
-	    else {
-	      nCnt[9][0]++;
-	      QCDnoChHadIsoTree->Fill();
-	    }
-	  }
-
 	} // for photon modes
 	  
       } // for jet systematic modes
@@ -2254,9 +2008,6 @@ void SusyEventAnalyzer::ZGammaMC(bool runElectrons) {
     cout << "noSigmaIetaIeta      " << channels[i] << " events : " << nCnt[5][i] << endl;
     cout << "eQCDnoSigmaIetaIeta  " << channels[i] << " events : " << nCnt[6][i] << endl;
     cout << "muQCDnoSigmaIetaIeta " << channels[i] << " events : " << nCnt[7][i] << endl;
-    cout << "noChHadIso           " << channels[i] << " events : " << nCnt[8][i] << endl;
-    cout << "eQCDnoChHadIso       " << channels[i] << " events : " << nCnt[9][i] << endl;
-    cout << "muQCDnoChHadIso      " << channels[i] << " events : " << nCnt[10][i] << endl;
   }
   cout << endl;
   cout << "----------------Continues, info----------------" << endl;
