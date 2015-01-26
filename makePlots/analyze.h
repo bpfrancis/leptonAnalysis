@@ -409,13 +409,18 @@ class PlotMaker : public TObject {
   int photonMode;
 
   int photonReq;
+
+  double sigmaIetaIetaCut;
+  bool cutOnSigmaIetaIeta;
 };
 
-PlotMaker::PlotMaker(Int_t lumi, int chanNo, bool blind, int photonsReq) :
-  intLumi_int(lumi),
+PlotMaker::PlotMaker(Int_t lumi, int chanNo, bool blind, int photonsReq, double sigmaCut, double cutOnSigma) :
+intLumi_int(lumi),
   channelNum(chanNo),
   blinded(blind),
-  photonReq(photonsReq)
+  photonReq(photonsReq),
+  sigmaIetaIetaCut(sigmaCut),
+  cutOnSigmaIetaIetaCut(cutOnSigma)
 {
   req = channels[chanNo];
 
@@ -1305,7 +1310,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 
       if(blinded && vars[0] == 2) continue;
       if(blinded && vars[0] == 1 && variables[j] == "pfMET" && vars[1] > 50.) continue;
-      if(blinded && vars[0] == 1 && variables[j] == "HT" && vars[2] > 400.) continue;
+
+      if(cutOnSigmaIetaIeta) {
+	if(sigmaIetaIetaCut > 0) {
+	  if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	}
+	else {
+	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	}
+      }
 
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
@@ -1329,6 +1344,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 
     for(unsigned int j = 0; j < vars.size(); j++) {
       if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+      if(cutOnSigmaIetaIeta) {
+	if(sigmaIetaIetaCut > 0) {
+	  if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	}
+	else {
+	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	}
+      }
 
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
@@ -1386,6 +1412,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 
       for(unsigned int k = 0; k < vars.size(); k++) {
 	if(variables[k] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	if(cutOnSigmaIetaIeta) {
+	  if(sigmaIetaIetaCut > 0) {
+	    if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	  }
+	  else {
+	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  }
+	}
 
 	double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
@@ -1555,6 +1592,18 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	
 	for(unsigned int k = 0; k < vars.size(); k++) {
 	  if(variables[k] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	  if(cutOnSigmaIetaIeta) {
+	    if(sigmaIetaIetaCut > 0) {
+	      if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	    }
+	    else {
+	      if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    }
+	  }
+
 	  mcHistograms_JECup[i][k]->Fill(vars[k], totalWeight);
 	}
 	
@@ -1590,6 +1639,18 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 	
 	for(unsigned int k = 0; k < vars.size(); k++) {
 	  if(variables[k] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	  if(cutOnSigmaIetaIeta) {
+	    if(sigmaIetaIetaCut > 0) {
+	      if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	    }
+	    else {
+	      if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	      if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	    }
+	  }
+	  
 	  mcHistograms_JECdown[i][k]->Fill(vars[k], totalWeight);
 	}
 	
@@ -1637,6 +1698,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 
       for(unsigned int k = 0; k < vars.size(); k++) {
 	if(variables[k] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	if(cutOnSigmaIetaIeta) {
+	  if(sigmaIetaIetaCut > 0) {
+	    if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	  }
+	  else {
+	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  }
+	}
 
 	Float_t oldError = mcQCDHistograms[i][k]->GetBinError(mcQCDHistograms[i][k]->FindBin(vars[k]));
 	Float_t newerror = sqrt(oldError*oldError + addError2);
@@ -1690,6 +1762,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 
     for(unsigned int j = 0; j < vars.size(); j++) {
       if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+      if(cutOnSigmaIetaIeta) {
+	if(sigmaIetaIetaCut > 0) {
+	  if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	}
+	else {
+	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	}
+      }
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
       Float_t olderror = h_siga[j]->GetBinError(h_siga[j]->FindBin(vars[j]));
@@ -1805,6 +1888,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
       
       for(unsigned int j = 0; j < vars.size(); j++) {
 	if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	if(cutOnSigmaIetaIeta) {
+	  if(sigmaIetaIetaCut > 0) {
+	    if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	  }
+	  else {
+	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  }
+	}
 	
 	double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
 	h_siga_JECup[j]->Fill(vars[j], totalWeight);
@@ -1831,6 +1925,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
       
       for(unsigned int j = 0; j < vars.size(); j++) {
 	if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	if(cutOnSigmaIetaIeta) {
+	  if(sigmaIetaIetaCut > 0) {
+	    if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	  }
+	  else {
+	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  }
+	}
 	
 	double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
 	h_siga_JECdown[j]->Fill(vars[j], totalWeight);
@@ -1868,6 +1973,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
 
     for(unsigned int j = 0; j < vars.size(); j++) {
       if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+      if(cutOnSigmaIetaIeta) {
+	if(sigmaIetaIetaCut > 0) {
+	  if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	}
+	else {
+	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	}
+      }
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
       Float_t olderror = h_sigb[j]->GetBinError(h_sigb[j]->FindBin(vars[j]));
@@ -1983,6 +2099,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
       
       for(unsigned int j = 0; j < vars.size(); j++) {
 	if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	if(cutOnSigmaIetaIeta) {
+	  if(sigmaIetaIetaCut > 0) {
+	    if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	  }
+	  else {
+	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  }
+	}
 	
 	double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
 	h_sigb_JECup[j]->Fill(vars[j], totalWeight);
@@ -2009,6 +2136,17 @@ void PlotMaker::FillHistograms(double metCut, int nPhotons_req, int nBtagReq, in
       
       for(unsigned int j = 0; j < vars.size(); j++) {
 	if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+	if(cutOnSigmaIetaIeta) {
+	  if(sigmaIetaIetaCut > 0) {
+	    if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	  }
+	  else {
+	    if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	    if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	  }
+	}
 	
 	double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
 	h_sigb_JECdown[j]->Fill(vars[j], totalWeight);
@@ -2304,6 +2442,17 @@ void PlotMaker::RefillQCD(TH1D * weights, double metCut, int nPhotons_req, int n
 
     for(unsigned int j = 0; j < vars.size(); j++) {
       if(variables[j] != "Nphotons" && (int)vars[0] != nPhotons_req && nPhotons_req >= 0) continue;
+
+      if(cutOnSigmaIetaIeta) {
+	if(sigmaIetaIetaCut > 0) {
+	  if((int)vars[0] > 0 && vars[22] >= sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] >= sigmaIetaIetaCut) continue;
+	}
+	else {
+	  if((int)vars[0] > 0 && vars[22] < sigmaIetaIetaCut) continue;
+	  if((int)vars[0] > 1 && vars[28] < sigmaIetaIetaCut) continue;
+	}
+      }
 
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {

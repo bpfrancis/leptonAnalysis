@@ -13,6 +13,10 @@ void makePlots() {
 
   double metCut = -1.;
 
+  // negative cut means >=, postive means <
+  double sigmaIetaIetaCut = 0.012;
+  bool cutOnSigmaIetaIeta = false;
+
   bool displayKStest = false;
   bool blinded = false;
   int nPhotons_req = NUM_PHOTONS_REQUIRED;

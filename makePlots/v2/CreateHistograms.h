@@ -796,7 +796,7 @@ void HistogramMaker::LoadPhotonSFs(TString fileName) {
 void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, Float_t xhi, bool doAbsValue) {
   
   variables.push_back(variable);
-  varNumber[variable] = variables.size();
+  varNumber[variable] = variables.size() - 1;
 
   absValue.push_back(doAbsValue);
   if(doAbsValue) {
@@ -865,7 +865,7 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
 void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* customBins, bool doAbsValue) {
 
   variables.push_back(variable);
-  varNumber[variable] = variables.size();
+  varNumber[variable] = variables.size() - 1;
 
   absValue.push_back(doAbsValue);
 
