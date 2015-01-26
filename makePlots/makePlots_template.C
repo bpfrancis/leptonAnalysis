@@ -17,6 +17,9 @@ void makePlots() {
   double sigmaIetaIetaCut = 0.012;
   bool cutOnSigmaIetaIeta = false;
 
+  int photonMode = 0;
+  if(sigmaIetaIetaCut < 0. && cutOnSigmaIetaIeta) photonMode = 1;
+
   bool displayKStest = false;
   bool blinded = false;
   int nPhotons_req = NUM_PHOTONS_REQUIRED;
@@ -30,8 +33,8 @@ void makePlots() {
   for(int i = 0; i < nChannels; i++) {
     if(i != 1 && i != 3) continue;
 
-    if(i < 2) analyze(input_ele, addMC, i, intLumi, metCut, nPhotons_req, nBtagReq[i], displayKStest, blinded, 0);
-    else analyze(input_muon, addMC, i, intLumi, metCut, nPhotons_req, nBtagReq[i], displayKStest, blinded, 0);
+    if(i < 2) analyze(input_ele, addMC, i, intLumi, metCut, nPhotons_req, nBtagReq[i], displayKStest, blinded, photonMode, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
+    else analyze(input_muon, addMC, i, intLumi, metCut, nPhotons_req, nBtagReq[i], displayKStest, blinded, photonMode, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
 
   }  
 
