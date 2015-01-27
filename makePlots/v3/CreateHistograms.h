@@ -70,7 +70,7 @@ class HistogramMaker : public TObject {
     return getValue(variables[i]);
   };
 
-  Int_t getIntegerValue(TString name) { return (Int_t)getValue(TString name); };
+  Int_t getIntegerValue(TString name) { return (Int_t)getValue(name); };
 
   bool inControlRegion() {
     switch(controlRegion) {
@@ -141,10 +141,6 @@ class HistogramMaker : public TObject {
 
   void SubtractMCFromQCD();
   void NormalizeQCD();
-
-  void ScaleFromFits(double qcdSF, double qcdSFerror, double mcSF, double mcSFerror,
-		     double wjetsSF, double wjetsSFerror, double topSF, double topSFerror,
-		     double ttjetsSF, double ttjetsSFerror, double ttgammaSF, double ttgammaSFerror);
 
   void SaveOutput();
 
@@ -248,12 +244,14 @@ class HistogramMaker : public TObject {
   TH2D * sf_photon_id;
   TH2D * sf_photon_veto;
 
-  Int_t intLumi_int = 19712;
+  Int_t intLumi_int;
 
   int channel;
   bool blinded;
 
   int controlRegion;
+
+  Float_t metCut;
 
   TString req;
 
@@ -265,12 +263,15 @@ class HistogramMaker : public TObject {
 
 };
 
-HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion) :
+HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet) :
   channel(chanNo),
   blinded(blind),
-  controlRegion(cRegion)
+  controlRegion(cRegion),
+  metCut(cutOnMet)
 {
   req = channels[chanNo];
+
+  intLumi_int = 19712;
 
   variables.clear();
   variables_2d.clear();
@@ -858,7 +859,7 @@ void HistogramMaker::FillMCBackgrounds() {
 	Float_t oldError = mcHistograms[i][k]->GetBinError(mcHistograms[i][k]->FindBin(getValue(k)));
 	Float_t newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k), newerror));
+	mcHistograms[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 					
 	for(unsigned int m = 0; m < variables_2d.size(); m++) {
 	  if(variables[k] == variables_2d[m].first) {
@@ -1065,7 +1066,7 @@ void HistogramMaker::FillMCBackgrounds() {
 			    fitScale[i]*fitScale[i]*btagWeight*btagWeight*puWeightErr*puWeightErr +
 			    puWeight*puWeight*btagWeight*btagWeight*fitScaleError[i]*fitScaleError[i];
       
-      GetLeptonSF(varMap, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetLeptonSF(varMap, channel, leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(varMap, photonSF, photonSFup, photonSFdown);
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
@@ -1322,354 +1323,6 @@ void HistogramMaker::NormalizeQCD() {
   cout << endl << "NormalizeQCD(): Overall scaling factor of " << n_qcd_after / n_qcd_before << " applied." << endl << endl;
 
 }
-    
-void HistogramMaker::ScaleFromFits(double qcdSF, double qcdSFerror, double mcSF, double mcSFerror,
-			      double wjetsSF, double wjetsSFerror, double topSF, double topSFerror,
-			      double ttjetsSF, double ttjetsSFerror, double ttgammaSF, double ttgammaSFerror) {
-  
-  if(qcdSF > 0) {
-    for(unsigned int i = 0; i < h_qcd.size(); i++) {
-
-      if(i == 0) { // Nphotons
-	for(int j = 0; j < h_qcd[0]->GetNbinsX(); j++) {
-	  
-	  double nphoton_qcd_scale, nphoton_qcd_error;
-	  if(j == 0) {
-	    if(channelNum < 2) {
-	      nphoton_qcd_scale = 0.262103451738;
-	      nphoton_qcd_error = 0.0135331456284;
-	    }
-	    else {
-	      nphoton_qcd_scale = 0.00993519916066;
-	      nphoton_qcd_error = 0.00180912524239;
-	    }
-	  }
-	  
-	  else if(j == 1) {
-	    if(channelNum < 2) {
-	      nphoton_qcd_scale = 0.679335;
-	      nphoton_qcd_error = 0.0405333;
-	    }
-	    else {
-	      nphoton_qcd_scale = 0.;
-	      nphoton_qcd_error = 0.;
-	    }
-	  }
-	  
-	  else {
-	    nphoton_qcd_scale = 0.;
-	    nphoton_qcd_error = 0.;
-	  }
-	  
-	  double oldError_tmp = h_qcd[0]->GetBinError(j+1);
-	  double oldValue_tmp = h_qcd[0]->GetBinContent(j+1);
-	  double newError_tmp = (nphoton_qcd_scale != 0.) ? 
-	    nphoton_qcd_scale*oldValue_tmp*sqrt( (oldError_tmp*oldError_tmp/oldValue_tmp/oldValue_tmp) + (nphoton_qcd_error*nphoton_qcd_error/nphoton_qcd_scale/nphoton_qcd_scale)) :
-	    0.;
-	  
-	  h_qcd[0]->SetBinContent(j+1, oldValue_tmp * nphoton_qcd_scale);
-	  h_qcd[0]->SetBinError(j+1, newError_tmp);
-	}
-	
-	continue;
-      }
-	  
-      for(Int_t b = 0; b < h_qcd[i]->GetNbinsX(); b++) {
-	double olderr = h_qcd[i]->GetBinError(b+1);
-	double oldval = h_qcd[i]->GetBinContent(b+1);
-	
-	if(oldval == 0.) continue;
-	
-	double_t newerr = oldval * qcdSF * sqrt(olderr*olderr/(oldval*oldval) + qcdSFerror*qcdSFerror/(qcdSF*qcdSF));
-	
-	h_qcd[i]->SetBinContent(b+1, oldval * qcdSF);
-	h_qcd[i]->SetBinError(b+1, newerr);
-      }
-    }
-    
-    for(unsigned int i = 0; i < h_qcd_2d.size(); i++) {
-      for(Int_t bx = 0; bx < h_qcd[i]->GetNbinsX(); bx++) {
-	for(Int_t by = 0; by < h_qcd[i]->GetNbinsY(); by++) {
-	  double olderr = h_qcd[i]->GetBinError(bx+1, by+1);
-	  double oldval = h_qcd[i]->GetBinContent(bx+1, by+1);
-	  
-	  if(oldval == 0.) continue;
-	  
-	  double_t newerr = oldval * qcdSF * sqrt(olderr*olderr/(oldval*oldval) + qcdSFerror*qcdSFerror/(qcdSF*qcdSF));
-	  
-	  h_qcd[i]->SetBinContent(bx+1, by+1, oldval * qcdSF);
-	  h_qcd[i]->SetBinError(bx+1, by+1, newerr);
-	}
-      }
-    }
-    
-  } // if you're doing QCD
-
-  if(mcSF > 0) {
-
-    for(unsigned int i = 0; i < mcHistograms.size(); i++) {
-      for(unsigned int j = 0; j < mcHistograms[i].size(); j++) {
-	
-	for(Int_t b = 0; b < mcHistograms[i][j]->GetNbinsX(); b++) {
-	  
-	  double olderr = mcHistograms[i][j]->GetBinError(b+1);
-	  double oldval = mcHistograms[i][j]->GetBinContent(b+1);
-	  
-	  if(oldval == 0.) continue;
-	  
-	  double newval = oldval * mcSF;
-	  double newerr = oldval * mcSF * sqrt(olderr*olderr/(oldval*oldval) + mcSFerror*mcSFerror/(mcSF*mcSF));
-	  
-	  mcHistograms[i][j]->SetBinContent(b+1, newval);
-	  mcHistograms[i][j]->SetBinError(b+1, newerr);
-	  
-	}
-	
-      }
-    }
-    
-    for(unsigned int i = 0; i < mcHistograms_2d.size(); i++) {
-      for(unsigned int j = 0; j < mcHistograms_2d[i].size(); j++) {
-	
-	for(Int_t bx = 0; bx < mcHistograms_2d[i][j]->GetNbinsX(); bx++) {
-	  for(Int_t by = 0; by < mcHistograms_2d[i][j]->GetNbinsY(); by++) {
-	    
-	    double olderr = mcHistograms_2d[i][j]->GetBinError(bx+1, by+1);
-	    double oldval = mcHistograms_2d[i][j]->GetBinContent(bx+1, by+1);
-	    
-	    if(oldval == 0.) continue;
-	    
-	    double newval = oldval * mcSF;
-	    double newerr = oldval * mcSF * sqrt(olderr*olderr/(oldval*oldval) + mcSFerror*mcSFerror/(mcSF*mcSF));
-	    
-	    mcHistograms_2d[i][j]->SetBinContent(bx+1, by+1, newval);
-	    mcHistograms_2d[i][j]->SetBinError(bx+1, by+1, newerr);
-	    
-	  }
-	}
-	
-      }
-    }
-   
-  } // if you're doing mc
-
-  if(wjetsSF > 0) {
-
-    for(unsigned int i = 0; i < mcHistograms.size(); i++) {
-
-      if(mcLayerNumbers[i] != 1) continue;
-
-      for(unsigned int j = 0; j < mcHistograms[i].size(); j++) {
-
-	for(Int_t b = 0; b < mcHistograms[i][j]->GetNbinsX(); b++) {
-	  
-	  double olderr = mcHistograms[i][j]->GetBinError(b+1);
-	  double oldval = mcHistograms[i][j]->GetBinContent(b+1);
-	  
-	  if(oldval == 0.) continue;
-	  
-	  double newval = oldval * wjetsSF;
-	  double newerr = oldval * wjetsSF * sqrt(olderr*olderr/(oldval*oldval) + wjetsSFerror*wjetsSFerror/(wjetsSF*wjetsSF));
-
-	  mcHistograms[i][j]->SetBinContent(b+1, newval);
-	  mcHistograms[i][j]->SetBinError(b+1, newerr);
-	  
-	}
-	
-      }
-    }
-    
-    for(unsigned int i = 0; i < mcHistograms_2d.size(); i++) {
-
-      if(mcLayerNumbers[i] != 1) continue;
-      
-      for(unsigned int j = 0; j < mcHistograms_2d[i].size(); j++) {
-	
-	for(Int_t bx = 0; bx < mcHistograms_2d[i][j]->GetNbinsX(); bx++) {
-	  for(Int_t by = 0; by < mcHistograms_2d[i][j]->GetNbinsY(); by++) {
-	    
-	    double olderr = mcHistograms_2d[i][j]->GetBinError(bx+1, by+1);
-	    double oldval = mcHistograms_2d[i][j]->GetBinContent(bx+1, by+1);
-	    
-	    if(oldval == 0.) continue;
-	    
-	    double newval = oldval * wjetsSF;
-	    double newerr = oldval * wjetsSF * sqrt(olderr*olderr/(oldval*oldval) + wjetsSFerror*wjetsSFerror/(wjetsSF*wjetsSF));
-	    
-	    mcHistograms_2d[i][j]->SetBinContent(bx+1, by+1, newval);
-	    mcHistograms_2d[i][j]->SetBinError(bx+1, by+1, newerr);
-	    
-	  }
-	}
-	
-      }
-    }
-
-  } // if doing wjets
-
-  if(topSF > 0) {
-
-    for(unsigned int i = 0; i < mcHistograms.size(); i++) {
-
-      if(mcLayerNumbers[i] != 0 && mcLayerNumbers[i] != 6) continue;
-
-      for(unsigned int j = 0; j < mcHistograms[i].size(); j++) {
-
-	for(Int_t b = 0; b < mcHistograms[i][j]->GetNbinsX(); b++) {
-	  
-	  double olderr = mcHistograms[i][j]->GetBinError(b+1);
-	  double oldval = mcHistograms[i][j]->GetBinContent(b+1);
-	  
-	  if(oldval == 0.) continue;
-	  
-	  double newval = oldval * topSF;
-	  double newerr = oldval * topSF * sqrt(olderr*olderr/(oldval*oldval) + topSFerror*topSFerror/(topSF*topSF));
-
-	  mcHistograms[i][j]->SetBinContent(b+1, newval);
-	  mcHistograms[i][j]->SetBinError(b+1, newerr);
-	  
-	}
-	
-      }
-    }
-    
-    for(unsigned int i = 0; i < mcHistograms_2d.size(); i++) {
-
-      if(mcLayerNumbers[i] != 0 && mcLayerNumbers[i] != 6) continue;
-      
-      for(unsigned int j = 0; j < mcHistograms_2d[i].size(); j++) {
-	
-	for(Int_t bx = 0; bx < mcHistograms_2d[i][j]->GetNbinsX(); bx++) {
-	  for(Int_t by = 0; by < mcHistograms_2d[i][j]->GetNbinsY(); by++) {
-	    
-	    double olderr = mcHistograms_2d[i][j]->GetBinError(bx+1, by+1);
-	    double oldval = mcHistograms_2d[i][j]->GetBinContent(bx+1, by+1);
-	    
-	    if(oldval == 0.) continue;
-	    
-	    double newval = oldval * topSF;
-	    double newerr = oldval * topSF * sqrt(olderr*olderr/(oldval*oldval) + topSFerror*topSFerror/(topSF*topSF));
-	    
-	    mcHistograms_2d[i][j]->SetBinContent(bx+1, by+1, newval);
-	    mcHistograms_2d[i][j]->SetBinError(bx+1, by+1, newerr);
-	    
-	  }
-	}
-	
-      }
-    }
-
-  } // if doing top
-
-  if(ttjetsSF > 0) {
-
-    for(unsigned int i = 0; i < mcHistograms.size(); i++) {
-
-      if(mcLayerNumbers[i] != 0) continue;
-
-      for(unsigned int j = 0; j < mcHistograms[i].size(); j++) {
-
-	for(Int_t b = 0; b < mcHistograms[i][j]->GetNbinsX(); b++) {
-	  
-	  double olderr = mcHistograms[i][j]->GetBinError(b+1);
-	  double oldval = mcHistograms[i][j]->GetBinContent(b+1);
-	  
-	  if(oldval == 0.) continue;
-	  
-	  double newval = oldval * ttjetsSF;
-	  double newerr = oldval * ttjetsSF * sqrt(olderr*olderr/(oldval*oldval) + ttjetsSFerror*ttjetsSFerror/(ttjetsSF*ttjetsSF));
-
-	  mcHistograms[i][j]->SetBinContent(b+1, newval);
-	  mcHistograms[i][j]->SetBinError(b+1, newerr);
-	  
-	}
-	
-      }
-    }
-    
-    for(unsigned int i = 0; i < mcHistograms_2d.size(); i++) {
-
-      if(mcLayerNumbers[i] != 0) continue;
-      
-      for(unsigned int j = 0; j < mcHistograms_2d[i].size(); j++) {
-	
-	for(Int_t bx = 0; bx < mcHistograms_2d[i][j]->GetNbinsX(); bx++) {
-	  for(Int_t by = 0; by < mcHistograms_2d[i][j]->GetNbinsY(); by++) {
-	    
-	    double olderr = mcHistograms_2d[i][j]->GetBinError(bx+1, by+1);
-	    double oldval = mcHistograms_2d[i][j]->GetBinContent(bx+1, by+1);
-	    
-	    if(oldval == 0.) continue;
-	    
-	    double newval = oldval * ttjetsSF;
-	    double newerr = oldval * ttjetsSF * sqrt(olderr*olderr/(oldval*oldval) + ttjetsSFerror*ttjetsSFerror/(ttjetsSF*ttjetsSF));
-	    
-	    mcHistograms_2d[i][j]->SetBinContent(bx+1, by+1, newval);
-	    mcHistograms_2d[i][j]->SetBinError(bx+1, by+1, newerr);
-	    
-	  }
-	}
-	
-      }
-    }
-
-  } // if doing ttjets
-
-  if(ttgammaSF > 0) {
-
-    for(unsigned int i = 0; i < mcHistograms.size(); i++) {
-
-      if(mcLayerNumbers[i] != 6) continue;
-
-      for(unsigned int j = 0; j < mcHistograms[i].size(); j++) {
-
-	for(Int_t b = 0; b < mcHistograms[i][j]->GetNbinsX(); b++) {
-	  
-	  double olderr = mcHistograms[i][j]->GetBinError(b+1);
-	  double oldval = mcHistograms[i][j]->GetBinContent(b+1);
-	  
-	  if(oldval == 0.) continue;
-	  
-	  double newval = oldval * ttgammaSF;
-	  double newerr = oldval * ttgammaSF * sqrt(olderr*olderr/(oldval*oldval) + ttgammaSFerror*ttgammaSFerror/(ttgammaSF*ttgammaSF));
-
-	  mcHistograms[i][j]->SetBinContent(b+1, newval);
-	  mcHistograms[i][j]->SetBinError(b+1, newerr);
-	  
-	}
-	
-      }
-    }
-    
-    for(unsigned int i = 0; i < mcHistograms_2d.size(); i++) {
-
-      if(mcLayerNumbers[i] != 6) continue;
-      
-      for(unsigned int j = 0; j < mcHistograms_2d[i].size(); j++) {
-	
-	for(Int_t bx = 0; bx < mcHistograms_2d[i][j]->GetNbinsX(); bx++) {
-	  for(Int_t by = 0; by < mcHistograms_2d[i][j]->GetNbinsY(); by++) {
-	    
-	    double olderr = mcHistograms_2d[i][j]->GetBinError(bx+1, by+1);
-	    double oldval = mcHistograms_2d[i][j]->GetBinContent(bx+1, by+1);
-	    
-	    if(oldval == 0.) continue;
-	    
-	    double newval = oldval * ttgammaSF;
-	    double newerr = oldval * ttgammaSF * sqrt(olderr*olderr/(oldval*oldval) + ttgammaSFerror*ttgammaSFerror/(ttgammaSF*ttgammaSF));
-	    
-	    mcHistograms_2d[i][j]->SetBinContent(bx+1, by+1, newval);
-	    mcHistograms_2d[i][j]->SetBinError(bx+1, by+1, newerr);
-	    
-	  }
-	}
-	
-      }
-    }
-
-  } // if doing ttgamma
- 
-}
 
 void HistogramMaker::SaveOutput() {
 
@@ -1731,7 +1384,7 @@ void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
 
   Float_t pt, eta, error;
 
-  if(chan < 2) {
+  if(channel < 2) {
     pt = min(lepton_pt, (float)199.);
     pt = max(pt, (float)15.);
     eta = min(fabs(lepton_eta), (double)2.39);

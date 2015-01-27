@@ -1,4 +1,4 @@
-#include "analyze.h"
+#include "CreateHistograms.h"
 
 using namespace std;
 
@@ -15,7 +15,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TFile * fSigB = new TFile("../../acceptance_v2/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(channels[channel]+"_noSigmaIetaIetaTree");
 
-  HistogramMaker * hMaker = new HistogramMaker(intLumi_int, channel, blinded, controlRegion);
+  HistogramMaker * hMaker = new HistogramMaker(intLumi_int, channel, blinded, controlRegion, metCut);
   hMaker->LoadLeptonSFs("../../data/lepton_SF_8TeV_53x_baseline.root");
   hMaker->LoadPhotonSFs("../../data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
