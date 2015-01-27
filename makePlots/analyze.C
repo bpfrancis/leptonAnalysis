@@ -31,7 +31,7 @@
 
 using namespace std;
 
-void analyze(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int photonMode, double sigmaIetaIetaCut, double cutOnSigmaIetaIeta) {
+void analyze(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nBtagReq, bool displayKStest, bool blinded, int controlRegion) {
 
   gROOT->Reset();
   gROOT->SetBatch(true);
@@ -41,27 +41,23 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
 
   TFile * in = new TFile(input, "READ");
 
-  TTree * ggTree = (TTree*)in->Get(channels[channel]+"_signalTree");
-  if(photonMode == 1) ggTree = (TTree*)in->Get(channels[channel]+"_noSigmaIetaIetaTree");
-  if(photonMode == 2) ggTree = (TTree*)in->Get(channels[channel]+"_noChHadIsoTree");
+  TTree * ggTree = (TTree*)in->Get(channels[channel]+"_noSigmaIetaIetaTree");
 
-  TTree * qcdTree = (TTree*)in->Get(qcdChannels[channel]);
-  if(photonMode == 1) qcdTree = (TTree*)in->Get(qcdChannels_noSigmaIetaIeta[channel]);
-  if(photonMode == 2) qcdTree = (TTree*)in->Get(qcdChannels_noChHadIso[channel]);
+  TTree * qcdTree = (TTree*)in->Get(qcdChannels_noSigmaIetaIeta[channel]);
 
   TFile * fSigA = new TFile("../acceptance_v2/signal_contamination_mst_460_m1_175.root", "READ");
-  TTree * sigaTree = (TTree*)fSigA->Get(channels[channel]+"_signalTree");
-  TTree * sigaTree_JECup = (TTree*)fSigA->Get(channels[channel]+"_signalTree_JECup");
-  TTree * sigaTree_JECdown = (TTree*)fSigA->Get(channels[channel]+"_signalTree_JECdown");
+  TTree * sigaTree = (TTree*)fSigA->Get(channels[channel]+"_noSigmaIetaIetaTree");
+  TTree * sigaTree_JECup = (TTree*)fSigA->Get(channels[channel]+"_noSigmaIetaIetaTree_JECup");
+  TTree * sigaTree_JECdown = (TTree*)fSigA->Get(channels[channel]+"_noSigmaIetaIetaTree_JECdown");
 
   TFile * fSigB = new TFile("../acceptance_v2/signal_contamination_mst_560_m1_325.root", "READ");
-  TTree * sigbTree = (TTree*)fSigB->Get(channels[channel]+"_signalTree");
-  TTree * sigbTree_JECup = (TTree*)fSigB->Get(channels[channel]+"_signalTree_JECup");
-  TTree * sigbTree_JECdown = (TTree*)fSigB->Get(channels[channel]+"_signalTree_JECdown");
+  TTree * sigbTree = (TTree*)fSigB->Get(channels[channel]+"_noSigmaIetaIetaTree");
+  TTree * sigbTree_JECup = (TTree*)fSigB->Get(channels[channel]+"_noSigmaIetaIetaTree_JECup");
+  TTree * sigbTree_JECdown = (TTree*)fSigB->Get(channels[channel]+"_noSigmaIetaIetaTree_JECdown");
 
   TCanvas * can = new TCanvas("canvas", "Plot", 10, 10, 2000, 2000);
 
-  PlotMaker * pMaker = new PlotMaker(intLumi_int, channel, blinded, nPhotons_req, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
+  PlotMaker * pMaker = new PlotMaker(intLumi_int, channel, blinded, controlRegion);
   pMaker->LoadLeptonSFs("../data/lepton_SF_8TeV_53x_baseline.root");
   pMaker->LoadPhotonSFs("../data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
@@ -73,6 +69,14 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
   Double_t ttjetsSF, ttjetsSFerror;
   Double_t ttgammaSF, ttgammaSFerror;
 
+  wjetsSF = -1.;
+  wjetsSFerror = 0.;
+  ttjetsSF = -1.;
+  ttjetsSFerror = 0.;
+  ttgammaSF = -1.;
+  ttgammaSFerror = 0.;
+
+  /*
   if(nPhotons_req < 0) {
     if(channel < 2) {
       wjetsSF = 1.72425231185;
@@ -129,7 +133,8 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
       ttgammaSFerror = 0.246710556695;
     }
   }
-  
+  */
+
   Double_t ttbar_hadronic_xsec = 245.8 * 0.457;
   Double_t ttbar_semiLep_xsec  = 245.8 * 0.438;
   Double_t ttbar_fullLep_xsec  = 245.8 * 0.105;
@@ -297,42 +302,7 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
 
   // has to start with nphotons then met, then HT
 
-  if(nPhotons_req < 1) {
-    pMaker->BookHistogram("Nphotons", 4, 0., 4.);
-    pMaker->BookHistogram("pfMET", nMetBins_0g, xbins_met_0g);
-    pMaker->BookHistogram("HT", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("Njets", 20, 0., 20.);
-    pMaker->BookHistogram("Nbtags", 20, 0., 20.);
-    pMaker->BookHistogram("max_csv", 20, 0., 1.);
-    pMaker->BookHistogram("submax_csv", 20, 0., 1.);
-    pMaker->BookHistogram("HT_jets", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("hadronic_pt", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("jet1_pt", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("jet2_pt", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("jet3_pt", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("btag1_pt", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("w_mT", nKinematicBins_0g, xbins_kinematic_0g);    // 13
-    pMaker->BookHistogram("m3", nKinematicBins_0g, xbins_kinematic_0g);
-    pMaker->BookHistogram("ele_pt", nKinematicBins_0g, xbins_kinematic_0g);  // 15
-    pMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
-    pMaker->BookHistogram("muon_pt", nKinematicBins_0g, xbins_kinematic_0g); // 17
-    pMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);                  // 18
-
-    pMaker->BookHistogram("nPV", 70, 0., 70.);
-
-    pMaker->BookHistogram2D("Nphotons", "pfMET", 3, 0., 3., 20, 0., 350., 1.e-2, 1.e5);
-
-    /*
-    pMaker->BookHistogram2D("Njets", "Nbtags", 15, 0., 15., 7, 0., 7.);
-    pMaker->BookHistogram2D("HT", "pfMET", 20, 0., 1200., 20, 0., 350.);
-    pMaker->BookHistogram2D("w_mT", "Njets", 60, 0., 600., 15, 0., 15.);
-    pMaker->BookHistogram2D("w_mT", "Nbtags", 60, 0., 600., 7, 0., 7.);
-    pMaker->BookHistogram2D("w_mT", "pfMET", 60, 0., 600., 20, 0., 350.);
-    pMaker->BookHistogram2D("w_mT", "HT", 60, 0., 600., 20, 0., 1200.);
-    */
-  }
-    
-  if(nPhotons_req == 1) {
+  if(controlRegion == kCR1 || controlRegion == kSR1) {
     pMaker->BookHistogram("Nphotons", 4, 0., 4.);
     pMaker->BookHistogram("pfMET", nMetBins_1g, xbins_met_1g);
     pMaker->BookHistogram("HT", nKinematicBins_1g, xbins_kinematic_1g);
@@ -363,7 +333,7 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
     pMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
   }
   
-  if(nPhotons_req == 2) {
+  if(controlRegion == kSR2 || controlRegion == kCR2) {
     pMaker->BookHistogram("Nphotons", 4, 0., 4.);
     pMaker->BookHistogram("pfMET", nMetBins_2g, xbins_met_2g);
     pMaker->BookHistogram("HT", nKinematicBins_2g, xbins_kinematic_2g);
@@ -407,28 +377,12 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
     pMaker->BookHistogram("mLepGammaGamma", nKinematicBins_2g, xbins_kinematic_2g);
   }
 
-  pMaker->FillHistograms(metCut, nPhotons_req, nBtagReq, channel);
+  pMaker->FillHistograms(metCut, nBtagReq, channel);
   pMaker->SubtractMCFromQCD();
-
-  if(nPhotons_req < 1) {
-    if(channel < 2) {
-      pMaker->ScaleFromFits(0.262103451738, 0.0135331456284, -1., 0.,
-			    -1., 0., -1., 0.,
-			    -1., 0., -1., 0.);
-    }
-    else {
-      pMaker->ScaleFromFits(0.00993519916066, 0.00180912524239, -1., 0.,
-			    -1., 0., -1., 0.,
-			    -1., 0., -1., 0.);
-    }
-  }
-
-  else pMaker->NormalizeQCD();
-
-  //pMaker->CreateFSRPlot(fSigA, fSigB);
+  pMaker->NormalizeQCD();
 
   pMaker->CreateTable();
-  pMaker->CreateAllDatacards(channel, nPhotons_req, nBtagReq);
+  pMaker->CreateAllDatacards(channel, nBtagReq);
   pMaker->SaveBackgroundOutput();
 
   // Now save the met plots out to file -- use these later for the limit-setting
@@ -436,7 +390,7 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
 
   bool needsQCD = true;
 
-  if(nPhotons_req > 1 || (nPhotons_req > 0 && channel >= 2)) needsQCD = false;
+  //if(nPhotons_req > 1 || (nPhotons_req > 0 && channel >= 2)) needsQCD = false;
 
   pMaker->Create2DPlots(needsQCD, true, out);
 
@@ -918,7 +872,7 @@ void analyze(TString input, bool addMC, int channel, int intLumi_int, double met
 
 }
 
-void fitPhotons(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int photonMode, double sigmaIetaIetaCut, double cutOnSigmaIetaIeta) {
+void fitPhotons(TString input, bool addMC, int channel, int intLumi_int, double metCut, int nPhotons_req, int nBtagReq, bool displayKStest, bool blinded, int controlRegion) {
 
   if(nPhotons_req != 1) return;
 
@@ -949,7 +903,7 @@ void fitPhotons(TString input, bool addMC, int channel, int intLumi_int, double 
 
   TCanvas * can = new TCanvas("canvas", "Plot", 10, 10, 2000, 2000);
 
-  PlotMaker * pMaker = new PlotMaker(intLumi_int, channel, blinded, nPhotons_req, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
+  PlotMaker * pMaker = new PlotMaker(intLumi_int, channel, blinded, controlRegion);
   pMaker->LoadLeptonSFs("../data/lepton_SF_8TeV_53x_baseline.root");
   pMaker->LoadPhotonSFs("../data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 

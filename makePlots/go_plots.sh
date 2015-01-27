@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
 	echo
-	echo "Usage: ./go_plots.sh nPhotons"
+	echo "Usage: ./go_plots.sh kSR2 (kSR1, kSR2, kCR1, kCR2)"
 	echo
 	exit 0
 fi

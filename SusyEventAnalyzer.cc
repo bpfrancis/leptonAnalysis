@@ -352,7 +352,7 @@ void SusyEventAnalyzer::Data() {
   map<TString, float> treeMap;
   for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
 
-  vector<TTree*> signalTrees noSigmaIetaIetaTrees,
+  vector<TTree*> signalTrees, noSigmaIetaIetaTrees,
     eQCDTrees, eQCDnoSigmaIetaIetaTrees,
     muQCDTrees, muQCDnoSigmaIetaIetaTrees;
 

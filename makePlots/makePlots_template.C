@@ -1,3 +1,5 @@
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kNumControlRegions};
+
 void makePlots() {
 
   gSystem->AddIncludePath("-I$ROOFITSYS/include"); 
@@ -13,16 +15,10 @@ void makePlots() {
 
   double metCut = -1.;
 
-  // negative cut means >=, postive means <
-  double sigmaIetaIetaCut = 0.012;
-  bool cutOnSigmaIetaIeta = false;
-
-  int photonMode = 0;
-  if(sigmaIetaIetaCut < 0. && cutOnSigmaIetaIeta) photonMode = 1;
+  int controlRegion = NUM_PHOTONS_REQUIRED;
 
   bool displayKStest = false;
   bool blinded = false;
-  int nPhotons_req = NUM_PHOTONS_REQUIRED;
 
   const int nChannels = 4;
   TString channels[nChannels] = {"ele_jjj", "ele_bjj",
@@ -33,8 +29,8 @@ void makePlots() {
   for(int i = 0; i < nChannels; i++) {
     if(i != 1 && i != 3) continue;
 
-    if(i < 2) analyze(input_ele, addMC, i, intLumi, metCut, nPhotons_req, nBtagReq[i], displayKStest, blinded, photonMode, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
-    else analyze(input_muon, addMC, i, intLumi, metCut, nPhotons_req, nBtagReq[i], displayKStest, blinded, photonMode, sigmaIetaIetaCut, cutOnSigmaIetaIeta);
+    if(i < 2) analyze(input_ele, addMC, i, intLumi, metCut, nBtagReq[i], displayKStest, blinded, controlRegion);
+    else analyze(input_muon, addMC, i, intLumi, metCut, nBtagReq[i], displayKStest, blinded, controlRegion);
 
   }  
 
