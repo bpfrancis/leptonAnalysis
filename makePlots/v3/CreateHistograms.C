@@ -151,11 +151,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   hMaker->SetTrees(ggTree, qcdTree, sigaTree, sigbTree);
 
-  const int nMetBins_0g = 17;
-  Double_t xbins_met_0g[nMetBins_0g+1] = {0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 100, 150, 300, 650};
-  const int nKinematicBins_0g = 28;
-  Double_t xbins_kinematic_0g[nKinematicBins_0g+1] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 1000, 1250, 1500, 2000};
-
   const int nMetBins_1g = 10;
   Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 650};
   const int nKinematicBins_1g = 20;
@@ -168,6 +163,8 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   if(controlRegion == kCR1 || controlRegion == kSR1) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
+    hMaker->BookHistogram("Ngamma", 4, 0., 4.);
+    hMaker->BookHistogram("Nfake", 4, 0., 4.);
     hMaker->BookHistogram("pfMET", nMetBins_1g, xbins_met_1g);
     hMaker->BookHistogram("HT", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("Njets", 20, 0., 20.);
@@ -195,10 +192,13 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     
     hMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 80, 0., 0.04, 20, 0., 350.);
     hMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
+    hMaker->BookHistogram2d("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }
   
   if(controlRegion == kSR2 || controlRegion == kCR2) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
+    hMaker->BookHistogram("Ngamma", 4, 0., 4.);
+    hMaker->BookHistogram("Nfake", 4, 0., 4.);
     hMaker->BookHistogram("pfMET", nMetBins_2g, xbins_met_2g);
     hMaker->BookHistogram("HT", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("Njets", 20, 0., 20.);
@@ -226,6 +226,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     
     hMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 80, 0., 0.04, 20, 0., 350.);
     hMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
+    hMaker->BookHistogram2d("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
 
     hMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 25
     hMaker->BookHistogram("trailPhotonPhi", 63, -3.14159, 3.14159);          // 26

@@ -18,5 +18,5 @@ MUON_FILE_TO_RUN=/eos/uscms/store/user/bfrancis/inputs_v2/SingleMu.root
 rm *.root
 
 cat makePlots_template.C | sed s:ELE_FILE_TO_RUN:$ELE_FILE_TO_RUN: | sed s:MUON_FILE_TO_RUN:$MUON_FILE_TO_RUN: | sed s:PHOTON_REGION:$PHOTON_REGION: > makePlots.C
-root -b -q -l makePlots.C 2>&1 | sed '/does not exist/d' | sed '/has been created/d'
+root -b -q -l makePlots.C
 rm makePlots.C

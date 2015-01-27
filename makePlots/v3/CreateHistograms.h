@@ -828,6 +828,8 @@ void HistogramMaker::FillMCBackgrounds() {
 
   for(unsigned int i = 0; i < mcTrees.size(); i++) {
     
+    cout << " -- Starting on " << mcNames[i] << endl;
+
     for(int j = 0; j < mcTrees[i]->GetEntries(); j++) {
       mcTrees[i]->GetEntry(j);
       
