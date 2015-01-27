@@ -1076,7 +1076,7 @@ void HistogramMaker::FillMCBackgrounds() {
 			    puWeight*puWeight*btagWeight*btagWeight*fitScaleError[i]*fitScaleError[i];
       
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
-      GetPhotonSF(photonSFup, photonSFdown);
+      GetPhotonSF(photonSF, photonSFup, photonSFdown);
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       if(reweightTopPt[i]) totalWeight *= topPtReweighting;
