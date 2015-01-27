@@ -57,7 +57,7 @@ class HistogramMaker : public TObject {
   ClassDef(HistogramMaker, 1);
 
  public:
-  HistogramMaker(int chanNo, bool blind, int cr);
+  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet);
   ~HistogramMaker();
   
   Float_t getValue(TString name) {
@@ -956,20 +956,22 @@ void HistogramMaker::FillMCBackgrounds() {
 
   }
 
-  for(unsigned int j = 0; j < variables.size(); j++) {
-    for(int k = 0; k < mcHistograms[i][j]->GetNbinsX(); k++) {
-      Double_t content = mcHistograms[i][j]->GetBinContent(k+1);
-      Double_t error = mcHistograms[i][j]->GetBinError(k+1);
-      
-      mcHistograms_scaleUp[i][j]->SetBinContent(k+1, content);
-      mcHistograms_scaleDown[i][j]->SetBinContent(k+1, content);
-      mcHistograms_pdfUp[i][j]->SetBinContent(k+1, content);
-      mcHistograms_pdfDown[i][j]->SetBinContent(k+1, content);
-      
-      mcHistograms_scaleUp[i][j]->SetBinError(k+1, error);
-      mcHistograms_scaleDown[i][j]->SetBinError(k+1, error);
-      mcHistograms_pdfUp[i][j]->SetBinError(k+1, error);
-      mcHistograms_pdfDown[i][j]->SetBinError(k+1, error);
+  for(unsigned int i = 0; i < mcHistograms.size(); i++) {
+    for(unsigned int j = 0; j < mcHistograms[i].size(); j++) {
+      for(int k = 0; k < mcHistograms[i][j]->GetNbinsX(); k++) {
+	Double_t content = mcHistograms[i][j]->GetBinContent(k+1);
+	Double_t error = mcHistograms[i][j]->GetBinError(k+1);
+	
+	mcHistograms_scaleUp[i][j]->SetBinContent(k+1, content);
+	mcHistograms_scaleDown[i][j]->SetBinContent(k+1, content);
+	mcHistograms_pdfUp[i][j]->SetBinContent(k+1, content);
+	mcHistograms_pdfDown[i][j]->SetBinContent(k+1, content);
+	
+	mcHistograms_scaleUp[i][j]->SetBinError(k+1, error);
+	mcHistograms_scaleDown[i][j]->SetBinError(k+1, error);
+	mcHistograms_pdfUp[i][j]->SetBinError(k+1, error);
+	mcHistograms_pdfDown[i][j]->SetBinError(k+1, error);
+      }
     }
   }
   
@@ -1066,8 +1068,8 @@ void HistogramMaker::FillMCBackgrounds() {
 			    fitScale[i]*fitScale[i]*btagWeight*btagWeight*puWeightErr*puWeightErr +
 			    puWeight*puWeight*btagWeight*btagWeight*fitScaleError[i]*fitScaleError[i];
       
-      GetLeptonSF(varMap, channel, leptonSF, leptonSFup, leptonSFdown);
-      GetPhotonSF(varMap, photonSF, photonSFup, photonSFdown);
+      GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
+      GetPhotonSF(photonSFup, photonSFdown);
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       if(reweightTopPt[i]) totalWeight *= topPtReweighting;

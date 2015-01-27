@@ -15,14 +15,12 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TFile * fSigB = new TFile("../../acceptance_v2/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(channels[channel]+"_noSigmaIetaIetaTree");
 
-  HistogramMaker * hMaker = new HistogramMaker(intLumi_int, channel, blinded, controlRegion, metCut);
+  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut);
   hMaker->LoadLeptonSFs("../../data/lepton_SF_8TeV_53x_baseline.root");
   hMaker->LoadPhotonSFs("../../data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
   bool loadSuccess = true;
   
-  hMaker->SetPhotonMode(photonMode);
-
   Double_t wjetsSF, wjetsSFerror;
   Double_t ttjetsSF, ttjetsSFerror;
   Double_t ttgammaSF, ttgammaSFerror;
@@ -123,8 +121,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 					  false, false);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v2/signal_contamination_WZ.root", "WZ",
 					  32.3161, 1.3, 1.3, 1.3, 1.3,
-					  false, false,
-					  channel, 4, kCyan, "Diboson", "diboson", "wz");
+					  false, false);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v2/signal_contamination_ZZ.root", "ZZ",
 					  8.25561, 0.3, 0.3, 0.3, 0.3,
 					  false, false);
