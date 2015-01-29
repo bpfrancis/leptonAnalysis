@@ -616,7 +616,7 @@ void PlotMaker::SetStyles(unsigned int n) {
 
   if(xMaximums[n] > xMinimums[n]) {
     bkg->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
-    ratio->GetXaxis()->SetRangeUser(xmin, xmax);
+    ratio->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
   }
 
   bkg->GetYaxis()->SetTitle(yaxisTitles[n]);
@@ -630,7 +630,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   bkg->GetYaxis()->SetRangeUser(yMinimums[n], yMaxmums[n]);
   ratio->GetYaxis()->SetRangeUser(ratioMinimums[n], ratioMaximums[n]);
 
-  oneLine = new TLine(xmin, 1, xmax, 1);
+  oneLine = new TLine(xMinimums[n], 1, xMaximums[n], 1);
   oneLine->SetLineStyle(2);
 
   siga->SetLineColor(kMagenta);
@@ -677,7 +677,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   ratio_stat->Draw("e2 same");
   ratio->Draw("e1 same");
   ratio->Draw("axis same");
-  legRatio->Draw("same");
+  ratioLeg->Draw("same");
 
   oneLine->Draw();  
 
