@@ -192,7 +192,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     
     hMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 80, 0., 0.04, 20, 0., 350.);
     hMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
-    hMaker->BookHistogram2d("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
+    hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }
   
   if(controlRegion == kSR2 || controlRegion == kCR2) {
@@ -226,7 +226,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     
     hMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 80, 0., 0.04, 20, 0., 350.);
     hMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
-    hMaker->BookHistogram2d("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
+    hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
 
     hMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 25
     hMaker->BookHistogram("trailPhotonPhi", 63, -3.14159, 3.14159);          // 26

@@ -91,7 +91,7 @@ class HistogramMaker : public TObject {
 
   bool passMetCut() {
     if(metCut > 0.) return (getValue("pfMET") >= metCut);
-    return false;
+    return true;
   };
     
   bool checkBtagging() {
@@ -716,7 +716,7 @@ void HistogramMaker::FillData() {
 
     if(!passMetCut()) continue;
     if(!inControlRegion()) continue;
-    if(!isBlindedRegion()) continue;
+    if(isBlindedRegion()) continue;
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
