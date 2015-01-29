@@ -83,8 +83,8 @@ class PlotMaker : public TObject {
   // done for each variable
 
   void GetHistograms(unsigned int n);
-  void StackHistograms();
-  void CalculateRatio();
+  void StackHistograms(unsigned int n);
+  void CalculateRatio(unsigned int n);
   void SetStyles(unsigned int n);
 
   void CreatePlot(unsigned int n);
@@ -159,6 +159,7 @@ class PlotMaker : public TObject {
   // channel-wide qualities
 
   TString channel;
+  TString channelLabel;
   int controlRegion;
   bool needsQCD;
 
@@ -171,6 +172,7 @@ class PlotMaker : public TObject {
 PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD) {
 
   channel = channels[chanNo];
+  channelLabel = channelLabels[chanNo];
   controlRegion = cr;
   needsQCD = useQCD;
 
@@ -210,7 +212,7 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD) {
   doDrawLegend.clear();
   doDrawPrelim.clear();
 
-  intput = new TFile("histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
+  input = new TFile("histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
 
 }
 
@@ -322,7 +324,7 @@ void PlotMaker::GetHistograms(unsigned int n) {
     }
   }
 
-  if(divideByBinWidth[i]) {
+  if(divideByBinWidth[n]) {
     data = (TH1D*)DivideByBinWidth(data);
     qcd = (TH1D*)DivideByBinWidth(qcd);
     siga = (TH1D*)DivideByBinWidth(siga);
@@ -373,46 +375,46 @@ void PlotMaker::BookPlot(TString variable, bool divideByWidth,
 
 }
 
-void PlotMaker::StackHistograms() {
+void PlotMaker::StackHistograms(unsigned int n) {
 
   if(needsQCD) {
-    bkg = (TH1D*)qcd->Clone(variable+"_bkg_"+req);
-    bkg_btagWeightUp = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_btagWeightUp");
-    bkg_btagWeightDown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_btagWeightDown");
-    bkg_puWeightUp = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_puWeightUp");
-    bkg_puWeightDown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_puWeightDown");
-    bkg_scaleUp = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_scaleUp");
-    bkg_scaleDown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_scaleDown");
-    bkg_pdfUp = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_pdfUp");
-    bkg_pdfDown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_pdfDown");
-    bkg_topPtUp = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_topPtUp");
-    bkg_topPtDown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_topPtDown");
-    bkg_JECup = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_JECUp");
-    bkg_JECdown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_JECDown");
-    bkg_leptonSFup = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_leptonSFUp");
-    bkg_leptonSFdown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_leptonSFDown");
-    bkg_photonSFup = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_photonSFUp");
-    bkg_photonSFdown = (TH1D*)qcd->Clone(variable+"_bkg_"+req+"_photonSFDown");
+    bkg = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]);
+    bkg_btagWeightUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightUp");
+    bkg_btagWeightDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightDown");
+    bkg_puWeightUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightUp");
+    bkg_puWeightDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightDown");
+    bkg_scaleUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleUp");
+    bkg_scaleDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleDown");
+    bkg_pdfUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfUp");
+    bkg_pdfDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfDown");
+    bkg_topPtUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtUp");
+    bkg_topPtDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtDown");
+    bkg_JECup = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
+    bkg_JECdown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
+    bkg_leptonSFup = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
+    bkg_leptonSFdown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
+    bkg_photonSFup = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
+    bkg_photonSFdown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
   }
   
   else {
-    bkg = (TH1D*)mc[0]->Clone(variable+"_bkg_"+req);
-    bkg_btagWeightUp = (TH1D*)mc_btagWeightUp[0]->Clone(variable+"_bkg_"+req+"_btagWeightUp");
-    bkg_btagWeightDown = (TH1D*)mc_btagWeightDown[0]->Clone(variable+"_bkg_"+req+"_btagWeightDown");
-    bkg_puWeightUp = (TH1D*)mc_puWeightUp[0]->Clone(variable+"_bkg_"+req+"_puWeightUp");
-    bkg_puWeightDown = (TH1D*)mc_puWeightDown[0]->Clone(variable+"_bkg_"+req+"_puWeightDown");
-    bkg_scaleUp = (TH1D*)mc_scaleUp[0]->Clone(variable+"_bkg_"+req+"_scaleUp");
-    bkg_scaleDown = (TH1D*)mc_scaleDown[0]->Clone(variable+"_bkg_"+req+"_scaleDown");
-    bkg_pdfUp = (TH1D*)mc_pdfUp[0]->Clone(variable+"_bkg_"+req+"_pdfUp");
-    bkg_pdfDown = (TH1D*)mc_pdfDown[0]->Clone(variable+"_bkg_"+req+"_pdfDown");
-    bkg_topPtUp = (TH1D*)mc_topPtUp[0]->Clone(variable+"_bkg_"+req+"_topPtUp");
-    bkg_topPtDown = (TH1D*)mc_topPtDown[0]->Clone(variable+"_bkg_"+req+"_topPtDown");
-    bkg_JECup = (TH1D*)mc_JECup[0]->Clone(variable+"_bkg_"+req+"_JECUp");
-    bkg_JECdown = (TH1D*)mc_JECdown[0]->Clone(variable+"_bkg_"+req+"_JECDown");
-    bkg_leptonSFup = (TH1D*)mc_leptonSFup[0]->Clone(variable+"_bkg_"+req+"_leptonSFUp");
-    bkg_leptonSFdown = (TH1D*)mc_leptonSFdown[0]->Clone(variable+"_bkg_"+req+"_leptonSFDown");
-    bkg_photonSFup = (TH1D*)mc_photonSFup[0]->Clone(variable+"_bkg_"+req+"_photonSFUp");
-    bkg_photonSFdown = (TH1D*)mc_photonSFdown[0]->Clone(variable+"_bkg_"+req+"_photonSFDown");
+    bkg = (TH1D*)mc[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]);
+    bkg_btagWeightUp = (TH1D*)mc_btagWeightUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightUp");
+    bkg_btagWeightDown = (TH1D*)mc_btagWeightDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightDown");
+    bkg_puWeightUp = (TH1D*)mc_puWeightUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightUp");
+    bkg_puWeightDown = (TH1D*)mc_puWeightDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightDown");
+    bkg_scaleUp = (TH1D*)mc_scaleUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleUp");
+    bkg_scaleDown = (TH1D*)mc_scaleDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleDown");
+    bkg_pdfUp = (TH1D*)mc_pdfUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfUp");
+    bkg_pdfDown = (TH1D*)mc_pdfDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfDown");
+    bkg_topPtUp = (TH1D*)mc_topPtUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtUp");
+    bkg_topPtDown = (TH1D*)mc_topPtDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtDown");
+    bkg_JECUp = (TH1D*)mc_JECUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
+    bkg_JECDown = (TH1D*)mc_JECDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
+    bkg_leptonSFUp = (TH1D*)mc_leptonSFUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
+    bkg_leptonSFDown = (TH1D*)mc_leptonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
+    bkg_photonSFUp = (TH1D*)mc_photonSFUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
+    bkg_photonSFDown = (TH1D*)mc_photonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
   }
 
   for(unsigned int i = 0; i < mcHistograms.size(); i++) {
@@ -430,12 +432,12 @@ void PlotMaker::StackHistograms() {
     bkg_pdfDown->Add(mcHistograms_pdfDown[i]);
     bkg_topPtUp->Add(mcHistograms_topPtUp[i]);
     bkg_topPtDown->Add(mcHistograms_topPtDown[i]);
-    bkg_JECup->Add(mcHistograms_JECup[i]);
-    bkg_JECdown->Add(mcHistograms_JECdown[i]);
-    bkg_leptonSFup->Add(mcHistograms_leptonSFup[i]);
-    bkg_leptonSFdown->Add(mcHistograms_leptonSFdown[i]);
-    bkg_photonSFup->Add(mcHistograms_photonSFup[i]);
-    bkg_photonSFdown->Add(mcHistograms_photonSFdown[i]);
+    bkg_JECUp->Add(mcHistograms_JECUp[i]);
+    bkg_JECDown->Add(mcHistograms_JECDown[i]);
+    bkg_leptonSFUp->Add(mcHistograms_leptonSFUp[i]);
+    bkg_leptonSFDown->Add(mcHistograms_leptonSFDown[i]);
+    bkg_photonSFUp->Add(mcHistograms_photonSFUp[i]);
+    bkg_photonSFDown->Add(mcHistograms_photonSFDown[i]);
     
     for(unsigned int j = i + 1; j < mcHistograms.size(); j++) {
       mcHistograms[i]->Add(mcHistograms[j]);
@@ -539,8 +541,8 @@ void PlotMaker::MakeLegends() {
   leg->AddEntry((TObject*)0, "", "");
   if(needsQCD) leg->AddEntry(bkg, "QCD", "F");
 
-  leg->AddEntry(mc[0], legendNames[0], "F");
-  for(unsigned int i = 1; i < mc.size(); i++) leg->AddEntry(mc[i], legendNames[i], "F");
+  leg->AddEntry(mc[0], layerLegends[0], "F");
+  for(unsigned int i = 1; i < mc.size(); i++) leg->AddEntry(mc[i], layerLegends[i], "F");
   if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
@@ -559,7 +561,7 @@ void PlotMaker::MakeLegends() {
   reqText->SetFillColor(0);
   reqText->SetFillStyle(0);
   reqText->SetLineColor(0);
-  reqText->AddText(channelLabels[channel].ReplaceAll("XYZ", crNames[controlRegion]));
+  reqText->AddText(channelLabel.ReplaceAll("XYZ", crNames[controlRegion]));
 
   lumiHeader = new TPaveText(0.1, 0.901, 0.9, 0.94, "NDC");
   lumiHeader->SetFillColor(0);
@@ -642,8 +644,8 @@ void PlotMaker::SetStyles(unsigned int n); {
 void PlotMaker::CreatePlot(unsigned int n) {
 
   GetHistograms(n);
-  StackHistograms();
-  CalculateRatio();
+  StackHistograms(n);
+  CalculateRatio(n);
   SetStyles(n);
 
   padhi->cd();
