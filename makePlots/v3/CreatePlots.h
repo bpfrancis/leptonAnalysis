@@ -547,7 +547,19 @@ void PlotMaker::MakeLegends() {
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
 
-  legDrawSignal = (TLegend*)leg->Clone("legDrawSignal");
+  legDrawSignal = new TLegend(0.45, 0.6, 0.85, 0.85, NULL, "brNDC");
+  legDrawSignal->SetNColumns(2);
+  legDrawSignal->AddEntry(data, "Data", "LP");
+  legDrawSignal->AddEntry((TObject*)0, "", "");
+  legDrawSignal->AddEntry(errors_sys, "Stat. #oplus Syst. Errors", "F");
+  legDrawSignal->AddEntry((TObject*)0, "", "");
+  if(needsQCD) legDrawSignal->AddEntry(bkg, "QCD", "F");
+
+  legDrawSignal->AddEntry(mc[0], layerLegends[0], "F");
+  for(unsigned int i = 1; i < mc.size(); i++) legDrawSignal->AddEntry(mc[i], layerLegends[i], "F");
+  if(!needsQCD) legDrawSignal->AddEntry((TObject*)0, "", "");
+  legDrawSignal->SetFillColor(0);
+  legDrawSignal->SetTextSize(0.028);
   legDrawSignal->AddEntry(siga, "GGM (460_175)", "L");
   legDrawSignal->AddEntry(sigb, "GGM (560_325)", "L");
 
@@ -627,7 +639,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetYaxis()->SetTitleOffset(0.5);
   ratio->GetYaxis()->SetNdivisions(508);
 
-  bkg->GetYaxis()->SetRangeUser(yMinimums[n], yMaxmums[n]);
+  bkg->GetYaxis()->SetRangeUser(yMinimums[n], yMaximums[n]);
   ratio->GetYaxis()->SetRangeUser(ratioMinimums[n], ratioMaximums[n]);
 
   oneLine = new TLine(xMinimums[n], 1, xMaximums[n], 1);
