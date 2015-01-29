@@ -389,12 +389,12 @@ void PlotMaker::StackHistograms(unsigned int n) {
     bkg_pdfDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfDown");
     bkg_topPtUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtUp");
     bkg_topPtDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtDown");
-    bkg_JECup = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
-    bkg_JECdown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
-    bkg_leptonSFup = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
-    bkg_leptonSFdown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
-    bkg_photonSFup = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
-    bkg_photonSFdown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
+    bkg_JECUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
+    bkg_JECDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
+    bkg_leptonSFUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
+    bkg_leptonSFDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
+    bkg_photonSFUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
+    bkg_photonSFDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
   }
   
   else {
@@ -494,16 +494,16 @@ void PlotMaker::CalculateRatio(unsigned int n) {
     Double_t topPtDown = bkg_topPtDown->GetBinContent(i+1);
     Double_t topPt_sys = fabs(topPtUp - topPtDown) / 2.;
 
-    Double_t JECup = bkg_JECup->GetBinContent(i+1);
-    Double_t JECdown = bkg_JECdown->GetBinContent(i+1);
+    Double_t JECup = bkg_JECUp->GetBinContent(i+1);
+    Double_t JECdown = bkg_JECDown->GetBinContent(i+1);
     Double_t JEC_sys = fabs(JECup - JECdown) / 2.;
 
-    Double_t leptonSFup = bkg_leptonSFup->GetBinContent(i+1);
-    Double_t leptonSFdown = bkg_leptonSFdown->GetBinContent(i+1);
+    Double_t leptonSFup = bkg_leptonSFUp->GetBinContent(i+1);
+    Double_t leptonSFdown = bkg_leptonSFDown->GetBinContent(i+1);
     Double_t leptonSF_sys = fabs(leptonSFup - leptonSFdown) / 2.;
 
-    Double_t photonSFup = bkg_photonSFup->GetBinContent(i+1);
-    Double_t photonSFdown = bkg_photonSFdown->GetBinContent(i+1);
+    Double_t photonSFup = bkg_photonSFUp->GetBinContent(i+1);
+    Double_t photonSFdown = bkg_photonSFDown->GetBinContent(i+1);
     Double_t photonSF_sys = fabs(photonSFup - photonSFdown) / 2.;
 
     Double_t totalError2 = stat*stat + 
@@ -571,7 +571,7 @@ void PlotMaker::MakeLegends() {
 
 }
 
-void PlotMaker::SetStyles(unsigned int n); {
+void PlotMaker::SetStyles(unsigned int n) {
 
   data->SetMarkerStyle(20);
   data->SetMarkerSize(1.5);
