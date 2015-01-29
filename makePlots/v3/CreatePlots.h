@@ -121,9 +121,9 @@ class PlotMaker : public TObject {
     *bkg_scaleUp, *bkg_scaleDown, 
     *bkg_pdfUp, *bkg_pdfDown, 
     *bkg_topPtUp, *bkg_topPtDown, 
-    *bkg_JECup, *bkg_JECdown,
-    *bkg_leptonSFup, *bkg_leptonSFdown,
-    *bkg_photonSFup, *bkg_photonSFdown;
+    *bkg_JECUp, *bkg_JECDown,
+    *bkg_leptonSFUp, *bkg_leptonSFDown,
+    *bkg_photonSFUp, *bkg_photonSFDown;
 
   TH1D * errors_stat;
   TH1D * errors_sys;
@@ -417,30 +417,30 @@ void PlotMaker::StackHistograms(unsigned int n) {
     bkg_photonSFDown = (TH1D*)mc_photonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
   }
 
-  for(unsigned int i = 0; i < mcHistograms.size(); i++) {
+  for(unsigned int i = 0; i < mc.size(); i++) {
 
     if(!needsQCD && i == 0) continue;
 
-    bkg->Add(mcHistograms[i]);
-    bkg_btagWeightUp->Add(mcHistograms_btagWeightUp[i]);
-    bkg_btagWeightDown->Add(mcHistograms_btagWeightDown[i]);
-    bkg_puWeightUp->Add(mcHistograms_puWeightUp[i]);
-    bkg_puWeightDown->Add(mcHistograms_puWeightDown[i]);
-    bkg_scaleUp->Add(mcHistograms_scaleUp[i]);
-    bkg_scaleDown->Add(mcHistograms_scaleDown[i]);
-    bkg_pdfUp->Add(mcHistograms_pdfUp[i]);
-    bkg_pdfDown->Add(mcHistograms_pdfDown[i]);
-    bkg_topPtUp->Add(mcHistograms_topPtUp[i]);
-    bkg_topPtDown->Add(mcHistograms_topPtDown[i]);
-    bkg_JECUp->Add(mcHistograms_JECUp[i]);
-    bkg_JECDown->Add(mcHistograms_JECDown[i]);
-    bkg_leptonSFUp->Add(mcHistograms_leptonSFUp[i]);
-    bkg_leptonSFDown->Add(mcHistograms_leptonSFDown[i]);
-    bkg_photonSFUp->Add(mcHistograms_photonSFUp[i]);
-    bkg_photonSFDown->Add(mcHistograms_photonSFDown[i]);
+    bkg->Add(mc[i]);
+    bkg_btagWeightUp->Add(mc_btagWeightUp[i]);
+    bkg_btagWeightDown->Add(mc_btagWeightDown[i]);
+    bkg_puWeightUp->Add(mc_puWeightUp[i]);
+    bkg_puWeightDown->Add(mc_puWeightDown[i]);
+    bkg_scaleUp->Add(mc_scaleUp[i]);
+    bkg_scaleDown->Add(mc_scaleDown[i]);
+    bkg_pdfUp->Add(mc_pdfUp[i]);
+    bkg_pdfDown->Add(mc_pdfDown[i]);
+    bkg_topPtUp->Add(mc_topPtUp[i]);
+    bkg_topPtDown->Add(mc_topPtDown[i]);
+    bkg_JECUp->Add(mc_JECUp[i]);
+    bkg_JECDown->Add(mc_JECDown[i]);
+    bkg_leptonSFUp->Add(mc_leptonSFUp[i]);
+    bkg_leptonSFDown->Add(mc_leptonSFDown[i]);
+    bkg_photonSFUp->Add(mc_photonSFUp[i]);
+    bkg_photonSFDown->Add(mc_photonSFDown[i]);
     
-    for(unsigned int j = i + 1; j < mcHistograms.size(); j++) {
-      mcHistograms[i]->Add(mcHistograms[j]);
+    for(unsigned int j = i + 1; j < mc.size(); j++) {
+      mc[i]->Add(mc[j]);
     }
   }
   
@@ -599,10 +599,10 @@ void PlotMaker::SetStyles(unsigned int n); {
   bkg->SetMarkerSize(0);
   bkg->SetLineColor(1);
 
-  for(unsigned int i = 0; i < mcHistograms.size(); i++) {
-    mcHistograms[i]->SetFillColor(layerColors[i]);
-    mcHistograms[i]->SetMarkerSize(0);
-    mcHistograms[i]->SetLineColor(1);
+  for(unsigned int i = 0; i < mc.size(); i++) {
+    mc[i]->SetFillColor(layerColors[i]);
+    mc[i]->SetMarkerSize(0);
+    mc[i]->SetLineColor(1);
   }
 
   bkg->SetTitle(variables[n]);
