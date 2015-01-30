@@ -161,6 +161,32 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   const int nKinematicBins_2g = 10;
   Double_t xbins_kinematic_2g[nKinematicBins_2g+1] = {0, 25, 50, 100, 150, 200, 400, 600, 1000, 1500, 2000};
 
+  if(controlRegion == kCR0) {
+    hMaker->BookHistogram("Nphotons", 4, 0., 4.);
+    hMaker->BookHistogram("Ngamma", 4, 0., 4.);
+    hMaker->BookHistogram("Nfake", 4, 0., 4.);
+    hMaker->BookHistogram("pfMET", nMetBins_1g, xbins_met_1g);
+    hMaker->BookHistogram("HT", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("Njets", 20, 0., 20.);
+    hMaker->BookHistogram("Nbtags", 20, 0., 20.);
+    hMaker->BookHistogram("max_csv", 20, 0., 1.);
+    hMaker->BookHistogram("submax_csv", 20, 0., 1.);
+    hMaker->BookHistogram("HT_jets", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("hadronic_pt", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("jet1_pt", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("jet2_pt", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("jet3_pt", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("btag1_pt", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("w_mT", nKinematicBins_1g, xbins_kinematic_1g);    // 13
+    hMaker->BookHistogram("m3", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("ele_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
+    hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
+    hMaker->BookHistogram("muon_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
+    hMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
+    
+    hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
+  }
+
   if(controlRegion == kCR1 || controlRegion == kSR1) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
@@ -195,7 +221,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }
   
-  if(controlRegion == kSR2 || controlRegion == kCR2) {
+  if(controlRegion == kSR2 || controlRegion == kCR2 || controlRegion == kCR2a) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);

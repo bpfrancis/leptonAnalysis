@@ -1,6 +1,6 @@
 const int nChannels = 4;
 
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 
 void makePlots() {
 

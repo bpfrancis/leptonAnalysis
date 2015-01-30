@@ -66,4 +66,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   pMaker->CreatePlots();
 
+  delete pMaker;
+
 }

@@ -32,8 +32,8 @@ TString channels[nChannels] = {"ele_jjj", "ele_bjj",
 TString channelLabels[nChannels] = {"XYZ e (no b-tag)", "XYZ e",
 				    "XYZ #mu (no b-tag)", "XYZ #mu"};
 
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kNumControlRegions};
-TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2"};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
+TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0"};
 
 class PlotMaker : public TObject {
 
@@ -46,6 +46,23 @@ class PlotMaker : public TObject {
   void BookMCLayer(vector<TString> newNames, int color, TString legendEntry) { 
     TH1D * h;
     mc.push_back(h);
+
+    mc_btagWeightUp.push_back(h); 
+    mc_btagWeightDown.push_back(h);
+    mc_puWeightUp.push_back(h); 
+    mc_puWeightDown.push_back(h);
+    mc_scaleUp.push_back(h); 
+    mc_scaleDown.push_back(h);
+    mc_pdfUp.push_back(h);
+    mc_pdfDown.push_back(h);
+    mc_topPtUp.push_back(h);
+    mc_topPtDown.push_back(h);
+    mc_JECUp.push_back(h);
+    mc_JECDown.push_back(h);
+    mc_leptonSFUp.push_back(h);
+    mc_leptonSFDown.push_back(h);
+    mc_photonSFUp.push_back(h);
+    mc_photonSFDown.push_back(h);
 
     layerNames.push_back(newNames);
     layerColors.push_back(color);
@@ -64,7 +81,7 @@ class PlotMaker : public TObject {
     can = new TCanvas("can", "Plot", 10, 10, 2000, 2000);
     padhi = new TPad("padhi", "padhi", 0, 0.3, 1, 1);
     padlo = new TPad("padlo", "padlo", 0, 0, 1, 0.3);
-    padhi->SetLogy(false);
+    padhi->SetLogy(true);
     padhi->SetTickx(true);
     padhi->SetTicky(true);
     //padhi->SetGridx(true);
@@ -90,7 +107,6 @@ class PlotMaker : public TObject {
   void CreatePlot(unsigned int n);
   void CreatePlots() {
     MakeCanvas();
-    MakeLegends();
     for(unsigned int i = 0; i < variables.size(); i++) CreatePlot(i);
   };
   
@@ -658,13 +674,16 @@ void PlotMaker::CreatePlot(unsigned int n) {
   GetHistograms(n);
   StackHistograms(n);
   CalculateRatio(n);
+  if(n == 0) MakeLegends();
   SetStyles(n);
 
   padhi->cd();
 
   bkg->Draw("hist");
-  if(needsQCD) mc[0]->Draw("same hist");
-  for(unsigned int i = 0; i < mc.size(); i++) mc[i]->Draw("same hist");
+  for(unsigned int i = 0; i < mc.size(); i++) {
+    if(!needsQCD && i == 0) continue;
+    mc[i]->Draw("same hist");
+  }
   //errors_stat->Draw("same e2");
   errors_sys->Draw("same e2");
   data->Draw("same e1");

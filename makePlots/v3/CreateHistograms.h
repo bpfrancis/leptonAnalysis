@@ -50,7 +50,7 @@ TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTr
 TString qcdChannels_noChHadIso[nChannels] = {"ele_jjj_eQCDnoChHadIsoTree", "ele_jjj_veto_eQCDnoChHadIsoTree",
 					     "muon_jjj_muQCDnoChHadIsoTree", "muon_jjj_veto_muQCDnoChHadIsoTree"};
 
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 
 class HistogramMaker : public TObject {
   
@@ -82,6 +82,10 @@ class HistogramMaker : public TObject {
       return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") == 1);
     case kCR2:
       return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2);
+    case kCR2a:
+      return (getIntegerValue("Ngamma") == 1 && getIntegerValue("Nfake") == 1) || (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2);
+    case kCR0:
+      return getIntegerValue("Ngamma") == 0;
     default:
       return false;
     }
@@ -1342,6 +1346,8 @@ void HistogramMaker::SaveOutput() {
   if(controlRegion == kSR2) outName += "SR2";
   if(controlRegion == kCR1) outName += "CR1";
   if(controlRegion == kCR2) outName += "CR2";
+  if(controlRegion == kCR2a) outName += "CR2a";
+  if(controlRegion == kCR0) outName += "CR0";
   outName += ".root";
 
   TFile * fOut = new TFile(outName, "UPDATE");
