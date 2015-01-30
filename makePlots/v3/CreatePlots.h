@@ -41,7 +41,7 @@ class PlotMaker : public TObject {
 
  public:
   PlotMaker(int chanNo, int cr, bool useQCD);
-  ~PlotMaker();
+  virtual ~PlotMaker();
 
   void BookMCLayer(vector<TString> newNames, int color, TString legendEntry) { 
     TH1D * h;
@@ -269,6 +269,10 @@ PlotMaker::~PlotMaker() {
   doDrawSignal.clear();
   doDrawLegend.clear();
   doDrawPrelim.clear();
+
+  delete leg;
+  delete legDrawSignal;
+  delete ratioLeg;
 
   delete can;
 
@@ -712,6 +716,6 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   oneLine->Draw();  
 
-  can->SaveAs(variables[n]+"_"+crNames[controlRegion]+".pdf");
+  can->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
 
 }

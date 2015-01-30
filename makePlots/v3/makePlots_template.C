@@ -1,5 +1,3 @@
-const int nChannels = 4;
-
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 
 void makePlots() {
@@ -13,11 +11,12 @@ void makePlots() {
 
   bool needsQCD = true;
 
+  const int nChannels = 4;
+
   for(int i = 0; i < nChannels; i++) {
     if(i != 1 && i != 3) continue;
 
-    if(i < 2) CreatePlots(i, controlRegion, needsQCD);
-    else CreatePlots(i, controlRegion, needsQCD);
+    CreatePlots(i, controlRegion, needsQCD);
   }  
 
   ts.Stop();
