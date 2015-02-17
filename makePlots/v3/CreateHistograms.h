@@ -216,12 +216,18 @@ class HistogramMaker : public TObject {
   vector< vector<TH1D*> > mcQCDHistograms;
   vector< vector<TH2D*> > mcQCDHistograms_2d;
 
+  vector< vector<TH1D*> > mcQCDHistograms_relIso_5;
+  vector< vector<TH1D*> > mcQCDHistograms_relIso_10;
+
   // h_xyz[variable]
   vector<TH1D*> h_gg;
   vector<TH2D*> h_gg_2d;
 
   vector<TH1D*> h_qcd;
   vector<TH2D*> h_qcd_2d;
+
+  vector<TH1D*> h_qcd_relIso_5;
+  vector<TH1D*> h_qcd_relIso_10;
 
   vector<TH1D*> h_siga;
   vector<TH2D*> h_siga_2d;
@@ -265,6 +271,8 @@ class HistogramMaker : public TObject {
   Float_t overlaps_ttA;
   Float_t topPtReweighting;
 
+  Float_t relIso;
+
 };
 
 HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet) :
@@ -286,6 +294,9 @@ HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutO
 
   h_qcd.clear();
   h_qcd_2d.clear();
+  
+  h_qcd_relIso_5.clear();
+  h_qcd_relIso_10.clear();
 
   h_siga.clear();
   h_siga_2d.clear();
@@ -334,6 +345,9 @@ HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutO
 
   mcQCDHistograms.clear();
   mcQCDHistograms_2d.clear();
+
+  mcQCDHistograms_relIso_5.clear();
+  mcQCDHistograms_relIso_10.clear();
 
 }
 
@@ -368,6 +382,9 @@ HistogramMaker::~HistogramMaker() {
   mcQCDHistograms.clear();
   mcQCDHistograms_2d.clear();
 
+  mcQCDHistograms_relIso_5.clear();
+  mcQCDHistograms_relIso_10.clear();
+
   mcTrees.clear();
   mcTrees_JECup.clear();
   mcTrees_JECdown.clear();
@@ -400,6 +417,9 @@ HistogramMaker::~HistogramMaker() {
   h_qcd.clear();
   h_qcd_2d.clear();
 
+  h_qcd_relIso_5.clear();
+  h_qcd_relIso_10.clear();
+
   h_siga.clear();
   h_siga_2d.clear();
     
@@ -419,9 +439,9 @@ void HistogramMaker::SetTrees(TTree * gg, TTree * qcd, TTree * sig_a, TTree * si
 }
 
 bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
-				 Double_t xsec, Double_t scaleErrorUp, Double_t scaleErrorDown, Double_t pdfErrorUp, Double_t pdfErrorDown,
-				 bool removeTTA, bool reweightTop,
-				 Double_t fitScaling, Double_t fitScalingError) {
+				      Double_t xsec, Double_t scaleErrorUp, Double_t scaleErrorDown, Double_t pdfErrorUp, Double_t pdfErrorDown,
+				      bool removeTTA, bool reweightTop,
+				      Double_t fitScaling, Double_t fitScalingError) {
 
   mcFiles.push_back(new TFile(fileName, "READ"));
   if(!mcFiles.back()) {
@@ -498,7 +518,10 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
 
   mcQCDHistograms.resize(mcQCDHistograms.size() + 1);
   mcQCDHistograms_2d.resize(mcQCDHistograms_2d.size() + 1);
-  
+
+  mcQCDHistograms_relIso_5.resize(mcQCDHistograms_relIso_5.size() + 1);
+  mcQCDHistograms_relIso_10.resize(mcQCDHistograms_relIso_10.size() + 1);
+
   return true;
 }
 
@@ -514,7 +537,10 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
   TH1D * qcd = new TH1D(variable+"_qcd_"+req, variable, nBins, xlo, xhi);
   qcd->Sumw2();
   h_qcd.push_back(qcd);
-  
+
+  h_qcd_relIso_5.push_back((TH1D*)qcd->Clone(variable+"_qcd_relIso_5_"+req));
+  h_qcd_relIso_10.push_back((TH1D*)qcd->Clone(variable+"_qcd_relIso_10_"+req));
+
   TH1D * h_bkg;
   for(unsigned int i = 0; i < mcHistograms.size(); i++) {
     h_bkg = new TH1D(variable+"_"+mcNames[i]+"_"+req, variable, nBins, xlo, xhi);
@@ -574,6 +600,9 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
     h_bkg = new TH1D(variable+"_qcd_"+mcNames[i]+"_"+req, variable, nBins, xlo, xhi);
     h_bkg->Sumw2();
     mcQCDHistograms[i].push_back(h_bkg);
+
+    mcQCDHistograms_relIso_5.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_5_"+mcNames[i]+"_"+req));
+    mcQCDHistograms_relIso_10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+req));
   }
 
   TH1D * sig_a = new TH1D(variable+"_a_"+req, variable, nBins, xlo, xhi);
@@ -598,6 +627,9 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* cust
   TH1D * qcd = new TH1D(variable+"_qcd_"+req, variable, nBins, customBins);
   qcd->Sumw2();
   h_qcd.push_back(qcd);
+
+  h_qcd_relIso_5.push_back((TH1D*)qcd->Clone(variable+"_qcd_relIso_5_"+req));
+  h_qcd_relIso_10.push_back((TH1D*)qcd->Clone(variable+"_qcd_relIso_10_"+req));
 
   TH1D * h_bkg;
   for(unsigned int i = 0; i < mcHistograms.size(); i++) {
@@ -658,6 +690,9 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* cust
     h_bkg = new TH1D(variable+"_qcd_"+mcNames[i]+"_"+req, variable, nBins, customBins);
     h_bkg->Sumw2();
     mcQCDHistograms[i].push_back(h_bkg);
+
+    mcQCDHistograms_relIso_5.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_5_"+mcNames[i]+"_"+req));
+    mcQCDHistograms_relIso_10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+req));
   }
 
   TH1D * sig_a = new TH1D(variable+"_a_"+req, variable, nBins, customBins);
@@ -746,7 +781,10 @@ void HistogramMaker::FillData() {
 void HistogramMaker::FillQCD() {
 
   for(unsigned int i = 0; i < variables.size(); i++) qcdTree->SetBranchAddress(variables[i], &(varMap[variables[i]]));
-  
+
+  if(channel < 2) qcdTree->SetBranchAddress("ele_relIso", &relIso);
+  else qcdTree->SetBranchAddress("muon_relIso", &relIso);
+
   for(int i = 0; i < qcdTree->GetEntries(); i++) {
     qcdTree->GetEntry(i);
     
@@ -766,6 +804,10 @@ void HistogramMaker::FillQCD() {
       }
 
       h_qcd[j]->Fill(getValue(j));
+
+      if(relIso > 0.2 * 1.05) h_qcd_relIso_5[j]->Fill(getValue(j));
+      if(relIso > 0.2 * 1.10) h_qcd_relIso_10[j]->Fill(getValue(j));
+
     }
 
   }
@@ -810,6 +852,9 @@ void HistogramMaker::FillMCBackgrounds() {
     mcQCDTrees[i]->SetBranchAddress("btagWeightDown", &btagWeightDown);
     mcQCDTrees[i]->SetBranchAddress("pileupWeightUp", &puWeightUp);
     mcQCDTrees[i]->SetBranchAddress("pileupWeightDown", &puWeightDown);
+
+    if(channel < 2) mcQCDTrees[i]->SetBranchAddress("ele_relIso", &relIso);
+    else mcQCDTrees[i]->SetBranchAddress("muon_relIso", &relIso);
 
     if(removeTTAoverlap[i]) {
       mcTrees[i]->SetBranchAddress("overlaps_ttA", &overlaps_ttA);
@@ -1062,7 +1107,7 @@ void HistogramMaker::FillMCBackgrounds() {
   }
   
   for(unsigned int i = 0; i < mcQCDTrees.size(); i++) {
-    
+
     for(int j = 0; j < mcQCDTrees[i]->GetEntries(); j++) {
       mcQCDTrees[i]->GetEntry(j);
       
@@ -1095,6 +1140,20 @@ void HistogramMaker::FillMCBackgrounds() {
 	mcQCDHistograms[i][k]->Fill(getValue(k), totalWeight);
 	mcQCDHistograms[i][k]->SetBinError(mcQCDHistograms[i][k]->FindBin(getValue(k)), newerror);
 	
+	if(relIso > 0.2 * 1.05) {
+	  oldError = mcQCDHistograms_relIso_5[i][k]->GetBinError(mcQCDHistograms_relIso_5[i][k]->FindBin(getValue(k)));
+	  newerror = sqrt(oldError*oldError + addError2);
+	  mcQCDHistograms_relIso_5[i][k]->Fill(getValue(k), totalWeight);
+	  mcQCDHistograms_relIso_5[i][k]->SetBinError(mcQCDHistograms_relIso_5[i][k]->FindBin(getValue(k)), newerror);
+	}
+
+	if(relIso > 0.2 * 1.10) {
+	  oldError = mcQCDHistograms_relIso_10[i][k]->GetBinError(mcQCDHistograms_relIso_10[i][k]->FindBin(getValue(k)));
+	  newerror = sqrt(oldError*oldError + addError2);
+	  mcQCDHistograms_relIso_10[i][k]->Fill(getValue(k), totalWeight);
+	  mcQCDHistograms_relIso_10[i][k]->SetBinError(mcQCDHistograms_relIso_10[i][k]->FindBin(getValue(k)), newerror);
+	}
+	
 	for(unsigned int m = 0; m < variables_2d.size(); m++) {
 	  if(variables[k] == variables_2d[m].first) {
 	    for(unsigned int n = 0; n < variables.size(); n++) {
@@ -1111,6 +1170,9 @@ void HistogramMaker::FillMCBackgrounds() {
     
     for(unsigned int j = 0; j < variables.size(); j++) mcQCDHistograms[i][j]->Scale(intLumi_int * crossSections[i] / mcNGen[i]);
     for(unsigned int j = 0; j < variables_2d.size(); j++) mcQCDHistograms_2d[i][j]->Scale(intLumi_int * crossSections[i] / mcNGen[i]);
+
+    for(unsigned int j = 0; j < variables.size(); j++) mcQCDHistograms_relIso_5[i][j]->Scale(intLumi_int * crossSections[i] / mcNGen[i]);
+    for(unsigned int j = 0; j < variables.size(); j++) mcQCDHistograms_relIso_10[i][j]->Scale(intLumi_int * crossSections[i] / mcNGen[i]);
     
   }
 
@@ -1247,6 +1309,18 @@ void HistogramMaker::SubtractMCFromQCD() {
     }
   }
 
+  for(unsigned int i = 0; i < mcQCDHistograms_relIso_5.size(); i++) {
+    for(unsigned int j = 0; j < mcQCDHistograms_relIso_5[i].size(); j++) {
+      h_qcd_relIso_5[j]->Add(mcQCDHistograms_relIso_5[i][j], -1.);
+    }
+  }
+
+  for(unsigned int i = 0; i < mcQCDHistograms_relIso_10.size(); i++) {
+    for(unsigned int j = 0; j < mcQCDHistograms_relIso_10[i].size(); j++) {
+      h_qcd_relIso_10[j]->Add(mcQCDHistograms_relIso_10[i][j], -1.);
+    }
+  }
+
   for(unsigned int i = 0; i < mcQCDHistograms_2d.size(); i++) {
     for(unsigned int j = 0; j < mcQCDHistograms_2d[i].size(); j++) {
       h_qcd_2d[j]->Add(mcQCDHistograms_2d[i][j], -1.);
@@ -1262,12 +1336,30 @@ void HistogramMaker::SubtractMCFromQCD() {
     }
   }
 
+  for(unsigned int i = 0; i < h_qcd_relIso_5.size(); i++) {
+    for(Int_t j = 0; j < h_qcd_relIso_5[i]->GetNbinsX(); j++) {
+      if(h_qcd_relIso_5[i]->GetBinContent(j+1) < 0) {
+	h_qcd_relIso_5[i]->SetBinContent(j+1, 0.);
+	h_qcd_relIso_5[i]->SetBinError(j+1, 0.);
+      }
+    }
+  }
+
+  for(unsigned int i = 0; i < h_qcd_relIso_10.size(); i++) {
+    for(Int_t j = 0; j < h_qcd_relIso_10[i]->GetNbinsX(); j++) {
+      if(h_qcd_relIso_10[i]->GetBinContent(j+1) < 0) {
+	h_qcd_relIso_10[i]->SetBinContent(j+1, 0.);
+	h_qcd_relIso_10[i]->SetBinError(j+1, 0.);
+      }
+    }
+  }
+
   for(unsigned int i = 0; i < h_qcd_2d.size(); i++) {
     for(Int_t j = 0; j < h_qcd_2d[i]->GetNbinsX(); j++) {
       for(Int_t k = 0; k < h_qcd_2d[i]->GetNbinsY(); k++) {
-	if(h_qcd[i]->GetBinContent(j+1, k+1) < 0) {
-	  h_qcd[i]->SetBinContent(j+1, k+1, 0.);
-	  h_qcd[i]->SetBinError(j+1, k+1, 0.);
+	if(h_qcd_2d[i]->GetBinContent(j+1, k+1) < 0) {
+	  h_qcd_2d[i]->SetBinContent(j+1, k+1, 0.);
+	  h_qcd_2d[i]->SetBinError(j+1, k+1, 0.);
 	}
       }
     }
@@ -1292,6 +1384,9 @@ void HistogramMaker::NormalizeQCD() {
   double n_sig = h_gg[met_index]->Integral(0, endBin);
   double n_qcd = h_qcd[met_index]->Integral(0, endBin);
 
+  double relIso_5_n_qcd = h_qcd_relIso_5[met_index]->Integral(0, endBin);
+  double relIso_10_n_qcd = h_qcd_relIso_10[met_index]->Integral(0, endBin);
+
   if(n_qcd < 1) return;
 
   double n_mc = 0;
@@ -1300,10 +1395,16 @@ void HistogramMaker::NormalizeQCD() {
   double sigma_sig = 0;
   double sigma_qcd = 0;
   double sigma_mc = 0;
+
+  double relIso_5_sigma_qcd = 0;
+  double relIso_10_sigma_qcd = 0;
   
   for(int i = 0; i < endBin; i++) {
     sigma_sig += h_gg[met_index]->GetBinError(i+1) * h_gg[met_index]->GetBinError(i+1);
     sigma_qcd += h_qcd[met_index]->GetBinError(i+1) * h_qcd[met_index]->GetBinError(i+1);
+
+    relIso_5_sigma_qcd += h_qcd_relIso_5[met_index]->GetBinError(i+1) * h_qcd_relIso_5[met_index]->GetBinError(i+1);
+    relIso_10_sigma_qcd += h_qcd_relIso_10[met_index]->GetBinError(i+1) * h_qcd_relIso_10[met_index]->GetBinError(i+1);
 
     for(unsigned int j = 0; j < mcHistograms.size(); j++) sigma_mc += mcHistograms[j][met_index]->GetBinError(i+1) * mcHistograms[j][met_index]->GetBinError(i+1);
   }
@@ -1312,8 +1413,14 @@ void HistogramMaker::NormalizeQCD() {
   sigma_qcd = sqrt(sigma_qcd);
   sigma_mc = sqrt(sigma_mc);
 
+  relIso_5_sigma_qcd = sqrt(relIso_5_sigma_qcd);
+  relIso_10_sigma_qcd = sqrt(relIso_10_sigma_qcd);
+
   double scale = (n_sig - n_mc) / n_qcd;
   
+  double relIso_5_scale = (n_sig - n_mc) / relIso_5_n_qcd;
+  double relIso_10_scale = (n_sig - n_mc) / relIso_10_n_qcd;
+
   if(scale < 0) scale = 1.e-6;
 
   for(unsigned int i = 0; i < h_qcd.size(); i++) {
@@ -1327,6 +1434,23 @@ void HistogramMaker::NormalizeQCD() {
 
 	h_qcd[i]->SetBinContent(j+1, h_qcd[i]->GetBinContent(j+1) * scale);
 	h_qcd[i]->SetBinError(j+1, newError);
+
+	newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_5_scale*relIso_5_scale*relIso_5_sigma_qcd*relIso_5_sigma_qcd;
+	newError *= h_qcd_relIso_5[i]->GetBinContent(j+1)*h_qcd_relIso_5[i]->GetBinContent(j+1) / (relIso_5_n_qcd*relIso_5_n_qcd);
+	newError += h_qcd_relIso_5[i]->GetBinError(j+1)*h_qcd_relIso_5[i]->GetBinError(j+1) * relIso_5_scale*relIso_5_scale;
+	newError = sqrt(newError);
+
+	h_qcd_relIso_5[i]->SetBinContent(j+1, h_qcd_relIso_5[i]->GetBinContent(j+1) * relIso_5_scale);
+	h_qcd_relIso_5[i]->SetBinError(j+1, newError);
+
+	newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_10_scale*relIso_10_scale*relIso_10_sigma_qcd*relIso_10_sigma_qcd;
+	newError *= h_qcd_relIso_5[i]->GetBinContent(j+1)*h_qcd_relIso_5[i]->GetBinContent(j+1) / (relIso_10_n_qcd*relIso_10_n_qcd);
+	newError += h_qcd_relIso_5[i]->GetBinError(j+1)*h_qcd_relIso_5[i]->GetBinError(j+1) * relIso_10_scale*relIso_10_scale;
+	newError = sqrt(newError);
+
+	h_qcd_relIso_5[i]->SetBinContent(j+1, h_qcd_relIso_5[i]->GetBinContent(j+1) * relIso_10_scale);
+	h_qcd_relIso_5[i]->SetBinError(j+1, newError);
+
     }
 
   }
@@ -1355,6 +1479,8 @@ void HistogramMaker::SaveOutput() {
   for(unsigned int i = 0; i < h_gg.size(); i++) h_gg[i]->Write();
   for(unsigned int i = 0; i < h_gg_2d.size(); i++) h_gg_2d[i]->Write();
   for(unsigned int i = 0; i < h_qcd.size(); i++) h_qcd[i]->Write();
+  for(unsigned int i = 0; i < h_qcd_relIso_5.size(); i++) h_qcd_relIso_5[i]->Write();
+  for(unsigned int i = 0; i < h_qcd_relIso_10.size(); i++) h_qcd_relIso_10[i]->Write();
   for(unsigned int i = 0; i < h_qcd_2d.size(); i++) h_qcd_2d[i]->Write();
 
   for(unsigned int i = 0; i < h_siga.size(); i++) h_siga[i]->Write();

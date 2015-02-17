@@ -1,44 +1,25 @@
-import ROOT
-from ROOT import gROOT
-from ROOT import gStyle
+from draw import *
+import math
 
-def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, name):
+def ScaleWithError(h, sf, err):
 
-    signal.Scale(signalSF)
-    background.Scale(backgroundSF)
+    if sf == 1.0:
+        return
 
-    signal.SetLineColor(2)
-    signal.SetLineWidth(3)
+    for ibin in range(h.GetNbinsX()):
+        oldcontent = h.GetBinContent(ibin+1)
+        olderror = h.GetBinError(ibin+1)
 
-    background.SetLineColor(3)
-    background.SetLineWidth(3)
-    
-    sumHist = signal.Clone('sumHist')
-    sumHist.Add(background)
-    sumHist.SetLineColor(1)
-    sumHist.SetLineWidth(3)
+        if oldcontent == 0:
+            continue
 
-    leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
-    leg.AddEntry(data, 'Data', 'ELP')
-    leg.AddEntry(signal, signalName, 'L')
-    leg.AddEntry(background, backgroundName, 'L')
+        newcontent = sf * oldcontent
+        newerror = newcontent * math.sqrt((err*err/sf/sf) + (olderror*olderror/oldcontent/oldcontent))
 
-    can = ROOT.TCanvas()
-    can.SetLogy(True)
+        h.SetBinContent(ibin+1, newcontent)
+        h.SetBinError(ibin+1, newerror)
 
-    sumHist.Draw('hist')
-    signal.Draw('hist same')
-    background.Draw('hist same')
-    data.Draw('e1 same')
-    leg.Draw()
-    can.SaveAs(name+'.pdf')
-
-    can.SetLogy(False)
-    data.Divide(sumHist)
-    data.Draw('e1')
-    can.SaveAs(name+'_ratio.pdf')
-
-def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist, plotName):
+def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
 
     # RooFit variables
     var = ROOT.RooRealVar(varname, varname, varmin, varmax)
@@ -80,53 +61,125 @@ def get1DHist(filename, histname):
     hist.SetFillColor(0)
     return hist
 
-def doM3Fit(channel, controlRegion, xlo, xhi):
+###########################################################
+def doQCDFit(channel, controlRegion, systematic, xlo, xhi):
+
+    input = '../histograms_'+channel+'_'+controlRegion+'.root'
+
+    dataHist = get1DHist(input, 'pfMET_gg_'+channel)
+    qcdHist = get1DHist(input, 'pfMET_qcd_'+channel)
+
+    MCHist = get1DHist(input, 'pfMET_ttJetsHadronic_'+channel+systematic)
+    MCHist.Add(get1DHist(input, 'pfMET_ttJetsSemiLep_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_ttJetsFullLep_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_W1JetsToLNu_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_W2JetsToLNu_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_W3JetsToLNu_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_W4JetsToLNu_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_TBar_s_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_TBar_t_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_TBar_tW_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_T_s_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_T_t_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_T_tW_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_dy1JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_dy2JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_dy3JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_dy4JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_ttA_2to5_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_WW_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_WZ_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_ZZ_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_TTWJets_'+channel+systematic))
+    MCHist.Add(get1DHist(input, 'pfMET_TTZJets_'+channel+systematic))
+
+    (qcdFrac, qcdFracErr) = makeFit('pfMET', xlo, xhi, qcdHist, MCHist, dataHist)
+
+    #lowbin = dataHist.FindBin(xlo)
+    #highbin = dataHist.FindBin(xhi) - 1
+
+    lowbin = 1
+    highbin = dataHist.GetNbinsX()+1
+
+    dataInt = dataHist.Integral(lowbin, highbin)
+    qcdInt = qcdHist.Integral(lowbin, highbin)
+    mcInt = MCHist.Integral(lowbin, highbin)
+
+    QCDSF = qcdFrac*dataInt/qcdInt
+    QCDSFerror = qcdFracErr*dataInt/qcdInt
+    MCSF = (1-qcdFrac)*dataInt/mcInt
+    MCSFerror = qcdFracErr*dataInt/mcInt
+
+    drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, MCSF, 'MC', xlo, xhi, 'pfMET_'+channel+systematic)
+
+    return (QCDSF, QCDSFerror, MCSF, MCSFerror)
+
+def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
+
+    (QCDSF, QCDSFerror, MCSF, MCSFerror) = doQCDFit(channel, controlRegion, systematic, 0.0, 300.0)
 
     input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
     dataHist = get1DHist(input, 'm3_gg_'+channel)
 
-    topHist = get1DHist(input, 'm3_ttJetsHadronic_'+channel)
-    topHist.Add(get1DHist(input, 'm3_ttJetsFullLep_'+channel))
-    topHist.Add(get1DHist(input, 'm3_ttJetsSemiLep_'+channel))
-    topHist.Add(get1DHist(input, 'm3_ttA_2to5_'+channel))
+    topHist = get1DHist(input, 'm3_ttJetsHadronic_'+channel+systematic)
+    topHist.Add(get1DHist(input, 'm3_ttJetsFullLep_'+channel+systematic))
+    topHist.Add(get1DHist(input, 'm3_ttJetsSemiLep_'+channel+systematic))
+    ScaleWithError(topHist, MCSF, MCSFerror)
 
-    wjetsHist = get1DHist(qcdFile, 'm3_W1JetsToLNu_'+channel)
-    wjetsHist.Add(get1DHist(qcdFile, 'm3_W2JetsToLNu_'+channel))
-    wjetsHist.Add(get1DHist(qcdFile, 'm3_W3JetsToLNu_'+channel))
-    wjetsHist.Add(get1DHist(qcdFile, 'm3_W4JetsToLNu_'+channel))
+    wjetsHist = get1DHist(input, 'm3_W1JetsToLNu_'+channel+systematic)
+    wjetsHist.Add(get1DHist(input, 'm3_W2JetsToLNu_'+channel+systematic))
+    wjetsHist.Add(get1DHist(input, 'm3_W3JetsToLNu_'+channel+systematic))
+    wjetsHist.Add(get1DHist(input, 'm3_W4JetsToLNu_'+channel+systematic))
+    ScaleWithError(wjetsHist, MCSF, MCSFerror)
 
-    bkgHist = get1DHist(input, 'm3_qcd_'+channel)
-    bkgHist.Add(get1DHist(input, 'm3_TBar_s_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_TBar_t_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_TBar_tW_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_T_s_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_T_t_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_T_tW_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_dy1JetsToLL_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_dy2JetsToLL_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_dy3JetsToLL_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_dy4JetsToLL_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_WW_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_WZ_'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_ZZ_'+channel))
-    bkgHist.Add(get1DHist(input, 'ttWJets'+channel))
-    bkgHist.Add(get1DHist(input, 'm3_ttZJets_'+channel))
-    
+    qcdHist = get1DHist(input, 'm3_qcd_'+channel)
+    ScaleWithError(qcdHist, QCDSF, QCDSFerror)
+
+    bkgHist = get1DHist(input, 'm3_TBar_s_'+channel+systematic)
+    bkgHist.Add(get1DHist(input, 'm3_TBar_t_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_TBar_tW_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_T_s_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_T_t_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_T_tW_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_dy1JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_dy2JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_dy3JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_dy4JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_WW_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_WZ_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_ZZ_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_TTWJets_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_TTZJets_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_ttA_2to5_'+channel+systematic))
+    ScaleWithError(bkgHist, MCSF, MCSFerror)
+
+    dataHist.Add(qcdHist, -1.0)
     dataHist.Add(bkgHist, -1.0)
 
-    (fitFrac, fitFracErr) = makeFit('m3', xlo, xhi, topHist, wjetsHist, dataHist, 'm3_fit.png')
+    (fitFrac, fitFracErr) = makeFit('m3', xlo, xhi, topHist, wjetsHist, dataHist)
 
-    dataInt = dataHist.Integral()
-    topInt = topHist.Integral()
-    wjetsInt = wjetsHist.Integral()
+    lowbin = dataHist.FindBin(xlo)
+    highbin = dataHist.FindBin(xhi) - 1
+
+    dataInt = dataHist.Integral(lowbin, highbin)
+    topInt = topHist.Integral(lowbin, highbin)
+    wjetsInt = wjetsHist.Integral(lowbin, highbin)
+    
     topSF = fitFrac * dataInt / topInt
     topSFerror = fitFracErr * dataInt / topInt
-    print '#'*80
-    print 'Correction to the ttJets scale factor: ', topSF, ' +-', topSFerror, '(fit error only)'
-    ttgammaSF = (1.0-fitFrac) * dataInt / wjetsInt
-    ttgammaSFerror = fitFracErr * dataInt / wjetsInt
-    print 'Correction to ttgamma scale factor: ', wjetsSF, ' +-', wjetsSFerror,'(fit error only)'
-    print '#'*80
+    
+    wjetsSF = (1.0-fitFrac) * dataInt / wjetsInt
+    wjetsSFerror = fitFracErr * dataInt / wjetsInt
 
-    drawPlots(dataHist, topHist, topSF, 'ttbar', wjetsHist, wjetsSF, 'wjets', 'm3')
+    output.write(systematic+'\t'+
+            str(topSF)+'\t'+
+            str(topSFerror)+'\t'+
+            str(wjetsSF)+'\t'+
+            str(wjetsSFerror)+'\t'+
+            str(QCDSF)+'\t'+
+            str(QCDSFerror)+'\t'+
+            str(MCSF)+'\t'+
+            str(MCSFerror)+'\n')
+
+    drawPlots(dataHist, topHist, topSF, 'ttbar', wjetsHist, wjetsSF, 'wjets', xlo, xhi, 'm3_'+channel+systematic)

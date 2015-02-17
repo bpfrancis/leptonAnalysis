@@ -165,7 +165,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);
-    hMaker->BookHistogram("pfMET", nMetBins_1g, xbins_met_1g);
+    hMaker->BookHistogram("pfMET", 200, 0., 2000.);
     hMaker->BookHistogram("HT", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("Njets", 20, 0., 20.);
     hMaker->BookHistogram("Nbtags", 20, 0., 20.);
@@ -178,7 +178,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet3_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("w_mT", nKinematicBins_1g, xbins_kinematic_1g);    // 13
-    hMaker->BookHistogram("m3", nKinematicBins_1g, xbins_kinematic_1g);
+    hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
@@ -270,7 +270,9 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   hMaker->FillHistograms();
   hMaker->SubtractMCFromQCD();
-  hMaker->NormalizeQCD();
+
+  // normalize qcd in CreatePlots
+  //hMaker->NormalizeQCD();
 
   hMaker->SaveOutput();
 
