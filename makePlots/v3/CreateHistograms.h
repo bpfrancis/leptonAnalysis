@@ -787,7 +787,7 @@ void HistogramMaker::FillQCD() {
 
   for(unsigned int i = 0; i < variables.size(); i++) qcdTree->SetBranchAddress(variables[i], &(varMap[variables[i]]));
 
-  if(channel < 2) qcdTree->SetBranchAddress("ele_relIso", &relIso);
+  if(req.Contains("ele")) qcdTree->SetBranchAddress("ele_relIso", &relIso);
   else qcdTree->SetBranchAddress("muon_relIso", &relIso);
 
   for(int i = 0; i < qcdTree->GetEntries(); i++) {
@@ -858,7 +858,7 @@ void HistogramMaker::FillMCBackgrounds() {
     mcQCDTrees[i]->SetBranchAddress("pileupWeightUp", &puWeightUp);
     mcQCDTrees[i]->SetBranchAddress("pileupWeightDown", &puWeightDown);
 
-    if(channel < 2) mcQCDTrees[i]->SetBranchAddress("ele_relIso", &relIso);
+    if(req.Contains("ele")) mcQCDTrees[i]->SetBranchAddress("ele_relIso", &relIso);
     else mcQCDTrees[i]->SetBranchAddress("muon_relIso", &relIso);
 
     if(removeTTAoverlap[i]) {
@@ -1527,12 +1527,12 @@ void HistogramMaker::SaveOutput() {
 
 void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
 
-  Float_t lepton_pt = (channel < 2) ? getValue("ele_pt") : getValue("muon_pt");
-  Float_t lepton_eta = (channel < 2) ? getValue("ele_eta") : getValue("muon_eta");
+  Float_t lepton_pt = (req.Contains("ele")) ? getValue("ele_pt") : getValue("muon_pt");
+  Float_t lepton_eta = (req.Contains("ele")) ? getValue("ele_eta") : getValue("muon_eta");
 
   Float_t pt, eta, error;
 
-  if(channel < 2) {
+  if(req.Contains("ele")) {
     pt = min(lepton_pt, (float)199.);
     pt = max(pt, (float)15.);
     eta = min(fabs(lepton_eta), (double)2.39);
@@ -1632,7 +1632,7 @@ void HistogramMaker::GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, Float_t&
 
   Float_t pt, eta, error;
 
-  if(channel.Contains("ele")) {
+  if(req.Contains("ele")) {
     pt = min(lepton_pt, (float)199.);
     pt = max(pt, (float)15.);
     eta = min(fabs(lepton_eta), (double)2.39);

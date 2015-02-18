@@ -16,12 +16,15 @@ void makeHistograms() {
 
   bool blinded = true;
 
-  const int nChannels = 4;
+  const int nChannels = 8;
+
+  TString channels[nChannels] = {"ele_jj", "muon_jj",
+			       "ele_bj", "muon_bj",
+			       "ele_jjj", "muon_jjj",
+			       "ele_bjj", "muon_bjj"};
 
   for(int i = 0; i < nChannels; i++) {
-    if(i != 1 && i != 3) continue;
-
-    if(i < 2) CreateHistograms(input_ele, i, metCut, blinded, controlRegion);
+    if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion);
     else CreateHistograms(input_muon, i, metCut, blinded, controlRegion);
   }  
 
