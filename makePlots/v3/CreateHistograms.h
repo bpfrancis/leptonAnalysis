@@ -32,24 +32,22 @@
 
 using namespace std;
 
-const int nChannels = 4;
-TString channels[nChannels] = {"ele_jjj", "ele_bjj",
-			       "muon_jjj", "muon_bjj"};
+const int nChannels = 8;
 
-int nBtagReq[nChannels] = {0, 1,
-			   0, 1};
+TString channels[nChannels] = {"ele_jj", "muon_jj",
+			       "ele_bj", "muon_bj",
+			       "ele_jjj", "muon_jjj",
+			       "ele_bjj", "muon_bjj"};
 
-TString channelLabels[nChannels] = {"e + XYZ #gamma", "e + XYZ #gamma",
-				    "#mu + XYZ #gamma", "#mu + XYZ #gamma"};
+unsigned int nBtagReq[nChannels] = {0, 0,
+				    1, 1,
+				    0, 0, 
+				    1, 1};
 
-TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "ele_jjj_veto_eQCDTree",
-				  "muon_jjj_muQCDTree", "muon_jjj_veto_muQCDTree"};
-
-TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "ele_jjj_veto_eQCDnoSigmaIetaIetaTree",
-						  "muon_jjj_muQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
-
-TString qcdChannels_noChHadIso[nChannels] = {"ele_jjj_eQCDnoChHadIsoTree", "ele_jjj_veto_eQCDnoChHadIsoTree",
-					     "muon_jjj_muQCDnoChHadIsoTree", "muon_jjj_veto_muQCDnoChHadIsoTree"};
+TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jj_eQCDnoSigmaIetaIetaTree", "muon_jj_muQCDnoSigmaIetaIetaTree",
+						  "ele_jj_veto_eQCDnoSigmaIetaIetaTree", "muon_jj_veto_muQCDnoSigmaIetaIetaTree",
+						  "ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
+						  "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 
@@ -163,6 +161,8 @@ class HistogramMaker : public TObject {
     sf_photon_id = (TH2D*)fPhotonSF->Get("PhotonIDSF_LooseWP_Jan22rereco_Full2012_S10_MC_V01");
     sf_photon_veto = (TH2D*)fPhotonSF->Get("PhotonCSEVSF_LooseWP_Jan22rereco_Full2012_S10_MC_V01");
   };
+
+  void CreateDatacards();
   
  private:
   
@@ -1707,3 +1707,471 @@ void plotReducedChi2(vector<TH1D*> gg, vector<TH1D*> gf, vector<TH1D*> ff,
 
 }
 
+void HistogramMaker::CreateDatacards() {
+
+  unsigned int variableNumber = 0;
+  for(unsigned int i = 0; i < variables.size(); i++) {
+    if(variables[i] == "pfMET") {
+      variableNumber = i;
+      break;
+    }
+  }
+
+  Double_t xbins[31];
+  xbins[0] = 0;
+  xbins[1] = 55;
+  for(int i = 1; i < 29; i++) xbins[i+1] = (mst[i] + mst[i-1])/2.;
+  xbins[30] = 6510;
+
+  Double_t ybins[33];
+  ybins[0] = 0;
+  ybins[1] = 12.5;
+  for(int i = 1; i < 31; i++) ybins[i+1] = (mBino[i] + mBino[i-1])/2.;
+  ybins[32] = 2175;
+
+  char code[100];
+  int index1, index2;
+
+  TFile * f_xsec = new TFile("../../data/stop-bino_xsecs.root", "READ");
+  TH2D * h_xsec = (TH2D*)f_xsec->Get("real_xsec");
+  TH2D * h_xsec_errors = (TH2D*)f_xsec->Get("real_errors");
+
+  TH2D * h_acc = new TH2D("acc_"+req, "acc_"+req, 30, xbins, 32, ybins);
+  TH2D * h_contamination = new TH2D("contamination_"+req, "contamination_"+req, 30, xbins, 32, ybins);
+
+  TFile * fSignalOut = new TFile("limitInputs.root", "UPDATE");
+  if(req.Contains("ele")) {
+    fSignalOut->mkdir("ele");
+    fSignalOut->cd("ele");
+  }
+  else {
+    fSignalOut->mkdir("muon");
+    fSignalOut->cd("muon");
+  }
+
+  for(int imass = 0; imass < 899; imass++) {
+
+    index1 = mst[int(imass)/31];
+    index2 = mBino[int(imass)%31];
+
+    if(index1 < index2) continue;
+
+    sprintf(code, "_mst_%d_m1_%d", index1, index2);
+    TString code_t = code;
+
+    TFile * f = new TFile("../../acceptance_v2/signal_contamination"+code_t+".root", "READ");
+    if(f->IsZombie()) {
+      f->Close();
+      continue;
+    }
+    
+    TTree * tree = (TTree*)f->Get(req+"_noSigmaIetaIetaTree");
+    TTree * tree_JECup = (TTree*)f->Get(req+"_noSigmaIetaIetaTree_JECup");
+    TTree * tree_JECdown = (TTree*)f->Get(req+"_noSigmaIetaIetaTree_JECdown");
+
+    TTree * tree_contam;
+    if(req.Contains("ele")) tree_contam = (TTree*)f->Get("ele_jjj_veto_eQCDnoSigmaIetaIetaTree");
+    else if(req.Contains("muon")) tree_contam = (TTree*)f->Get("muon_jjj_veto_muQCDnoSigmaIetaIetaTree");
+
+    if(!tree || !tree_JECup || !tree_JECdown || !tree_contam) {
+      f->Close();
+      continue;
+    }
+
+    Float_t met, ngamma, nfake;
+    Float_t lepton_pt, lepton_eta;
+    Float_t lead_photon_et, lead_photon_eta;
+    Float_t trail_photon_et, trail_photon_eta;
+
+    tree->SetBranchAddress("pfMET", &met);
+    tree_JECup->SetBranchAddress("pfMET", &met);
+    tree_JECdown->SetBranchAddress("pfMET", &met);
+    tree_contam->SetBranchAddress("pfMET", &met);
+
+    tree->SetBranchAddress("Ngamma", &ngamma);
+    tree_JECup->SetBranchAddress("Ngamma", &ngamma);
+    tree_JECdown->SetBranchAddress("Ngamma", &ngamma);
+    tree_contam->SetBranchAddress("Ngamma", &ngamma);
+
+    tree->SetBranchAddress("Nfake", &nfake);
+    tree_JECup->SetBranchAddress("Nfake", &nfake);
+    tree_JECdown->SetBranchAddress("Nfake", &nfake);
+    tree_contam->SetBranchAddress("Nfake", &nfake);
+
+    tree->SetBranchAddress("leadPhotonEt", &lead_photon_et);
+    tree_JECup->SetBranchAddress("leadPhotonEt", &lead_photon_et);
+    tree_JECdown->SetBranchAddress("leadPhotonEt", &lead_photon_et);
+    tree_contam->SetBranchAddress("leadPhotonEt", &lead_photon_et);
+
+    tree->SetBranchAddress("leadPhotonEta", &lead_photon_eta);
+    tree_JECup->SetBranchAddress("leadPhotonEta", &lead_photon_eta);
+    tree_JECdown->SetBranchAddress("leadPhotonEta", &lead_photon_eta);
+    tree_contam->SetBranchAddress("leadPhotonEta", &lead_photon_eta);
+
+    tree->SetBranchAddress("trailPhotonEta", &trail_photon_eta);
+    tree_JECup->SetBranchAddress("trailPhotonEta", &trail_photon_eta);
+    tree_JECdown->SetBranchAddress("trailPhotonEta", &trail_photon_eta);
+    tree_contam->SetBranchAddress("trailPhotonEta", &trail_photon_eta);
+
+    tree->SetBranchAddress("trailPhotonEt", &trail_photon_et);
+    tree_JECup->SetBranchAddress("trailPhotonEt", &trail_photon_et);
+    tree_JECdown->SetBranchAddress("trailPhotonEt", &trail_photon_et);
+    tree_contam->SetBranchAddress("trailPhotonEt", &trail_photon_et);
+
+    if(req.Contains("ele")) {
+      tree->SetBranchAddress("ele_pt", &lepton_pt);
+      tree_JECup->SetBranchAddress("ele_pt", &lepton_pt);
+      tree_JECdown->SetBranchAddress("ele_pt", &lepton_pt);
+      tree_contam->SetBranchAddress("ele_pt", &lepton_pt);
+
+      tree->SetBranchAddress("ele_eta", &lepton_eta);
+      tree_JECup->SetBranchAddress("ele_eta", &lepton_eta);
+      tree_JECdown->SetBranchAddress("ele_eta", &lepton_eta);
+      tree_contam->SetBranchAddress("ele_eta", &lepton_eta);
+    }
+    else if(req.Contains("muon")) {
+      tree->SetBranchAddress("muon_pt", &lepton_pt);
+      tree_JECup->SetBranchAddress("muon_pt", &lepton_pt);
+      tree_JECdown->SetBranchAddress("muon_pt", &lepton_pt);
+      tree_contam->SetBranchAddress("muon_pt", &lepton_pt);
+
+      tree->SetBranchAddress("muon_eta", &lepton_eta);
+      tree_JECup->SetBranchAddress("muon_eta", &lepton_eta);
+      tree_JECdown->SetBranchAddress("muon_eta", &lepton_eta);
+      tree_contam->SetBranchAddress("muon_eta", &lepton_eta);
+    }
+
+    tree->SetBranchAddress("pileupWeight", &puWeight);
+    tree->SetBranchAddress("pileupWeightErr", &puWeightErr);
+    tree->SetBranchAddress("btagWeight", &btagWeight);
+    tree->SetBranchAddress("btagWeightErr", &btagWeightErr);
+    tree->SetBranchAddress("btagWeightUp", &btagWeightUp);
+    tree->SetBranchAddress("btagWeightDown", &btagWeightDown);
+    tree->SetBranchAddress("pileupWeightUp", &puWeightUp);
+    tree->SetBranchAddress("pileupWeightDown", &puWeightDown);
+    tree->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+    
+    tree_JECup->SetBranchAddress("pileupWeight", &puWeight);
+    tree_JECup->SetBranchAddress("pileupWeightErr", &puWeightErr);
+    tree_JECup->SetBranchAddress("btagWeight", &btagWeight);
+    tree_JECup->SetBranchAddress("btagWeightErr", &btagWeightErr);
+    tree_JECup->SetBranchAddress("btagWeightUp", &btagWeightUp);
+    tree_JECup->SetBranchAddress("btagWeightDown", &btagWeightDown);
+    tree_JECup->SetBranchAddress("pileupWeightUp", &puWeightUp);
+    tree_JECup->SetBranchAddress("pileupWeightDown", &puWeightDown);
+    tree_JECup->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+    
+    tree_JECdown->SetBranchAddress("pileupWeight", &puWeight);
+    tree_JECdown->SetBranchAddress("pileupWeightErr", &puWeightErr);
+    tree_JECdown->SetBranchAddress("btagWeight", &btagWeight);
+    tree_JECdown->SetBranchAddress("btagWeightErr", &btagWeightErr);
+    tree_JECdown->SetBranchAddress("btagWeightUp", &btagWeightUp);
+    tree_JECdown->SetBranchAddress("btagWeightDown", &btagWeightDown);
+    tree_JECdown->SetBranchAddress("pileupWeightUp", &puWeightUp);
+    tree_JECdown->SetBranchAddress("pileupWeightDown", &puWeightDown);
+    tree_JECdown->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+
+    tree_contam->SetBranchAddress("pileupWeight", &puWeight);
+    tree_contam->SetBranchAddress("pileupWeightErr", &puWeightErr);
+    tree_contam->SetBranchAddress("btagWeight", &btagWeight);
+    tree_contam->SetBranchAddress("btagWeightErr", &btagWeightErr);
+    tree_contam->SetBranchAddress("btagWeightUp", &btagWeightUp);
+    tree_contam->SetBranchAddress("btagWeightDown", &btagWeightDown);
+    tree_contam->SetBranchAddress("pileupWeightUp", &puWeightUp);
+    tree_contam->SetBranchAddress("pileupWeightDown", &puWeightDown);
+    tree_contam->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+
+    TH1D * h = new TH1D("signal"+code_t, "signal"+code_t, nMetBins, xbins_met); h->Sumw2();
+
+    TH1D * h_btagWeightUp = new TH1D("signal"+code_t+"_btagWeightUp", "signal"+code_t+"_btagWeightUp", nMetBins, xbins_met); h_btagWeightUp->Sumw2();
+    TH1D * h_btagWeightDown = new TH1D("signal"+code_t+"_btagWeightDown", "signal"+code_t+"_btagWeightDown", nMetBins, xbins_met); h_btagWeightDown->Sumw2();
+
+    TH1D * h_puWeightUp = new TH1D("signal"+code_t+"_puWeightUp", "signal"+code_t+"_puWeightUp", nMetBins, xbins_met); h_puWeightUp->Sumw2();
+    TH1D * h_puWeightDown = new TH1D("signal"+code_t+"_puWeightDown", "signal"+code_t+"_puWeightDown", nMetBins, xbins_met); h_puWeightDown->Sumw2();
+
+    TH1D * h_topPtUp = new TH1D("signal"+code_t+"_topPtUp", "signal"+code_t+"_topPtUp", nMetBins, xbins_met); h_topPtUp->Sumw2();
+    TH1D * h_topPtDown = new TH1D("signal"+code_t+"_topPtDown", "signal"+code_t+"_topPtDown", nMetBins, xbins_met); h_topPtDown->Sumw2();
+
+    TH1D * h_JECup = new TH1D("signal"+code_t+"_JECUp", "signal"+code_t+"_JECUp", nMetBins, xbins_met); h_JECup->Sumw2();
+    TH1D * h_JECdown = new TH1D("signal"+code_t+"_JECDown", "signal"+code_t+"_JECDown", nMetBins, xbins_met); h_JECdown->Sumw2();
+
+    TH1D * h_leptonSFup = new TH1D("signal"+code_t+"_leptonSFUp", "signal"+code_t+"_leptonSFUp", nMetBins, xbins_met); h_leptonSFup->Sumw2();
+    TH1D * h_leptonSFdown = new TH1D("signal"+code_t+"_leptonSFDown", "signal"+code_t+"_leptonSFDown", nMetBins, xbins_met); h_leptonSFdown->Sumw2();
+
+    TH1D * h_photonSFup = new TH1D("signal"+code_t+"_photonSFUp", "signal"+code_t+"_photonSFUp", nMetBins, xbins_met); h_photonSFup->Sumw2();
+    TH1D * h_photonSFdown = new TH1D("signal"+code_t+"_photonSFDown", "signal"+code_t+"_photonSFDown", nMetBins, xbins_met); h_photonSFdown->Sumw2();
+
+    for(int i = 0; i < tree->GetEntries(); i++) {
+      tree->GetEntry(i);
+
+      if(controlRegion == kSR1 && !(ngamma == 1)) continue;
+      if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
+      if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
+      if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
+      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR0 && !(ngamma == 0)) continue;
+
+      if(!checkBtagging()) continue;
+
+      if(topPtReweighting < 0) topPtReweighting = 1.;
+      
+      Float_t leptonSF, leptonSFup, leptonSFdown;
+      Float_t photonSF, photonSFup, photonSFdown;
+
+      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
+		  photonSF, photonSFup, photonSFdown);
+
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+
+      if(totalWeight < 0) continue;
+
+      Float_t olderror = h->GetBinError(h->FindBin(met));
+      Float_t newerror = sqrt(olderror*olderror + addError2);
+      h->Fill(met, totalWeight);
+      h->SetBinError(h->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeightUp * leptonSF * photonSF * topPtReweighting;
+      olderror = h_btagWeightUp->GetBinError(h_btagWeightUp->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_btagWeightUp->Fill(met, totalWeight);
+      h_btagWeightUp->SetBinError(h_btagWeightUp->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeightDown * leptonSF * photonSF * topPtReweighting;
+      olderror = h_btagWeightDown->GetBinError(h_btagWeightDown->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_btagWeightDown->Fill(met, totalWeight);
+      h_btagWeightDown->SetBinError(h_btagWeightDown->FindBin(met), newerror);
+
+      totalWeight = puWeightUp * btagWeight * leptonSF * photonSF * topPtReweighting;
+      olderror = h_puWeightUp->GetBinError(h_puWeightUp->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_puWeightUp->Fill(met, totalWeight);
+      h_puWeightUp->SetBinError(h_puWeightUp->FindBin(met), newerror);
+
+      totalWeight = puWeightDown * btagWeight * leptonSF * photonSF * topPtReweighting;
+      olderror = h_puWeightDown->GetBinError(h_puWeightDown->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_puWeightDown->Fill(met, totalWeight);
+      h_puWeightDown->SetBinError(h_puWeightDown->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeight * leptonSFup * photonSF * topPtReweighting;
+      olderror = h_leptonSFup->GetBinError(h_leptonSFup->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_leptonSFup->Fill(met, totalWeight);
+      h_leptonSFup->SetBinError(h_leptonSFup->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeight * leptonSFdown * photonSF * topPtReweighting;
+      olderror = h_leptonSFdown->GetBinError(h_leptonSFdown->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_leptonSFdown->Fill(met, totalWeight);
+      h_leptonSFdown->SetBinError(h_leptonSFdown->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeight * leptonSF * photonSFup * topPtReweighting;
+      olderror = h_photonSFup->GetBinError(h_photonSFup->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_photonSFup->Fill(met, totalWeight);
+      h_photonSFup->SetBinError(h_photonSFup->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeight * leptonSF * photonSFdown * topPtReweighting;
+      olderror = h_photonSFdown->GetBinError(h_photonSFdown->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_photonSFdown->Fill(met, totalWeight);
+      h_photonSFdown->SetBinError(h_photonSFdown->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting * topPtReweighting;
+      olderror = h_topPtUp->GetBinError(h_topPtUp->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_topPtUp->Fill(met, totalWeight);
+      h_topPtUp->SetBinError(h_topPtUp->FindBin(met), newerror);
+
+      totalWeight = puWeight * btagWeight * leptonSF * photonSF;
+      olderror = h_topPtDown->GetBinError(h_topPtDown->FindBin(met));
+      newerror = sqrt(olderror*olderror + addError2);
+      h_topPtDown->Fill(met, totalWeight);
+      h_topPtDown->SetBinError(h_topPtDown->FindBin(met), newerror);
+    }
+
+    for(int i = 0; i < tree_JECup->GetEntries(); i++) {
+      tree_JECup->GetEntry(i);
+
+      if(controlRegion == kSR1 && !(ngamma == 1)) continue;
+      if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
+      if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
+      if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
+      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR0 && !(ngamma == 0)) continue;
+
+      if(!checkBtagging()) continue;
+
+      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
+      
+      if(topPtReweighting < 0) topPtReweighting = 1.;
+      
+      Float_t leptonSF, leptonSFup, leptonSFdown;
+      Float_t photonSF, photonSFup, photonSFdown;
+
+      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
+		  photonSF, photonSFup, photonSFdown);
+
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      Float_t olderror = h->GetBinError(h->FindBin(met));
+      Float_t newerror = sqrt(olderror*olderror + addError2);
+      h_JECup->Fill(met, totalWeight);
+      h_JECup->SetBinError(h->FindBin(met), newerror);
+
+    }
+
+    for(int i = 0; i < tree_JECdown->GetEntries(); i++) {
+      tree_JECdown->GetEntry(i);
+
+      if(controlRegion == kSR1 && !(ngamma == 1)) continue;
+      if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
+      if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
+      if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
+      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR0 && !(ngamma == 0)) continue;
+
+      if(!checkBtagging()) continue;
+
+      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
+      
+      if(topPtReweighting < 0) topPtReweighting = 1.;
+      
+      Float_t leptonSF, leptonSFup, leptonSFdown;
+      Float_t photonSF, photonSFup, photonSFdown;
+
+      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
+		  photonSF, photonSFup, photonSFdown);
+
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      Float_t olderror = h->GetBinError(h->FindBin(met));
+      Float_t newerror = sqrt(olderror*olderror + addError2);
+      h_JECdown->Fill(met, totalWeight);
+      h_JECdown->SetBinError(h->FindBin(met), newerror);
+
+    }
+
+    double contamination = 0;
+
+    for(int i = 0; i < tree_contam->GetEntries(); i++) {
+      tree_contam->GetEntry(i);
+
+      if(controlRegion == kSR1 && !(ngamma == 1)) continue;
+      if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
+      if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
+      if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
+      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR0 && !(ngamma == 0)) continue;
+
+      if(!checkBtagging()) continue;
+
+      if(topPtReweighting < 0) topPtReweighting = 1.;
+      
+      Float_t leptonSF, leptonSFup, leptonSFdown;
+      Float_t photonSF, photonSFup, photonSFdown;
+
+      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
+		  photonSF, photonSFup, photonSFdown);
+
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+
+      contamination += totalWeight;
+    }
+
+    h_acc->SetBinContent(h_acc->FindBin(index1, index2), h->Integral() / (0.438/3.) / 15000.);
+    h_contamination->SetBinContent(h_contamination->FindBin(index1, index2), contamination / h->Integral());
+
+    double xsec = h_xsec->GetBinContent(h_xsec->FindBin(index1, index2));
+    
+    h->Scale(xsec * 19712. / 15000.);
+    h_btagWeightUp->Scale(xsec * 19712. / 15000.);
+    h_btagWeightDown->Scale(xsec * 19712. / 15000.);
+    h_puWeightUp->Scale(xsec * 19712. / 15000.);
+    h_puWeightDown->Scale(xsec * 19712. / 15000.);
+    h_topPtUp->Scale(xsec * 19712. / 15000.);
+    h_topPtDown->Scale(xsec * 19712. / 15000.);
+    h_JECup->Scale(xsec * 19712. / 15000.);
+    h_JECdown->Scale(xsec * 19712. / 15000.);
+    h_leptonSFup->Scale(xsec * 19712. / 15000.);
+    h_leptonSFdown->Scale(xsec * 19712. / 15000.);
+    h_photonSFup->Scale(xsec * 19712. / 15000.);
+    h_photonSFdown->Scale(xsec * 19712. / 15000.);
+
+    fSignalOut->cd();
+
+    if(req.Contains("ele")) {
+      fSignalOut->cd("ele");
+    }
+    else {
+      fSignalOut->cd("muon");
+    }
+
+    h->Write("signal"+code_t);
+
+    for(int j = 0; j < h->GetNbinsX(); j++) {
+      TH1D * h_flux_up = (TH1D*)h->Clone("clone_signal_"+code_t+"_flux_up");
+      TH1D * h_flux_down = (TH1D*)h->Clone("clone_signal"+code_t+"_flux_down");
+      
+      Double_t centralValue = h->GetBinContent(j+1);
+      Double_t statError = h->GetBinError(j+1);
+      
+      if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
+      if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
+      
+      h_flux_up->Write("signal"+code_t+"_signal_stat_bin"+Form("%d", j+1)+"Up");
+      h_flux_down->Write("signal"+code_t+"_signal_stat_bin"+Form("%d", j+1)+"Down");
+    }
+    
+    h_btagWeightUp->Write("signal"+code_t+"_btagWeightUp");
+    h_btagWeightDown->Write("signal"+code_t+"_btagWeightDown");
+    h_puWeightUp->Write("signal"+code_t+"_puWeightUp");
+    h_puWeightDown->Write("signal"+code_t+"_puWeightDown");
+    h_topPtUp->Write("signal"+code_t+"_topPtUp");
+    h_topPtDown->Write("signal"+code_t+"_topPtDown");
+    h_JECup->Write("signal"+code_t+"_JECUp");
+    h_JECdown->Write("signal"+code_t+"_JECDown");
+    h_leptonSFup->Write("signal"+code_t+"_leptonSFUp");
+    h_leptonSFdown->Write("signal"+code_t+"_leptonSFDown");
+    h_photonSFup->Write("signal"+code_t+"_photonSFUp");
+    h_photonSFdown->Write("signal"+code_t+"_photonSFDown");
+
+    f->Close();
+
+  }
+
+  // draw acc and etc
+  TCanvas * can = new TCanvas("canvas", "Plot", 10, 10, 2000, 2000);
+  fillPotHoles(h_acc);
+  h_acc->GetXaxis()->SetTitle("#tilde{t} mass (GeV/c^{2})");
+  h_acc->GetXaxis()->SetRangeUser(0, 1600);
+  h_acc->GetXaxis()->SetLabelSize(0.03);
+  h_acc->GetYaxis()->SetTitle("Bino mass (GeV/c^{2})");
+  h_acc->GetYaxis()->SetTitleOffset(1.3);
+  h_acc->GetYaxis()->SetLabelSize(0.03);
+  h_acc->GetYaxis()->SetRangeUser(0, 1600);
+  h_acc->GetZaxis()->SetLabelSize(0.02);
+  h_acc->Draw("colz");
+  can->SaveAs("acceptance_"+req+".pdf");
+  
+  h_contamination->GetXaxis()->SetTitle("#tilde{t} mass (GeV/c^{2})");
+  h_contamination->GetXaxis()->SetRangeUser(0, 1600);
+  h_contamination->GetXaxis()->SetLabelSize(0.03);
+  h_contamination->GetYaxis()->SetTitle("Bino mass (GeV/c^{2})");
+  h_contamination->GetYaxis()->SetTitleOffset(1.3);
+  h_contamination->GetYaxis()->SetLabelSize(0.03);
+  h_contamination->GetYaxis()->SetRangeUser(0, 1600);
+  h_contamination->GetZaxis()->SetLabelSize(0.02);
+  h_contamination->Draw("colz");
+  can->SaveAs("contamination_"+req+".pdf");
+  
+  delete can;
+
+  fSignalOut->Close();
+
+  f_xsec->Close();
+  
+}

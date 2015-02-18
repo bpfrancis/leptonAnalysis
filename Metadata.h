@@ -15,7 +15,7 @@ enum photonCutModes {kSignalPhotons, kNoSigmaIetaIeta, kNumPhotonModes};
 
 enum jetSystematicMode {kCentral, kJECup, kJECdown, kJERup, kJERdown, kNumJetSytematics};
 
-const int nChannels = 6;
+const int nChannels = 10;
 
 TString channels[nChannels] = {"ele_jj", "muon_jj",
 			       "ele_bj", "ele_bj",
