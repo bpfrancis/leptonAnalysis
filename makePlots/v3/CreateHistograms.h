@@ -150,7 +150,7 @@ class HistogramMaker : public TObject {
   void GetLeptonSF(Float_t& central, Float_t& up, Float_t& down);
   void GetPhotonSF(Float_t& central, Float_t& up, Float_t& down);
   
-  void GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, int chan, Float_t& central, Float_t& up, Float_t& down);
+  void GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, Float_t& central, Float_t& up, Float_t& down);
   void GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta, Float_t trail_photon_et, Float_t trail_photon_eta, Float_t nphotons, 
 		   Float_t& central, Float_t& up, Float_t& down);
 
@@ -1628,11 +1628,11 @@ void HistogramMaker::GetPhotonSF(Float_t& central, Float_t& up, Float_t& down) {
   return;
 }
 
-void HistogramMaker::GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, int chan, Float_t& central, Float_t& up, Float_t& down) {
+void HistogramMaker::GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, Float_t& central, Float_t& up, Float_t& down) {
 
   Float_t pt, eta, error;
 
-  if(chan < 2) {
+  if(channel.Contains("ele")) {
     pt = min(lepton_pt, (float)199.);
     pt = max(pt, (float)15.);
     eta = min(fabs(lepton_eta), (double)2.39);
@@ -1946,7 +1946,7 @@ void HistogramMaker::CreateDatacards() {
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
-      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetLeptonSF(lepton_pt, lepton_eta, leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
