@@ -2039,7 +2039,7 @@ void HistogramMaker::CreateDatacards() {
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
-      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetLeptonSF(lepton_pt, lepton_eta, leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
@@ -2070,7 +2070,7 @@ void HistogramMaker::CreateDatacards() {
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
-      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetLeptonSF(lepton_pt, lepton_eta, leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
@@ -2101,7 +2101,7 @@ void HistogramMaker::CreateDatacards() {
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
-      GetLeptonSF(lepton_pt, lepton_eta, chan, leptonSF, leptonSFup, leptonSFdown);
+      GetLeptonSF(lepton_pt, lepton_eta, leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
