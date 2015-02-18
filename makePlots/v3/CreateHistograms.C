@@ -263,6 +263,8 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   hMaker->SaveOutput();
 
+  hMaker->CreateDatacards();
+
   in->Close();
   fSigA->Close();
   fSigB->Close();
