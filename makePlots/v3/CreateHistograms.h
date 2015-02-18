@@ -150,6 +150,10 @@ class HistogramMaker : public TObject {
   void GetLeptonSF(Float_t& central, Float_t& up, Float_t& down);
   void GetPhotonSF(Float_t& central, Float_t& up, Float_t& down);
   
+  void GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, int chan, Float_t& central, Float_t& up, Float_t& down);
+  void GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta, Float_t trail_photon_et, Float_t trail_photon_eta, Float_t nphotons, 
+		   Float_t& central, Float_t& up, Float_t& down);
+
   void LoadLeptonSFs(TString fileName) {
     fLeptonSF = new TFile(fileName, "READ");
     sf_electron = (TH2D*)fLeptonSF->Get("TightEleIdIsoSF");
@@ -277,7 +281,7 @@ class HistogramMaker : public TObject {
 };
 
 HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet) :
-  channel(chanNo),
+channel(chanNo),
   blinded(blind),
   controlRegion(cRegion),
   metCut(cutOnMet)
@@ -468,7 +472,7 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
   mcTrees_JECdown.push_back((TTree*)mcFiles.back()->Get(signalString+"_JECdown"));
   if(!mcTrees_JECdown.back()) {
     cout << "Could not load TTree " << signalString << "_JECdown from TFile " << fileName << endl;
-      return false;
+    return false;
   }
 
   mcQCDTrees.push_back((TTree*)mcFiles.back()->Get(qcdString));
@@ -1428,29 +1432,29 @@ void HistogramMaker::NormalizeQCD() {
 
     for(int j = 0; j < h_qcd[i]->GetNbinsX(); j++) {
       
-	double newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + scale*scale*sigma_qcd*sigma_qcd;
-	newError *= h_qcd[i]->GetBinContent(j+1)*h_qcd[i]->GetBinContent(j+1) / (n_qcd*n_qcd);
-	newError += h_qcd[i]->GetBinError(j+1)*h_qcd[i]->GetBinError(j+1) * scale*scale;
-	newError = sqrt(newError);
+      double newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + scale*scale*sigma_qcd*sigma_qcd;
+      newError *= h_qcd[i]->GetBinContent(j+1)*h_qcd[i]->GetBinContent(j+1) / (n_qcd*n_qcd);
+      newError += h_qcd[i]->GetBinError(j+1)*h_qcd[i]->GetBinError(j+1) * scale*scale;
+      newError = sqrt(newError);
 
-	h_qcd[i]->SetBinContent(j+1, h_qcd[i]->GetBinContent(j+1) * scale);
-	h_qcd[i]->SetBinError(j+1, newError);
+      h_qcd[i]->SetBinContent(j+1, h_qcd[i]->GetBinContent(j+1) * scale);
+      h_qcd[i]->SetBinError(j+1, newError);
 
-	newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_5_scale*relIso_5_scale*relIso_5_sigma_qcd*relIso_5_sigma_qcd;
-	newError *= h_qcd_relIso_5[i]->GetBinContent(j+1)*h_qcd_relIso_5[i]->GetBinContent(j+1) / (relIso_5_n_qcd*relIso_5_n_qcd);
-	newError += h_qcd_relIso_5[i]->GetBinError(j+1)*h_qcd_relIso_5[i]->GetBinError(j+1) * relIso_5_scale*relIso_5_scale;
-	newError = sqrt(newError);
+      newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_5_scale*relIso_5_scale*relIso_5_sigma_qcd*relIso_5_sigma_qcd;
+      newError *= h_qcd_relIso_5[i]->GetBinContent(j+1)*h_qcd_relIso_5[i]->GetBinContent(j+1) / (relIso_5_n_qcd*relIso_5_n_qcd);
+      newError += h_qcd_relIso_5[i]->GetBinError(j+1)*h_qcd_relIso_5[i]->GetBinError(j+1) * relIso_5_scale*relIso_5_scale;
+      newError = sqrt(newError);
 
-	h_qcd_relIso_5[i]->SetBinContent(j+1, h_qcd_relIso_5[i]->GetBinContent(j+1) * relIso_5_scale);
-	h_qcd_relIso_5[i]->SetBinError(j+1, newError);
+      h_qcd_relIso_5[i]->SetBinContent(j+1, h_qcd_relIso_5[i]->GetBinContent(j+1) * relIso_5_scale);
+      h_qcd_relIso_5[i]->SetBinError(j+1, newError);
 
-	newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_10_scale*relIso_10_scale*relIso_10_sigma_qcd*relIso_10_sigma_qcd;
-	newError *= h_qcd_relIso_5[i]->GetBinContent(j+1)*h_qcd_relIso_5[i]->GetBinContent(j+1) / (relIso_10_n_qcd*relIso_10_n_qcd);
-	newError += h_qcd_relIso_5[i]->GetBinError(j+1)*h_qcd_relIso_5[i]->GetBinError(j+1) * relIso_10_scale*relIso_10_scale;
-	newError = sqrt(newError);
+      newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_10_scale*relIso_10_scale*relIso_10_sigma_qcd*relIso_10_sigma_qcd;
+      newError *= h_qcd_relIso_5[i]->GetBinContent(j+1)*h_qcd_relIso_5[i]->GetBinContent(j+1) / (relIso_10_n_qcd*relIso_10_n_qcd);
+      newError += h_qcd_relIso_5[i]->GetBinError(j+1)*h_qcd_relIso_5[i]->GetBinError(j+1) * relIso_10_scale*relIso_10_scale;
+      newError = sqrt(newError);
 
-	h_qcd_relIso_5[i]->SetBinContent(j+1, h_qcd_relIso_5[i]->GetBinContent(j+1) * relIso_10_scale);
-	h_qcd_relIso_5[i]->SetBinError(j+1, newError);
+      h_qcd_relIso_5[i]->SetBinContent(j+1, h_qcd_relIso_5[i]->GetBinContent(j+1) * relIso_10_scale);
+      h_qcd_relIso_5[i]->SetBinError(j+1, newError);
 
     }
 
@@ -1624,87 +1628,104 @@ void HistogramMaker::GetPhotonSF(Float_t& central, Float_t& up, Float_t& down) {
   return;
 }
 
-void plotReducedChi2(vector<TH1D*> gg, vector<TH1D*> gf, vector<TH1D*> ff,
-		     TH2D*& gf_chi2,
-		     TH2D*& ff_chi2,
-		     Int_t binx) {
+void HistogramMaker::GetLeptonSF(Float_t lepton_pt, Float_t lepton_eta, int chan, Float_t& central, Float_t& up, Float_t& down) {
 
-  for(unsigned int i = 0; i < gg.size(); i++) {
-    if(gg[i]->Integral() >= 1.) gg[i]->Scale(1./gg[i]->Integral());
-  }
-  for(unsigned int i = 0; i < gf.size(); i++) {
-    if(gf[i]->Integral() >= 1.) gf[i]->Scale(1./gf[i]->Integral());
-  }
-  for(unsigned int i = 0; i < ff.size(); i++) {
-    if(ff[i]->Integral() >= 1.) ff[i]->Scale(1./ff[i]->Integral());
+  Float_t pt, eta, error;
+
+  if(chan < 2) {
+    pt = min(lepton_pt, (float)199.);
+    pt = max(pt, (float)15.);
+    eta = min(fabs(lepton_eta), (double)2.39);
+
+    Float_t id_val = sf_electron->GetBinContent(sf_electron->FindBin(eta, pt));
+    Float_t id_error = sf_electron->GetBinError(sf_electron->FindBin(eta, pt));
+
+    Float_t trigger_val = sf_SingleElectronTrigger->GetBinContent(sf_SingleElectronTrigger->FindBin(eta, pt));
+    Float_t trigger_error = sf_SingleElectronTrigger->GetBinError(sf_SingleElectronTrigger->FindBin(eta, pt));
+
+    central = id_val * trigger_val;
+    error = central * sqrt(id_error*id_error/(id_val*id_val) + trigger_error*trigger_error/(trigger_val*trigger_val));
+
+    up = central + error;
+    down = central - error;
   }
 
-  for(int i = 0; i < 10; i++) {
+  else {
+    pt = min(lepton_pt, (float)499.);
+    pt = max(pt, (float)10.);
+    eta = min(fabs(lepton_eta), (double)2.09);
 
-    Float_t chi2 = 0.;
-    Int_t nBins = 0;
+    central = sf_muon->GetBinContent(sf_muon->FindBin(pt, eta));
+    error = sf_muon->GetBinError(sf_muon->FindBin(pt, eta));
+
+    up = error;
+    down = 2. * central - error;
+  }
+
+  return;  
+}
+
+void HistogramMaker::GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta, Float_t trail_photon_et, Float_t trail_photon_eta, Float_t nphotons, 
+				 Float_t& central, Float_t& up, Float_t& down) {
+
+  if(nphotons == 0) {
+    central = 1.;
+    up = 1.;
+    down = 1.;
+    return;
+  }
+
+  Float_t et, eta, error;
+
+  if(nphotons == 1) {
+    et = min(lead_photon_et, (float)999.);
+    et = max(et, (float)15.);
+    eta = min(fabs(lead_photon_eta), (double)1.44441);
+
+    Float_t id_val = sf_photon_id->GetBinContent(sf_photon_id->FindBin(et, eta));
+    Float_t id_error = sf_photon_id->GetBinError(sf_photon_id->FindBin(et, eta));
     
-    for(int j = 0; j < gg[i]->GetNbinsX(); j++) {
-      Float_t val_num = gg[i]->GetBinContent(j+1) - gf[i]->GetBinContent(j+1);
-      Float_t val_den = gg[i]->GetBinError(j+1)*gg[i]->GetBinError(j+1) + gf[i]->GetBinError(j+1)*gf[i]->GetBinError(j+1);
+    Float_t veto_val = sf_photon_veto->GetBinContent(sf_photon_id->FindBin(et, eta));
+    Float_t veto_error = sf_photon_veto->GetBinError(sf_photon_id->FindBin(et, eta));
 
-      if(val_den == 0.) continue;
+    central = id_val * veto_val;
+    error = central * sqrt(id_error*id_error/(id_val*id_val) + veto_error*veto_error/(veto_val*veto_val));
+  }
 
-      chi2 += val_num * val_num / val_den;
-      nBins++;
-    }
-    chi2 /= nBins;
-    gf_chi2->SetBinContent(gf_chi2->FindBin(binx, i), chi2);
+  else if(nphotons >= 2) {
+    // lead photon
+    et = min(lead_photon_et, (float)999.);
+    et = max(et, (float)15.);
+    eta = min(fabs(lead_photon_eta), (double)1.44441);
 
-    chi2 = 0.;
-    nBins = 0;
+    Float_t id_val_lead = sf_photon_id->GetBinContent(sf_photon_id->FindBin(et, eta));
+    Float_t id_error_lead = sf_photon_id->GetBinError(sf_photon_id->FindBin(et, eta));
     
-    for(int j = 0; j < gg[i]->GetNbinsX(); j++) {
-      Float_t val_num = gg[i]->GetBinContent(j+1) - ff[i]->GetBinContent(j+1);
-      Float_t val_den = gg[i]->GetBinError(j+1)*gg[i]->GetBinError(j+1) + ff[i]->GetBinError(j+1)*ff[i]->GetBinError(j+1);
+    Float_t veto_val_lead = sf_photon_veto->GetBinContent(sf_photon_id->FindBin(et, eta));
+    Float_t veto_error_lead = sf_photon_veto->GetBinError(sf_photon_id->FindBin(et, eta));
 
-      if(val_den == 0.) continue;
+    // trail photon
+    et = min(trail_photon_et, (float)999.);
+    et = max(et, (float)15.);
+    eta = min(fabs(trail_photon_eta), (double)1.44441);
 
-      chi2 += val_num * val_num / val_den;
-      nBins++;
-    }
-    chi2 /= nBins;
-    ff_chi2->SetBinContent(gf_chi2->FindBin(binx, i), chi2);
-  }
-
-  // now fill bin 10, chi2 across all variables
-  Float_t chi2_all = 0.;
-  Float_t nBins_all = 0;
-  for(unsigned int i = 0; i < gg.size(); i++) {
-    for(int j = 0; j < gg[i]->GetNbinsX(); j++) {
-      Float_t val_num = gg[i]->GetBinContent(j+1) - gf[i]->GetBinContent(j+1);
-      Float_t val_den = gg[i]->GetBinError(j+1)*gg[i]->GetBinError(j+1) + gf[i]->GetBinError(j+1)*gf[i]->GetBinError(j+1);
-
-      if(val_den == 0.) continue;
-
-      chi2_all += val_num * val_num / val_den;
-      nBins_all++;
-    }
-  }
-  chi2_all /= nBins_all;
-  gf_chi2->SetBinContent(gf_chi2->FindBin(binx, 10), chi2_all);
-
-  chi2_all = 0.;
-  nBins_all = 0;
-  for(unsigned int i = 0; i < gg.size(); i++) {
-    for(int j = 0; j < gg[i]->GetNbinsX(); j++) {
-      Float_t val_num = gg[i]->GetBinContent(j+1) - ff[i]->GetBinContent(j+1);
-      Float_t val_den = gg[i]->GetBinError(j+1)*gg[i]->GetBinError(j+1) + ff[i]->GetBinError(j+1)*ff[i]->GetBinError(j+1);
+    Float_t id_val_trail = sf_photon_id->GetBinContent(sf_photon_id->FindBin(et, eta));
+    Float_t id_error_trail = sf_photon_id->GetBinError(sf_photon_id->FindBin(et, eta));
     
-      if(val_den == 0.) continue;
-  
-      chi2_all += val_num * val_num / val_den;
-      nBins_all++;
-    }
-  }
-  chi2_all /= nBins_all;
-  ff_chi2->SetBinContent(ff_chi2->FindBin(binx, 10), chi2_all);
+    Float_t veto_val_trail = sf_photon_veto->GetBinContent(sf_photon_id->FindBin(et, eta));
+    Float_t veto_error_trail = sf_photon_veto->GetBinError(sf_photon_id->FindBin(et, eta));
 
+    central = id_val_lead * veto_val_lead * id_val_trail * veto_val_trail;
+    error = central * sqrt(id_error_lead*id_error_lead/(id_val_lead*id_val_lead) +
+			   veto_error_lead*veto_error_lead/(veto_val_lead*veto_val_lead) +
+			   id_error_trail*id_error_trail/(id_val_trail*id_val_trail) +
+			   veto_error_trail*veto_error_trail/(veto_val_trail*veto_val_trail));
+  }
+
+  up = central + error;
+  down = central - error;
+
+  return;
 }
 
 void HistogramMaker::CreateDatacards() {
@@ -1778,7 +1799,7 @@ void HistogramMaker::CreateDatacards() {
       continue;
     }
 
-    Float_t met, ngamma, nfake;
+    Float_t met, ngamma, nfake, nphotons;
     Float_t lepton_pt, lepton_eta;
     Float_t lead_photon_et, lead_photon_eta;
     Float_t trail_photon_et, trail_photon_eta;
@@ -1797,6 +1818,11 @@ void HistogramMaker::CreateDatacards() {
     tree_JECup->SetBranchAddress("Nfake", &nfake);
     tree_JECdown->SetBranchAddress("Nfake", &nfake);
     tree_contam->SetBranchAddress("Nfake", &nfake);
+
+    tree->SetBranchAddress("Nphotons", &nphotons);
+    tree_JECup->SetBranchAddress("Nphotons", &nphotons);
+    tree_JECdown->SetBranchAddress("Nphotons", &nphotons);
+    tree_contam->SetBranchAddress("Nphotons", &nphotons);
 
     tree->SetBranchAddress("leadPhotonEt", &lead_photon_et);
     tree_JECup->SetBranchAddress("leadPhotonEt", &lead_photon_et);
@@ -1912,6 +1938,8 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
 
       if(!checkBtagging()) continue;
+
+      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
 
       if(topPtReweighting < 0) topPtReweighting = 1.;
       
