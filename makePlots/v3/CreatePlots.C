@@ -41,21 +41,21 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   ttJets.push_back("ttJetsSemiLep");
   ttJets.push_back("ttJetsFullLep");
   ttJets.push_back("ttJetsHadronic");
-  pMaker->BookMCLayer(ttJets, kGray, "t#bar{t} inclusive", sf_ttbar, sfError_ttbar);
+  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} inclusive", sf_ttbar, sfError_ttbar);
 
   vector<TString> wJets;
   wJets.push_back("W1JetsToLNu");
   wJets.push_back("W2JetsToLNu");
   wJets.push_back("W3JetsToLNu");
   wJets.push_back("W4JetsToLNu");
-  pMaker->BookMCLayer(wJets, kOrange-3, "W + Jets", sf_wJets, sfError_wJets);
+  pMaker->BookMCLayer(wJets, kOrange-3, "wjets", "W + Jets", sf_wJets, sfError_wJets);
 
   vector<TString> zJets;
   zJets.push_back("dy1JetsToLL");
   zJets.push_back("dy2JetsToLL");
   zJets.push_back("dy3JetsToLL");
   zJets.push_back("dy4JetsToLL");
-  pMaker->BookMCLayer(zJets, kYellow, "Z/#gamma* + Jets", sf_mc, sfError_mc);
+  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", sf_mc, sfError_mc);
 
   vector<TString> singleTop;
   singleTop.push_back("TBar_s");
@@ -64,22 +64,22 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   singleTop.push_back("T_s");
   singleTop.push_back("T_t");
   singleTop.push_back("T_tW");
-  pMaker->BookMCLayer(singleTop, kRed, "Single top", sf_mc, sfError_mc);
+  pMaker->BookMCLayer(singleTop, kRed, "singleTop", "Single top", sf_mc, sfError_mc);
 
   vector<TString> diboson;
   diboson.push_back("WW");
   diboson.push_back("WZ");
   diboson.push_back("ZZ");
-  pMaker->BookMCLayer(diboson, kCyan, "Diboson", sf_mc, sfError_mc);
+  pMaker->BookMCLayer(diboson, kCyan, "diboson", "Diboson", sf_mc, sfError_mc);
 
   vector<TString>  ttV;
   ttV.push_back("TTWJets");
   ttV.push_back("TTZJets");
-  pMaker->BookMCLayer(ttV, kAzure-2, "t#bar{t} + W/Z", sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttV, kAzure-2, "ttV", "t#bar{t} + W/Z", sf_mc, sfError_mc);
 
   vector<TString> ttgamma;
   ttgamma.push_back("ttA_2to5");
-  pMaker->BookMCLayer(ttgamma, 8, "t#bar{t} + #gamma", sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttgamma, 8, "ttgamma", "t#bar{t} + #gamma", sf_mc, sfError_mc);
 
   ///////////////////////////////////////////////////////
 

@@ -48,7 +48,7 @@ class PlotMaker : public TObject {
   PlotMaker(int chanNo, int cr, bool useQCD);
   virtual ~PlotMaker();
 
-  void BookMCLayer(vector<TString> newNames, int color, TString legendEntry, Float_t scale = -1., Float_t scaleErr = -1.) { 
+  void BookMCLayer(vector<TString> newNames, TString limitName, int color, TString legendEntry, Float_t scale = -1., Float_t scaleErr = -1.) { 
     TH1D * h;
     mc.push_back(h);
 
@@ -72,6 +72,8 @@ class PlotMaker : public TObject {
     layerNames.push_back(newNames);
     layerColors.push_back(color);
     layerLegends.push_back(legendEntry);
+
+    limitNames.push_back(limitName);
 
     fitScales.push_back(scale);
     fitScaleErrors.push_back(scaleErr);
@@ -254,6 +256,8 @@ class PlotMaker : public TObject {
   vector<int> layerColors;
   vector<TString> layerLegends;
 
+  vector<TString> limitNames;
+
   vector<Float_t> fitScales;
   vector<Float_t> fitScaleErrors;
 
@@ -308,6 +312,8 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD) {
   layerColors.clear();
   layerLegends.clear();
 
+  limitNames.clear();
+
   fitScales.clear();
   fitScaleErrors.clear();
 
@@ -352,6 +358,8 @@ PlotMaker::~PlotMaker() {
   layerNames.clear();
   layerColors.clear();
   layerLegends.clear();
+
+  limitNames.clear();
 
   fitScales.clear();
   fitScaleErrors.clear();
@@ -920,7 +928,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   StackHistograms(n);
   if(n == 0) {
     METDifference();
-    CreateSignalOutputs();
+    SaveLimitOutputs();
   }
   CalculateRatio(n);
   if(n == 0)  MakeLegends();
@@ -981,7 +989,67 @@ void PlotMaker::METDifference() {
 
 void PlotMaker::SaveLimitOutputs() {
 
-  // durp
+  TString outName = "limitInputs_";
+  if(controlRegion == kSR1) outName += "SR1";
+  if(controlRegion == kSR2) outName += "SR2";
+  if(controlRegion == kCR1) outName += "CR1";
+  if(controlRegion == kCR2) outName += "CR2";
+  if(controlRegion == kCR2a) outName += "CR2a";
+  if(controlRegion == kCR0) outName += "CR0";
+  outName += ".root";
+
+  TFile * fLimits = new TFile(outName, "UPDATE");
+  fLimits->cd();
+  if(channel.Contains("ele")) {
+    fLimits->cd("ele");
+  }
+  else {
+    fLimits->cd("muon");
+  }
+
+  data->Write("data_obs");
+  qcd->Write("qcd");
+  qcd_defUp->Write("qcd_defUp");
+  qcd_defDown->Write("qcd_defDown");
+
+  for(unsigned int i = 0; i < mc.size(); i++) {
+    mc[i]->Write(limitNames[i]);
+
+    for(int j = 0; j < mc[i]->GetNbinsX(); j++) {
+      TH1D * h_flux_up = (TH1D*)mc[i]->Clone("clone_"+limitNames[i]+"_flux_up");
+      TH1D * h_flux_down = (TH1D*)mc[i]->Clone("clone_"+limitNames[i]+"_flux_down");
+
+      Double_t centralValue = mc[i]->GetBinContent(j+1);
+      Double_t statError = mc[i]->GetBinError(j+1);
+
+      if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
+      if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
+
+      h_flux_up->Write(limitNames[i]+"_"+limitNames[i]+"_stat_bin"+Form("%d", j+1)+"Up");
+      h_flux_down->Write(limitNames[i]+"_"+limitNames[i]+"_stat_bin"+Form("%d", j+1)+"Down");
+    }
+      
+  }
+
+  for(unsigned int i = 0; i < mc_btagWeightUp.size(); i++) mc_btagWeightUp[i]->Write(limitNames[i]+"_btagWeightUp");
+  for(unsigned int i = 0; i < mc_btagWeightDown.size(); i++) mc_btagWeightDown[i]->Write(limitNames[i]+"_btagWeightDown");
+
+  for(unsigned int i = 0; i < mc_puWeightUp.size(); i++) mc_puWeightUp[i]->Write(limitNames[i]+"_puWeightUp");
+  for(unsigned int i = 0; i < mc_puWeightDown.size(); i++) mc_puWeightDown[i]->Write(limitNames[i]+"_puWeightDown");
+
+  for(unsigned int i = 0; i < mc_topPtUp.size(); i++) mc_topPtUp[i]->Write(limitNames[i]+"_topPtUp");
+  for(unsigned int i = 0; i < mc_topPtDown.size(); i++) mc_topPtDown[i]->Write(limitNames[i]+"_topPtDown");
   
+  for(unsigned int i = 0; i < mc_JECUp.size(); i++) mc_JECUp[i]->Write(limitNames[i]+"_JECUp");
+  for(unsigned int i = 0; i < mc_JECDown.size(); i++) mc_JECDown[i]->Write(limitNames[i]+"_JECDown");
+  
+  for(unsigned int i = 0; i < mc_leptonSFUp.size(); i++) mc_leptonSFUp[i]->Write(limitNames[i]+"_leptonSFUp");
+  for(unsigned int i = 0; i < mc_leptonSFDown.size(); i++) mc_leptonSFDown[i]->Write(limitNames[i]+"_leptonSFDown");
+  
+  for(unsigned int i = 0; i < mc_photonSFUp.size(); i++) mc_photonSFUp[i]->Write(limitNames[i]+"_photonSFUp");
+  for(unsigned int i = 0; i < mc_photonSFDown.size(); i++) mc_photonSFDown[i]->Write(limitNames[i]+"_photonSFDown");
+
+  fLimits->Close();
+ 
 }
 

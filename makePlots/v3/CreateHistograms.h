@@ -1675,7 +1675,8 @@ void HistogramMaker::GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta
     return;
   }
 
-  Float_t et, eta, error;
+  Float_t et, eta;
+  Float_t error = 0;
 
   if(nphotons == 1) {
     et = min(lead_photon_et, (float)999.);
@@ -1729,14 +1730,6 @@ void HistogramMaker::GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta
 }
 
 void HistogramMaker::CreateDatacards() {
-
-  unsigned int variableNumber = 0;
-  for(unsigned int i = 0; i < variables.size(); i++) {
-    if(variables[i] == "pfMET") {
-      variableNumber = i;
-      break;
-    }
-  }
 
   Double_t xbins[31];
   xbins[0] = 0;
