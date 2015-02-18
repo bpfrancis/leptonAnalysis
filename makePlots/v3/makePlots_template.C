@@ -11,11 +11,9 @@ void makePlots() {
 
   bool needsQCD = true;
 
-  const int nChannels = 4;
+  const int nChannels = 8;
 
   for(int i = 0; i < nChannels; i++) {
-    if(i != 1 && i != 3) continue;
-
     CreatePlots(i, controlRegion, needsQCD);
   }  
 

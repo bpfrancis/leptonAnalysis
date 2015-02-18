@@ -151,16 +151,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   hMaker->SetTrees(ggTree, qcdTree, sigaTree, sigbTree);
 
-  const int nMetBins_1g = 10;
-  Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 650};
-  const int nKinematicBins_1g = 20;
-  Double_t xbins_kinematic_1g[nKinematicBins_1g+1] = {0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 250, 300, 400, 500, 600, 800, 1000, 1250, 1500, 2000};
-
-  const int nMetBins_2g = 6;
-  Double_t xbins_met_2g[nMetBins_2g+1] = {0, 20, 50, 75, 100, 150, 1000};
-  const int nKinematicBins_2g = 10;
-  Double_t xbins_kinematic_2g[nKinematicBins_2g+1] = {0, 25, 50, 100, 150, 200, 400, 600, 1000, 1500, 2000};
-
   if(controlRegion == kCR0) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
@@ -270,9 +260,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   hMaker->FillHistograms();
   hMaker->SubtractMCFromQCD();
-
-  // normalize qcd in CreatePlots
-  //hMaker->NormalizeQCD();
 
   hMaker->SaveOutput();
 

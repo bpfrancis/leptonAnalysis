@@ -28,6 +28,7 @@
 #include <exception>
 
 #include "rootRoutines.h"
+#include "Binning.h"
 
 using namespace std;
 
@@ -601,8 +602,8 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Float_t xlo, F
     h_bkg->Sumw2();
     mcQCDHistograms[i].push_back(h_bkg);
 
-    mcQCDHistograms_relIso_5.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_5_"+mcNames[i]+"_"+req));
-    mcQCDHistograms_relIso_10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+req));
+    mcQCDHistograms_relIso_5[i].push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_5_"+mcNames[i]+"_"+req));
+    mcQCDHistograms_relIso_10[i].push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+req));
   }
 
   TH1D * sig_a = new TH1D(variable+"_a_"+req, variable, nBins, xlo, xhi);
@@ -691,8 +692,8 @@ void HistogramMaker::BookHistogram(TString variable, Int_t nBins, Double_t* cust
     h_bkg->Sumw2();
     mcQCDHistograms[i].push_back(h_bkg);
 
-    mcQCDHistograms_relIso_5.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_5_"+mcNames[i]+"_"+req));
-    mcQCDHistograms_relIso_10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+req));
+    mcQCDHistograms_relIso_5[i].push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_5_"+mcNames[i]+"_"+req));
+    mcQCDHistograms_relIso_10[i].push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+req));
   }
 
   TH1D * sig_a = new TH1D(variable+"_a_"+req, variable, nBins, customBins);
@@ -1369,7 +1370,7 @@ void HistogramMaker::SubtractMCFromQCD() {
 
 void HistogramMaker::NormalizeQCD() {
 
-  unsigned int met_index;
+  unsigned int met_index = 0;
   for(unsigned int i = 0; i < variables.size(); i++) {
     if(variables[i] == "pfMET") {
       met_index = i;
@@ -1569,7 +1570,8 @@ void HistogramMaker::GetPhotonSF(Float_t& central, Float_t& up, Float_t& down) {
     return;
   }
 
-  Float_t et, eta, error;
+  Float_t et, eta;
+  Float_t error = 0;
 
   if(getIntegerValue("Nphotons") == 1) {
     et = min(getValue("leadPhotonEt"), (float)999.);

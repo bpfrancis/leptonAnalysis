@@ -17,27 +17,39 @@ enum jetSystematicMode {kCentral, kJECup, kJECdown, kJERup, kJERdown, kNumJetSyt
 
 const int nChannels = 6;
 
-TString channels[nChannels] = {"ele_jjj_veto", "muon_jjj_veto",
+TString channels[nChannels] = {"ele_jj", "muon_jj",
+			       "ele_bj", "ele_bj",
+			       "ele_jjj_veto", "muon_jjj_veto",
 			       "ele_jjj", "muon_jjj",
 			       "ele_bjj", "muon_bjj"};
 
-unsigned int nJetReq[nChannels] = {3, 3,
+unsigned int nJetReq[nChannels] = {2, 2,
+				   2, 2,
+				   3, 3,
 				   3, 3,
 				   3, 3};
 
 unsigned int nBtagReq[nChannels] = {0, 0,
+				    1, 1,
+				    0, 0,
 				    0, 0, 
 				    1, 1};
 
-bool nBtagInclusive[nChannels] = {false, false,
+bool nBtagInclusive[nChannels] = {true, true,
+				  true, true,
+				  false, false,
 				  true, true,
 				  true, true};
 
 int nEleReq[nChannels] = {1, 0,
 			  1, 0,
+			  1, 0,
+			  1, 0,
 			  1, 0};
 
 int nMuonReq[nChannels] = {0, 1,
+			   0, 1
+			   0, 1,
 			   0, 1,
 			   0, 1};
 

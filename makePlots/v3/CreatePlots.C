@@ -2,10 +2,6 @@
 
 using namespace std;
 
-const Float_t sf_ttJets = 0;
-
-
-
 void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   gROOT->Reset();
