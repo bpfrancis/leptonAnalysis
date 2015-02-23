@@ -32,22 +32,16 @@
 
 using namespace std;
 
-const int nChannels = 8;
+const int nChannels = 4;
 
-TString channels[nChannels] = {"ele_jj", "muon_jj",
-			       "ele_bj", "muon_bj",
-			       "ele_jjj", "muon_jjj",
-			       "ele_bjj", "muon_bjj"};
+TString channels[nChannels] = {"ele_jjj", "muon_jjj",
+                               "ele_bjj", "muon_bjj"};
 
 unsigned int nBtagReq[nChannels] = {0, 0,
-				    1, 1,
-				    0, 0, 
-				    1, 1};
+                                    1, 1};
 
-TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jj_eQCDnoSigmaIetaIetaTree", "muon_jj_muQCDnoSigmaIetaIetaTree",
-						  "ele_jj_veto_eQCDnoSigmaIetaIetaTree", "muon_jj_veto_muQCDnoSigmaIetaIetaTree",
-						  "ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
-						  "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
+TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
+                                                  "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 
@@ -1731,6 +1725,10 @@ void HistogramMaker::GetPhotonSF(Float_t lead_photon_et, Float_t lead_photon_eta
 
 void HistogramMaker::CreateDatacards() {
 
+  gROOT->SetStyle("Plain");
+  gStyle->SetOptStat(0000);
+  gStyle->SetOptTitle(0);
+
   Double_t xbins[31];
   xbins[0] = 0;
   xbins[1] = 55;
@@ -1753,7 +1751,16 @@ void HistogramMaker::CreateDatacards() {
   TH2D * h_acc = new TH2D("acc_"+req, "acc_"+req, 30, xbins, 32, ybins);
   TH2D * h_contamination = new TH2D("contamination_"+req, "contamination_"+req, 30, xbins, 32, ybins);
 
-  TFile * fSignalOut = new TFile("limitInputs.root", "UPDATE");
+  TString outName = "signalInputs_"+req+"_";
+  if(controlRegion == kSR1) outName += "SR1";
+  if(controlRegion == kSR2) outName += "SR2";
+  if(controlRegion == kCR1) outName += "CR1";
+  if(controlRegion == kCR2) outName += "CR2";
+  if(controlRegion == kCR2a) outName += "CR2a";
+  if(controlRegion == kCR0) outName += "CR0";
+  outName += ".root";
+
+  TFile * fSignalOut = new TFile(outName, "UPDATE");
   if(req.Contains("ele")) {
     fSignalOut->mkdir("ele");
     fSignalOut->cd("ele");
@@ -1773,7 +1780,7 @@ void HistogramMaker::CreateDatacards() {
     sprintf(code, "_mst_%d_m1_%d", index1, index2);
     TString code_t = code;
 
-    TFile * f = new TFile("../../acceptance_v2/signal_contamination"+code_t+".root", "READ");
+    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v4/acceptance/signal_contamination"+code_t+".root", "READ");
     if(f->IsZombie()) {
       f->Close();
       continue;
@@ -2176,7 +2183,17 @@ void HistogramMaker::CreateDatacards() {
   h_acc->GetYaxis()->SetRangeUser(0, 1600);
   h_acc->GetZaxis()->SetLabelSize(0.02);
   h_acc->Draw("colz");
-  can->SaveAs("acceptance_"+req+".pdf");
+
+  TString plotName = "acc/acceptance_"+req+"_";
+  if(controlRegion == kSR1) plotName += "SR1";
+  if(controlRegion == kSR2) plotName += "SR2";
+  if(controlRegion == kCR1) plotName += "CR1";
+  if(controlRegion == kCR2) plotName += "CR2";
+  if(controlRegion == kCR2a) plotName += "CR2a";
+  if(controlRegion == kCR0) plotName += "CR0";
+  plotName += ".pdf";
+
+  can->SaveAs(plotName);
   
   h_contamination->GetXaxis()->SetTitle("#tilde{t} mass (GeV/c^{2})");
   h_contamination->GetXaxis()->SetRangeUser(0, 1600);
@@ -2187,8 +2204,18 @@ void HistogramMaker::CreateDatacards() {
   h_contamination->GetYaxis()->SetRangeUser(0, 1600);
   h_contamination->GetZaxis()->SetLabelSize(0.02);
   h_contamination->Draw("colz");
-  can->SaveAs("contamination_"+req+".pdf");
-  
+
+  plotName = "acc/contamination_"+req+"_";
+  if(controlRegion == kSR1) plotName += "SR1";
+  if(controlRegion == kSR2) plotName += "SR2";
+  if(controlRegion == kCR1) plotName += "CR1";
+  if(controlRegion == kCR2) plotName += "CR2";
+  if(controlRegion == kCR2a) plotName += "CR2a";
+  if(controlRegion == kCR0) plotName += "CR0";
+  plotName += ".pdf";
+
+  can->SaveAs(plotName);
+
   delete can;
 
   fSignalOut->Close();

@@ -113,6 +113,14 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		   0., 1.9,
 		   true, true, true);
 
+  pMaker->BookPlot("hadronic_pt", true, 
+		   "MHT (GeV/c)", "Number of Events / GeV",
+		   0, 1500, 2.e-5, 8.e3,
+		   0., 2.1,
+		   true, true, true);
+
+
+
   pMaker->CreatePlots();
 
   delete pMaker;

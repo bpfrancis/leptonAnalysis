@@ -11,7 +11,9 @@ void makePlots() {
 
   bool needsQCD = true;
 
-  const int nChannels = 8;
+  const int nChannels = 4;
+  TString channels[nChannels] = {"ele_jjj", "muon_jjj",
+                                 "ele_bjj", "muon_bjj"};
 
   for(int i = 0; i < nChannels; i++) {
     CreatePlots(i, controlRegion, needsQCD);

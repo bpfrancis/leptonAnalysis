@@ -26,16 +26,13 @@
 
 using namespace std;
 
-const int nChannels = 8;
-TString channels[nChannels] = {"ele_jj", "ele_jjj",
-			       "ele_bj", "ele_bjj",
-			       "muon_jj", "muon_jjj",
-			       "muon_bj", "muon_bjj"};
+const int nChannels = 4;
 
-TString channelLabels[nChannels] = {"XYZ e (jj)", "XYZ e (jjj)",
-				    "XYZ e (bj)", "XYZ e",
-				    "XYZ #mu (jj)", "XYZ #mu (jjj)",
-				    "XYZ #mu (bj)", "XYZ #mu"};
+TString channels[nChannels] = {"ele_jjj", "muon_jjj",
+                               "ele_bjj", "muon_bjj"};
+
+TString channelLabels[nChannels] = {"XYZ e (no b-tag)", "XYZ #mu (no b-tag)",
+				    "XYZ e", "XYZ #mu"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0"};
@@ -48,7 +45,7 @@ class PlotMaker : public TObject {
   PlotMaker(int chanNo, int cr, bool useQCD);
   virtual ~PlotMaker();
 
-  void BookMCLayer(vector<TString> newNames, TString limitName, int color, TString legendEntry, Float_t scale = -1., Float_t scaleErr = -1.) { 
+  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, Float_t scale = -1., Float_t scaleErr = -1.) { 
     TH1D * h;
     mc.push_back(h);
 
@@ -167,6 +164,8 @@ class PlotMaker : public TObject {
 
   void CalculateQCDNormalization();
   void ScaleQCD();
+
+  void DetermineAxisRanges(unsigned int n);
 
   void CreatePlot(unsigned int n);
   void CreatePlots() {
@@ -393,7 +392,7 @@ void PlotMaker::GetHistograms(unsigned int n) {
   data = (TH1D*)input->Get(variables[n]+"_gg_"+channel);
 
   qcd = (TH1D*)input->Get(variables[n]+"_qcd_"+channel);
-  qcd_defUp = (TH1D*)input->Get(variables[n]+"_qcd_10_"+channel);
+  qcd_defUp = (TH1D*)input->Get(variables[n]+"_qcd_relIso_10_"+channel);
 
   qcd_defDown = (TH1D*)qcd->Clone(variables[n]+"_qcd_down_"+channel);
   
@@ -765,6 +764,8 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetTitleSize(0.12);
   ratio->GetXaxis()->SetTitleOffset(0.6);
 
+  DetermineAxisRanges(n);
+  
   if(xMaximums[n] > xMinimums[n]) {
     bkg->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
     ratio->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
@@ -981,7 +982,16 @@ void PlotMaker::METDifference() {
   TH1D * h = (TH1D*)data->Clone(channel+"_"+crNames[controlRegion]);
   h->Add(bkg, -1.);
 
-  TFile * output = new TFile("met_differences.root", "UPDATE");
+  TString outName = "met_differences_";
+  if(controlRegion == kSR1) outName += "SR1";
+  if(controlRegion == kSR2) outName += "SR2";
+  if(controlRegion == kCR1) outName += "CR1";
+  if(controlRegion == kCR2) outName += "CR2";
+  if(controlRegion == kCR2a) outName += "CR2a";
+  if(controlRegion == kCR0) outName += "CR0";
+  outName += ".root";
+
+  TFile * output = new TFile(outName, "UPDATE");
 
   h->Write();
   output->Close();
@@ -1053,3 +1063,59 @@ void PlotMaker::SaveLimitOutputs() {
  
 }
 
+void PlotMaker::DetermineAxisRanges(unsigned int n) {
+
+  double padhi_max = -1.;
+  double padhi_min = 1.e10;
+
+  for(Int_t ibin = 0; ibin < data->GetNbinsX(); ibin++) {
+    double value_up = data->GetBinValue(ibin+1) + data->GetBinError(ibin+1) * 1.3;
+    double value_down = (data->GetBinValue(ibin+1) - data->GetBinError(ibin+1)) * 0.7;
+
+    if(value_up > padhi_max) padhi_max = value_up;
+    if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
+  }
+
+  for(Int_t ibin = 0; ibin < errors_sys->GetNbinsX(); ibin++) {
+    double value_up = errors_sys->GetBinValue(ibin+1) + errors_sys->GetBinError(ibin+1) * 1.3;
+    double value_down = (errors_sys->GetBinValue(ibin+1) - errors_sys->GetBinError(ibin+1)) * 0.7;
+
+    if(value_up > padhi_max) padhi_max = value_up;
+    if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
+  }
+
+  for(Int_t ibin = 0; ibin < siga->GetNbinsX(); ibin++) {
+    double value_up = siga->GetBinValue(ibin+1) * 1.3;
+    double value_down = siga->GetBinValue(ibin+1) * 0.7;
+
+    if(value_up > padhi_max) padhi_max = value_up;
+    if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
+  }
+
+  for(Int_t ibin = 0; ibin < sigb->GetNbinsX(); ibin++) {
+    double value_up = sigb->GetBinValue(ibin+1) * 1.3;
+    double value_down = sigb->GetBinValue(ibin+1) * 0.7;
+
+    if(value_up > padhi_max) padhi_max = value_up;
+    if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
+  }
+
+  double padlo_max = -1.;
+  double padlo_min = 0.;
+
+  for(Int_t ibin = 0; ibin < ratio->GetNbinsX(); ibin++) {
+    double value = ratio->GetBinValue(ibin+1) + ratio->GetBinError(ibin+1) * 1.3;
+
+    if(value > padlo_max) padlomax = value;
+  }
+
+  for(Int_t ibin = 0; ibin < ratio_sys->GetNbinsX(); ibin++) {
+    double value = ratio_sys->GetBinValue(ibin+1) + ratio_sys->GetBinError(ibin+1) * 1.3;
+
+    if(value > padlo_max) padlomax = value;
+  }
+
+  cout << "For " << variables[n] << ", recommend ranges " << padhi_min << "-" << padhi_max << " (given " << xMinimums[n] << "-" << xMaximums[n] << ") and ";
+  cout << padlo_min << "-" << padlo_max << " (given " << ratioMinimums[n] << "-" << ratioMaximums[n] << ")" << endl;
+
+}

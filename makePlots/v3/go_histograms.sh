@@ -12,9 +12,9 @@ export SCRAM_ARCH=slc5_amd64_gcc462
 eval `scramv1 runtime -sh`
 
 PHOTON_REGION=$1
-ELE_FILE_TO_RUN=/eos/uscms/store/user/bfrancis/inputs_v3/SingleElectron.root
-MUON_FILE_TO_RUN=/eos/uscms/store/user/bfrancis/inputs_v3/SingleMu.root
+ELE_FILE_TO_RUN=/eos/uscms/store/user/bfrancis/inputs_v4/SingleElectron.root
+MUON_FILE_TO_RUN=/eos/uscms/store/user/bfrancis/inputs_v4/SingleMu.root
 
 cat makeHistograms_template.C | sed s:ELE_FILE_TO_RUN:$ELE_FILE_TO_RUN: | sed s:MUON_FILE_TO_RUN:$MUON_FILE_TO_RUN: | sed s:PHOTON_REGION:$PHOTON_REGION: > makeHistograms.C
-root -b -q -l makeHistograms.C
+root -b -q -l makeHistograms.C 2>&1 | sed '/does not exist/d'
 rm makeHistograms.C

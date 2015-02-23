@@ -9,10 +9,10 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TTree * ggTree = (TTree*)in->Get(channels[channel]+"_noSigmaIetaIetaTree");
   TTree * qcdTree = (TTree*)in->Get(qcdChannels_noSigmaIetaIeta[channel]);
 
-  TFile * fSigA = new TFile("../../acceptance_v2/signal_contamination_mst_460_m1_175.root", "READ");
+  TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v4/acceptance/signal_contamination_mst_460_m1_175.root", "READ");
   TTree * sigaTree = (TTree*)fSigA->Get(channels[channel]+"_noSigmaIetaIetaTree");
 
-  TFile * fSigB = new TFile("../../acceptance_v2/signal_contamination_mst_560_m1_325.root", "READ");
+  TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v4/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(channels[channel]+"_noSigmaIetaIetaTree");
 
   HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut);
