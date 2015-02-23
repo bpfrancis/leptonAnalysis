@@ -137,41 +137,41 @@ class PlotMaker : public TObject {
 
     if(variables.size() == 0) return;
 
-    data = (TH1D*)data->Rebin("data_reb", nMetBins_2g, xbins_met_2g);
+    data = (TH1D*)data->Rebin(nMetBins_2g, "data_reb", xbins_met_2g);
 
-    siga = (TH1D*)siga->Rebin("siga_reb", nMetBins_2g, xbins_met_2g);
-    sigb = (TH1D*)sigb->Rebin("sigb_reb", nMetBins_2g, xbins_met_2g);
+    siga = (TH1D*)siga->Rebin(nMetBins_2g, "siga_reb", xbins_met_2g);
+    sigb = (TH1D*)sigb->Rebin(nMetBins_2g, "sigb_reb", xbins_met_2g);
 
-    qcd = (TH1D*)qcd->Rebin("qcd_reb", nMetBins_2g, xbins_met_2g);
-    qcd_defUp = (TH1D*)qcd_defUp->Rebin("qcd_defUp_reb", nMetBins_2g, xbins_met_2g);
-    qcd_defDown = (TH1D*)qcd_defDown->Rebin("qcd_defDown_reb", nMetBins_2g, xbins_met_2g);
+    qcd = (TH1D*)qcd->Rebin(nMetBins_2g, "qcd_reb", xbins_met_2g);
+    qcd_defUp = (TH1D*)qcd_defUp->Rebin(nMetBins_2g, "qcd_defUp_reb", xbins_met_2g);
+    qcd_defDown = (TH1D*)qcd_defDown->Rebin(nMetBins_2g, "qcd_defDown_reb", xbins_met_2g);
   
     for(unsigned int i = 0; i < mc.size(); i++) {
-      mc[i] = (TH1D*)mc[i]->Rebin("mc_reb", nMetBins_2g, xbins_met_2g);
+      mc[i] = (TH1D*)mc[i]->Rebin(nMetBins_2g, "mc_reb", xbins_met_2g);
 
-      mc_btagWeightUp[i] = (TH1D*)mc_btagWeightUp[i]->Rebin("mc_btagWeightUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_btagWeightDown[i] = (TH1D*)mc_btagWeightDown[i]->Rebin("mc_btagWeightDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_btagWeightUp[i] = (TH1D*)mc_btagWeightUp[i]->Rebin(nMetBins_2g, "mc_btagWeightUp_reb", xbins_met_2g);
+      mc_btagWeightDown[i] = (TH1D*)mc_btagWeightDown[i]->Rebin(nMetBins_2g, "mc_btagWeightDown_reb", xbins_met_2g);
 
-      mc_puWeightUp[i] = (TH1D*)mc_puWeightUp[i]->Rebin("mc_puWeightUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_puWeightDown[i] = (TH1D*)mc_puWeightDown[i]->Rebin("mc_puWeightDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_puWeightUp[i] = (TH1D*)mc_puWeightUp[i]->Rebin(nMetBins_2g, "mc_puWeightUp_reb", xbins_met_2g);
+      mc_puWeightDown[i] = (TH1D*)mc_puWeightDown[i]->Rebin(nMetBins_2g, "mc_puWeightDown_reb", xbins_met_2g);
 
-      mc_scaleUp[i] = (TH1D*)mc_scaleUp[i]->Rebin("mc_scaleUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_scaleDown[i] = (TH1D*)mc_scaleDown[i]->Rebin("mc_scaleDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_scaleUp[i] = (TH1D*)mc_scaleUp[i]->Rebin(nMetBins_2g, "mc_scaleUp_reb", xbins_met_2g);
+      mc_scaleDown[i] = (TH1D*)mc_scaleDown[i]->Rebin(nMetBins_2g, "mc_scaleDown_reb", xbins_met_2g);
 
-      mc_pdfUp[i] = (TH1D*)mc_pdfUp[i]->Rebin("mc_pdfUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_pdfDown[i] = (TH1D*)mc_pdfDown[i]->Rebin("mc_pdfDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_pdfUp[i] = (TH1D*)mc_pdfUp[i]->Rebin(nMetBins_2g, "mc_pdfUp_reb", xbins_met_2g);
+      mc_pdfDown[i] = (TH1D*)mc_pdfDown[i]->Rebin(nMetBins_2g, "mc_pdfDown_reb", xbins_met_2g);
 
-      mc_topPtUp[i] = (TH1D*)mc_topPtUp[i]->Rebin("mc_topPtUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_topPtDown[i] = (TH1D*)mc_topPtDown[i]->Rebin("mc_topPtDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_topPtUp[i] = (TH1D*)mc_topPtUp[i]->Rebin(nMetBins_2g, "mc_topPtUp_reb", xbins_met_2g);
+      mc_topPtDown[i] = (TH1D*)mc_topPtDown[i]->Rebin(nMetBins_2g, "mc_topPtDown_reb", xbins_met_2g);
 
-      mc_JECUp[i] = (TH1D*)mc_JECUp[i]->Rebin("mc_JECUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_JECDown[i] = (TH1D*)mc_JECDown[i]->Rebin("mc_JECDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_JECUp[i] = (TH1D*)mc_JECUp[i]->Rebin(nMetBins_2g, "mc_JECUp_reb", xbins_met_2g);
+      mc_JECDown[i] = (TH1D*)mc_JECDown[i]->Rebin(nMetBins_2g, "mc_JECDown_reb", xbins_met_2g);
 
-      mc_leptonSFUp[i] = (TH1D*)mc_leptonSFUp[i]->Rebin("mc_leptonSFUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_leptonSFDown[i] = (TH1D*)mc_leptonSFDown[i]->Rebin("mc_leptonSFDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_leptonSFUp[i] = (TH1D*)mc_leptonSFUp[i]->Rebin(nMetBins_2g, "mc_leptonSFUp_reb", xbins_met_2g);
+      mc_leptonSFDown[i] = (TH1D*)mc_leptonSFDown[i]->Rebin(nMetBins_2g, "mc_leptonSFDown_reb", xbins_met_2g);
 
-      mc_photonSFUp[i] = (TH1D*)mc_photonSFUp[i]->Rebin("mc_photonSFUp_reb", nMetBins_2g, xbins_met_2g);
-      mc_photonSFDown[i] = (TH1D*)mc_photonSFDown[i]->Rebin("mc_photonSFDown_reb", nMetBins_2g, xbins_met_2g);
+      mc_photonSFUp[i] = (TH1D*)mc_photonSFUp[i]->Rebin(nMetBins_2g, "mc_photonSFUp_reb", xbins_met_2g);
+      mc_photonSFDown[i] = (TH1D*)mc_photonSFDown[i]->Rebin(nMetBins_2g, "mc_photonSFDown_reb", xbins_met_2g);
     }
 
   };
