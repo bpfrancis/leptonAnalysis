@@ -13,6 +13,9 @@ eval `scramv1 runtime -sh`
 
 PHOTON_REGION=$1
 
+rm limitInputs_${PHOTON_REGION#?}.root
+rm met_differences_${PHOTON_REGION#?}.root
+
 cat makePlots_template.C | sed s:PHOTON_REGION:$PHOTON_REGION: > makePlots.C
 root -b -q -l makePlots.C
 rm makePlots.C

@@ -89,6 +89,8 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		   0., 1.9,
 		   true, true, true);
   
+  if(controlRegion == kCR1) SetDoRebinMET(true);
+
   pMaker->BookPlot("m3", false,
 		   "M3 (GeV/c^{2})", "Number of Events / GeV",
 		   0., 500., 7.e-5, 2.e5,

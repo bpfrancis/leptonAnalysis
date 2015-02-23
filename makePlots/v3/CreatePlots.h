@@ -131,6 +131,51 @@ class PlotMaker : public TObject {
 
   };
 
+  void SetDoRebinMET(bool v) { doRebinMET = v; };
+  
+  void RebinMET() {
+
+    if(variables.size() == 0) return;
+
+    data = (TH1D*)data->Rebin(data->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+    siga = (TH1D*)siga->Rebin(siga->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+    sigb = (TH1D*)sigb->Rebin(sigb->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+    qcd = (TH1D*)qcd->Rebin(qcd->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+    qcd_defUp = (TH1D*)qcd_defUp->Rebin(qcd_defUp->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+    qcd_defDown = (TH1D*)qcd_defDown->Rebin(qcd_defDown->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+  
+    for(unsigned int i = 0; i < mc.size(); i++) {
+      mc[i] = (TH1D*)mc[i]->Rebin(mc[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_btagWeightUp[i] = (TH1D*)mc_btagWeightUp[i]->Rebin(mc_btagWeightUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_btagWeightDown[i] = (TH1D*)mc_btagWeightDown[i]->Rebin(mc_btagWeightDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_puWeightUp[i] = (TH1D*)mc_puWeightUp[i]->Rebin(mc_puWeightUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_puWeightDown[i] = (TH1D*)mc_puWeightDown[i]->Rebin(mc_puWeightDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_scaleUp[i] = (TH1D*)mc_scaleUp[i]->Rebin(mc_scaleUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_scaleDown[i] = (TH1D*)mc_scaleDown[i]->Rebin(mc_scaleDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_pdfUp[i] = (TH1D*)mc_pdfUp[i]->Rebin(mc_pdfUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_pdfDown[i] = (TH1D*)mc_pdfDown[i]->Rebin(mc_pdfDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_topPtUp[i] = (TH1D*)mc_topPtUp[i]->Rebin(mc_topPtUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_topPtDown[i] = (TH1D*)mc_topPtDown[i]->Rebin(mc_topPtDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_JECUp[i] = (TH1D*)mc_JECUp[i]->Rebin(mc_JECUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_JECDown[i] = (TH1D*)mc_JECDown[i]->Rebin(mc_JECDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_leptonSFUp[i] = (TH1D*)mc_leptonSFUp[i]->Rebin(mc_leptonSFUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_leptonSFDown[i] = (TH1D*)mc_leptonSFDown[i]->Rebin(mc_leptonSFDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+
+      mc_photonSFUp[i] = (TH1D*)mc_photonSFUp[i]->Rebin(mc_photonSFUp[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+      mc_photonSFDown[i] = (TH1D*)mc_photonSFDown[i]->Rebin(mc_photonSFDown[i]->GetName() + "_reb", nMetBins_2g, xbins_met_2g);
+    }
+
+  };
+
   // done once for all variables
 
   void MakeCanvas() {
@@ -276,6 +321,8 @@ class PlotMaker : public TObject {
   int controlRegion;
   bool needsQCD;
 
+  bool doRebinMET;
+
   TLegend * leg;
   TLegend * legDrawSignal;
   TLegend * ratioLeg;
@@ -288,6 +335,8 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD) {
   channelLabel = channelLabels[chanNo];
   controlRegion = cr;
   needsQCD = useQCD;
+
+  doRebinMET = false;
 
   mc.clear();
   mc_btagWeightUp.clear();
@@ -925,6 +974,9 @@ void PlotMaker::CalculateQCDNormalization() {
 void PlotMaker::CreatePlot(unsigned int n) {
 
   if(n > 0) GetHistograms(n);
+
+  if(doRebinMET) RebinMET();
+
   ScaleQCD();
   StackHistograms(n);
   if(n == 0) {
@@ -1011,9 +1063,11 @@ void PlotMaker::SaveLimitOutputs() {
   TFile * fLimits = new TFile(outName, "UPDATE");
   fLimits->cd();
   if(channel.Contains("ele")) {
+    if(!(fLimits->GetDirectory("ele"))) fLimits->mkdir("ele");
     fLimits->cd("ele");
   }
   else {
+    if(!(fLimits->GetDirectory("muon"))) fLimits->mkdir("muon");
     fLimits->cd("muon");
   }
 
@@ -1068,33 +1122,38 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   double padhi_max = -1.;
   double padhi_min = 1.e10;
 
+  double multiply_up = 3.0;
+  double multiply_down = 0.66;
+
+  double multiply_up_linear = 1.3;
+
   for(Int_t ibin = 0; ibin < data->GetNbinsX(); ibin++) {
-    double value_up = data->GetBinValue(ibin+1) + data->GetBinError(ibin+1) * 1.3;
-    double value_down = (data->GetBinValue(ibin+1) - data->GetBinError(ibin+1)) * 0.7;
+    double value_up = data->GetBinContent(ibin+1) + data->GetBinError(ibin+1) * multiply_up;
+    double value_down = (data->GetBinContent(ibin+1) - data->GetBinError(ibin+1)) * multiply_down;
 
     if(value_up > padhi_max) padhi_max = value_up;
     if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
   }
 
-  for(Int_t ibin = 0; ibin < errors_sys->GetNbinsX(); ibin++) {
-    double value_up = errors_sys->GetBinValue(ibin+1) + errors_sys->GetBinError(ibin+1) * 1.3;
-    double value_down = (errors_sys->GetBinValue(ibin+1) - errors_sys->GetBinError(ibin+1)) * 0.7;
+  for(Int_t ibin = 0; ibin < mc.back()->GetNbinsX(); ibin++) {
+    double value_up = mc.back()->GetBinContent(ibin+1) + mc.back()->GetBinError(ibin+1) * multiply_up;
+    double value_down = (mc.back()->GetBinContent(ibin+1) - mc.back()->GetBinError(ibin+1)) * multiply_down;
 
     if(value_up > padhi_max) padhi_max = value_up;
     if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
   }
 
   for(Int_t ibin = 0; ibin < siga->GetNbinsX(); ibin++) {
-    double value_up = siga->GetBinValue(ibin+1) * 1.3;
-    double value_down = siga->GetBinValue(ibin+1) * 0.7;
+    double value_up = siga->GetBinContent(ibin+1) * multiply_up;
+    double value_down = siga->GetBinContent(ibin+1) * multiply_down;
 
     if(value_up > padhi_max) padhi_max = value_up;
     if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
   }
 
   for(Int_t ibin = 0; ibin < sigb->GetNbinsX(); ibin++) {
-    double value_up = sigb->GetBinValue(ibin+1) * 1.3;
-    double value_down = sigb->GetBinValue(ibin+1) * 0.7;
+    double value_up = sigb->GetBinContent(ibin+1) * multiply_up;
+    double value_down = sigb->GetBinContent(ibin+1) * multiply_down;
 
     if(value_up > padhi_max) padhi_max = value_up;
     if(value_down < padhi_min && value_down > 0.) padhi_min = value_down;
@@ -1104,18 +1163,24 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   double padlo_min = 0.;
 
   for(Int_t ibin = 0; ibin < ratio->GetNbinsX(); ibin++) {
-    double value = ratio->GetBinValue(ibin+1) + ratio->GetBinError(ibin+1) * 1.3;
+    double value = ratio->GetBinContent(ibin+1) + ratio->GetBinError(ibin+1) * multiply_up_linear;
 
-    if(value > padlo_max) padlomax = value;
+    if(value > padlo_max) padlo_max = value;
   }
 
   for(Int_t ibin = 0; ibin < ratio_sys->GetNbinsX(); ibin++) {
-    double value = ratio_sys->GetBinValue(ibin+1) + ratio_sys->GetBinError(ibin+1) * 1.3;
+    double value = ratio_sys->GetBinContent(ibin+1) + ratio_sys->GetBinError(ibin+1) * multiply_up_linear;
 
-    if(value > padlo_max) padlomax = value;
+    if(value > padlo_max) padlo_max = value;
   }
 
-  cout << "For " << variables[n] << ", recommend ranges " << padhi_min << "-" << padhi_max << " (given " << xMinimums[n] << "-" << xMaximums[n] << ") and ";
-  cout << padlo_min << "-" << padlo_max << " (given " << ratioMinimums[n] << "-" << ratioMaximums[n] << ")" << endl;
+  //cout << "For " << variables[n] << ", recommend ranges " << padhi_min << "-" << padhi_max << " (given " << yMinimums[n] << "-" << yMaximums[n] << ") and ";
+  //cout << padlo_min << "-" << padlo_max << " (given " << ratioMinimums[n] << "-" << ratioMaximums[n] << ")" << endl;
+
+  yMinimums[n] = padhi_min;
+  yMaximums[n] = padhi_max;
+
+  ratioMinimums[n] = padlo_min;
+  ratioMaximums[n] = padlo_max;
 
 }
