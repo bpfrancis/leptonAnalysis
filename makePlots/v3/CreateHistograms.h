@@ -45,6 +45,8 @@ TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTr
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 
+TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0"};
+
 class HistogramMaker : public TObject {
   
   ClassDef(HistogramMaker, 1);
@@ -1751,23 +1753,16 @@ void HistogramMaker::CreateDatacards() {
   TH2D * h_acc = new TH2D("acc_"+req, "acc_"+req, 30, xbins, 32, ybins);
   TH2D * h_contamination = new TH2D("contamination_"+req, "contamination_"+req, 30, xbins, 32, ybins);
 
-  TString outName = "signalInputs_"+req+"_";
-  if(controlRegion == kSR1) outName += "SR1";
-  if(controlRegion == kSR2) outName += "SR2";
-  if(controlRegion == kCR1) outName += "CR1";
-  if(controlRegion == kCR2) outName += "CR2";
-  if(controlRegion == kCR2a) outName += "CR2a";
-  if(controlRegion == kCR0) outName += "CR0";
-  outName += ".root";
+  TString outName = "signalInputs_"+crNames[controlRegion]+".root";
 
   TFile * fSignalOut = new TFile(outName, "UPDATE");
   if(req.Contains("ele")) {
-    fSignalOut->mkdir("ele");
-    fSignalOut->cd("ele");
+    fSignalOut->mkdir("ele_"+crNames[controlRegion]);
+    fSignalOut->cd("ele_"+crNames[controlRegion]);
   }
   else {
-    fSignalOut->mkdir("muon");
-    fSignalOut->cd("muon");
+    fSignalOut->mkdir("muon_"+crNames[controlRegion]);
+    fSignalOut->cd("muon_"+crNames[controlRegion]);
   }
 
   for(int imass = 0; imass < 899; imass++) {

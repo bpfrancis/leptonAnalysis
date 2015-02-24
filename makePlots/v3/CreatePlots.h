@@ -1051,24 +1051,17 @@ void PlotMaker::METDifference() {
 
 void PlotMaker::SaveLimitOutputs() {
 
-  TString outName = "limitInputs_";
-  if(controlRegion == kSR1) outName += "SR1";
-  if(controlRegion == kSR2) outName += "SR2";
-  if(controlRegion == kCR1) outName += "CR1";
-  if(controlRegion == kCR2) outName += "CR2";
-  if(controlRegion == kCR2a) outName += "CR2a";
-  if(controlRegion == kCR0) outName += "CR0";
-  outName += ".root";
+  TString outName = "limitInputs_"+crNames[controlRegion]+".root";
 
   TFile * fLimits = new TFile(outName, "UPDATE");
   fLimits->cd();
   if(channel.Contains("ele")) {
-    if(!(fLimits->GetDirectory("ele"))) fLimits->mkdir("ele");
-    fLimits->cd("ele");
+    if(!(fLimits->GetDirectory("ele_"+crNames[controlRegion]))) fLimits->mkdir("ele_"+crNames[controlRegion]);
+    fLimits->cd("ele_"+crNames[controlRegion]);
   }
   else {
-    if(!(fLimits->GetDirectory("muon"))) fLimits->mkdir("muon");
-    fLimits->cd("muon");
+    if(!(fLimits->GetDirectory("muon_"+crNames[controlRegion]))) fLimits->mkdir("muon_"+crNames[controlRegion]);
+    fLimits->cd("muon_"+crNames[controlRegion]);
   }
 
   data->Write("data_obs");
@@ -1122,7 +1115,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   double padhi_max = -1.;
   double padhi_min = 1.e10;
 
-  double multiply_up = 3.0;
+  double multiply_up = 20.0;
   double multiply_down = 0.66;
 
   double multiply_up_linear = 1.3;
