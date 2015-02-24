@@ -1051,7 +1051,11 @@ void PlotMaker::METDifference() {
 
 void PlotMaker::SaveLimitOutputs() {
 
-  TString outName = "limitInputs_"+crNames[controlRegion]+".root";
+  TString outName = "limitInputs_";
+  f(req.Contains("ele")) outName += req(4, 3);
+  if(req.Contains("muon")) outName += req(5, 3);
+  outName += crNames[controlRegion];
+  outName += ".root";
 
   TFile * fLimits = new TFile(outName, "UPDATE");
   fLimits->cd();

@@ -1466,14 +1466,7 @@ void HistogramMaker::NormalizeQCD() {
 
 void HistogramMaker::SaveOutput() {
 
-  TString outName = "histograms_"+req+"_";
-  if(controlRegion == kSR1) outName += "SR1";
-  if(controlRegion == kSR2) outName += "SR2";
-  if(controlRegion == kCR1) outName += "CR1";
-  if(controlRegion == kCR2) outName += "CR2";
-  if(controlRegion == kCR2a) outName += "CR2a";
-  if(controlRegion == kCR0) outName += "CR0";
-  outName += ".root";
+  TString outName = "histograms_"+req+"_"+crNames[controlRegion]+".root";
 
   TFile * fOut = new TFile(outName, "UPDATE");
 
@@ -1757,11 +1750,11 @@ void HistogramMaker::CreateDatacards() {
 
   TFile * fSignalOut = new TFile(outName, "UPDATE");
   if(req.Contains("ele")) {
-    fSignalOut->mkdir("ele_"+crNames[controlRegion]);
+    if(!(fLimits->GetDirectory("ele_"+crNames[controlRegion]))) fSignalOut->mkdir("ele_"+crNames[controlRegion]);
     fSignalOut->cd("ele_"+crNames[controlRegion]);
   }
   else {
-    fSignalOut->mkdir("muon_"+crNames[controlRegion]);
+    if(!(fLimits->GetDirectory("muon_"+crNames[controlRegion]))) fSignalOut->mkdir("muon_"+crNames[controlRegion]);
     fSignalOut->cd("muon_"+crNames[controlRegion]);
   }
 
@@ -2127,10 +2120,10 @@ void HistogramMaker::CreateDatacards() {
     fSignalOut->cd();
 
     if(req.Contains("ele")) {
-      fSignalOut->cd("ele");
+      fSignalOut->cd("ele_"+crNames[controlRegion]);
     }
     else {
-      fSignalOut->cd("muon");
+      fSignalOut->cd("muon_"+crNames[controlRegion]);
     }
 
     h->Write("signal"+code_t);
