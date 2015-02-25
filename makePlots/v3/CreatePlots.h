@@ -37,6 +37,9 @@ TString channelLabels[nChannels] = {"XYZ e (no b-tag)", "XYZ #mu (no b-tag)",
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0"};
 
+enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
+enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
+
 class PlotMaker : public TObject {
 
   ClassDef(PlotMaker, 1);
@@ -45,7 +48,7 @@ class PlotMaker : public TObject {
   PlotMaker(int chanNo, int cr, bool useQCD);
   virtual ~PlotMaker();
 
-  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, Float_t scale = -1., Float_t scaleErr = -1.) { 
+  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, Float_t scale = -1., Float_t scaleErr = -1.) { 
     TH1D * h;
     mc.push_back(h);
 
@@ -71,6 +74,9 @@ class PlotMaker : public TObject {
     layerLegends.push_back(legendEntry);
 
     limitNames.push_back(limitName);
+
+    pdfCorrelations.push_back(pdfCorr);
+    scaleCorrelations.push_back(scaleCorr);
 
     fitScales.push_back(scale);
     fitScaleErrors.push_back(scaleErr);
@@ -302,6 +308,9 @@ class PlotMaker : public TObject {
 
   vector<TString> limitNames;
 
+  vector<int> pdfCorrelations;
+  vector<int> scaleCorrelations;
+
   vector<Float_t> fitScales;
   vector<Float_t> fitScaleErrors;
 
@@ -362,6 +371,9 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD) {
 
   limitNames.clear();
 
+  pdfCorrelations.clear();
+  scaleCorrelations.clear();
+
   fitScales.clear();
   fitScaleErrors.clear();
 
@@ -408,6 +420,9 @@ PlotMaker::~PlotMaker() {
   layerLegends.clear();
 
   limitNames.clear();
+
+  pdfCorrelations.clear();
+  scaleCorrelations.clear();
 
   fitScales.clear();
   fitScaleErrors.clear();
@@ -1033,15 +1048,9 @@ void PlotMaker::METDifference() {
 
   TH1D * h = (TH1D*)data->Clone(channel+"_"+crNames[controlRegion]);
   h->Add(bkg, -1.);
+  h->Divide(bkg);
 
-  TString outName = "met_differences_";
-  if(controlRegion == kSR1) outName += "SR1";
-  if(controlRegion == kSR2) outName += "SR2";
-  if(controlRegion == kCR1) outName += "CR1";
-  if(controlRegion == kCR2) outName += "CR2";
-  if(controlRegion == kCR2a) outName += "CR2a";
-  if(controlRegion == kCR0) outName += "CR0";
-  outName += ".root";
+  TString outName = "met_differences.root";
 
   TFile * output = new TFile(outName, "UPDATE");
 
@@ -1052,9 +1061,8 @@ void PlotMaker::METDifference() {
 void PlotMaker::SaveLimitOutputs() {
 
   TString outName = "limitInputs_";
-  f(req.Contains("ele")) outName += req(4, 3);
-  if(req.Contains("muon")) outName += req(5, 3);
-  outName += crNames[controlRegion];
+  if(channel.Contains("ele")) outName += channel(4, 3);
+  if(channel.Contains("muon")) outName += channel(5, 3);
   outName += ".root";
 
   TFile * fLimits = new TFile(outName, "UPDATE");
@@ -1100,6 +1108,28 @@ void PlotMaker::SaveLimitOutputs() {
 
   for(unsigned int i = 0; i < mc_topPtUp.size(); i++) mc_topPtUp[i]->Write(limitNames[i]+"_topPtUp");
   for(unsigned int i = 0; i < mc_topPtDown.size(); i++) mc_topPtDown[i]->Write(limitNames[i]+"_topPtDown");
+
+  for(unsigned int i = 0; i < mc_scaleUp.size(); i++) {
+    if(scaleCorrelations[i] == kTTbar) mc_scaleUp[i]->Write(limitNames[i]+"_scale_ttUp");
+    if(scaleCorrelations[i] == kV) mc_scaleUp[i]->Write(limitNames[i]+"_scale_VUp");
+    if(scaleCorrelations[i] == kVV) mc_scaleUp[i]->Write(limitNames[i]+"_scale_VVUp");
+  }
+  for(unsigned int i = 0; i < mc_scaleDown.size(); i++) {
+    if(scaleCorrelations[i] == kTTbar) mc_scaleDown[i]->Write(limitNames[i]+"_scale_ttDown");
+    if(scaleCorrelations[i] == kV) mc_scaleDown[i]->Write(limitNames[i]+"_scale_VDown");
+    if(scaleCorrelations[i] == kVV) mc_scaleDown[i]->Write(limitNames[i]+"_scale_VVDown");
+  }
+
+  for(unsigned int i = 0; i < mc_pdfUp.size(); i++) {
+    if(pdfCorrelations[i] == kGG) mc_pdfUp[i]->Write(limitNames[i]+"pdf_ggUp");
+    if(pdfCorrelations[i] == kQQ) mc_pdfUp[i]->Write(limitNames[i]+"pdf_qqUp");
+    if(pdfCorrelations[i] == kQG) mc_pdfUp[i]->Write(limitNames[i]+"pdf_qgUp");
+  }
+  for(unsigned int i = 0; i < mc_pdfDown.size(); i++) {
+    if(pdfCorrelations[i] == kGG) mc_pdfDown[i]->Write(limitNames[i]+"pdf_ggDown");
+    if(pdfCorrelations[i] == kQQ) mc_pdfDown[i]->Write(limitNames[i]+"pdf_qqDown");
+    if(pdfCorrelations[i] == kQG) mc_pdfDown[i]->Write(limitNames[i]+"pdf_qgDown");
+  }
   
   for(unsigned int i = 0; i < mc_JECUp.size(); i++) mc_JECUp[i]->Write(limitNames[i]+"_JECUp");
   for(unsigned int i = 0; i < mc_JECDown.size(); i++) mc_JECDown[i]->Write(limitNames[i]+"_JECDown");

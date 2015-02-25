@@ -1746,15 +1746,18 @@ void HistogramMaker::CreateDatacards() {
   TH2D * h_acc = new TH2D("acc_"+req, "acc_"+req, 30, xbins, 32, ybins);
   TH2D * h_contamination = new TH2D("contamination_"+req, "contamination_"+req, 30, xbins, 32, ybins);
 
-  TString outName = "signalInputs_"+crNames[controlRegion]+".root";
+  TString outName = "limitInputs_";
+  if(req.Contains("ele")) outName += req(4, 3);
+  if(req.Contains("muon")) outName += req(5, 3);
+  outName += ".root";
 
   TFile * fSignalOut = new TFile(outName, "UPDATE");
   if(req.Contains("ele")) {
-    if(!(fLimits->GetDirectory("ele_"+crNames[controlRegion]))) fSignalOut->mkdir("ele_"+crNames[controlRegion]);
+    if(!(fSignalOut->GetDirectory("ele_"+crNames[controlRegion]))) fSignalOut->mkdir("ele_"+crNames[controlRegion]);
     fSignalOut->cd("ele_"+crNames[controlRegion]);
   }
   else {
-    if(!(fLimits->GetDirectory("muon_"+crNames[controlRegion]))) fSignalOut->mkdir("muon_"+crNames[controlRegion]);
+    if(!(fSignalOut->GetDirectory("muon_"+crNames[controlRegion]))) fSignalOut->mkdir("muon_"+crNames[controlRegion]);
     fSignalOut->cd("muon_"+crNames[controlRegion]);
   }
 
