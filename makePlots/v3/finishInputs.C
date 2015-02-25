@@ -1,5 +1,5 @@
-const int nBackgrounds = 7;
-TString names[nBackgrounds] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "ttV", "ttgamma"};
+const int nBackgrounds = 8;
+TString names[nBackgrounds] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "ttW", "ttZ", "ttgamma"};
 
 void finishInputs() {
 
@@ -7,7 +7,7 @@ void finishInputs() {
   TFile * fDifferences = new TFile("met_differences.root", "READ");
 
   TH1D * diff_ele_cr1 = (TH1D*)fDifferences->Get("ele_bjj_CR1");
-  TH1D * diff_muon_cr1 = (TH1D*)fDifferences->Get("ele_muon_CR1");
+  TH1D * diff_muon_cr1 = (TH1D*)fDifferences->Get("muon_bjj_CR1");
 
   for(int i = 0; i < nBackgrounds; i++) {
 

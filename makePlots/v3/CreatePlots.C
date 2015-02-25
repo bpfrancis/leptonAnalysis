@@ -77,7 +77,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   pMaker->BookMCLayer(ttW, kAzure-2, "ttW", "t#bar{t} + W", kQQ, kTTbar, sf_mc, sfError_mc);
 
   vector<TString>  ttZ;
-  ttV.push_back("TTZJets");
+  ttZ.push_back("TTZJets");
   pMaker->BookMCLayer(ttZ, kOrange-7, "ttZ", "t#bar{t} + Z", kGG, kTTbar, sf_mc, sfError_mc);
 
   vector<TString> ttgamma;
