@@ -1093,10 +1093,11 @@ void PlotMaker::SaveLimitOutputs() {
       if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
       if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
 
-      // ttjets_ + ttjets_SR2_stat_binX Up/Down
-      TString statName = limitNames[i]+"_"+
-	limitNames[i]+"_"+crNames[controlRegion]+"_stat_bin"+
-	Form("%d", j+1);
+      // ttjets_ + ttjets_ele_SR2_stat_binX Up/Down
+      TString statName = limitNames[i]+"_"+limitNames[i];
+      if(channel.Contains("ele")) statName += "ele";
+      if(channel.Contains("muon")) statName += "muon";
+      statName += "_"+crNames[controlRegion]+"_stat_bin"+Form("%d", j+1);
 
       h_flux_up->Write(statName + "Up");
       h_flux_down->Write(statName + "Down");
