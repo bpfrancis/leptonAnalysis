@@ -2130,20 +2130,6 @@ void HistogramMaker::CreateDatacards() {
     }
 
     h->Write("signal"+code_t);
-
-    for(int j = 0; j < h->GetNbinsX(); j++) {
-      TH1D * h_flux_up = (TH1D*)h->Clone("clone_signal_"+code_t+"_flux_up");
-      TH1D * h_flux_down = (TH1D*)h->Clone("clone_signal"+code_t+"_flux_down");
-      
-      Double_t centralValue = h->GetBinContent(j+1);
-      Double_t statError = h->GetBinError(j+1);
-      
-      if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
-      if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
-      
-      h_flux_up->Write("signal"+code_t+"_signal_stat_bin"+Form("%d", j+1)+"Up");
-      h_flux_down->Write("signal"+code_t+"_signal_stat_bin"+Form("%d", j+1)+"Down");
-    }
     
     h_btagWeightUp->Write("signal"+code_t+"_btagWeightUp");
     h_btagWeightDown->Write("signal"+code_t+"_btagWeightDown");

@@ -993,11 +993,10 @@ void PlotMaker::CreatePlot(unsigned int n) {
   if(doRebinMET) RebinMET();
 
   ScaleQCD();
+  if(n == 0) SaveLimitOutputs();
   StackHistograms(n);
-  if(n == 0) {
-    METDifference();
-    SaveLimitOutputs();
-  }
+  if(n == 0) METDifference();
+
   CalculateRatio(n);
   if(n == 0)  MakeLegends();
 
@@ -1094,8 +1093,13 @@ void PlotMaker::SaveLimitOutputs() {
       if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
       if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
 
-      h_flux_up->Write(limitNames[i]+"_"+limitNames[i]+"_stat_bin"+Form("%d", j+1)+"Up");
-      h_flux_down->Write(limitNames[i]+"_"+limitNames[i]+"_stat_bin"+Form("%d", j+1)+"Down");
+      // ttjets_ + ttjets_SR2_stat_binX Up/Down
+      TString statName = limitNames[i]+"_"+
+	limitNames[i]+"_"+crNames[controlRegion]+"_stat_bin"+
+	Form("%d", j+1);
+
+      h_flux_up->Write(statName + "Up");
+      h_flux_down->Write(statName + "Down");
     }
       
   }
