@@ -1080,6 +1080,26 @@ void PlotMaker::SaveLimitOutputs() {
   qcd_defUp->Write("qcd_defUp");
   qcd_defDown->Write("qcd_defDown");
 
+  for(int j = 0; j < qcd->GetNbinsX(); j++) {
+    TH1D * h_flux_up = (TH1D*)qcd->Clone("clone_qcd_flux_up");
+    TH1D * h_flux_down = (TH1D*)qcd->Clone("clone_qcd_flux_down");
+    
+    Double_t centralValue = qcd->GetBinContent(j+1);
+    Double_t statError = qcd->GetBinError(j+1);
+    
+    if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
+    if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
+    
+    // ttjets_ + ttjets_ele_SR2_stat_binX Up/Down
+    TString statName = "qcd_qcd_";
+    if(channel.Contains("ele")) statName += "ele";
+    if(channel.Contains("muon")) statName += "muon";
+    statName += "_"+crNames[controlRegion]+"_stat_bin"+Form("%d", j+1);
+    
+    h_flux_up->Write(statName + "Up");
+    h_flux_down->Write(statName + "Down");
+  }
+
   for(unsigned int i = 0; i < mc.size(); i++) {
     mc[i]->Write(limitNames[i]);
 
@@ -1094,7 +1114,7 @@ void PlotMaker::SaveLimitOutputs() {
       if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
 
       // ttjets_ + ttjets_ele_SR2_stat_binX Up/Down
-      TString statName = limitNames[i]+"_"+limitNames[i];
+      TString statName = limitNames[i]+"_"+limitNames[i]+"_";
       if(channel.Contains("ele")) statName += "ele";
       if(channel.Contains("muon")) statName += "muon";
       statName += "_"+crNames[controlRegion]+"_stat_bin"+Form("%d", j+1);

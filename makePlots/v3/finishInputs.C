@@ -1,5 +1,5 @@
-const int nBackgrounds = 8;
-TString names[nBackgrounds] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "ttW", "ttZ", "ttgamma"};
+const int nBackgrounds = 9;
+TString names[nBackgrounds] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "ttW", "ttZ", "ttgamma", "qcd"};
 
 void finishInputs() {
 
