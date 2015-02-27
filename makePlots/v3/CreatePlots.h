@@ -500,29 +500,29 @@ void PlotMaker::GetHistograms(unsigned int n) {
     for(unsigned int j = 1; j < layerNames[i].size(); j++) {
       mc[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel));
 
-      mc_btagWeightUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_btagWeightUp"));
-      mc_btagWeightDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_btagWeightDown"));
+      mc_btagWeightUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_btagWeightUp"));
+      mc_btagWeightDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_btagWeightDown"));
       
-      mc_puWeightUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_puWeightUp"));
-      mc_puWeightDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_puWeightDown"));
+      mc_puWeightUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_puWeightUp"));
+      mc_puWeightDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_puWeightDown"));
       
-      mc_scaleUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_scaleUp"));
-      mc_scaleDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_scaleDown"));
+      mc_scaleUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_scaleUp"));
+      mc_scaleDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_scaleDown"));
       
-      mc_pdfUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_pdfUp"));
-      mc_pdfDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_pdfDown"));
+      mc_pdfUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_pdfUp"));
+      mc_pdfDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_pdfDown"));
       
-      mc_topPtUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_topPtUp"));
-      mc_topPtDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_topPtDown"));
+      mc_topPtUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_topPtUp"));
+      mc_topPtDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_topPtDown"));
       
-      mc_JECUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_JECUp"));
-      mc_JECDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_JECDown"));
+      mc_JECUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_JECUp"));
+      mc_JECDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_JECDown"));
       
-      mc_leptonSFUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_leptonSFUp"));
-      mc_leptonSFDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_leptonSFDown"));
+      mc_leptonSFUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_leptonSFUp"));
+      mc_leptonSFDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_leptonSFDown"));
       
-      mc_photonSFUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_photonSFUp"));
-      mc_photonSFDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel+"_photonSFDown"));
+      mc_photonSFUp[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_photonSFUp"));
+      mc_photonSFDown[i]->Add((TH1D*)input->Get(variables[n]+"_"+layerNames[i][j]+"_"+channel+"_photonSFDown"));
 
     }
   }
