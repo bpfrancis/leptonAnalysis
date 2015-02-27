@@ -13,3 +13,6 @@ const int nMetBins_2g = 6;
 Double_t xbins_met_2g[nMetBins_2g+1] = {0, 20, 50, 75, 100, 150, 1000};
 const int nKinematicBins_2g = 10;
 Double_t xbins_kinematic_2g[nKinematicBins_2g+1] = {0, 25, 50, 100, 150, 200, 400, 600, 1000, 1500, 2000};
+
+const int nMetBins_2g_cut = 5;
+Double_t xbins_met_2g_cut[nMetBins_2g_cut+1] = {20, 50, 75, 100, 150, 1000};

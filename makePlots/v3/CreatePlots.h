@@ -227,6 +227,7 @@ class PlotMaker : public TObject {
   
   void METDifference();
   void SaveLimitOutputs();
+  void SaveLimitOutputs_KillZeroBin();
 
   bool inControlRegion(Float_t ngamma, Float_t nfake) {
     switch(controlRegion) {
@@ -993,7 +994,11 @@ void PlotMaker::CreatePlot(unsigned int n) {
   if(doRebinMET) RebinMET();
 
   ScaleQCD();
-  if(n == 0) SaveLimitOutputs();
+  if(n == 0) {
+    if(controlRegion != kSR1) SaveLimitOutputs();
+    else SaveLimitOutputs_KillZeroBin();
+  }
+
   StackHistograms(n);
   if(n == 0) METDifference();
 
@@ -1168,6 +1173,166 @@ void PlotMaker::SaveLimitOutputs() {
   fLimits->Close();
  
 }
+
+// durp
+
+void PlotMaker::SaveLimitOutputs_KillZeroBin() {
+
+  TString outName = "limitInputs_";
+  if(channel.Contains("ele")) outName += channel(4, 3);
+  if(channel.Contains("muon")) outName += channel(5, 3);
+  outName += ".root";
+
+  TFile * fLimits = new TFile(outName, "UPDATE");
+  fLimits->cd();
+  if(channel.Contains("ele")) {
+    if(!(fLimits->GetDirectory("ele_"+crNames[controlRegion]))) fLimits->mkdir("ele_"+crNames[controlRegion]);
+    fLimits->cd("ele_"+crNames[controlRegion]);
+  }
+  else {
+    if(!(fLimits->GetDirectory("muon_"+crNames[controlRegion]))) fLimits->mkdir("muon_"+crNames[controlRegion]);
+    fLimits->cd("muon_"+crNames[controlRegion]);
+  }
+
+  TH1D * data_cut = (TH1D*)data->Rebin(nMetBins_2g_cut, "data_cut", xbins_met_2g_cut); data_cut->Write("data_obs");
+  TH1D * qcd_cut = (TH1D*)qcd->Rebin(nMetBins_2g_cut, "qcd_cut", xbins_met_2g_cut); qcd_cut->Write("qcd");
+  TH1D * qcd_defUp_cut = (TH1D*)qcd_defUp->Rebin(nMetBins_2g_cut, "qcd_defUp_cut", xbins_met_2g_cut); qcd_defUp_cut->Write("qcd_defUp");
+  TH1D * qcd_defDown_cut = (TH1D*)qcd_defDown->Rebin(nMetBins_2g_cut, "qcd_defDown_cut", xbins_met_2g_cut); qcd_defDown_cut->Write("qcd_defDown");
+
+  for(int j = 0; j < qcd_cut->GetNbinsX(); j++) {
+    TH1D * h_flux_up = (TH1D*)qcd_cut->Clone("clone_qcd_flux_up");
+    TH1D * h_flux_down = (TH1D*)qcd_cut->Clone("clone_qcd_flux_down");
+    
+    Double_t centralValue = qcd_cut->GetBinContent(j+1);
+    Double_t statError = qcd_cut->GetBinError(j+1);
+    
+    if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
+    if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
+    
+    // ttjets_ + ttjets_ele_SR2_stat_binX Up/Down
+    TString statName = "qcd_qcd_";
+    if(channel.Contains("ele")) statName += "ele";
+    if(channel.Contains("muon")) statName += "muon";
+    statName += "_"+crNames[controlRegion]+"_stat_bin"+Form("%d", j+1);
+    
+    h_flux_up->Write(statName + "Up");
+    h_flux_down->Write(statName + "Down");
+  }
+
+  for(unsigned int i = 0; i < mc.size(); i++) {
+    TH1D * mc_cut = (TH1D*)mc[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_cut", xbins_met_2g_cut);
+    mc_cut->Write(limitNames[i]);
+
+    for(int j = 0; j < mc_cut->GetNbinsX(); j++) {
+      TH1D * h_flux_up = (TH1D*)mc_cut->Clone("clone_"+limitNames[i]+"_flux_up");
+      TH1D * h_flux_down = (TH1D*)mc_cut->Clone("clone_"+limitNames[i]+"_flux_down");
+
+      Double_t centralValue = mc_cut->GetBinContent(j+1);
+      Double_t statError = mc_cut->GetBinError(j+1);
+
+      if(statError > 0.) h_flux_up->SetBinContent(j+1, centralValue + statError);
+      if(centralValue > statError && statError > 0.) h_flux_down->SetBinContent(j+1, centralValue - statError);
+
+      // ttjets_ + ttjets_ele_SR2_stat_binX Up/Down
+      TString statName = limitNames[i]+"_"+limitNames[i]+"_";
+      if(channel.Contains("ele")) statName += "ele";
+      if(channel.Contains("muon")) statName += "muon";
+      statName += "_"+crNames[controlRegion]+"_stat_bin"+Form("%d", j+1);
+
+      h_flux_up->Write(statName + "Up");
+      h_flux_down->Write(statName + "Down");
+    }
+      
+  }
+
+  for(unsigned int i = 0; i < mc_btagWeightUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_btagWeightUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_btagWeightUp_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_btagWeightUp");
+  }
+  for(unsigned int i = 0; i < mc_btagWeightDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_btagWeightDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_btagWeightDown_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_btagWeightDown");
+  }
+
+  for(unsigned int i = 0; i < mc_puWeightUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_puWeightUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_puWeightUp_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_puWeightUp");
+  }
+  for(unsigned int i = 0; i < mc_puWeightDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_puWeightDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_puWeightDown_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_puWeightDown");
+  }
+
+  for(unsigned int i = 0; i < mc_topPtUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_topPtUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_topPtUp_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_topPtUp");
+  }
+  for(unsigned int i = 0; i < mc_topPtDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_topPtDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_topPtDown_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_topPtDown");
+  }
+
+  for(unsigned int i = 0; i < mc_scaleUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_scaleUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_scaleUp_cut", xbins_met_2g_cut);
+    if(scaleCorrelations[i] == kTTbar) h_cut->Write(limitNames[i]+"_scale_ttUp");
+    if(scaleCorrelations[i] == kV) h_cut->Write(limitNames[i]+"_scale_VUp");
+    if(scaleCorrelations[i] == kVV) h_cut->Write(limitNames[i]+"_scale_VVUp");
+  }
+  for(unsigned int i = 0; i < mc_scaleDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_scaleDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_scaleDown_cut", xbins_met_2g_cut);
+    if(scaleCorrelations[i] == kTTbar) h_cut->Write(limitNames[i]+"_scale_ttDown");
+    if(scaleCorrelations[i] == kV) h_cut->Write(limitNames[i]+"_scale_VDown");
+    if(scaleCorrelations[i] == kVV) h_cut->Write(limitNames[i]+"_scale_VVDown");
+  }
+
+  for(unsigned int i = 0; i < mc_pdfUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_pdfUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_pdfUp_cut", xbins_met_2g_cut);
+    if(pdfCorrelations[i] == kGG) h_cut->Write(limitNames[i]+"_pdf_ggUp");
+    if(pdfCorrelations[i] == kQQ) h_cut->Write(limitNames[i]+"_pdf_qqUp");
+    if(pdfCorrelations[i] == kQG) h_cut->Write(limitNames[i]+"_pdf_qgUp");
+  }
+  for(unsigned int i = 0; i < mc_pdfDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_pdfDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_pdfDown_cut", xbins_met_2g_cut);
+    if(pdfCorrelations[i] == kGG) h_cut->Write(limitNames[i]+"_pdf_ggDown");
+    if(pdfCorrelations[i] == kQQ) h_cut->Write(limitNames[i]+"_pdf_qqDown");
+    if(pdfCorrelations[i] == kQG) h_cut->Write(limitNames[i]+"_pdf_qgDown");
+  }
+
+  for(unsigned int i = 0; i < mc_JECUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_JECUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_JECUp_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_JECUp");
+  }
+  for(unsigned int i = 0; i < mc_JECDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_JECDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_JECDown_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_JECDown");
+  }
+
+  for(unsigned int i = 0; i < mc_leptonSFUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_leptonSFUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_leptonSFUp_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_leptonSFUp");
+  }
+  for(unsigned int i = 0; i < mc_leptonSFDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_leptonSFDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_leptonSFDown_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_leptonSFDown");
+  }
+
+  for(unsigned int i = 0; i < mc_photonSFUp.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_photonSFUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_photonSFUp_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_photonSFUp");
+  }
+  for(unsigned int i = 0; i < mc_photonSFDown.size(); i++) {
+    TH1D * h_cut = (TH1D*)mc_photonSFDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_photonSFDown_cut", xbins_met_2g_cut);
+    h_cut->Write(limitNames[i]+"_photonSFDown");
+  }
+
+  fLimits->Close();
+ 
+}
+
+
+
+
+// durp
 
 void PlotMaker::DetermineAxisRanges(unsigned int n) {
 
