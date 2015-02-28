@@ -2139,8 +2139,16 @@ void HistogramMaker::CreateDatacards() {
     h_topPtDown->Write("signal"+code_t+"_topPtDown");
     h_JECup->Write("signal"+code_t+"_JECUp");
     h_JECdown->Write("signal"+code_t+"_JECDown");
-    h_leptonSFup->Write("signal"+code_t+"_leptonSFUp");
-    h_leptonSFdown->Write("signal"+code_t+"_leptonSFDown");
+
+    if(req.Contains("ele")) {
+      h_leptonSFup->Write("signal"+code_t+"_eleSFUp");
+      h_leptonSFdown->Write("signal"+code_t+"_eleSFDown");
+    }
+    else {
+      h_leptonSFup->Write("signal"+code_t+"_muonSFUp");
+      h_leptonSFdown->Write("signal"+code_t+"_muonSFDown");
+    }
+
     h_photonSFup->Write("signal"+code_t+"_photonSFUp");
     h_photonSFdown->Write("signal"+code_t+"_photonSFDown");
 
