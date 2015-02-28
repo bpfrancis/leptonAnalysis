@@ -1151,22 +1151,28 @@ void PlotMaker::SaveLimitOutputs() {
   }
 
   for(unsigned int i = 0; i < mc_pdfUp.size(); i++) {
-    if(pdfCorrelations[i] == kGG) mc_pdfUp[i]->Write(limitNames[i]+"pdf_ggUp");
-    if(pdfCorrelations[i] == kQQ) mc_pdfUp[i]->Write(limitNames[i]+"pdf_qqUp");
-    if(pdfCorrelations[i] == kQG) mc_pdfUp[i]->Write(limitNames[i]+"pdf_qgUp");
+    if(pdfCorrelations[i] == kGG) mc_pdfUp[i]->Write(limitNames[i]+"_pdf_ggUp");
+    if(pdfCorrelations[i] == kQQ) mc_pdfUp[i]->Write(limitNames[i]+"_pdf_qqUp");
+    if(pdfCorrelations[i] == kQG) mc_pdfUp[i]->Write(limitNames[i]+"_pdf_qgUp");
   }
   for(unsigned int i = 0; i < mc_pdfDown.size(); i++) {
-    if(pdfCorrelations[i] == kGG) mc_pdfDown[i]->Write(limitNames[i]+"pdf_ggDown");
-    if(pdfCorrelations[i] == kQQ) mc_pdfDown[i]->Write(limitNames[i]+"pdf_qqDown");
-    if(pdfCorrelations[i] == kQG) mc_pdfDown[i]->Write(limitNames[i]+"pdf_qgDown");
+    if(pdfCorrelations[i] == kGG) mc_pdfDown[i]->Write(limitNames[i]+"_pdf_ggDown");
+    if(pdfCorrelations[i] == kQQ) mc_pdfDown[i]->Write(limitNames[i]+"_pdf_qqDown");
+    if(pdfCorrelations[i] == kQG) mc_pdfDown[i]->Write(limitNames[i]+"_pdf_qgDown");
   }
   
   for(unsigned int i = 0; i < mc_JECUp.size(); i++) mc_JECUp[i]->Write(limitNames[i]+"_JECUp");
   for(unsigned int i = 0; i < mc_JECDown.size(); i++) mc_JECDown[i]->Write(limitNames[i]+"_JECDown");
   
-  for(unsigned int i = 0; i < mc_leptonSFUp.size(); i++) mc_leptonSFUp[i]->Write(limitNames[i]+"_leptonSFUp");
-  for(unsigned int i = 0; i < mc_leptonSFDown.size(); i++) mc_leptonSFDown[i]->Write(limitNames[i]+"_leptonSFDown");
-  
+  for(unsigned int i = 0; i < mc_leptonSFUp.size(); i++) {
+    if(channel.Contains("ele")) mc_leptonSFUp[i]->Write(limitNames[i]+"_eleSFUp");
+    if(channel.Contains("muon")) mc_leptonSFUp[i]->Write(limitNames[i]+"_muonSFUp");
+  }
+  for(unsigned int i = 0; i < mc_leptonSFDown.size(); i++) {
+    if(channel.Contains("ele")) mc_leptonSFDown[i]->Write(limitNames[i]+"_eleSFDown");
+    if(channel.Contains("muon")) mc_leptonSFDown[i]->Write(limitNames[i]+"_muonSFDown");
+  }
+    
   for(unsigned int i = 0; i < mc_photonSFUp.size(); i++) mc_photonSFUp[i]->Write(limitNames[i]+"_photonSFUp");
   for(unsigned int i = 0; i < mc_photonSFDown.size(); i++) mc_photonSFDown[i]->Write(limitNames[i]+"_photonSFDown");
 
@@ -1309,11 +1315,13 @@ void PlotMaker::SaveLimitOutputs_KillZeroBin() {
 
   for(unsigned int i = 0; i < mc_leptonSFUp.size(); i++) {
     TH1D * h_cut = (TH1D*)mc_leptonSFUp[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_leptonSFUp_cut", xbins_met_2g_cut);
-    h_cut->Write(limitNames[i]+"_leptonSFUp");
+    if(channel.Contains("ele")) h_cut->Write(limitNames[i]+"_eleSFUp");
+    if(channel.Contains("muon")) h_cut->Write(limitNames[i]+"_muonSFUp");
   }
   for(unsigned int i = 0; i < mc_leptonSFDown.size(); i++) {
     TH1D * h_cut = (TH1D*)mc_leptonSFDown[i]->Rebin(nMetBins_2g_cut, limitNames[i]+"_leptonSFDown_cut", xbins_met_2g_cut);
-    h_cut->Write(limitNames[i]+"_leptonSFDown");
+    if(channel.Contains("ele")) h_cut->Write(limitNames[i]+"_eleSFDown");
+    if(channel.Contains("muon")) h_cut->Write(limitNames[i]+"_muonSFDown");
   }
 
   for(unsigned int i = 0; i < mc_photonSFUp.size(); i++) {
