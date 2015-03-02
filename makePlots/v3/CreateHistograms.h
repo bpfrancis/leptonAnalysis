@@ -40,6 +40,9 @@ TString channels[nChannels] = {"ele_jjj", "muon_jjj",
 unsigned int nBtagReq[nChannels] = {0, 0,
                                     1, 1};
 
+TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "muon_jjj_muQCDTree",
+				  "ele_jjj_veto_eQCDTree", "muon_jjj_veto_muQCDTree"};
+
 TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
                                                   "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
@@ -91,7 +94,7 @@ class HistogramMaker : public TObject {
   bool isBlindedRegion() { return (blinded && (controlRegion == kSR2 || controlRegion == kSR1)); };
 
   bool passMetCut() {
-    if(metCut > 0.) return (getValue("pfMET") >= metCut);
+    if(metCut > 0.) return (getValue("pfMET") < metCut);
     return true;
   };
     
@@ -454,6 +457,11 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
 
   TString signalString = channels[channel]+"_noSigmaIetaIetaTree";
   TString qcdString = qcdChannels_noSigmaIetaIeta[channel];
+
+  if(controlRegion == kSR1 || controlRegion == kSR2) {
+    signalString = channels[channel]+"_signalTree";
+    qcdString = qcdChannels[channel];
+  }
 
   mcTrees.push_back((TTree*)mcFiles.back()->Get(signalString));
   if(!mcTrees.back()) {
