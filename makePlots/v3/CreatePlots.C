@@ -124,8 +124,12 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		   0., 2.1,
 		   true, true, true);
 
-
-
+  pMaker->BookPlot("leadSigmaIetaIeta", false,
+                   "lead #sigma_{i#eta i#eta}", "Number of Events",
+                   0, 1500, 2.e-5, 8.e3,
+                   0, 2.1,
+                   true, true, true);
+  
   pMaker->CreatePlots();
 
   delete pMaker;

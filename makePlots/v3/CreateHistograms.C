@@ -177,7 +177,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }
 
-  if(controlRegion == kCR1 || controlRegion == kSR1) {
+  if(controlRegion == kCR1 || controlRegion == kSR1 || controlRegion == kSigmaPlot) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);

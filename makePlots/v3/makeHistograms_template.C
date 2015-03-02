@@ -1,4 +1,4 @@
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
 
 void makeHistograms() {
 
@@ -21,6 +21,8 @@ void makeHistograms() {
                                  "ele_bjj", "muon_bjj"};
 
   for(int i = 0; i < nChannels; i++) {
+    if(controlRegion == kSigmaPlot && channels[i].Contains("jjj")) continue;
+
     if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion);
     else CreateHistograms(input_muon, i, metCut, blinded, controlRegion);
   }  

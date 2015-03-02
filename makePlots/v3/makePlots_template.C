@@ -1,4 +1,4 @@
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
 
 void makePlots() {
 
@@ -16,6 +16,8 @@ void makePlots() {
                                  "ele_bjj", "muon_bjj"};
 
   for(int i = 0; i < nChannels; i++) {
+    if(controlRegion == kSigmaPlot && channels[i].Contains("jjj")) continue;
+
     CreatePlots(i, controlRegion, needsQCD);
   }  
 

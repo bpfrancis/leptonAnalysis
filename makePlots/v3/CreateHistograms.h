@@ -43,9 +43,9 @@ unsigned int nBtagReq[nChannels] = {0, 0,
 TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
                                                   "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
 
-TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0"};
+TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot"};
 
 class HistogramMaker : public TObject {
   
@@ -81,6 +81,8 @@ class HistogramMaker : public TObject {
       return (getIntegerValue("Ngamma") == 1 && getIntegerValue("Nfake") == 1) || (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2);
     case kCR0:
       return getIntegerValue("Ngamma") == 0;
+    case kSigmaPlot:
+      return (getIntegerValue("Ngamma") + getIntegerValue("Nfake") >= 1);
     default:
       return false;
     }
