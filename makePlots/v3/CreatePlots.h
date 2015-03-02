@@ -1082,8 +1082,15 @@ void PlotMaker::SaveLimitOutputs() {
 
   data->Write("data_obs");
   qcd->Write("qcd");
-  qcd_defUp->Write("qcd_defUp");
-  qcd_defDown->Write("qcd_defDown");
+
+  if(channel.Contains("ele")) {
+    qcd_defUp->Write("qcd_ele_qcdDefUp");
+    qcd_defDown->Write("qcd_ele_qcdDefDown");
+  }
+  else {
+    qcd_defUp->Write("qcd_muon_qcdDefUp");
+    qcd_defDown->Write("qcd_muon_qcdDefDown");
+  }
 
   for(int j = 0; j < qcd->GetNbinsX(); j++) {
     TH1D * h_flux_up = (TH1D*)qcd->Clone("clone_qcd_flux_up");
@@ -1202,8 +1209,18 @@ void PlotMaker::SaveLimitOutputs_KillZeroBin() {
 
   TH1D * data_cut = (TH1D*)data->Rebin(nMetBins_2g_cut, "data_cut", xbins_met_2g_cut); data_cut->Write("data_obs");
   TH1D * qcd_cut = (TH1D*)qcd->Rebin(nMetBins_2g_cut, "qcd_cut", xbins_met_2g_cut); qcd_cut->Write("qcd");
-  TH1D * qcd_defUp_cut = (TH1D*)qcd_defUp->Rebin(nMetBins_2g_cut, "qcd_defUp_cut", xbins_met_2g_cut); qcd_defUp_cut->Write("qcd_defUp");
-  TH1D * qcd_defDown_cut = (TH1D*)qcd_defDown->Rebin(nMetBins_2g_cut, "qcd_defDown_cut", xbins_met_2g_cut); qcd_defDown_cut->Write("qcd_defDown");
+
+  TH1D * qcd_defUp_cut = (TH1D*)qcd_defUp->Rebin(nMetBins_2g_cut, "qcd_defUp_cut", xbins_met_2g_cut);
+  TH1D * qcd_defDown_cut = (TH1D*)qcd_defDown->Rebin(nMetBins_2g_cut, "qcd_defDown_cut", xbins_met_2g_cut);
+
+  if(channel.Contains("ele")) {
+    qcd_defUp_cut->Write("qcd_ele_qcdDefUp");
+    qcd_defDown_cut->Write("qcd_ele_qcdDefDown");
+  }
+  else {
+    qcd_defUp_cut->Write("qcd_muon_qcdDefUp");
+    qcd_defDown_cut->Write("qcd_muon_qcdDefDown");
+  }
 
   for(int j = 0; j < qcd_cut->GetNbinsX(); j++) {
     TH1D * h_flux_up = (TH1D*)qcd_cut->Clone("clone_qcd_flux_up");
