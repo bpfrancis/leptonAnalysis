@@ -12,24 +12,21 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   // derived from CR0
   //systematic    topSF           topSFerror              wjetsSF         wjetsSFerror    QCDSF           QCDSFerror              MCSF            MCSFerror
-  //e             0.840742963543  0.00666019431831        1.8169554357    0.0365078500672 0.329381930897  0.00388688459937        1.06790795756   0.00185289005357
-  //mu            0.885471810863  0.00652764702301        1.5925431947    0.0358831914025 0.0145930197407 0.000532915435935       1.07191340778   0.00218856273796
-
   //e             0.858155455758  0.00530696636038        1.72687920543   0.0272087469619 0.329063044627  0.00388312156924        1.06815211075   0.0018533136753
   //mu            0.901305990296  0.00512420403339        1.50657303747   0.0263282690732 0.0145787340776 0.000532393744709	  1.07209994177   0.00218894359086
 
 
-  Float_t sf_wJets = (channel < 2) ? 1.72687920543 : 1.50657303747;
-  Float_t sfError_wJets = (channel < 2) ? 0.0272087469619 : 0.0263282690732;
+  Float_t sf_wJets = (channels[channel].Contains("ele")) ? 1.72687920543 : 1.50657303747;
+  Float_t sfError_wJets = (channels[channel].Contains("ele")) ? 0.0272087469619 : 0.0263282690732;
 
-  Float_t sf_ttbar = (channel < 2) ? 0.858155455758 : 0.901305990296;
-  Float_t sfError_ttbar = (channel < 2) ? 0.00530696636038 : 0.00512420403339;
+  Float_t sf_ttbar = (channels[channel].Contains("ele")) ? 0.858155455758 : 0.901305990296;
+  Float_t sfError_ttbar = (channels[channel].Contains("ele")) ? 0.00530696636038 : 0.00512420403339;
 
-  Float_t sf_mc = (channel < 2) ? 1.06815211075 : 1.07209994177;
-  Float_t sfError_mc = (channel < 2) ? 0.0018533136753 : 0.00218894359086;
+  Float_t sf_mc = (channels[channel].Contains("ele")) ? 1.06815211075 : 1.07209994177;
+  Float_t sfError_mc = (channels[channel].Contains("ele")) ? 0.0018533136753 : 0.00218894359086;
 
-  //Float_t sf_qcd = (channel < 2) ? 0.329063044627 : 0.0145787340776;
-  //Float_t sfError_qcd = (channel < 2) ? 0.00388312156924 : 0.000532393744709;
+  //Float_t sf_qcd = (channels[channel].Contains("ele")) ? 0.329063044627 : 0.0145787340776;
+  //Float_t sfError_qcd = (channels[channel].Contains("ele")) ? 0.00388312156924 : 0.000532393744709;
 
   //durp
   sf_mc = -1.;
