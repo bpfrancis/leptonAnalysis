@@ -732,6 +732,14 @@ void PlotMaker::CalculateRatio(unsigned int n) {
 
   }
 
+  if(n == 0) {
+    TFile * fDurp = new TFile("durp.root", "UPDATE");
+    TString name = "_"+channel+"_"+crNames[controlRegion];
+    bkg->Write("bkg"+name);
+    errors_stat->Write("stat"+name);
+    errors_sys->Write("sys"+name);
+  }
+
 }
 
 void PlotMaker::MakeLegends() {
