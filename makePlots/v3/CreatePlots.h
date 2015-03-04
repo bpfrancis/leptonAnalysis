@@ -938,7 +938,8 @@ void PlotMaker::CalculateQCDNormalization() {
   double n_qcd_defUp = qcd_defUp->Integral(1, endBin);
   double n_qcd_defDown = qcd_defDown->Integral(1, endBin);
 
-  if(n_qcd < 1) {
+  // With the MC subtraction, you can actually have 0 < n_qcd < 1
+  if(n_qcd < 1.e-6) {
     qcdScale = 0.0;
     qcdScale_defUp = 0.0;
     qcdScale_defDown = 0.0;
@@ -995,8 +996,10 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   ScaleQCD();
   if(n == 0) {
-    if(controlRegion != kSR1) SaveLimitOutputs();
-    else SaveLimitOutputs_KillZeroBin();
+    SaveLimitOutputs();
+    // KillZeroBins doesn't quite work yet -- it gives a weird bin ~ -600 to 20
+    //if(controlRegion != kSR1) SaveLimitOutputs();
+    //else SaveLimitOutputs_KillZeroBin();
   }
 
   StackHistograms(n);
@@ -1187,8 +1190,6 @@ void PlotMaker::SaveLimitOutputs() {
  
 }
 
-// durp
-
 void PlotMaker::SaveLimitOutputs_KillZeroBin() {
 
   TString outName = "limitInputs_";
@@ -1353,11 +1354,6 @@ void PlotMaker::SaveLimitOutputs_KillZeroBin() {
   fLimits->Close();
  
 }
-
-
-
-
-// durp
 
 void PlotMaker::DetermineAxisRanges(unsigned int n) {
 
