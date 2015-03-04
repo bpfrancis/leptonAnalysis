@@ -317,7 +317,7 @@ void SusyEventAnalyzer::Data() {
   // Reweighting trees
   /////////////////////////////////
 
-  const int nTreeVariables = 94;
+  const int nTreeVariables = 98;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
@@ -331,7 +331,9 @@ void SusyEventAnalyzer::Data() {
     "ele_pt", "ele_phi", "ele_eta", "ele_mvaTrigV0", "ele_relIso",
     "muon_pt", "muon_phi", "muon_eta", "muon_relIso",
     "leadPhotonEt", "leadPhotonEta", "leadPhotonPhi", "leadChargedHadronIso", "leadSigmaIetaIeta", "lead_nPixelSeeds", "leadMVAregEnergy", "leadMVAregErr",
+    "leadNeutralHadronIso", "leadPhotonIso",
     "trailPhotonEt", "trailPhotonEta", "trailPhotonPhi", "trailChargedHadronIso", "trailSigmaIetaIeta", "trail_nPixelSeeds", "trailMVAregEnergy", "trailMVAregErr",
+    "trailNeutralHadronIso", "trailPhotonIso",
     "photon_invmass", "photon_dR", "photon_dPhi", "diEMpT", "diJetPt",
     "mLepGammaLead", "mLepGammaTrail", "mLepGammaGamma",
     "dR_leadPhoton_l", "dR_leadPhoton_b_min",
@@ -676,7 +678,7 @@ void SusyEventAnalyzer::Acceptance() {
   TH2D * h_ttA_phaseSpace = new TH2D("ttA_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
   TH2D * h_ttbar_phaseSpace = new TH2D("ttbar_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
 
-  const int nTreeVariables = 103;
+  const int nTreeVariables = 107;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
@@ -690,7 +692,9 @@ void SusyEventAnalyzer::Acceptance() {
     "ele_pt", "ele_phi", "ele_eta", "ele_mvaTrigV0", "ele_relIso",
     "muon_pt", "muon_phi", "muon_eta", "muon_relIso",
     "leadPhotonEt", "leadPhotonEta", "leadPhotonPhi", "leadChargedHadronIso", "leadSigmaIetaIeta", "lead_nPixelSeeds", "leadMVAregEnergy", "leadMVAregErr",
+    "leadNeutralHadronIso", "leadPhotonIso",
     "trailPhotonEt", "trailPhotonEta", "trailPhotonPhi", "trailChargedHadronIso", "trailSigmaIetaIeta", "trail_nPixelSeeds", "trailMVAregEnergy", "trailMVAregErr",
+    "trailNeutralHadronIso", "trailPhotonIso",
     "photon_invmass", "photon_dR", "photon_dPhi", "diEMpT", "diJetPt",
     "mLepGammaLead", "mLepGammaTrail", "mLepGammaGamma",
     "dR_leadPhoton_l", "dR_leadPhoton_b_min",
