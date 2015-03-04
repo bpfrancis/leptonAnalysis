@@ -66,8 +66,6 @@ class SusyEventAnalyzer {
   virtual ~SusyEventAnalyzer();
 
   virtual void Data();
-  virtual void ZGammaData(bool runElectrons);
-  virtual void ZGammaMC(bool runElectrons);
   virtual void Acceptance();
   virtual void GeneratorInfo();
   virtual void CalculateBtagEfficiency();
@@ -141,7 +139,7 @@ class SusyEventAnalyzer {
 		   vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		   vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 		   float& HT, 
-		   bool requireSigmaIetaIeta);
+		   bool requireSigmaIetaIeta, bool isSuperFake);
   // in data
   void findJets(susy::Event& ev, 
 		vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
@@ -462,7 +460,7 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 				    vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 				    vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 				    float& HT, 
-				    bool requireSigmaIetaIeta) {
+				    bool requireSigmaIetaIeta, bool isSuperFake) {
   
   map<TString, vector<susy::Photon> >::iterator phoMap = ev.photons.find("photons");
   if(phoMap != event.photons.end()) {
@@ -470,7 +468,8 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 	it != phoMap->second.end(); it++) {
       
       if((requireSigmaIetaIeta && is_loosePhoton(*it, event.rho25)) ||
-	 (!requireSigmaIetaIeta && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25))) {
+	 (!requireSigmaIetaIeta && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
+	 (isSuperFake && is_loosePhoton_superFake(*it, event.rho25))) {
 
 	bool overlap = false;
 

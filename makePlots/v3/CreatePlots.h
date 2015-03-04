@@ -738,6 +738,7 @@ void PlotMaker::CalculateRatio(unsigned int n) {
     bkg->Write("bkg"+name);
     errors_stat->Write("stat"+name);
     errors_sys->Write("sys"+name);
+    fDurp->Close();
   }
 
 }

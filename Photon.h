@@ -151,3 +151,20 @@ bool is_loosePhoton_noSigmaIetaIeta(susy::Photon gamma, float rho) {
   
   return false;
 }
+
+bool is_loosePhoton_superFake(susy::Photon gamma, float rho) {
+
+  if(fabs(gamma.caloPosition.Eta()) < 1.4442 &&
+     gamma.momentum.Et() > 20.0 &&
+     gamma.hadTowOverEm < 0.05 &&
+     gamma.passelectronveto &&
+     gamma.r9 < 1.0 &&
+     gamma.sigmaIetaIeta > 0.001 &&
+     gamma.sigmaIphiIphi > 0.001) {
+    
+    return true;
+
+  }
+  
+  return false;
+}
