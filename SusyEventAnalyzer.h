@@ -467,9 +467,9 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
     for(vector<susy::Photon>::iterator it = phoMap->second.begin();
 	it != phoMap->second.end(); it++) {
       
-      if((requireSigmaIetaIeta && is_loosePhoton(*it, event.rho25)) ||
-	 (!requireSigmaIetaIeta && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
-	 (isSuperFake && is_loosePhoton_superFake(*it, event.rho25))) {
+      if((requireSigmaIetaIeta && !isSuperFake && is_loosePhoton(*it, event.rho25)) ||
+	 (!requireSigmaIetaIeta && !isSuperFake && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
+	 (requireSigmaIetaIeta && isSuperFake && is_loosePhoton_superFake(*it, event.rho25))) {
 
 	bool overlap = false;
 
@@ -1267,7 +1267,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   int nGamma = 0;
   int nFake = 0;
   for(unsigned int i = 0; i < photons.size(); i++) {
-    if(photons[i]->sigmaIetaIeta < 0.012) nGamma++;
+    if(is_loosePhoton(*photons[i], event_.rho25)) nGamma++;
     else nFake++;
   }
   treeMap["Ngamma"] = nGamma;
