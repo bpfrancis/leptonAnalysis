@@ -1806,19 +1806,30 @@ void HistogramMaker::CreateDatacards() {
     sprintf(code, "_mst_%d_m1_%d", index1, index2);
     TString code_t = code;
 
-    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v4/acceptance/signal_contamination"+code_t+".root", "READ");
+    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance_v2/signal_contamination"+code_t+".root", "READ");
     if(f->IsZombie()) {
       f->Close();
       continue;
     }
     
-    TTree * tree = (TTree*)f->Get(req+"_noSigmaIetaIetaTree");
-    TTree * tree_JECup = (TTree*)f->Get(req+"_noSigmaIetaIetaTree_JECup");
-    TTree * tree_JECdown = (TTree*)f->Get(req+"_noSigmaIetaIetaTree_JECdown");
+    TString sig_name = req+"_superFakeTree";
+    if(controlRegion == kSR1 || controlRegion == kSR2) sigName = req+"_signalTree";
 
-    TTree * tree_contam;
-    if(req.Contains("ele")) tree_contam = (TTree*)f->Get("ele_jjj_veto_eQCDnoSigmaIetaIetaTree");
-    else if(req.Contains("muon")) tree_contam = (TTree*)f->Get("muon_jjj_veto_muQCDnoSigmaIetaIetaTree");
+    TTree * tree = (TTree*)f->Get(sig_name);
+    TTree * tree_JECup = (TTree*)f->Get(sig_name+"_JECup");
+    TTree * tree_JECdown = (TTree*)f->Get(sig_name+"_JECdown");
+
+    TString contam_name;
+    if(req.Contains("ele")) {
+      if(controlRegion == kSR1 || controlRegion == kSR2) contam_name = "ele_jjj_veto_eQCDTree";
+      else contam_name = "ele_jjj_veto_eQCDsuperFakeTree";
+    }
+    else if(req.Contains("muon")) {
+      if(controlRegion == kSR1 || controlRegion == kSR2) contam_name = "muon_jjj_veto_muQCDTree";
+      else contam_name = "muon_jjj_veto_muQCDsuperFakeTree";
+    }
+
+    TTree * tree_contam = (TTree*)f->Get(contam_name);
 
     if(!tree || !tree_JECup || !tree_JECdown || !tree_contam) {
       f->Close();
