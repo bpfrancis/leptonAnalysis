@@ -8,7 +8,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   TString ggName = channels[channel]+"_superFakeTree";
   TString qcdName = qcdChannels_superFake[channel];
-  if(controlRegion == kSR1 || controlRegion == kSR2) {
+  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
     ggName = channels[channel]+"_signalTree";
     qcdName = qcdChannels[channel];
   }
@@ -17,7 +17,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TTree * qcdTree = (TTree*)in->Get(qcdName);
 
   TString sigName = channels[channel]+"_superFakeTree";
-  if(controlRegion == kSR1 || controlRegion == kSR2) sigName = channels[channel]+"_signalTree";
+  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sigName = channels[channel]+"_signalTree";
 
   TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance_v2/signal_contamination_mst_460_m1_175.root", "READ");
   TTree * sigaTree = (TTree*)fSigA->Get(sigName);

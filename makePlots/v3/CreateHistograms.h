@@ -74,6 +74,9 @@ class HistogramMaker : public TObject {
   Int_t getIntegerValue(TString name) { return (Int_t)getValue(name); };
 
   bool hasGoodPhotons() {
+
+    return true;
+
     if(getIntegerValue("Nphotons") == 0) return true;
     if(getIntegerValue("Nphotons") == 1) {
       //bool chHadIso = getValue("leadChargedHadronIso") < 2.6;
@@ -482,7 +485,7 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
   TString signalString = channels[channel]+"_superFakeTree";
   TString qcdString = qcdChannels_superFake[channel];
 
-  if(controlRegion == kSR1 || controlRegion == kSR2) {
+  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
     signalString = channels[channel]+"_signalTree";
     qcdString = qcdChannels[channel];
   }
@@ -1812,7 +1815,7 @@ void HistogramMaker::CreateDatacards() {
     }
     
     TString sig_name = req+"_superFakeTree";
-    if(controlRegion == kSR1 || controlRegion == kSR2) sig_name = req+"_signalTree";
+    if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sig_name = req+"_signalTree";
 
     TTree * tree = (TTree*)f->Get(sig_name);
     TTree * tree_JECup = (TTree*)f->Get(sig_name+"_JECup");
@@ -1820,11 +1823,11 @@ void HistogramMaker::CreateDatacards() {
 
     TString contam_name;
     if(req.Contains("ele")) {
-      if(controlRegion == kSR1 || controlRegion == kSR2) contam_name = "ele_jjj_veto_eQCDTree";
+      if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = "ele_jjj_veto_eQCDTree";
       else contam_name = "ele_jjj_veto_eQCDsuperFakeTree";
     }
     else if(req.Contains("muon")) {
-      if(controlRegion == kSR1 || controlRegion == kSR2) contam_name = "muon_jjj_veto_muQCDTree";
+      if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = "muon_jjj_veto_muQCDTree";
       else contam_name = "muon_jjj_veto_muQCDsuperFakeTree";
     }
 
@@ -1970,7 +1973,7 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
       if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
       if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
-      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR2a && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
 
       if(!checkBtagging()) continue;
@@ -2063,7 +2066,7 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
       if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
       if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
-      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR2a && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
 
       if(!checkBtagging()) continue;
@@ -2094,7 +2097,7 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
       if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
       if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
-      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR2a && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
 
       if(!checkBtagging()) continue;
@@ -2127,7 +2130,7 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kSR2 && !(ngamma >= 2)) continue;
       if(controlRegion == kCR1 && !(ngamma == 0 && nfake == 1)) continue;
       if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
-      if(controlRegion == kCR2 && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
+      if(controlRegion == kCR2a && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
 
       if(!checkBtagging()) continue;
