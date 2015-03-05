@@ -46,6 +46,9 @@ TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "muon_jjj_muQCDTree",
 TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
                                                   "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
+TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_eQCDsuperFakeTree",
+					    "ele_jjj_veto_superFakeTree", "muon_jjj_veto_superFakeTree"};
+
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
 
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot"};
@@ -70,6 +73,27 @@ class HistogramMaker : public TObject {
 
   Int_t getIntegerValue(TString name) { return (Int_t)getValue(name); };
 
+  bool hasGoodPhotons() {
+    if(getIntegerValue("Nphotons") == 0) return true;
+    if(getIntegerValue("Nphotons") == 1) {
+      bool chHadIso = getValue("leadChargedHadronIso") < 2.6;
+      bool nHadIso = getValue("leadNeutralHadronIso") < 3.5;
+      bool photonIso = getValue("leadPhotonIso") < 1.3;
+      bool sIetaIeta = getValue("leadSigmaIetaIeta") < 0.012;
+      return nHadIso && photonIso;
+    }
+    if(getIntegerValue("Nphotons") >= 2) {
+      bool chHadIso = getValue("leadChargedHadronIso") < 2.6 && getValue("trailChargedHadronIso") < 2.6;
+      bool nHadIso = getValue("leadNeutralHadronIso") < 3.5 && getValue("trailNeutralHadronIso") < 3.5;
+      bool photonIso = getValue("leadPhotonIso") < 1.3 && getValue("trailPhotonIso") < 1.3;
+      bool sIetaIeta = getValue("leadSigmaIetaIeta") < 0.012 && getValue("trailSigmaIetaIeta") < 0.012;
+      return nHadIso && photonIso;
+    }
+
+    return false;
+    durp;
+  };
+
   bool inControlRegion() {
     switch(controlRegion) {
     case kSR1:
@@ -77,15 +101,16 @@ class HistogramMaker : public TObject {
     case kSR2:
       return getIntegerValue("Ngamma") >= 2;
     case kCR1:
-      return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") == 1);
+      return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") == 1) && hasGoodPhotons();
     case kCR2:
-      return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2);
+      return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2) && hasGoodPhotons();
     case kCR2a:
-      return (getIntegerValue("Ngamma") == 1 && getIntegerValue("Nfake") == 1) || (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2);
+      return ((getIntegerValue("Ngamma") == 1 && getIntegerValue("Nfake") == 1) || (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2)) &&
+	hasGoodPhotons();
     case kCR0:
-      return getIntegerValue("Ngamma") == 0;
+      return getIntegerValue("Ngamma") == 0 && hasGoodPhotons();
     case kSigmaPlot:
-      return (getIntegerValue("Ngamma") + getIntegerValue("Nfake") >= 1);
+      return (getIntegerValue("Ngamma") + getIntegerValue("Nfake") >= 1) && hasGoodPhotons();
     default:
       return false;
     }
@@ -455,8 +480,8 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
     return false;
   }
 
-  TString signalString = channels[channel]+"_noSigmaIetaIetaTree";
-  TString qcdString = qcdChannels_noSigmaIetaIeta[channel];
+  TString signalString = channels[channel]+"_superFakeTree";
+  TString qcdString = qcdChannels_superFake[channel];
 
   if(controlRegion == kSR1 || controlRegion == kSR2) {
     signalString = channels[channel]+"_signalTree";
