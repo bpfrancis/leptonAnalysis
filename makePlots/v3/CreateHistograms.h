@@ -76,22 +76,21 @@ class HistogramMaker : public TObject {
   bool hasGoodPhotons() {
     if(getIntegerValue("Nphotons") == 0) return true;
     if(getIntegerValue("Nphotons") == 1) {
-      bool chHadIso = getValue("leadChargedHadronIso") < 2.6;
+      //bool chHadIso = getValue("leadChargedHadronIso") < 2.6;
       bool nHadIso = getValue("leadNeutralHadronIso") < 3.5;
       bool photonIso = getValue("leadPhotonIso") < 1.3;
-      bool sIetaIeta = getValue("leadSigmaIetaIeta") < 0.012;
+      //bool sIetaIeta = getValue("leadSigmaIetaIeta") < 0.012;
       return nHadIso && photonIso;
     }
     if(getIntegerValue("Nphotons") >= 2) {
-      bool chHadIso = getValue("leadChargedHadronIso") < 2.6 && getValue("trailChargedHadronIso") < 2.6;
+      //bool chHadIso = getValue("leadChargedHadronIso") < 2.6 && getValue("trailChargedHadronIso") < 2.6;
       bool nHadIso = getValue("leadNeutralHadronIso") < 3.5 && getValue("trailNeutralHadronIso") < 3.5;
       bool photonIso = getValue("leadPhotonIso") < 1.3 && getValue("trailPhotonIso") < 1.3;
-      bool sIetaIeta = getValue("leadSigmaIetaIeta") < 0.012 && getValue("trailSigmaIetaIeta") < 0.012;
+      //bool sIetaIeta = getValue("leadSigmaIetaIeta") < 0.012 && getValue("trailSigmaIetaIeta") < 0.012;
       return nHadIso && photonIso;
     }
 
     return false;
-    durp;
   };
 
   bool inControlRegion() {
@@ -1813,7 +1812,7 @@ void HistogramMaker::CreateDatacards() {
     }
     
     TString sig_name = req+"_superFakeTree";
-    if(controlRegion == kSR1 || controlRegion == kSR2) sigName = req+"_signalTree";
+    if(controlRegion == kSR1 || controlRegion == kSR2) sig_name = req+"_signalTree";
 
     TTree * tree = (TTree*)f->Get(sig_name);
     TTree * tree_JECup = (TTree*)f->Get(sig_name+"_JECup");
