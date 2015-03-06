@@ -19,10 +19,10 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TString sigName = channels[channel]+"_superFakeTree";
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sigName = channels[channel]+"_signalTree";
 
-  TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance_v2/signal_contamination_mst_460_m1_175.root", "READ");
+  TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination_mst_460_m1_175.root", "READ");
   TTree * sigaTree = (TTree*)fSigA->Get(sigName);
 
-  TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance_v2/signal_contamination_mst_560_m1_325.root", "READ");
+  TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(sigName);
 
   HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut);

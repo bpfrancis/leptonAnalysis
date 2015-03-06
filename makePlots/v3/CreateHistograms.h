@@ -47,7 +47,7 @@ TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTr
                                                   "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
 TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_eQCDsuperFakeTree",
-					    "ele_jjj_veto_superFakeTree", "muon_jjj_veto_superFakeTree"};
+					    "ele_jjj_veto_eQCDsuperFakeTree", "muon_jjj_veto_muQCDsuperFakeTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
 
@@ -1808,7 +1808,7 @@ void HistogramMaker::CreateDatacards() {
     sprintf(code, "_mst_%d_m1_%d", index1, index2);
     TString code_t = code;
 
-    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance_v2/signal_contamination"+code_t+".root", "READ");
+    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination"+code_t+".root", "READ");
     if(f->IsZombie()) {
       f->Close();
       continue;
