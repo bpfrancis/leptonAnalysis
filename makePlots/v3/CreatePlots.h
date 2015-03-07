@@ -217,6 +217,7 @@ class PlotMaker : public TObject {
   void ScaleQCD();
 
   void DetermineAxisRanges(unsigned int n);
+  void DetermineLegendRanges(unsigned int n);
 
   void CreatePlot(unsigned int n);
   void CreatePlots() {
@@ -865,6 +866,8 @@ void PlotMaker::SetStyles(unsigned int n) {
   sigb->SetLineColor(kBlue);
   sigb->SetLineWidth(3);
 
+  DetermineLegendRanges(n);
+
 }
 
 void PlotMaker::ScaleByFit(unsigned int n, vector<TH1D*>& h) {
@@ -1421,13 +1424,50 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
     if(value > padlo_max) padlo_max = value;
   }
 
-  //cout << "For " << variables[n] << ", recommend ranges " << padhi_min << "-" << padhi_max << " (given " << yMinimums[n] << "-" << yMaximums[n] << ") and ";
-  //cout << padlo_min << "-" << padlo_max << " (given " << ratioMinimums[n] << "-" << ratioMaximums[n] << ")" << endl;
-
   yMinimums[n] = padhi_min;
   yMaximums[n] = padhi_max;
 
   ratioMinimums[n] = padlo_min;
   ratioMaximums[n] = padlo_max;
+
+}
+
+void PlotMaker::DetermineLegendRanges(unsigned int n) {
+
+  if(!doDrawLegend[n] && !doDrawPrelim[n]) return;
+
+  if(xMaximums[n] > xMinimums[n]) errors_sys->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
+
+  while() {
+    bool thisOverlaps = false;
+
+    for(Int_t ibin = 0; ibin < errors_sys->GetNbinsX(); ibin++) {
+      
+      errors_sys->GetYaxis()->SetRangeUser(yMinimums[n], yMaximums[n]);
+      errors_sys->Draw("e2");
+      leg->Draw("same");
+      reqText->Draw("same");
+
+      double binCenter = errors_sys->GetXaxis()->GetBinCenter(ibin+1);
+      double sys_max = errors_sys->GetBinContent(ibin+1) + errors_sys->GetBinError(ibin+1);
+      double siga_max = siga->GetBinContent(ibin+1);
+      double sigb_max = sigb->GetBinContent(ibin+1);
+
+      if(reqText->IsInside(binCenter, sys_max) ||
+	 (doDrawSignal[n] && reqText->IsInside(binCenter, siga_max)) ||
+	 (doDrawSignal[n] && reqText->IsInside(binCenter, sigb_max)) ||
+	 leg->IsInside(binCenter, sys_max) ||
+	 (doDrawSignal[n] && leg->IsInside(binCenter, siga_max)) ||
+	 (doDrawSignal[n] && leg->IsInside(binCenter, sigb_max))) {
+	
+	yMaximums[n] = yMaximums[n] * 5.0;
+	thisOverlaps = true;
+	break;
+      }
+
+    }
+
+    if(!thisOverlaps) break;
+  }
 
 }

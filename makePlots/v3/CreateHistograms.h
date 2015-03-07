@@ -2226,6 +2226,7 @@ void HistogramMaker::CreateDatacards() {
   if(controlRegion == kCR2) plotName += "CR2";
   if(controlRegion == kCR2a) plotName += "CR2a";
   if(controlRegion == kCR0) plotName += "CR0";
+  if(controlRegion == kSigmaPlot) plotName += "SigmaPlot";
   plotName += ".pdf";
 
   can->SaveAs(plotName);

@@ -15,8 +15,8 @@ mkdir acc/
 mv $WORK_DIR/makeHistograms.C .
 mv $WORK_DIR/CreateHistograms_C.* .
 
-sed -i 's/PHOTON_REGION/$PHOTON_REGION/g' makeHistograms.C
-sed -i 's/USE_SUPER_FAKES/$USE_SUPER_FAKES/g' makeHistograms.C
+sed -i "s/PHOTON_REGION/$PHOTON_REGION/g" makeHistograms.C
+sed -i "s/USE_SUPER_FAKES/$USE_SUPER_FAKES/g" makeHistograms.C
 
 root -b -q -l makeHistograms.C
 

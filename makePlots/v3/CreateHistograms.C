@@ -27,7 +27,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, useSuperFakes);
   hMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
-  hMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
+  hMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
   bool loadSuccess = true;
   
