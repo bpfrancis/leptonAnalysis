@@ -13,6 +13,8 @@ void makeHistograms() {
   int controlRegion = PHOTON_REGION;
   int useSuperFakes = USE_SUPER_FAKES;
 
+  if(controlRegion == kSigmaPlot) metCut = 50.;
+
   bool blinded = false;
 
   const int nChannels = 4;

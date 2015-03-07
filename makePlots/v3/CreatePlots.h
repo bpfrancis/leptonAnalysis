@@ -840,7 +840,8 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetTitleOffset(0.6);
 
   DetermineAxisRanges(n);
-  
+  //DetermineLegendRanges(n);
+
   if(xMaximums[n] > xMinimums[n]) {
     bkg->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
     ratio->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
@@ -865,8 +866,6 @@ void PlotMaker::SetStyles(unsigned int n) {
   
   sigb->SetLineColor(kBlue);
   sigb->SetLineWidth(3);
-
-  DetermineLegendRanges(n);
 
 }
 
@@ -1438,7 +1437,9 @@ void PlotMaker::DetermineLegendRanges(unsigned int n) {
 
   if(xMaximums[n] > xMinimums[n]) errors_sys->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
 
-  while() {
+  padhi->cd();
+
+  while(true) {
     bool thisOverlaps = false;
 
     for(Int_t ibin = 0; ibin < errors_sys->GetNbinsX(); ibin++) {

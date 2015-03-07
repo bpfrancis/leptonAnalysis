@@ -82,7 +82,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   ///////////////////////////////////////////////////////
 
-  pMaker->BookPlot("pfMET", false,
+  pMaker->BookPlot("pfMET", true,
 		   "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		   0., 300., 7.e-3, 2.5e5,
 		   0., 1.9,
@@ -92,7 +92,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   pMaker->BookPlot("m3", false,
 		   "M3 (GeV/c^{2})", "Number of Events / GeV",
-		   0., 2000., 7.e-5, 2.e5,
+		   0., 300., 7.e-5, 2.e5,
 		   0., 1.9,
 		   true, true, true);
 		   
@@ -190,29 +190,29 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		     0, 2.1,
 		     true, true, true);
 
-    pMaker->CreatePlot("leadPhotonEta", false,
-		       "#eta of leading #gamma", "Number of Events",
-		       -1.5, 1.5, 2.e-3, 3.e4,
-		       0., 2.1,
-		       false, false, false);
+    pMaker->BookPlot("leadPhotonEta", false,
+		     "#eta of leading #gamma", "Number of Events",
+		     -1.5, 1.5, 2.e-3, 3.e4,
+		     0., 2.1,
+		     false, false, false);
 
-    pMaker->CreatePlot("leadPhotonPhi", false,
-		       "#phi of leading #gamma", "Number of Events",
-		       -3.2, 3.2, 2.e-3, 3.e4,
-		       0., 2.1,
-		       false, false, false);
+    pMaker->BookPlot("leadPhotonPhi", false,
+		     "#phi of leading #gamma", "Number of Events",
+		     -3.2, 3.2, 2.e-3, 3.e4,
+		     0., 2.1,
+		     false, false, false);
 
-    pMaker->CreatePlot("leadPhotonEt", true,
-		       "E_{T} of leading #gamma", "Number of Events / GeV",
-		       0., 700., 2.e-4, 5.e2,
-		       0., 5.1,
-		       true, true, true);
+    pMaker->BookPlot("leadPhotonEt", true,
+		     "E_{T} of leading #gamma", "Number of Events / GeV",
+		     0., 700., 2.e-4, 5.e2,
+		     0., 5.1,
+		     true, true, true);
 
-    pMaker->CreatePlot("mLepGammaLead", true,
-		       "m_{#ell#gamma_{lead}}", "Number of Events / GeV",
-		       0., 1200., 2.e-3, 5.e4,
-		       0., 5.1, 
-		       true, true, true);
+    pMaker->BookPlot("mLepGammaLead", true,
+		     "m_{#ell#gamma_{lead}}", "Number of Events / GeV",
+		     0., 1200., 2.e-3, 5.e4,
+		     0., 5.1, 
+		     true, true, true);
   }
 
   if(controlRegion == kSR2 || controlRegion == kCR2 || controlRegion == kCR2a) {
@@ -222,65 +222,65 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		     0, 2.1,
 		     true, true, true);
 
-    pMaker->CreatePlot("trailPhotonEta", false,
-		       "#eta of trailing #gamma", "Number of Events",
-		       -1.5, 1.5, 2.e-3, 3.e4,
-		       0., 2.1,
-		       false, false, false);
+    pMaker->BookPlot("trailPhotonEta", false,
+		     "#eta of trailing #gamma", "Number of Events",
+		     -1.5, 1.5, 2.e-3, 3.e4,
+		     0., 2.1,
+		     false, false, false);
 
-    pMaker->CreatePlot("trailPhotonPhi", false,
-		       "#phi of trailing #gamma", "Number of Events",
-		       -3.2, 3.2, 2.e-3, 3.e4,
-		       0., 2.1,
-		       false, false, false);
+    pMaker->BookPlot("trailPhotonPhi", false,
+		     "#phi of trailing #gamma", "Number of Events",
+		     -3.2, 3.2, 2.e-3, 3.e4,
+		     0., 2.1,
+		     false, false, false);
 
-    pMaker->CreatePlot("trailPhotonEt", true,
-		       "E_{T} of trailing #gamma", "Number of Events / GeV",
-		       0., 700., 2.e-4, 5.e2,
-		       0., 5.1,
-		       true, true, true);
+    pMaker->BookPlot("trailPhotonEt", true,
+		     "E_{T} of trailing #gamma", "Number of Events / GeV",
+		     0., 700., 2.e-4, 5.e2,
+		     0., 5.1,
+		     true, true, true);
 
-    pMaker->CreatePlot("mLepGammaTrail", true,
-		       "m_{#ell#gamma_{trail}}", "Number of Events / GeV",
-		       0., 1200., 2.e-3, 5.e4,
-		       0., 5.1, 
-		       true, true, true);
+    pMaker->BookPlot("mLepGammaTrail", true,
+		     "m_{#ell#gamma_{trail}}", "Number of Events / GeV",
+		     0., 1200., 2.e-3, 5.e4,
+		     0., 5.1, 
+		     true, true, true);
 
-    pMaker->CreatePlot("photon_dR", false,
-		       "#DeltaR_{#gamma#gamma}", "Number of Events",
-		       0.5, 5., 2.e-2, 3.e5,
-		       0., 2.1,
-		       true, false, false);
+    pMaker->BookPlot("photon_dR", false,
+		     "#DeltaR_{#gamma#gamma}", "Number of Events",
+		     0.5, 5., 2.e-2, 3.e5,
+		     0., 2.1,
+		     true, false, false);
 
-    pMaker->CreatePlot("photon_dPhi", false,
-		       "#Delta#phi_{#gamma#gamma}", "Number of Events",
-		       0., 3.14159, 2.e-2, 3.e5,
-		       0., 2.1,
-		       true, false, false);
+    pMaker->BookPlot("photon_dPhi", false,
+		     "#Delta#phi_{#gamma#gamma}", "Number of Events",
+		     0., 3.14159, 2.e-2, 3.e5,
+		     0., 2.1,
+		     true, false, false);
 
-    pMaker->CreatePlot("photon_invmass", true,
-		       "m_{#gamma#gamma} (GeV/c^{2})", "Number of Events",
-		       0, 2000, 2.e-3, 3.e4,
-		       0., 11.5,
-		       true, true, true);
+    pMaker->BookPlot("photon_invmass", true,
+		     "m_{#gamma#gamma} (GeV/c^{2})", "Number of Events",
+		     0, 2000, 2.e-3, 3.e4,
+		     0., 11.5,
+		     true, true, true);
 
-    pMaker->CreatePlot("diEMpT", true,
-		       "di-EM Pt", "Number of Events",
-		       0, 1200, 2.e-3, 5.e4,
-		       0., 5.1,
-		       true, true, true);
+    pMaker->BookPlot("diEMpT", true,
+		     "di-EM Pt", "Number of Events",
+		     0, 1200, 2.e-3, 5.e4,
+		     0., 5.1,
+		     true, true, true);
     
-    pMaker->CreatePlot("diJetPt", true,
-		       "di-Jet Pt", "Number of Events",
-		       0, 1400, 2.e-3, 5.e4,
-		       0., 5.1,
-		       true, true, true);
+    pMaker->BookPlot("diJetPt", true,
+		     "di-Jet Pt", "Number of Events",
+		     0, 1400, 2.e-3, 5.e4,
+		     0., 5.1,
+		     true, true, true);
 
-    pMaker->CreatePlot("mLepGammaGamma", true,
-		       "m_{#ell#gamma#gamma}", "Number of Events",
-		       0, 1200, 2.e-3, 5.e4,
-		       0., 5.1,
-		       true, true, true);
+    pMaker->BookPlot("mLepGammaGamma", true,
+		     "m_{#ell#gamma#gamma}", "Number of Events",
+		     0, 1200, 2.e-3, 5.e4,
+		     0., 5.1,
+		     true, true, true);
   }
 
   pMaker->CreatePlots();

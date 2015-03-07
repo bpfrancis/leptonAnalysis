@@ -82,7 +82,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratio.Draw('axis same')
     
     can.SaveAs(name+'.png')
-    can.SaveAs(name+'.C')
+    #can.SaveAs(name+'.C')
     
 def drawPlots_threeParameters(a, aSF, b, bSF, c, cSF, data, name):
 
