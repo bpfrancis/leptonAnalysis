@@ -186,7 +186,7 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
 
 def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi):
 
-    input = '../histograms_'+channel+'_'+controlRegion+'.root'
+    input = '../histograms_'+channel+'_'+controlRegion+'_met50.root'
 
     dataHist = get1DHist(input, 'leadSigmaIetaIeta_gg_'+channel)
 
