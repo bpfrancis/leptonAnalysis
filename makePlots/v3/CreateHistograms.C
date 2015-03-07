@@ -2,12 +2,12 @@
 
 using namespace std;
 
-void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion) {
+void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, bool useSuperFakes) {
 
   TFile * in = new TFile(input, "READ");
 
-  TString ggName = channels[channel]+"_superFakeTree";
-  TString qcdName = qcdChannels_superFake[channel];
+  TString ggName = (useSuperFakes) ? channels[channel]+"_superFakeTree" : channels[channel]+"_noSigmaIetaIetaTree";
+  TString qcdName = (useSuperFakes) ? qcdChannels_superFake[channel] : qcdChannels_noSigmaIetaIeta[channel];
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
     ggName = channels[channel]+"_signalTree";
     qcdName = qcdChannels[channel];
@@ -16,7 +16,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TTree * ggTree = (TTree*)in->Get(ggName);
   TTree * qcdTree = (TTree*)in->Get(qcdName);
 
-  TString sigName = channels[channel]+"_superFakeTree";
+  TString sigName = (useSuperFakes) ? channels[channel]+"_superFakeTree" : channels[channel]+"_noSigmaIetaIetaTree";
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sigName = channels[channel]+"_signalTree";
 
   TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination_mst_460_m1_175.root", "READ");
@@ -25,9 +25,9 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(sigName);
 
-  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut);
-  hMaker->LoadLeptonSFs("../../data/lepton_SF_8TeV_53x_baseline.root");
-  hMaker->LoadPhotonSFs("../../data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
+  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, useSuperFakes);
+  hMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
+  hMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
   bool loadSuccess = true;
   

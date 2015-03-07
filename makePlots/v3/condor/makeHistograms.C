@@ -2,10 +2,8 @@ enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumContro
 
 void makeHistograms() {
 
-  gROOT->LoadMacro("CreateHistograms.C+");
-
-  TStopwatch ts;
-  ts.Start();
+  gROOT->Reset();
+  gROOT->LoadMacro("CreateHistograms_C.so");
 
   TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v5/SingleElectron.root";
   TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v5/SingleMu.root";
@@ -27,10 +25,5 @@ void makeHistograms() {
     if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion, useSuperFakes);
     else CreateHistograms(input_muon, i, metCut, blinded, controlRegion, useSuperFakes);
   }  
-
-  ts.Stop();
-
-  std::cout << "RealTime : " << ts.RealTime()/60.0 << " minutes" << std::endl;
-  std::cout << "CPUTime  : " << ts.CpuTime()/60.0 << " minutes" << std::endl;
 
 }

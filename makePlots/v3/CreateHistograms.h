@@ -46,7 +46,7 @@ TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "muon_jjj_muQCDTree",
 TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
                                                   "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
-TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_eQCDsuperFakeTree",
+TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_muQCDsuperFakeTree",
 					    "ele_jjj_veto_eQCDsuperFakeTree", "muon_jjj_veto_muQCDsuperFakeTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
@@ -58,7 +58,7 @@ class HistogramMaker : public TObject {
   ClassDef(HistogramMaker, 1);
 
  public:
-  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet);
+  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, bool superFakes);
   ~HistogramMaker();
   
   Float_t getValue(TString name) {
@@ -295,6 +295,7 @@ class HistogramMaker : public TObject {
   int controlRegion;
 
   Float_t metCut;
+  bool useSuperFakes;
 
   TString req;
 
@@ -308,11 +309,12 @@ class HistogramMaker : public TObject {
 
 };
 
-HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet) :
-channel(chanNo),
+HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, bool superFakes) :
+  channel(chanNo),
   blinded(blind),
   controlRegion(cRegion),
-  metCut(cutOnMet)
+  metCut(cutOnMet),
+  useSuperFakes(superFakes)
 {
   req = channels[chanNo];
 
@@ -482,8 +484,8 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
     return false;
   }
 
-  TString signalString = channels[channel]+"_superFakeTree";
-  TString qcdString = qcdChannels_superFake[channel];
+  TString signalString = (useSuperFakes) ? channels[channel]+"_superFakeTree" : channels[channel]+"_noSigmaIetaIetaTree";
+  TString qcdString = (useSuperFakes) ? qcdChannels_superFake[channel] : qcdChannels_noSigmaIetaIeta[channel];
 
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
     signalString = channels[channel]+"_signalTree";
@@ -1776,7 +1778,7 @@ void HistogramMaker::CreateDatacards() {
   char code[100];
   int index1, index2;
 
-  TFile * f_xsec = new TFile("../../data/stop-bino_xsecs.root", "READ");
+  TFile * f_xsec = new TFile("/eos/uscms/store/user/bfrancis/data/stop-bino_xsecs.root", "READ");
   TH2D * h_xsec = (TH2D*)f_xsec->Get("real_xsec");
   TH2D * h_xsec_errors = (TH2D*)f_xsec->Get("real_errors");
 
@@ -1814,7 +1816,7 @@ void HistogramMaker::CreateDatacards() {
       continue;
     }
     
-    TString sig_name = req+"_superFakeTree";
+    TString sig_name = (useSuperFakes) ? req+"_superFakeTree" : req+"_noSigmaIetaIetaTree";
     if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sig_name = req+"_signalTree";
 
     TTree * tree = (TTree*)f->Get(sig_name);
@@ -1824,11 +1826,11 @@ void HistogramMaker::CreateDatacards() {
     TString contam_name;
     if(req.Contains("ele")) {
       if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = "ele_jjj_veto_eQCDTree";
-      else contam_name = "ele_jjj_veto_eQCDsuperFakeTree";
+      else contam_name = (useSuperFakes) ? "ele_jjj_veto_eQCDsuperFakeTree" : "ele_jjj_veto_eQCDnoSigmaIetaIetaTree";
     }
     else if(req.Contains("muon")) {
       if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = "muon_jjj_veto_muQCDTree";
-      else contam_name = "muon_jjj_veto_muQCDsuperFakeTree";
+      else contam_name = (useSuperFakes) ? "muon_jjj_veto_muQCDsuperFakeTree" : "muon_jjj_veto_muQCDsuperFakeTree";
     }
 
     TTree * tree_contam = (TTree*)f->Get(contam_name);
