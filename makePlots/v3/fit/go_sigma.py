@@ -1,6 +1,6 @@
 from fit import *
 
-controlRegion = 'SR1'
+controlRegion = 'SigmaPlot'
 
 channels = ['ele_bjj', 'muon_bjj']
 systematics = ['',
@@ -15,7 +15,7 @@ systematics = ['',
 
 for channel in channels:
     output = open('sigmaFitResults_'+channel+'.txt', 'w')
-    output.write('systematic\ttopSF\ttopSFerror\twjetsSF\twjetsSFerror\tQCDSF\tQCDSFerror\tMCSF\tMCSFerror\n')
+    output.write('systematic\ttopSF\ttopSFerror\tttgammaSF\tttgammaSFerror\n')
 
     for systematic in systematics:
         doSigmaFit(channel, controlRegion, systematic, output, 0.005, 0.02)

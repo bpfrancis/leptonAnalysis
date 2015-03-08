@@ -107,12 +107,11 @@ class HistogramMaker : public TObject {
     case kCR2:
       return (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2) && hasGoodPhotons();
     case kCR2a:
-      return ((getIntegerValue("Ngamma") == 1 && getIntegerValue("Nfake") == 1) || (getIntegerValue("Ngamma") == 0 && getIntegerValue("Nfake") >= 2)) &&
-	hasGoodPhotons();
+      return (getIntegerValue("Ngamma") + getIntegerValue("Nfake") >= 2) && hasGoodPhotons();
     case kCR0:
       return getIntegerValue("Ngamma") == 0 && hasGoodPhotons();
     case kSigmaPlot:
-      return (getIntegerValue("Ngamma") + getIntegerValue("Nfake") >= 1) && hasGoodPhotons();
+      return getIntegerValue("Nphotons") == 1 && hasGoodPhotons();
     default:
       return false;
     }

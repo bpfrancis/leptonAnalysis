@@ -46,9 +46,9 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
 
     ratioStat.SetFillStyle(1001)
-    ratioStat.SetFillColor(kGray+1)
-    ratioStat.SetLineColor(kGray+1)
-    ratioStat.SetMarkerColor(kGray+1)
+    ratioStat.SetFillColor(ROOT.kGray+1)
+    ratioStat.SetLineColor(ROOT.kGray+1)
+    ratioStat.SetMarkerColor(ROOT.kGray+1)
             
     leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
     leg.AddEntry(data, 'Data', 'ELP')

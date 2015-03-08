@@ -53,10 +53,10 @@ openfiles = {}
 def get1DHist(filename, histname):
     if filename not in openfiles:
         openfiles[filename] = ROOT.TFile(filename,'READ')
-    file = openfiles[filename]
+    thisFile = openfiles[filename]
 
     hist = ROOT.TH1D()
-    hist = file.Get(histname)
+    hist = thisFile.Get(histname)
     hist.SetDirectory(0)
     hist.SetFillColor(0)
     return hist
@@ -165,10 +165,10 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
     dataInt = dataHist.Integral(lowbin, highbin)
     topInt = topHist.Integral(lowbin, highbin)
     wjetsInt = wjetsHist.Integral(lowbin, highbin)
-    
+
     topSF = fitFrac * dataInt / topInt
     topSFerror = fitFracErr * dataInt / topInt
-    
+
     wjetsSF = (1.0-fitFrac) * dataInt / wjetsInt
     wjetsSFerror = fitFracErr * dataInt / wjetsInt
 
@@ -186,7 +186,7 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
 
 def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi):
 
-    input = '../histograms_'+channel+'_'+controlRegion+'_met50.root'
+    input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
     dataHist = get1DHist(input, 'leadSigmaIetaIeta_gg_'+channel)
 
@@ -206,19 +206,28 @@ def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi):
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy2JetsToLL_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy3JetsToLL_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy4JetsToLL_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W1JetsToLNu_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W2JetsToLNu_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W3JetsToLNu_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W4JetsToLNu_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_WW_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_WZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_ZZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_TTWJets_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_TTZJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_ttA_2to5_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_qcd_'+channel)
+
+    wjetsHist = get1DHist(input, 'leadSigmaIetaIeta_W1JetsToLNu_'+channel+systematic)
+    wjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W2JetsToLNu_'+channel+systematic))
+    wjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W3JetsToLNu_'+channel+systematic))
+    wjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W4JetsToLNu_'+channel+systematic))
+
+    qcdHist = get1DHist(input, 'leadSigmaIetaIeta_qcd_'+channel)
+    if channel == 'ele_bjj':
+        ScaleWithError(qcdHist, 0.57381, 0.079112)
+        ScaleWithError(wjetsHist, 1.72687920543, 0.0272087469619)
+    if channel == 'muon_bjj':
+        ScaleWithError(qcdHist, 0.0144609, 0.0192772)
+        ScaleWithError(wjetsHist, 1.50657303747, 0.0263282690732)
 
     dataHist.Add(bkgHist, -1.0)
+    dataHist.Add(qcdHist, -1.0)
+    dataHist.Add(wjetsHist, -1.0)
 
     (fitFrac, fitFracErr) = makeFit('leadSigmaIetaIeta', xlo, xhi, topHist, ttgammaHist, dataHist)
 
@@ -228,21 +237,22 @@ def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi):
     dataInt = dataHist.Integral(lowbin, highbin)
     topInt = topHist.Integral(lowbin, highbin)
     ttgammaInt = ttgammaHist.Integral(lowbin, highbin)
-    
+
     topSF = fitFrac * dataInt / topInt
     topSFerror = fitFracErr * dataInt / topInt
-    
+
     ttgammaSF = (1.0-fitFrac) * dataInt / ttgammaInt
     ttgammaSFerror = fitFracErr * dataInt / ttgammaInt
+
+    if systematic == '':
+        topInt = topInt	* topSF
+        ttgammaInt = ttgammaInt	* ttgammaSF
+        print '\n\nN(top) = '+repr(topInt)+'\nN(ttgamma) = '+repr(ttgammaInt)+'\n\n'
 
     output.write(systematic+'\t'+
             str(topSF)+'\t'+
             str(topSFerror)+'\t'+
             str(ttgammaSF)+'\t'+
-            str(ttgammaSFerror)+'\t'+
-            str(QCDSF)+'\t'+
-            str(QCDSFerror)+'\t'+
-            str(MCSF)+'\t'+
-            str(MCSFerror)+'\n')
+            str(ttgammaSFerror)+'\t'+'\n')
 
     drawPlots(dataHist, topHist, topSF, 'ttbar', ttgammaHist, ttgammaSF, 'ttgamma', xlo, xhi, 'leadSigmaIetaIeta_'+channel+systematic)
