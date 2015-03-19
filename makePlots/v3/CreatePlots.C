@@ -28,6 +28,17 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   //Float_t sf_qcd = (channels[channel].Contains("ele")) ? 0.329063044627 : 0.0145787340776;
   //Float_t sfError_qcd = (channels[channel].Contains("ele")) ? 0.00388312156924 : 0.000532393744709;
 
+  // invert both sIetaIeta and chHadIso
+  // fit sIetaIeta (0.006-0.02) --> central
+  // also fit chHadIso (0-20) --> systematic
+  // MET < 50
+
+  Float_t sf_ttjets = (channels[channel].Contains("ele")) ? 0.948467461175 : 1.04147892559;
+  Float_t sfError_ttjets = (channels[channel].Contains("ele")) ? 0.0213520487837 : 0.0219131353559;
+  
+  Float_t sf_ttgamma = (channels[channel].Contains("ele")) ? 0.802607703245 : 1.0182321871;
+  Float_t sfError_ttgamma = (channels[channel].Contains("ele")) ? 0.156110926201 : 0.160640063318;
+
   sf_mc = -1.;
   sf_ttbar = -1.;
 
@@ -37,7 +48,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   ttJets.push_back("ttJetsSemiLep");
   ttJets.push_back("ttJetsFullLep");
   ttJets.push_back("ttJetsHadronic");
-  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} inclusive", kGG, kTTbar, sf_ttbar, sfError_ttbar);
+  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} inclusive", kGG, kTTbar, sf_ttjets, sfError_ttjets);
 
   vector<TString> wJets;
   wJets.push_back("W1JetsToLNu");
@@ -78,7 +89,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   vector<TString> ttgamma;
   ttgamma.push_back("ttA_2to5");
-  pMaker->BookMCLayer(ttgamma, 8, "ttgamma", "t#bar{t} + #gamma", kGG, kTTbar, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttgamma, 8, "ttgamma", "t#bar{t} + #gamma", kGG, kTTbar, sf_ttgamma, sfError_ttgamma);
 
   ///////////////////////////////////////////////////////
 

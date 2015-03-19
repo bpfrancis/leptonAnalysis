@@ -66,6 +66,51 @@ void finishInputs() {
     h_muon_sr2_down->Write(names[i]+"_extraSystematicDown");
     
   }
+  /*
+    Systematics for  ele_bjj :
+    ttjets  SF =  0.948467461175  +( 1.04597822086 ) -( 0.850956701488 )
+    ttgamma SF =  0.802607703245  +( 0.32733135304 ) -( 1.27788405345 )
+
+    Systematics for  muon_bjj :
+    ttjets  SF =  1.04147892559  +( 1.05070630302 ) -( 1.03225154816 )
+    ttgamma SF =  1.0182321871  +( 0.873536174451 ) -( 1.16292819976 )
+  */
+
+  TH1D * h_ttjets_ele_sr2 = (TH1D*)fInputs->Get("ele_SR2/ttjets");
+  TH1D * h_ttjets_ele_sr2_up = (TH1D*)h_ttjets_ele_sr2->Clone("ttjets_ele_sigmaFitUp");
+  TH1D * h_ttjets_ele_sr2_down = (TH1D*)h_ttjets_ele_sr2->Clone("ttjets_ele_sigmaFitDown");
+  h_ttjets_ele_sr2_up->Scale(1.04597822086 / 0.948467461175);
+  h_ttjets_ele_sr2_down->Scale(0.850956701488 / 0.948467461175);
+
+  TH1D * h_ttjets_muon_sr2 = (TH1D*)fInputs->Get("muon_SR2/ttjets");
+  TH1D * h_ttjets_muon_sr2_up = (TH1D*)h_ttjets_muon_sr2->Clone("ttjets_muon_sigmaFitUp");
+  TH1D * h_ttjets_muon_sr2_down = (TH1D*)h_ttjets_muon_sr2->Clone("ttjets_muon_sigmaFitDown");
+  h_ttjets_muon_sr2_up->Scale(1.05070630302 / 1.04147892559);
+  h_ttjets_muon_sr2_down->Scale(1.03225154816 / 1.04147892559);
+
+  TH1D * h_ttgamma_ele_sr2 = (TH1D*)fInputs->Get("ele_SR2/ttgamma");
+  TH1D * h_ttgamma_ele_sr2_up = (TH1D*)h_ttgamma_ele_sr2->Clone("ttgamma_ele_sigmaFitUp");
+  TH1D * h_ttgamma_ele_sr2_down = (TH1D*)h_ttgamma_ele_sr2->Clone("ttgamma_ele_sigmaFitDown");
+  h_ttgamma_ele_sr2_up->Scale(0.32733135304 / 0.802607703245);
+  h_ttgamma_ele_sr2_down->Scale(1.27788405345 / 0.802607703245);
+
+  TH1D * h_ttgamma_muon_sr2 = (TH1D*)fInputs->Get("muon_SR2/ttgamma");
+  TH1D * h_ttgamma_muon_sr2_up = (TH1D*)h_ttgamma_muon_sr2->Clone("ttgamma_muon_sigmaFitUp");
+  TH1D * h_ttgamma_muon_sr2_down = (TH1D*)h_ttgamma_muon_sr2->Clone("ttgamma_muon_sigmaFitDown");
+  h_ttgamma_muon_sr2_up->Scale(0.873536174451 / 1.0182321871);
+  h_ttgamma_muon_sr2_down->Scale(1.16292819976 / 1.0182321871);
+
+  fInputs->cd("ele_SR2");
+  h_ttjets_ele_sr2_up->Write("ttjets_ele_sigmaFitUp");
+  h_ttjets_ele_sr2_down->Write("ttjets_ele_sigmaFitDown");
+  h_ttgamma_ele_sr2_up->Write("ttgamma_ele_sigmaFitUp");
+  h_ttgamma_ele_sr2_down->Write("ttgamma_ele_sigmaFitDown");
+
+  fInputs->cd("muon_SR2");
+  h_ttjets_muon_sr2_up->Write("ttjets_muon_sigmaFitUp");
+  h_ttjets_muon_sr2_down->Write("ttjets_muon_sigmaFitDown");
+  h_ttgamma_muon_sr2_up->Write("ttgamma_muon_sigmaFitUp");
+  h_ttgamma_muon_sr2_down->Write("ttgamma_muon_sigmaFitDown");
 
   fInputs->Close();
   fDifferences->Close();

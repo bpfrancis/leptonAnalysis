@@ -1455,6 +1455,33 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   }
 
   if(tightMuons.size() + tightEles.size() == 1) {
+
+    treeMap["dPhi_met_l"] = TVector2::Phi_mpi_pi(leptonphi - metphi);
+    treeMap["dPhi_met_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - metphi);
+
+    treeMap["dPhi_met_t1_l"] = TVector2::Phi_mpi_pi(leptonphi - metphi_t1);
+    treeMap["dPhi_met_t1_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - metphi_t1);
+
+    treeMap["dPhi_met_t1p2_l"] = TVector2::Phi_mpi_pi(leptonphi - metphi_t1p2);
+    treeMap["dPhi_met_t1p2_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - metphi_t1p2);
+
+    treeMap["dPhi_met_t01_l"] = TVector2::Phi_mpi_pi(leptonphi - metphi_t01);
+    treeMap["dPhi_met_t01_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - metphi_t01);
+
+    treeMap["dPhi_met_t01p2_l"] = TVector2::Phi_mpi_pi(leptonphi - metphi_t01p2);
+    treeMap["dPhi_met_t01p2_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - metphi_t01p2);
+
+    treeMap["dPhi_nopumet_l"] = TVector2::Phi_mpi_pi(leptonphi - nopumetphi);
+    treeMap["dPhi_nopumet_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - nopumetphi);
+    
+    treeMap["dPhi_mvamet_l"] = TVector2::Phi_mpi_pi(leptonphi - mvametphi);
+    treeMap["dPhi_mvamet_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - mvametphi);
+
+    if(isMC) {
+      treeMap["dPhi_genmet_l"] = TVector2::Phi_mpi_pi(leptonphi - genmetphi);
+      treeMap["dPhi_genmet_ht"] = TVector2::Phi_mpi_pi(hadronicSystem.Phi() - genmetphi);
+    }
+
     float w_mT = 1. - TMath::Cos(TVector2::Phi_mpi_pi(leptonphi - metphi));
     w_mT *= 2. * leptonpt * treeMap["pfMET_sysShift"];
 

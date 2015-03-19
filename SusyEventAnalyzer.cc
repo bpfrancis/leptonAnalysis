@@ -317,7 +317,7 @@ void SusyEventAnalyzer::Data() {
   // Reweighting trees
   /////////////////////////////////
 
-  const int nTreeVariables = 98;
+  const int nTreeVariables = 114;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
@@ -344,6 +344,14 @@ void SusyEventAnalyzer::Data() {
     "dEta_trailPhoton_l", "dEta_trailPhoton_b_min",
     "dPhi_trailPhoton_l", "dPhi_trailPhoton_b_min",
     "cosTheta_trailPhoton_l", "cosTheta_trailPhoton_b_min",
+    "dPhi_met_l", "dPhi_met_ht",
+    "dPhi_met_t1_l", "dPhi_met_t1_ht",
+    "dPhi_met_t1p2_l", "dPhi_met_t1p2_ht",
+    "dPhi_met_t01_l", "dPhi_met_t01_ht",
+    "dPhi_met_t01p2_l", "dPhi_mett01p2_ht",
+    "dPhi_nopumet_l", "dPhi_nopumet_ht",
+    "dPhi_mvamet_l", "dPhi_mvamet_ht",
+    "dPhi_genmet_l", "dPhi_genmet_ht",
     "jet1_pt", "jet2_pt", "jet3_pt", "jet4_pt",
     "btag1_pt", "btag2_pt",
     "max_csv", "submax_csv", "min_csv",
@@ -354,9 +362,9 @@ void SusyEventAnalyzer::Data() {
   map<TString, float> treeMap;
   for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
 
-  vector<TTree*> signalTrees, noSigmaIetaIetaTrees, superFakeTrees,
-    eQCDTrees, eQCDnoSigmaIetaIetaTrees, eQCDsuperFakeTrees,
-    muQCDTrees, muQCDnoSigmaIetaIetaTrees, muQCDsuperFakeTrees;
+  vector<TTree*> signalTrees, noSigmaIetaIetaTrees, noChargedHadronIsoTrees, superFakeTrees,
+    eQCDTrees, eQCDnoSigmaIetaIetaTrees, eQCDnoChargedHadronIsoTrees, eQCDsuperFakeTrees,
+    muQCDTrees, muQCDnoSigmaIetaIetaTrees, muQCDnoChargedHadronIsoTrees, muQCDsuperFakeTrees;
 
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
@@ -367,6 +375,11 @@ void SusyEventAnalyzer::Data() {
     TTree * tree = new TTree(channels[i]+"_noSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     noSigmaIetaIetaTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noChargedHadronIsoTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noChargedHadronIsoTrees.push_back(tree);
   }
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_superFakeTree", "An event tree for final analysis");
@@ -385,6 +398,11 @@ void SusyEventAnalyzer::Data() {
     eQCDnoSigmaIetaIetaTrees.push_back(tree);
   }
   for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_eQCDnoChargedHadronIsoTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    eQCDnoChargedHadronIsoTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_eQCDsuperFakeTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     eQCDsuperFakeTrees.push_back(tree);
@@ -399,6 +417,11 @@ void SusyEventAnalyzer::Data() {
     TTree * tree = new TTree(channels[i]+"_muQCDnoSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     muQCDnoSigmaIetaIetaTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDnoChargedHadronIsoTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDnoChargedHadronIsoTrees.push_back(tree);
   }
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_muQCDsuperFakeTree", "An event tree for final analysis");
@@ -600,6 +623,21 @@ void SusyEventAnalyzer::Data() {
 	    }
 	  }
 
+	  if(photonMode == kNoChargedHadronIso) {
+	    if(qcdMode == kSignal) {
+	      nCnt[5][chan]++;
+	      noChargedHadronIsoTrees[chan]->Fill();
+	    }
+	    else if(qcdMode == kElectronQCD) {
+	      nCnt[6][chan]++;
+	      eQCDnoChargedHadronIsoTrees[chan]->Fill();
+	    }
+	    else if(qcdMode == kMuonQCD) {
+	      nCnt[7][chan]++;
+	      muQCDnoChargedHadronIsoTrees[chan]->Fill();
+	    }
+	  }
+
 	  if(photonMode == kSuperFake) {
 	    if(qcdMode == kSignal) {
 	      nCnt[8][chan]++;
@@ -678,7 +716,7 @@ void SusyEventAnalyzer::Acceptance() {
   TH2D * h_ttA_phaseSpace = new TH2D("ttA_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
   TH2D * h_ttbar_phaseSpace = new TH2D("ttbar_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
 
-  const int nTreeVariables = 107;
+  const int nTreeVariables = 123;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
@@ -705,6 +743,14 @@ void SusyEventAnalyzer::Acceptance() {
     "dEta_trailPhoton_l", "dEta_trailPhoton_b_min",
     "dPhi_trailPhoton_l", "dPhi_trailPhoton_b_min",
     "cosTheta_trailPhoton_l", "cosTheta_trailPhoton_b_min",
+    "dPhi_met_l", "dPhi_met_ht",
+    "dPhi_met_t1_l", "dPhi_met_t1_ht",
+    "dPhi_met_t1p2_l", "dPhi_met_t1p2_ht",
+    "dPhi_met_t01_l", "dPhi_met_t01_ht",
+    "dPhi_met_t01p2_l", "dPhi_mett01p2_ht",
+    "dPhi_nopumet_l", "dPhi_nopumet_ht",
+    "dPhi_mvamet_l", "dPhi_mvamet_ht",
+    "dPhi_genmet_l", "dPhi_genmet_ht",
     "jet1_pt", "jet2_pt", "jet3_pt", "jet4_pt",
     "btag1_pt", "btag2_pt",
     "max_csv", "submax_csv", "min_csv",
@@ -721,9 +767,10 @@ void SusyEventAnalyzer::Acceptance() {
 
   vector<TTree*> signalTrees, signalTrees_JECup, signalTrees_JECdown;
   vector<TTree*> noSigmaIetaIetaTrees, noSigmaIetaIetaTrees_JECup, noSigmaIetaIetaTrees_JECdown;
+  vector<TTree*> noChargedHadronIsoTrees, noChargedHadronIsoTrees_JECup, noChargedHadronIsoTrees_JECdown;
   vector<TTree*> superFakeTrees, superFakeTrees_JECup, superFakeTrees_JECdown;
-  vector<TTree*> eQCDTrees, eQCDnoSigmaIetaIetaTrees, eQCDsuperFakeTrees,
-    muQCDTrees, muQCDnoSigmaIetaIetaTrees, muQCDsuperFakeTrees;
+  vector<TTree*> eQCDTrees, eQCDnoSigmaIetaIetaTrees, eQCDnoChargedHadronIsoTrees, eQCDsuperFakeTrees,
+    muQCDTrees, muQCDnoSigmaIetaIetaTrees, muQCDnoChargedHadronIsoTrees, muQCDsuperFakeTrees;
   
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
@@ -758,6 +805,22 @@ void SusyEventAnalyzer::Acceptance() {
   }
 
   for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noChargedHadronIsoTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noChargedHadronIsoTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noChargedHadronIsoTree_JECup", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noChargedHadronIsoTrees_JECup.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_noChargedHadronIsoTree_JECdown", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    noChargedHadronIsoTrees_JECdown.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_superFakeTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     superFakeTrees.push_back(tree);
@@ -784,6 +847,11 @@ void SusyEventAnalyzer::Acceptance() {
     eQCDnoSigmaIetaIetaTrees.push_back(tree);
   }
   for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_eQCDnoChargedHadronIsoTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    eQCDnoChargedHadronIsoTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_eQCDsuperFakeTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     eQCDsuperFakeTrees.push_back(tree);
@@ -798,6 +866,11 @@ void SusyEventAnalyzer::Acceptance() {
     TTree * tree = new TTree(channels[i]+"_muQCDnoSigmaIetaIetaTree", "An event tree for final analysis");
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     muQCDnoSigmaIetaIetaTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDnoChargedHadronIsoTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDnoChargedHadronIsoTrees.push_back(tree);
   }
   for(int i = 0; i < nChannels; i++) {
     TTree * tree = new TTree(channels[i]+"_muQCDsuperFakeTree", "An event tree for final analysis");
@@ -1018,6 +1091,25 @@ void SusyEventAnalyzer::Acceptance() {
 	      else if(qcdMode == kMuonQCD && jetSyst == kCentral) {
 		nCnt[7][chan]++;
 		muQCDnoSigmaIetaIetaTrees[chan]->Fill();
+	      }
+	    }
+
+	    if(photonMode == kNoChargedHadronIso) {
+	      if(qcdMode == kSignal) {
+		if(jetSyst == kCentral) {
+		  nCnt[5][chan]++;
+		  noChargedHadronIsoTrees[chan]->Fill();
+		}
+		else if(jetSyst == kJECup) noChargedHadronIsoTrees_JECup[chan]->Fill();
+		else if(jetSyst == kJECdown) noChargedHadronIsoTrees_JECdown[chan]->Fill();
+	      }
+	      else if(qcdMode == kElectronQCD && jetSyst == kCentral) {
+		nCnt[6][chan]++;
+		eQCDnoChargedHadronIsoTrees[chan]->Fill();
+	      }
+	      else if(qcdMode == kMuonQCD && jetSyst == kCentral) {
+		nCnt[7][chan]++;
+		muQCDnoChargedHadronIsoTrees[chan]->Fill();
 	      }
 	    }
 

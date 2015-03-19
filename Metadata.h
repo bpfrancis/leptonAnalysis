@@ -11,7 +11,7 @@ using namespace std;
 
 enum searchModes {kSignal, kElectronQCD, kMuonQCD, kNumSearchModes};
 
-enum photonCutModes {kSignalPhotons, kNoSigmaIetaIeta, kSuperFake, kNumPhotonModes};
+enum photonCutModes {kSignalPhotons, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
 
 enum jetSystematicMode {kCentral, kJECup, kJECdown, kJERup, kJERdown, kNumJetSytematics};
 

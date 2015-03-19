@@ -951,9 +951,9 @@ void PlotMaker::CalculateQCDNormalization() {
 
   // With the MC subtraction, you can actually have 0 < n_qcd < 1
   if(n_qcd < 1.e-6) {
-    qcdScale = 0.0;
-    qcdScale_defUp = 0.0;
-    qcdScale_defDown = 0.0;
+    qcdScale = 1.e-6;
+    qcdScale_defUp = 1.e-6;
+    qcdScale_defDown = 1.e-6;
     qcdScaleError = 0.0;
     return;
   }
@@ -978,9 +978,9 @@ void PlotMaker::CalculateQCDNormalization() {
 
   qcdScale = (n_data - n_mc) / n_qcd;
   if(qcdScale < 0) {
-    qcdScale = 0.0;
-    qcdScale_defUp = 0.0;
-    qcdScale_defDown = 0.0;
+    qcdScale = 1.e-6;
+    qcdScale_defUp = 1.e-6;
+    qcdScale_defDown = 1.e-6;
     qcdScaleError = 0.0;
     return;
   }
