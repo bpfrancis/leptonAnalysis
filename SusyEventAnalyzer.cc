@@ -200,7 +200,7 @@ void SusyEventAnalyzer::CalculateBtagEfficiency() {
 		tightMuons, looseMuons,
 		tightEles, looseEles,
 		HT,
-		true, false);
+		kSignalPhotons);
 
     TLorentzVector hadronicSystem(0., 0., 0., 0.);
 
@@ -555,7 +555,7 @@ void SusyEventAnalyzer::Data() {
 		    tightMuons, looseMuons,
 		    tightEles, looseEles,
 		    HT,
-		    (photonMode != kNoSigmaIetaIeta), (photonMode == kSuperFake));
+		    photonMode);
 
 	float HT_jets = 0.;
 	TLorentzVector hadronicSystem(0., 0., 0., 0.);
@@ -994,7 +994,7 @@ void SusyEventAnalyzer::Acceptance() {
 		      tightMuons, looseMuons,
 		      tightEles, looseEles,
 		      HT,
-		      (photonMode != kNoSigmaIetaIeta), (photonMode == kSuperFake));
+		      photonMode);
 
 	  float HT_jets = 0.;
 	  TLorentzVector hadronicSystem(0., 0., 0., 0.);
