@@ -139,7 +139,8 @@ class SusyEventAnalyzer {
 		   vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 		   vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 		   float& HT, 
-		   bool requireSigmaIetaIeta, bool isSuperFake);
+		   int photonMode);
+
   // in data
   void findJets(susy::Event& ev, 
 		vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
@@ -460,16 +461,17 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 				    vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
 				    vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 				    float& HT, 
-				    bool requireSigmaIetaIeta, bool isSuperFake) {
+				    int photonMode) {
   
   map<TString, vector<susy::Photon> >::iterator phoMap = ev.photons.find("photons");
   if(phoMap != event.photons.end()) {
     for(vector<susy::Photon>::iterator it = phoMap->second.begin();
 	it != phoMap->second.end(); it++) {
       
-      if((requireSigmaIetaIeta && !isSuperFake && is_loosePhoton(*it, event.rho25)) ||
-	 (!requireSigmaIetaIeta && !isSuperFake && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
-	 (requireSigmaIetaIeta && isSuperFake && is_loosePhoton_superFake(*it, event.rho25))) {
+      if((photonMode == kSignalPhotons && is_loosePhoton(*it, event.rho25)) ||
+	 (photonMode == kNoSigmaIetaIeta && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
+	 (photonMode == kNoChargedHadronIso && is_loosePhoton_noChargedHadronIso(*it, event.rho25)) ||
+	 (photonMode == kSuperFake && is_loosePhoton_superFake(*it, event.rho25))) {
 
 	bool overlap = false;
 
