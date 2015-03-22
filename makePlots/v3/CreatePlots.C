@@ -15,7 +15,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   //e             0.858155455758  0.00530696636038        1.72687920543   0.0272087469619 0.329063044627  0.00388312156924        1.06815211075   0.0018533136753
   //mu            0.901305990296  0.00512420403339        1.50657303747   0.0263282690732 0.0145787340776 0.000532393744709	  1.07209994177   0.00218894359086
 
-
   Float_t sf_wJets = (channels[channel].Contains("ele")) ? 1.72687920543 : 1.50657303747;
   Float_t sfError_wJets = (channels[channel].Contains("ele")) ? 0.0272087469619 : 0.0263282690732;
 
@@ -166,6 +165,18 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		   0, 1000, 2.e-4, 8.e3,
 		   0., 2.1, 
 		   true, true, true);
+
+  pMaker->BookPlot("dPhi_met_l", false,
+		   "#Delta#phi(#ell, #slash{E}_T)", "Number of Events",
+		   -3.2, 3.2, 2.e-4, 8.e3,
+		   0., 2.1,
+		   true, false, false);
+
+  pMaker->BookPlot("dPhi_met_ht", false,
+		   "#Delta#phi(#ell, #vec{HT})", "Number of Events",
+		   -3.2, 3.2, 2.e-4, 8.e3,
+		   0., 2.1,
+		   true, false, false);
 
   if(channels[channel].Contains("ele")) {
     pMaker->BookPlot("ele_pt", true,
