@@ -1828,7 +1828,7 @@ void HistogramMaker::CreateDatacards() {
     sprintf(code, "_mst_%d_m1_%d", index1, index2);
     TString code_t = code;
 
-    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination"+code_t+".root", "READ");
+    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v6/acceptance/signal_contamination"+code_t+".root", "READ");
     if(f->IsZombie()) {
       f->Close();
       continue;

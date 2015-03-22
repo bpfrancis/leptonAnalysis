@@ -7,8 +7,8 @@ void makeHistograms() {
   TStopwatch ts;
   ts.Start();
 
-  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v5/SingleElectron.root";
-  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v5/SingleMu.root";
+  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v6/SingleElectron.root";
+  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v6/SingleMu.root";
 
   double metCut = -1.;
 
