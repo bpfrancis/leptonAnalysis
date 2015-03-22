@@ -13,7 +13,7 @@ void makeHistograms() {
   double metCut = -1.;
 
   int controlRegion = PHOTON_REGION;
-  int useSuperFakes = USE_SUPER_FAKES;
+  int photonMode = PHOTON_MODE;
 
   if(controlRegion == kSigmaPlot) metCut = 50.;
 
@@ -24,10 +24,10 @@ void makeHistograms() {
                                  "ele_bjj", "muon_bjj"};
 
   for(int i = 0; i < nChannels; i++) {
-    if(controlRegion == kSigmaPlot && channels[i].Contains("jjj")) continue;
+    if(channels[i].Contains("jjj")) continue;
 
-    if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion, useSuperFakes);
-    else CreateHistograms(input_muon, i, metCut, blinded, controlRegion, useSuperFakes);
+    if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion, photonMode);
+    else CreateHistograms(input_muon, i, metCut, blinded, controlRegion, photonMode);
   }  
 
   ts.Stop();

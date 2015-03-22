@@ -46,6 +46,9 @@ TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "muon_jjj_muQCDTree",
 TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
                                                   "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
+TString qcdChannels_noChargedHadronIso[nChannels] = {"ele_jjj_eQCDnoChargedHadronIsoTree", "muon_jjj_muQCDnoChargedHadronIsoTree",
+						     "ele_jjj_veto_eQCDnoChargedHadronIsoTree", "muon_jjj_veto_muQCDnoChargedHadronIsoTree"};
+
 TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_muQCDsuperFakeTree",
 					    "ele_jjj_veto_eQCDsuperFakeTree", "muon_jjj_veto_muQCDsuperFakeTree"};
 
@@ -53,12 +56,14 @@ enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumContro
 
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot"};
 
+enum photonModes {kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
+
 class HistogramMaker : public TObject {
   
   ClassDef(HistogramMaker, 1);
 
  public:
-  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, bool superFakes);
+  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode);
   ~HistogramMaker();
   
   Float_t getValue(TString name) {
@@ -294,7 +299,7 @@ class HistogramMaker : public TObject {
   int controlRegion;
 
   Float_t metCut;
-  bool useSuperFakes;
+  int photonMode;
 
   TString req;
 
@@ -308,12 +313,12 @@ class HistogramMaker : public TObject {
 
 };
 
-HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, bool superFakes) :
+HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode) :
   channel(chanNo),
   blinded(blind),
   controlRegion(cRegion),
   metCut(cutOnMet),
-  useSuperFakes(superFakes)
+  photonMode(mode)
 {
   req = channels[chanNo];
 
@@ -483,12 +488,26 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
     return false;
   }
 
-  TString signalString = (useSuperFakes) ? channels[channel]+"_superFakeTree" : channels[channel]+"_noSigmaIetaIetaTree";
-  TString qcdString = (useSuperFakes) ? qcdChannels_superFake[channel] : qcdChannels_noSigmaIetaIeta[channel];
-
+  TString signalString, qcdString;
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
     signalString = channels[channel]+"_signalTree";
     qcdString = qcdChannels[channel];
+  }
+  else if(photonMode == kNoSigmaIetaIeta) {
+    signalString = channels[channel]+"_noSigmaIetaIetaTree";
+    qcdString = qcdChannels_noSigmaIetaIeta[channel];
+  }
+  else if(photonMode == kNoChargedHadronIso) {
+    signalString = channels[channel]+"_noChargedHadronIsoTree";
+    qcdString = qcdChannels_noChargedHadronIso[channel];
+  }
+  else if(photonMode == kSuperFake) {
+    signalString = channels[channel]+"_superFakeTree";
+    qcdString = qcdChannels_superFake[channel];
+  }
+  else {
+    cout << "Invalid photonMode!" << endl;
+    return false;
   }
 
   mcTrees.push_back((TTree*)mcFiles.back()->Get(signalString));
@@ -1815,22 +1834,21 @@ void HistogramMaker::CreateDatacards() {
       continue;
     }
     
-    TString sig_name = (useSuperFakes) ? req+"_superFakeTree" : req+"_noSigmaIetaIetaTree";
+    TString sig_name;
     if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sig_name = req+"_signalTree";
+    else if(photonMode == kNoSigmaIetaIeta) sig_name = req+"_noSigmaIetaIetaTree";
+    else if(photonMode == kNoChargedHadronIso) sig_name = req+"_noChargedHadronIsoTree";
+    else if(photonMode == kSuperFake) sig_name = req+"_superFakeTree";
 
     TTree * tree = (TTree*)f->Get(sig_name);
     TTree * tree_JECup = (TTree*)f->Get(sig_name+"_JECup");
     TTree * tree_JECdown = (TTree*)f->Get(sig_name+"_JECdown");
 
     TString contam_name;
-    if(req.Contains("ele")) {
-      if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = "ele_jjj_veto_eQCDTree";
-      else contam_name = (useSuperFakes) ? "ele_jjj_veto_eQCDsuperFakeTree" : "ele_jjj_veto_eQCDnoSigmaIetaIetaTree";
-    }
-    else if(req.Contains("muon")) {
-      if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = "muon_jjj_veto_muQCDTree";
-      else contam_name = (useSuperFakes) ? "muon_jjj_veto_muQCDsuperFakeTree" : "muon_jjj_veto_muQCDsuperFakeTree";
-    }
+    if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = qcdChannels[channel];
+    else if(photonMode == kNoSigmaIetaIeta) contam_name = qcdChannels_noSigmaIetaIeta[channel];
+    else if(photonMode == kNoChargedHadronIso) contam_name = qcdChannels_noChargedHadronIso[channel];
+    else if(photonMode == kSuperFake) contam_name = qcdChannels_superFake[channel];
 
     TTree * tree_contam = (TTree*)f->Get(contam_name);
 

@@ -2,22 +2,36 @@
 
 using namespace std;
 
-void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, bool useSuperFakes) {
+enum photonModes {kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
+
+void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, int mode) {
 
   TFile * in = new TFile(input, "READ");
 
-  TString ggName = (useSuperFakes) ? channels[channel]+"_superFakeTree" : channels[channel]+"_noSigmaIetaIetaTree";
-  TString qcdName = (useSuperFakes) ? qcdChannels_superFake[channel] : qcdChannels_noSigmaIetaIeta[channel];
+  TString sigName, qcdName;
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
-    ggName = channels[channel]+"_signalTree";
+    sigName = channels[channel]+"_signalTree";
     qcdName = qcdChannels[channel];
   }
+  else if(photonMode == kNoSigmaIetaIeta) {
+    sigName = channels[channel]+"_noSigmaIetaIetaTree";
+    qcdName = qcdChannels_noSigmaIetaIeta[channel];
+  }
+  else if(photonMode == kNoChargedHadronIso) {
+    sigName = channels[channel]+"_noChargedHadronIsoTree";
+    qcdName = qcdChannels_noChargedHadronIso[channel];
+  }
+  else if(photonMode == kSuperFake) {
+    sigName = channels[channel]+"_superFakeTree";
+    qcdName = qcdChannels_superFake[channel];
+  }
+  else {
+    cout << "Invalid photonMode!" << endl;
+    return false;
+  }
 
-  TTree * ggTree = (TTree*)in->Get(ggName);
+  TTree * ggTree = (TTree*)in->Get(sigName);
   TTree * qcdTree = (TTree*)in->Get(qcdName);
-
-  TString sigName = (useSuperFakes) ? channels[channel]+"_superFakeTree" : channels[channel]+"_noSigmaIetaIetaTree";
-  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sigName = channels[channel]+"_signalTree";
 
   TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination_mst_460_m1_175.root", "READ");
   TTree * sigaTree = (TTree*)fSigA->Get(sigName);
@@ -241,7 +255,9 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
     hMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
-    
+    hMaker->BookHistogram("dPhi_met_l", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_met_ht", 63, -3.14159, 3.14159);
+
     hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }
 
@@ -267,6 +283,10 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
     hMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
+    hMaker->BookHistogram("dPhi_met_l", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_met_ht", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_leadPhoton_l", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_leadPhoton_b_min", 63, -3.14159, 3.14159);
     hMaker->BookHistogram("leadPhotonEt", nKinematicBins_1g, xbins_kinematic_1g); // 19
     hMaker->BookHistogram("leadPhotonEta", 40, -1.5, 1.5);                  // 20
     hMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159); // 21
@@ -303,6 +323,12 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon_pt", nKinematicBins_2g, xbins_kinematic_2g); // 17
     hMaker->BookHistogram("muon_eta", 60, -2.5, 2.5);
+    hMaker->BookHistogram("dPhi_met_l", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_met_ht", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_leadPhoton_l", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_leadPhoton_b_min", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_trailPhoton_l", 63, -3.14159, 3.14159);
+    hMaker->BookHistogram("dPhi_trailPhoton_b_min", 63, -3.14159, 3.14159);
     hMaker->BookHistogram("leadPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 19
     hMaker->BookHistogram("leadPhotonEta", 40, -1.5, 1.5);                  // 20
     hMaker->BookHistogram("leadPhotonPhi", 63, -3.14159, 3.14159);

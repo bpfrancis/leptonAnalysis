@@ -3,7 +3,7 @@
 WORK_DIR=`pwd`
 
 PHOTON_REGION=$1
-USE_SUPER_FAKES=$2
+PHOTON_MODE=$2
 
 source /cvmfs/cms.cern.ch/cmsset_default.csh
 export SCRAM_ARCH=slc5_amd64_gcc462
@@ -16,7 +16,7 @@ mv $WORK_DIR/makeHistograms.C .
 mv $WORK_DIR/CreateHistograms_C.* .
 
 sed -i "s/PHOTON_REGION/$PHOTON_REGION/g" makeHistograms.C
-sed -i "s/USE_SUPER_FAKES/$USE_SUPER_FAKES/g" makeHistograms.C
+sed -i "s/PHOTON_MODE/$PHOTON_MODE/g" makeHistograms.C
 
 root -b -q -l makeHistograms.C
 
