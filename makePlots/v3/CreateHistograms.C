@@ -2,9 +2,7 @@
 
 using namespace std;
 
-enum photonModes {kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
-
-void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, int mode) {
+void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, int photonMode) {
 
   TFile * in = new TFile(input, "READ");
 
@@ -27,7 +25,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   }
   else {
     cout << "Invalid photonMode!" << endl;
-    return false;
+    return;
   }
 
   TTree * ggTree = (TTree*)in->Get(sigName);
@@ -39,7 +37,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v5/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(sigName);
 
-  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, useSuperFakes);
+  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, photonMode);
   hMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
   hMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
