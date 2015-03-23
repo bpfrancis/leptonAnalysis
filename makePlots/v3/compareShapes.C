@@ -31,25 +31,35 @@ void overlaySignalRegions(TString channel) {
 
   TFile * input = new TFile("limitInputs_bjj.root", "READ");
 
+  TH1D * h_cr1 = (TH1D*)input->Get(channel+"_CR1/ttjets");
   TH1D * h_sr1 = (TH1D*)input->Get(channel+"_SR1/ttjets");
   TH1D * h_sr2 = (TH1D*)input->Get(channel+"_SR2/ttjets");
 
   for(int i = 1; i < 9; i++) {
 
-    if(names[i] != "ttgamma") continue;
-
+    TH1D * hc = (TH1D*)input->Get(channel+"_CR1/"+names[i]);
     TH1D * h1 = (TH1D*)input->Get(channel+"_SR1/"+names[i]);
     TH1D * h2 = (TH1D*)input->Get(channel+"_SR2/"+names[i]);
 
-    if(h1->Integral() > 0. && h2->Integral() > 0.) {
-      h_sr1->Add(h1);
-      h_sr2->Add(h2);
-    }
+    double nc, n1, n2, ec, e1, e2;
+    nc = hc->IntegralAndError(0, -1, ec);
+    n1 = h1->IntegralAndError(0, -1, e1);
+    n2 = h2->IntegralAndError(0, -1, e2);
+
+    if(nc < 1.e-6 || n1 < 1.e-6 || n2 < 1.e-6) continue;
+    if(ec > nc || e1 > n1 || e2 > n2) continue;
+
+    h_cr1->Add(hc);
+    h_sr1->Add(h1);
+    h_sr2->Add(h2);
     
   }
 
+  TH1D * h_cr1_sys = (TH1D*)h_cr1->Clone("cr1_sys");
   TH1D * h_sr1_sys = (TH1D*)h_sr1->Clone("sr1_sys");
 
+  h_cr1->Scale(1./h_cr1->Integral());
+  h_cr1_sys->Scale(1./h_cr1_sys->Integral());
   h_sr1->Scale(1./h_sr1->Integral());
   h_sr1_sys->Scale(1./h_sr1_sys->Integral());
   h_sr2->Scale(1./h_sr2->Integral());
@@ -116,7 +126,55 @@ void overlaySignalRegions(TString channel) {
   ratio->Draw("axis same");
   oneLine->Draw();
   
-  can->SaveAs("plot_"+channel+".png");
+  can->SaveAs("sr1_to_sr2_"+channel+".png");
+
+  padhi->cd();
+
+  h_cr1_sys->SetFillColor(kOrange+10);
+  h_cr1_sys->SetFillStyle(3154);
+  h_cr1_sys->SetMarkerSize(0);
+
+  h_sr1->SetMarkerStyle(20);
+  h_sr1->SetMarkerSize(1.5);
+
+  h_cr1_sys->GetYaxis()->SetRangeUser(0., 0.5);
+
+  h_cr1_sys->Draw("e2");
+  h_cr1->Draw("hist same");
+  h_sr1->Draw("e1 same");
+  
+  TLegend * leg2 = new TLegend(0.55, 0.65, 0.85, 0.85, channel.Data(), "brNDC");
+  leg2->AddEntry(h_cr1_sys, "CR1", "LPF");
+  leg2->AddEntry(h_sr1, "SR1", "LP");
+  leg2->Draw("same");
+
+  padlo->cd();
+
+  ratio = (TH1D*)h_sr1->Clone("ratio");
+  ratio->Divide(h_cr1);
+
+  ratio->SetLineWidth(2);
+  ratio->GetXaxis()->SetTitle("#slash{E}_{T} (GeV)");
+
+  ratio_sys = (TH1D*)h_cr1_sys->Clone("ratio_sys2");
+  for(int i = 0; i < ratio_sys->GetNbinsX(); i++) {
+    if(h_cr1->GetBinContent(i+1) == 0.) ratio_sys->SetBinError(i+1, 0.);
+    else ratio_sys->SetBinError(i+1, h_cr1_sys->GetBinError(i+1) / h_cr1->GetBinContent(i+1));
+    ratio_sys->SetBinContent(i+1, 1.);
+  }
+
+  ratio_sys->SetFillStyle(1001);
+  ratio_sys->SetFillColor(kGray);
+  ratio_sys->SetLineColor(kGray);
+  ratio_sys->SetMarkerColor(kGray);
+
+  ratio->Draw("e1");
+  ratio_sys->Draw("e2 same");
+  ratio->Draw("e1 same");
+  ratio->Draw("axis same");
+  oneLine->Draw();
+  
+  can->SaveAs("cr1_to_sr1_"+channel+".png");
 
   input->Close();
 
@@ -164,8 +222,8 @@ void overlayChannels(TString variable, TString mode) {
   }
 
   if(variable.Contains("dPhi")) {
-    h_ele->Rebin(3);
-    h_muon->Rebin(3);
+    h_ele->Rebin(9);
+    h_muon->Rebin(9);
   }
 
   TH1D * h_ele_sys = (TH1D*)h_ele->Clone("ele_sys");

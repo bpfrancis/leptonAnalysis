@@ -90,11 +90,11 @@ void finishInputs() {
       double ratio_ele = diff_ele_cr1->GetBinContent(j+1);
       double ratio_muon = diff_muon_cr1->GetBinContent(j+1);
 
-      double ratio2_ele = factor_ele_cr1_sr1->GetBinContent(j+1);
-      double ratio2_muon = factor_muon_cr1_sr1->GetBinContent(j+1);
+      double ratio2_ele = factor_ele_cr1_sr1->GetBinContent(j+1) - 1.;
+      double ratio2_muon = factor_muon_cr1_sr1->GetBinContent(j+1) - 1.;
 
-      double ratio3_ele = factor_ele_sr1_sr2->GetBinContent(j+1);
-      double ratio3_muon = factor_muon_sr1_sr2->GetBinContent(j+1);
+      double ratio3_ele = factor_ele_sr1_sr2->GetBinContent(j+1) - 1.;
+      double ratio3_muon = factor_muon_sr1_sr2->GetBinContent(j+1) - 1.;
 
       // sr1 skips 0-20 bin
       // so sr1(1) gets cr1(2) for its systematic
