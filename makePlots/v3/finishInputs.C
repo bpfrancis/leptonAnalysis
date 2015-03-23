@@ -124,6 +124,12 @@ void finishInputs() {
       
       h_muon_sr2_up->SetBinContent(j+1, h_muon_sr2_up->GetBinContent(j+1) * (1. + ratio_muon));
       h_muon_sr2_down->SetBinContent(j+1, h_muon_sr2_down->GetBinContent(j+1) * (1. - ratio_muon));
+
+      h_muon_sr2_up2->SetBinContent(j+1, h_muon_sr2_up2->GetBinContent(j+1) * (1. + ratio2_muon));
+      h_muon_sr2_down2->SetBinContent(j+1, h_muon_sr2_down2->GetBinContent(j+1) * (1. - ratio2_muon));
+
+      h_muon_sr2_up3->SetBinContent(j+1, h_muon_sr2_up3->GetBinContent(j+1) * (1. + ratio3_muon));
+      h_muon_sr2_down3->SetBinContent(j+1, h_muon_sr2_down3->GetBinContent(j+1) * (1. - ratio3_muon));
       
     }
     
