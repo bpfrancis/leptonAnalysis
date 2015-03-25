@@ -1462,6 +1462,8 @@ void SusyEventAnalyzer::LeptonInfo() {
 
       }
 
+    } // for gen particles
+
   } // for entries
 
   out->Write();
