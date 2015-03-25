@@ -1328,35 +1328,35 @@ void SusyEventAnalyzer::LeptonInfo() {
   TFile * out = new TFile("lepton_info"+output_code_t+".root", "RECREATE");
   out->cd();
 
+  Float_t pfmet, genmet;
+
   Float_t muon_gen_pt, muon_gen_eta;
   Float_t muon_reco_pt, muon_reco_eta, muon_reco_relIso;
-  Int_t muon_gen_mother;
-
   bool muon_reco_passTight, muon_reco_passLoose;
-
+  
   TTree * muonTree = new TTree("muonTree", "muon tree");
+  muonTree->Branch("pfmet", &pfmet, "pfmet/F");
+  muonTree->Branch("genmet", &genmet, "genmet/F");
   muonTree->Branch("muon_gen_pt", &muon_gen_pt, "muon_gen_pt/F");
   muonTree->Branch("muon_gen_eta", &muon_gen_eta, "muon_gen_eta/F");
   muonTree->Branch("muon_reco_pt", &muon_reco_pt, "muon_reco_pt/F");
   muonTree->Branch("muon_reco_eta", &muon_reco_eta, "muon_reco_eta/F");
   muonTree->Branch("muon_reco_relIso", &muon_reco_relIso, "muon_reco_relIso/F");
-  muonTree->Branch("muon_gen_mother", &muon_gen_mother, "muon_gen_mother/I");
   muonTree->Branch("muon_reco_passTight", &muon_reco_passTight, "muon_reco_passTight/O");
   muonTree->Branch("muon_reco_passLoose", &muon_reco_passLoose, "muon_reco_passLoose/O");
   
   Float_t ele_gen_pt, ele_gen_eta;
   Float_t ele_reco_pt, ele_reco_eta, ele_reco_relIso;
-  Int_t ele_gen_mother;
-
   bool ele_reco_passTight, ele_reco_passLoose;
   
   TTree * eleTree = new TTree("eleTree", "ele tree");
+  eleTree->Branch("pfmet", &pfmet, "pfmet/F");
+  eleTree->Branch("genmet", &genmet, "genmet/F");
   eleTree->Branch("ele_gen_pt", &ele_gen_pt, "ele_gen_pt/F");
   eleTree->Branch("ele_gen_eta", &ele_gen_eta, "ele_gen_eta/F");
   eleTree->Branch("ele_reco_pt", &ele_reco_pt, "ele_reco_pt/F");
   eleTree->Branch("ele_reco_eta", &ele_reco_eta, "ele_reco_eta/F");
   eleTree->Branch("ele_reco_relIso", &ele_reco_relIso, "ele_reco_relIso/F");
-  eleTree->Branch("ele_gen_mother", &ele_gen_mother, "ele_gen_mother/I");
   eleTree->Branch("ele_reco_passTight", &ele_reco_passTight, "ele_reco_passTight/O");
   eleTree->Branch("ele_reco_passLoose", &ele_reco_passLoose, "ele_reco_passLoose/O");
 
@@ -1372,12 +1372,14 @@ void SusyEventAnalyzer::LeptonInfo() {
       cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
     }
 
+    pfmet = event.metMap.find("pfMet")->second->met();
+    genmet = event.metMap.find("genMetTrue")->second->met();
+
     for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
 
-      if(abs(it->pdgId) == 11 && it->status == 1) {
+      if(abs(it->pdgId) == 11 && it->status == 1 && abs(it->mother->pdgId) == 24) {
 	ele_gen_pt = it->momentum.Pt();
 	ele_gen_eta = it->momentum.Eta();
-	ele_gen_mother = it->mother->pdgId;
 
 	ele_reco_pt = -1000;
 
@@ -1385,17 +1387,17 @@ void SusyEventAnalyzer::LeptonInfo() {
 	if(eleMap != event.electrons.end()) {
 	  for(vector<susy::Electron>::iterator ele_it = eleMap->second.begin(); ele_it != eleMap->second.end(); ele_it++) {
 
-	    if(deltaR(ele_it->momentum, it->momentum) < 0.1) continue;
+	    if(deltaR(ele_it->momentum, it->momentum) > 0.01) continue;
 
 	    if((int)ele_it->gsfTrackIndex >= (int)(event.tracks).size() || (int)ele_it->gsfTrackIndex < 0) continue;
 
-	    ele_passTight = isTightElectron(*ele_it, 
+	    ele_reco_passTight = isTightElectron(*ele_it, 
 					    event.superClusters, 
 					    event.rho25, 
 					    d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
 					    dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
 	    
-	    ele_passLoose = isLooseElectron(*ele_it,
+	    ele_reco_passLoose = isLooseElectron(*ele_it,
 					    event.superClusters, 
 					    event.rho25, 
 					    d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
@@ -1425,10 +1427,9 @@ void SusyEventAnalyzer::LeptonInfo() {
 	eleTree->Fill();
       }
 
-      if(abs(it->pdgId) == 11 && it->status == 1) {
+      if(abs(it->pdgId) == 13 && it->status == 1 && abs(it->mother->pdgId) == 24) {
 	muon_gen_pt = it->momentum.Pt();
 	muon_gen_eta = it->momentum.Eta();
-	muon_gen_mother = it->mother->pdgId;
 
 	muon_reco_pt = -1000;
 
@@ -1436,7 +1437,7 @@ void SusyEventAnalyzer::LeptonInfo() {
 	if(muMap != event.muons.end()) {
 	  for(vector<susy::Muon>::iterator mu_it = muMap->second.begin(); mu_it != muMap->second.end(); mu_it++) {
 	    
-	    if(deltaR(mu_it->momentum, it->momentum) < 0.1) continue;
+	    if(deltaR(mu_it->momentum, it->momentum) > 0.01) continue;
 
 	    if((int)mu_it->bestTrackIndex() >= (int)(event.tracks).size() || (int)mu_it->bestTrackIndex() < 0) continue;
 
