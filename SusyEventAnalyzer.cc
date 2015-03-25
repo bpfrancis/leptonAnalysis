@@ -1372,8 +1372,11 @@ void SusyEventAnalyzer::LeptonInfo() {
       cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
     }
 
-    pfmet = event.metMap.find("pfMet")->second->met();
-    genmet = event.metMap.find("genMetTrue")->second->met();
+    susy::MET * obj_pfmet  = &(event.metMap.find("pfMet")->second);
+    susy::MET * obj_genmet = &(event.metMap.find("genMetTrue")->second);
+
+    pfmet = obj_pfmet->met();
+    genmet = obj_genmet->met();
 
     for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
 
