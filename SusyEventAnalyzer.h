@@ -68,6 +68,7 @@ class SusyEventAnalyzer {
   virtual void Data();
   virtual void Acceptance();
   virtual void GeneratorInfo();
+  virtual void LeptonInfo();
   virtual void CalculateBtagEfficiency();
   virtual void PileupWeights(TString puFile, TString puFile_up, TString puFile_down);
 

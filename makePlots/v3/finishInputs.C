@@ -9,52 +9,14 @@ void finishInputs() {
   TH1D * diff_ele_cr1 = (TH1D*)fDifferences->Get("ele_bjj_CR1");
   TH1D * diff_muon_cr1 = (TH1D*)fDifferences->Get("muon_bjj_CR1");
 
-  // Make CR1 --> SR1 plots
-  TH1D * h_ele_cr1_total = (TH1D*)fInputs->Get("ele_CR1/"+names[0]);
-  TH1D * h_muon_cr1_total = (TH1D*)fInputs->Get("muon_CR1/"+names[0]);
-  
-  for(int i = 1; i < nBackgrounds; i++) {
-    h_ele_cr1_total->Add((TH1D*)fInputs->Get("ele_CR1/"+names[i]));
-    h_muon_cr1_total->Add((TH1D*)fInputs->Get("muon_CR1/"+names[i]));
-  }
+  // Get other plots
+  TFile * fOthers = new TFile("extraErrors.root", "READ");
 
-  h_ele_cr1_total->Scale(1./h_ele_cr1_total->Integral());
-  h_muon_cr1_total->Scale(1./h_muon_cr1_total->Integral());
+  TH1D * diff2_ele = (TH1D*)fOthers->Get("cr1_to_sr1_ele");
+  TH1D * diff2_muon = (TH1D*)fOthers->Get("cr1_to_sr1_muon");
 
-  TH1D * h_ele_sr1_total = (TH1D*)fInputs->Get("ele_SR1/"+names[0]);
-  TH1D * h_muon_sr1_total = (TH1D*)fInputs->Get("muon_SR1/"+names[0]);
-  
-  for(int i = 1; i < nBackgrounds; i++) {
-    h_ele_sr1_total->Add((TH1D*)fInputs->Get("ele_SR1/"+names[i]));
-    h_muon_sr1_total->Add((TH1D*)fInputs->Get("muon_SR1/"+names[i]));
-  }
-
-  h_ele_sr1_total->Scale(1./h_ele_sr1_total->Integral());
-  h_muon_sr1_total->Scale(1./h_muon_sr1_total->Integral());
-
-  TH1D * factor_ele_cr1_sr1 = (TH1D*)h_ele_sr1_total->Clone("factor_ele_cr1_sr1");
-  factor_ele_cr1_sr1->Divide(h_ele_cr1_total);
-
-  TH1D * factor_muon_cr1_sr1 = (TH1D*)h_muon_sr1_total->Clone("factor_muon_cr1_sr1");
-  factor_muon_cr1_sr1->Divide(h_muon_cr1_total);
-
-  // Make SR1 --> SR2 plots
-  TH1D * h_ele_sr2_total = (TH1D*)fInputs->Get("ele_SR2/"+names[0]);
-  TH1D * h_muon_sr2_total = (TH1D*)fInputs->Get("muon_SR2/"+names[0]);
-  
-  for(int i = 1; i < nBackgrounds; i++) {
-    h_ele_sr2_total->Add((TH1D*)fInputs->Get("ele_SR2/"+names[i]));
-    h_muon_sr2_total->Add((TH1D*)fInputs->Get("muon_SR2/"+names[i]));
-  }
-
-  h_ele_sr2_total->Scale(1./h_ele_sr2_total->Integral());
-  h_muon_sr2_total->Scale(1./h_muon_sr2_total->Integral());
-
-  TH1D * factor_ele_sr1_sr2 = (TH1D*)h_ele_sr2_total->Clone("factor_ele_sr1_sr2");
-  factor_ele_sr1_sr2->Divide(h_ele_sr1_total);
-
-  TH1D * factor_muon_sr1_sr2 = (TH1D*)h_muon_sr2_total->Clone("factor_muon_sr1_sr2");
-  factor_muon_sr1_sr2->Divide(h_muon_sr1_total);
+  TH1D * diff3_ele = (TH1D*)fOthers->Get("sr1_to_sr2_ele");
+  TH1D * diff3_muon = (TH1D*)fOthers->Get("sr1_to_sr2_muon");
 
   for(int i = 0; i < nBackgrounds; i++) {
 
@@ -90,11 +52,11 @@ void finishInputs() {
       double ratio_ele = diff_ele_cr1->GetBinContent(j+1);
       double ratio_muon = diff_muon_cr1->GetBinContent(j+1);
 
-      double ratio2_ele = factor_ele_cr1_sr1->GetBinContent(j+1) - 1.;
-      double ratio2_muon = factor_muon_cr1_sr1->GetBinContent(j+1) - 1.;
+      double ratio2_ele = diff2_ele->GetBinContent(j+1) - 1.;
+      double ratio2_muon = diff2_muon->GetBinContent(j+1) - 1.;
 
-      double ratio3_ele = factor_ele_sr1_sr2->GetBinContent(j+1) - 1.;
-      double ratio3_muon = factor_muon_sr1_sr2->GetBinContent(j+1) - 1.;
+      double ratio3_ele = diff3_ele->GetBinContent(j+1) - 1.;
+      double ratio3_muon = diff3_muon->GetBinContent(j+1) - 1.;
 
       // sr1 skips 0-20 bin
       // so sr1(1) gets cr1(2) for its systematic

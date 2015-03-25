@@ -1320,3 +1320,152 @@ void SusyEventAnalyzer::GeneratorInfo() {
 
 }
 
+void SusyEventAnalyzer::LeptonInfo() {
+
+  TString output_code_t = FormatName(scan);
+
+  // open histogram file and define histograms
+  TFile * out = new TFile("lepton_info"+output_code_t+".root", "RECREATE");
+  out->cd();
+
+  Float_t muon_gen_pt, muon_gen_eta;
+  Float_t muon_reco_pt, muon_reco_eta, muon_reco_relIso;
+  Int_t muon_gen_mother;
+
+  bool muon_reco_passTight, muon_reco_passLoose;
+
+  TTree * muonTree = new TTree("muonTree", "muon tree");
+  muonTree->Branch("muon_gen_pt", &muon_gen_pt, "muon_gen_pt/F");
+  muonTree->Branch("muon_gen_eta", &muon_gen_eta, "muon_gen_eta/F");
+  muonTree->Branch("muon_reco_pt", &muon_reco_pt, "muon_reco_pt/F");
+  muonTree->Branch("muon_reco_eta", &muon_reco_eta, "muon_reco_eta/F");
+  muonTree->Branch("muon_reco_relIso", &muon_reco_relIso, "muon_reco_relIso/F");
+  muonTree->Branch("muon_gen_mother", &muon_gen_mother, "muon_gen_mother/I");
+  muonTree->Branch("muon_reco_passTight", &muon_reco_passTight, "muon_reco_passTight/O");
+  muonTree->Branch("muon_reco_passLoose", &muon_reco_passLoose, "muon_reco_passLoose/O");
+  
+  Float_t ele_gen_pt, ele_gen_eta;
+  Float_t ele_reco_pt, ele_reco_eta, ele_reco_relIso;
+  Int_t ele_gen_mother;
+
+  bool ele_reco_passTight, ele_reco_passLoose;
+  
+  TTree * eleTree = new TTree("eleTree", "ele tree");
+  eleTree->Branch("ele_gen_pt", &ele_gen_pt, "ele_gen_pt/F");
+  eleTree->Branch("ele_gen_eta", &ele_gen_eta, "ele_gen_eta/F");
+  eleTree->Branch("ele_reco_pt", &ele_reco_pt, "ele_reco_pt/F");
+  eleTree->Branch("ele_reco_eta", &ele_reco_eta, "ele_reco_eta/F");
+  eleTree->Branch("ele_reco_relIso", &ele_reco_relIso, "ele_reco_relIso/F");
+  eleTree->Branch("ele_gen_mother", &ele_gen_mother, "ele_gen_mother/I");
+  eleTree->Branch("ele_reco_passTight", &ele_reco_passTight, "ele_reco_passTight/O");
+  eleTree->Branch("ele_reco_passLoose", &ele_reco_passLoose, "ele_reco_passLoose/O");
+
+  Long64_t nEntries = fTree->GetEntries();
+  cout << "Total events in files : " << nEntries << endl;
+  cout << "Events to be processed : " << processNEvents << endl;
+
+  // start event looping
+  Long64_t jentry = 0;
+  while(jentry != processNEvents && event.getEntry(jentry++) != 0) {
+
+    if(printLevel > 0 || (printInterval > 0 && (jentry >= printInterval && jentry%printInterval == 0))) {
+      cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
+    }
+
+    for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
+
+      if(abs(it->pdgId) == 11 && it->status == 1) {
+	ele_gen_pt = it->momentum.Pt();
+	ele_gen_eta = it->momentum.Eta();
+	ele_gen_mother = it->mother->pdgId;
+
+	ele_reco_pt = -1000;
+
+	map<TString, vector<susy::Electron> >::iterator eleMap = ev.electrons.find("gsfElectrons");
+	if(eleMap != ev.electrons.end()) {
+	  for(vector<susy::Electron>::iterator ele_it = eleMap->second.begin(); ele_it != eleMap->second.end(); ele_it++) {
+
+	    if(deltaR(ele_it->momentum, it->momentum) < 0.1) continue;
+
+	    if((int)ele_it->gsfTrackIndex >= (int)(event.tracks).size() || (int)ele_it->gsfTrackIndex < 0) continue;
+
+	    ele_passTight = isTightElectron(*ele_it, 
+					    event.superClusters, 
+					    event.rho25, 
+					    d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
+					    dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
+	    
+	    ele_passLoose = isLooseElectron(*ele_it,
+					    event.superClusters, 
+					    event.rho25, 
+					    d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
+					    dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
+
+	    ele_reco_pt = ele_it->momentum.Pt();
+	    ele_reco_eta = event.superClusters[ele_it->superClusterIndex].position.Eta();
+
+	    float ea;
+	    if(ele_reco_eta < 1.0) ea = 0.13;
+	    else if(ele_reco_eta < 1.479) ea = 0.14;
+	    else if(ele_reco_eta < 2.0) ea = 0.07;
+	    else if(ele_reco_eta < 2.2) ea = 0.09;
+	    else if(ele_reco_eta < 2.3) ea = 0.11;
+	    else if(ele_reco_eta < 2.4) ea = 0.11;
+	    else ea = 0.14;
+
+	    ele_reco_relIso = max(0., (ele_it->photonIso + ele_it->neutralHadronIso - event.rho25*ea));
+	    ele_reco_relIso += ele_it->chargedHadronIso;
+
+	  }
+
+	}
+
+	if(ele_reco_pt < 0.) continue; // no match
+
+	eleTree->Fill();
+      }
+
+      if(abs(it->pdgId) == 11 && it->status == 1) {
+	muon_gen_pt = it->momentum.Pt();
+	muon_gen_eta = it->momentum.Eta();
+	muon_gen_mother = it->mother->pdgId;
+
+	muon_reco_pt = -1000;
+
+	map<TString, vector<susy::Muon> >::iterator muMap = ev.muons.find("muons");
+	if(muMap != ev.muons.end()) {
+	  for(vector<susy::Muon>::iterator mu_it = muMap->second.begin(); mu_it != muMap->second.end(); mu_it++) {
+	    
+	    if(deltaR(mu_it->momentum, it->momentum) < 0.1) continue;
+
+	    if((int)mu_it->bestTrackIndex() >= (int)(event.tracks).size() || (int)mu_it->bestTrackIndex() < 0) continue;
+
+	    muon_reco_passTight = isTightMuon(*mu_it, 
+					      event.tracks, 
+					      d0correction(event.vertices[0].position, event.tracks[mu_it->bestTrackIndex()]), 
+					      dZcorrection(event.vertices[0].position, event.tracks[mu_it->bestTrackIndex()]));
+	    
+	    muon_reco_passLoose = isVetoMuon(*mu_it);
+	    
+	    muon_reco_pt = mu_it->momentum.Pt();
+	    muon_reco_eta = mu_it->momentum.Eta();
+
+	    mu_reco_relIso = max(0., (mu_it->sumNeutralHadronEt04 + mu_it->sumPhotonEt04 - 0.5*(mu_it->sumPUPt04)));
+	    mu_reco_relIso += mu_it->sumChargedHadronPt04;
+
+	  }
+	}
+
+	if(muon_reco_pt < 0.) continue; // no match
+
+	muonTree->Fill();
+
+      }
+
+  } // for entries
+
+  out->Write();
+  out->Close();
+
+}
+
