@@ -1381,8 +1381,8 @@ void SusyEventAnalyzer::LeptonInfo() {
 
 	ele_reco_pt = -1000;
 
-	map<TString, vector<susy::Electron> >::iterator eleMap = ev.electrons.find("gsfElectrons");
-	if(eleMap != ev.electrons.end()) {
+	map<TString, vector<susy::Electron> >::iterator eleMap = event.electrons.find("gsfElectrons");
+	if(eleMap != event.electrons.end()) {
 	  for(vector<susy::Electron>::iterator ele_it = eleMap->second.begin(); ele_it != eleMap->second.end(); ele_it++) {
 
 	    if(deltaR(ele_it->momentum, it->momentum) < 0.1) continue;
@@ -1432,8 +1432,8 @@ void SusyEventAnalyzer::LeptonInfo() {
 
 	muon_reco_pt = -1000;
 
-	map<TString, vector<susy::Muon> >::iterator muMap = ev.muons.find("muons");
-	if(muMap != ev.muons.end()) {
+	map<TString, vector<susy::Muon> >::iterator muMap = event.muons.find("muons");
+	if(muMap != event.muons.end()) {
 	  for(vector<susy::Muon>::iterator mu_it = muMap->second.begin(); mu_it != muMap->second.end(); mu_it++) {
 	    
 	    if(deltaR(mu_it->momentum, it->momentum) < 0.1) continue;
@@ -1450,8 +1450,8 @@ void SusyEventAnalyzer::LeptonInfo() {
 	    muon_reco_pt = mu_it->momentum.Pt();
 	    muon_reco_eta = mu_it->momentum.Eta();
 
-	    mu_reco_relIso = max(0., (mu_it->sumNeutralHadronEt04 + mu_it->sumPhotonEt04 - 0.5*(mu_it->sumPUPt04)));
-	    mu_reco_relIso += mu_it->sumChargedHadronPt04;
+	    muon_reco_relIso = max(0., (mu_it->sumNeutralHadronEt04 + mu_it->sumPhotonEt04 - 0.5*(mu_it->sumPUPt04)));
+	    muon_reco_relIso += mu_it->sumChargedHadronPt04;
 
 	  }
 	}
