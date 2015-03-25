@@ -1418,7 +1418,8 @@ void SusyEventAnalyzer::LeptonInfo() {
 	    else if(ele_reco_eta < 2.4) ea = 0.11;
 	    else ea = 0.14;
 
-	    ele_reco_relIso = max(0., (ele_it->photonIso + ele_it->neutralHadronIso - event.rho25*ea));
+	    ele_reco_relIso = ele_it->photonIso + ele_it->neutralHadronIso - event.rho25*ea;
+	    if(ele_reco_relIso < 0) ele_reco_relIso = 0;
 	    ele_reco_relIso += ele_it->chargedHadronIso;
 
 	  }
@@ -1454,7 +1455,8 @@ void SusyEventAnalyzer::LeptonInfo() {
 	    muon_reco_pt = mu_it->momentum.Pt();
 	    muon_reco_eta = mu_it->momentum.Eta();
 
-	    muon_reco_relIso = max(0., (mu_it->sumNeutralHadronEt04 + mu_it->sumPhotonEt04 - 0.5*(mu_it->sumPUPt04)));
+	    muon_reco_relIso = mu_it->sumNeutralHadronEt04 + mu_it->sumPhotonEt04 - 0.5*(mu_it->sumPUPt04);
+	    if(muon_reco_relIso < 0) muon_reco_relIso = 0;
 	    muon_reco_relIso += mu_it->sumChargedHadronPt04;
 
 	  }
