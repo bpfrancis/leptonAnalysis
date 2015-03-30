@@ -7,7 +7,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TFile * in = new TFile(input, "READ");
 
   TString sigName, qcdName;
-  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
+  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) {
     sigName = channels[channel]+"_signalTree";
     qcdName = qcdChannels[channel];
   }
@@ -231,7 +231,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   hMaker->SetTrees(ggTree, qcdTree, sigaTree, sigbTree);
 
-  if(controlRegion == kCR0) {
+  if(controlRegion == kCR0 || controlRegion == kAny) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);
