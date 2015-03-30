@@ -34,8 +34,8 @@ TString channels[nChannels] = {"ele_jjj", "muon_jjj",
 TString channelLabels[nChannels] = {"XYZ e (no b-tag)", "XYZ #mu (no b-tag)",
 				    "XYZ e", "XYZ #mu"};
 
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
-TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot"};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
+TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};

@@ -3,7 +3,7 @@
 if [ $# -ne 2 ]; then
 	echo
 	echo "Usage: ./go_plots.sh kSR2 kNoSigmaIetaIeta"
-	echo "                     (kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot)"
+	echo "                     (kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny)"
 	echo "                     (kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake)"
 	echo
 	exit 0

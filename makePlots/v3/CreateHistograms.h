@@ -52,9 +52,9 @@ TString qcdChannels_noChargedHadronIso[nChannels] = {"ele_jjj_eQCDnoChargedHadro
 TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_muQCDsuperFakeTree",
 					    "ele_jjj_veto_eQCDsuperFakeTree", "muon_jjj_veto_muQCDsuperFakeTree"};
 
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 
-TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot"};
+TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
 
 enum photonModes {kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
 
@@ -117,6 +117,8 @@ class HistogramMaker : public TObject {
       return getIntegerValue("Ngamma") == 0 && hasGoodPhotons();
     case kSigmaPlot:
       return getIntegerValue("Nphotons") == 1 && hasGoodPhotons();
+    case kAny:
+      return true;
     default:
       return false;
     }
@@ -489,7 +491,7 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
   }
 
   TString signalString, qcdString;
-  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) {
+  if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) {
     signalString = channels[channel]+"_signalTree";
     qcdString = qcdChannels[channel];
   }
@@ -1835,7 +1837,7 @@ void HistogramMaker::CreateDatacards() {
     }
     
     TString sig_name;
-    if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) sig_name = req+"_signalTree";
+    if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) sig_name = req+"_signalTree";
     else if(photonMode == kNoSigmaIetaIeta) sig_name = req+"_noSigmaIetaIetaTree";
     else if(photonMode == kNoChargedHadronIso) sig_name = req+"_noChargedHadronIsoTree";
     else if(photonMode == kSuperFake) sig_name = req+"_superFakeTree";
@@ -1845,7 +1847,7 @@ void HistogramMaker::CreateDatacards() {
     TTree * tree_JECdown = (TTree*)f->Get(sig_name+"_JECdown");
 
     TString contam_name;
-    if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0) contam_name = qcdChannels[channel];
+    if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) contam_name = qcdChannels[channel];
     else if(photonMode == kNoSigmaIetaIeta) contam_name = qcdChannels_noSigmaIetaIeta[channel];
     else if(photonMode == kNoChargedHadronIso) contam_name = qcdChannels_noChargedHadronIso[channel];
     else if(photonMode == kSuperFake) contam_name = qcdChannels_superFake[channel];
@@ -1994,6 +1996,7 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
       if(controlRegion == kCR2a && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
+      // if kAny, always use event
 
       if(!checkBtagging()) continue;
 
@@ -2087,6 +2090,7 @@ void HistogramMaker::CreateDatacards() {
       if(controlRegion == kCR2 && !(ngamma == 0 && nfake >= 2)) continue;
       if(controlRegion == kCR2a && !((ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2))) continue;
       if(controlRegion == kCR0 && !(ngamma == 0)) continue;
+      
 
       if(!checkBtagging()) continue;
 
@@ -2244,6 +2248,7 @@ void HistogramMaker::CreateDatacards() {
   if(controlRegion == kCR2a) plotName += "CR2a";
   if(controlRegion == kCR0) plotName += "CR0";
   if(controlRegion == kSigmaPlot) plotName += "SigmaPlot";
+  if(controlRegion == kAny) plotName += "Any";
   plotName += ".pdf";
 
   can->SaveAs(plotName);
@@ -2265,6 +2270,7 @@ void HistogramMaker::CreateDatacards() {
   if(controlRegion == kCR2) plotName += "CR2";
   if(controlRegion == kCR2a) plotName += "CR2a";
   if(controlRegion == kCR0) plotName += "CR0";
+  if(controlRegion == kAny) plotName += "Any";
   plotName += ".pdf";
 
   can->SaveAs(plotName);
