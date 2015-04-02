@@ -758,6 +758,11 @@ void SusyEventAnalyzer::Acceptance() {
     for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
     muQCDTrees.push_back(tree);
   }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDfakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDfakeTrees.push_back(tree);
+  }
 
   ScaleFactorInfo sf(btagger);
   TFile * btagEfficiency = new TFile("btagEfficiency"+output_code_t+".root", "READ");
