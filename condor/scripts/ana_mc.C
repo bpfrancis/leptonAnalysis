@@ -41,8 +41,10 @@ void ana_mc(TString scan = "DATASETNAME", TString discriminant = "CSVM", bool is
   sea->AddHlt(mu_trigger, mu_type);
 
   std::vector<TString> qcd_mu_trigger;
+  qcd_mu_trigger.push_back("HLT_IsoMu24_eta2p1_v");
   qcd_mu_trigger.push_back("HLT_Mu24_eta2p1_v");
   std::vector<int> qcd_mu_type;
+  qcd_mu_type.push_back(3);
   qcd_mu_type.push_back(3);
   sea->AddHlt(qcd_mu_trigger, qcd_mu_type);
 
@@ -67,18 +69,6 @@ void ana_mc(TString scan = "DATASETNAME", TString discriminant = "CSVM", bool is
 
   sea->SetBtagger(discriminant);
 
-  sea->AddValidTagger("TCHPT");
-  sea->AddValidTagger("JPL");
-  sea->AddValidTagger("JPM");
-  sea->AddValidTagger("JPT");
-  sea->AddValidTagger("CSVL");
-  sea->AddValidTagger("CSVM");
-  sea->AddValidTagger("CSVT");
-  
-  TStopwatch ts;
-
-  ts.Start();
-
   TString stage = "STAGING";
 
   if(stage == "pileup") {
@@ -101,10 +91,5 @@ void ana_mc(TString scan = "DATASETNAME", TString discriminant = "CSVM", bool is
     std::cout << std::endl << "Acceptance()" << std::endl;
     sea->Acceptance();
   }
-  
-  ts.Stop();
-
-  std::cout << "RealTime : " << ts.RealTime()/60.0 << " minutes" << std::endl;
-  std::cout << "CPUTime  : " << ts.CpuTime()/60.0 << " minutes" << std::endl;
   
 }

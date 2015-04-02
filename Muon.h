@@ -18,7 +18,7 @@ bool isAntiIsolatedMuon(susy::Muon mu) {
   float mu_iso = max(0., (mu.sumNeutralHadronEt04 + mu.sumPhotonEt04 - 0.5*(mu.sumPUPt04)));
   mu_iso += mu.sumChargedHadronPt04;
 
-  return (mu_iso / mu.momentum.Pt() > 0.2);
+  return (mu_iso / mu.momentum.Pt() > 0.25 && mu_iso / mu.momentum.Pt() < 1.0);
 }
 
 // This doesn't check for relIso! Muons passing this are either signal or QCD muon candidates
@@ -65,31 +65,3 @@ bool isVetoMuon(susy::Muon mu) {
   return passes;
 }
 
-bool isJetVetoMuon(susy::Muon mu, vector<susy::Track> tracks, double d0, double dz) {
-
-  bool hasTracks = (int)mu.trackIndex < (int)tracks.size() &&
-    (int)mu.combinedTrackIndex < (int)tracks.size()
-    && (int)mu.combinedTrackIndex >= 0;
-  if(!hasTracks) return false;
-
-  float mu_iso = max(0., (mu.sumNeutralHadronEt04 + mu.sumPhotonEt04 - 0.5*(mu.sumPUPt04)));
-  mu_iso += mu.sumChargedHadronPt04;
-
-  if(mu.isGlobalMuon() &&
-     mu.isPFMuon() &&
-     fabs(mu.momentum.Eta()) < 2.6 &&
-     mu.momentum.Pt() >= 15.0 &&
-     tracks[mu.combinedTrackIndex].normChi2() < 10. &&
-     mu.nValidMuonHits > 0 &&
-     fabs(d0) < 0.2 &&
-     fabs(dz) < 0.5 &&
-     tracks[mu.trackIndex].numberOfValidPixelHits > 0 && 
-     (mu.nPixelLayersWithMeasurement + mu.nStripLayersWithMeasurement) > 5 &&
-     mu_iso / mu.momentum.Pt() < 0.2)
-    return true;
-  
-  return false;
-
-}
-     
-     

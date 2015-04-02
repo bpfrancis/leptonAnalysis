@@ -8,5 +8,5 @@ Output = JobOut/job_$(Cluster)_$(Process).stdout
 Error  = JobOut/job_$(Cluster)_$(Process).stderr
 Log    = JobOut/job_$(Cluster)_$(Process).log
 notification = Never
-Arguments = $(process) kNoSigmaIetaIeta
-Queue 7
+Arguments = $(process) kSignal
+Queue 8

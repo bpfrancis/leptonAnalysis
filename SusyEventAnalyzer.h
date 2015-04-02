@@ -469,38 +469,38 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
     for(vector<susy::Photon>::iterator it = phoMap->second.begin();
 	it != phoMap->second.end(); it++) {
       
+      // kSignalPhotons only looks for passing photons
+      // kFakePhotons considers both passing and fake photons
       if((photonMode == kSignalPhotons && is_loosePhoton(*it, event.rho25)) ||
-	 (photonMode == kNoSigmaIetaIeta && is_loosePhoton_noSigmaIetaIeta(*it, event.rho25)) ||
-	 (photonMode == kNoChargedHadronIso && is_loosePhoton_noChargedHadronIso(*it, event.rho25)) ||
-	 (photonMode == kSuperFake && is_loosePhoton_superFake(*it, event.rho25))) {
+	 (photonMode == kFakePhotons && (is_loosePhoton(*it, event.rho25) || is_fakePhoton(*it, event.rho25)))) {
 
 	bool overlap = false;
 
 	float this_dR;
 
-	if(useDeltaRCutsOnPhotons) {
+	if(useDeltaRCutsOnPhotons) { // default true
 	  for(unsigned int i = 0; i < tightMuons.size(); i++) {
 	    this_dR = deltaR(tightMuons[i]->momentum, it->caloPosition);
-	    if(this_dR < 0.5) overlap = true;
+	    if(this_dR < 0.7) overlap = true;
 	  }
 	  
 	  for(unsigned int i = 0; i < looseMuons.size(); i++) {
-	    if(deltaR(looseMuons[i]->momentum, it->caloPosition) <= 0.5) overlap = true;
+	    if(deltaR(looseMuons[i]->momentum, it->caloPosition) <= 0.7) overlap = true;
 	  }
 	  
 	  for(unsigned int i = 0; i < tightEles.size(); i++) {
 	    this_dR = deltaR(tightEles[i]->momentum, it->caloPosition);
-	    if(this_dR < 0.5) overlap = true;
+	    if(this_dR < 0.7) overlap = true;
 	  }
 	  
 	  for(unsigned int i = 0; i < looseEles.size(); i++) {
-	    if(deltaR(looseEles[i]->momentum, it->caloPosition) <= 0.5) overlap = true;
+	    if(deltaR(looseEles[i]->momentum, it->caloPosition) <= 0.7) overlap = true;
 	  }
 	}
 	  
 	for(unsigned int i = 0; i < photons.size(); i++) {
 	  this_dR = deltaR(photons[i]->caloPosition, it->caloPosition);
-	  if(this_dR < 0.5) overlap = true;
+	  if(this_dR < 0.1) overlap = true;
 	}
 	
 	if(overlap) continue;
@@ -651,15 +651,16 @@ void SusyEventAnalyzer::findMuons(susy::Event& ev, vector<susy::Muon*>& tightMuo
 
       if((int)mu_it->bestTrackIndex() >= (int)(event.tracks).size() || (int)mu_it->bestTrackIndex() < 0) continue;
 
+      // don't consider a muon that's already been picked. this shouldn't occur in the reconstruction anyway
       bool overlapsMuon = false;
       for(unsigned int i = 0; i < tightMuons.size(); i++) {
-	if(deltaR(tightMuons[i]->momentum, mu_it->momentum) <= 0.5) {
+	if(deltaR(tightMuons[i]->momentum, mu_it->momentum) <= 0.1) {
 	  overlapsMuon = true;
 	  break;
 	}
       }
       for(unsigned int i = 0; i < looseMuons.size(); i++) {
-	if(deltaR(looseMuons[i]->momentum, mu_it->momentum) <= 0.5) {
+	if(deltaR(looseMuons[i]->momentum, mu_it->momentum) <= 0.1) {
 	  overlapsMuon = true;
 	  break;
 	}
@@ -707,30 +708,32 @@ void SusyEventAnalyzer::findElectrons(susy::Event& ev, vector<susy::Muon*> tight
 
       if((int)ele_it->gsfTrackIndex >= (int)(event.tracks).size() || (int)ele_it->gsfTrackIndex < 0) continue;
 
+      // this should never really happen...
       bool overlapsMuon = false;
       for(unsigned int i = 0; i < tightMuons.size(); i++) {
-	if(deltaR(tightMuons[i]->momentum, ele_it->momentum) <= 0.5) {
+	if(deltaR(tightMuons[i]->momentum, ele_it->momentum) <= 0.1) {
 	  overlapsMuon = true;
 	  break;
 	}
       }
       for(unsigned int i = 0; i < looseMuons.size(); i++) {
-	if(deltaR(looseMuons[i]->momentum, ele_it->momentum) <= 0.5) {
+	if(deltaR(looseMuons[i]->momentum, ele_it->momentum) <= 0.1) {
 	  overlapsMuon = true;
 	  break;
 	}
       }
       if(overlapsMuon) continue;
 
+      // don't consider electrons already picked. this shouldn't happen in the reconstruction anyway
       bool overlapsElectron = false;
       for(unsigned int i = 0; i < tightEles.size(); i++) {
-	if(deltaR(tightEles[i]->momentum, ele_it->momentum) <= 0.5) {
+	if(deltaR(tightEles[i]->momentum, ele_it->momentum) <= 0.1) {
 	  overlapsElectron = true;
 	  break;
 	}
       }
       for(unsigned int i = 0; i < looseEles.size(); i++) {
-	if(deltaR(looseEles[i]->momentum, ele_it->momentum) <= 0.5) {
+	if(deltaR(looseEles[i]->momentum, ele_it->momentum) <= 0.1) {
 	  overlapsElectron = true;
 	  break;
 	}
@@ -761,7 +764,7 @@ void SusyEventAnalyzer::findElectrons(susy::Event& ev, vector<susy::Muon*> tight
       }
 
       else {
-	if(passesTight && isAntiIsolatedElectron(*ele_it, event.superClusters, event.rho25) && ele_it->mvaTrig < 0.) {
+	if(passesTight && isAntiIsolatedElectron(*ele_it, event.superClusters, event.rho25) && ele_it->mvaTrig < -0.1 && ele_it->mvaTrig > -1.0) {
 	  tightEles.push_back(&*ele_it);
 	  HT += ele_it->momentum.Pt();
 	}
@@ -1271,7 +1274,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   int nFake = 0;
   for(unsigned int i = 0; i < photons.size(); i++) {
     if(is_loosePhoton(*photons[i], event_.rho25)) nGamma++;
-    else nFake++;
+    if(is_fakePhoton(*photons[i], event_.rho25)) nFake++;
   }
   treeMap["Ngamma"] = nGamma;
   treeMap["Nfake"] = nFake;
@@ -1563,6 +1566,41 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     treeMap["m3"] = maxCombination.M();
   }
   else treeMap["m3"] = -1.;
+
+  // M3 calculation -- uncorrected jets
+  if(pfJets.size() > 2) {
+    int maxSumPt = 0.;
+    int max_pos = 0;
+    int comb = 1 << pfJets.size();
+    
+    for(int i = 0; i < comb; i++) {
+
+      int npicked = 0; 
+      for(int j = 0; j < pfJets.size(); j++) { 
+	if(((i >> j) & 0x1) == 1) npicked++; 
+      } 
+
+      if(npicked == 3) {
+	TLorentzVector thisCombination(0., 0., 0., 0.);
+	for(int j = 0; j < pfJets.size(); j++) {
+	  if(((i >> j ) & 0x1) == 1) thisCombination += pfJets[j]->momentum;
+	}
+	if(thisCombination.Pt() > maxSumPt) {
+	  maxSumPt = thisCombination.Pt();
+	  max_pos = i;
+	}
+      }
+
+    }
+    
+    TLorentzVector maxCombination(0., 0., 0., 0.);
+    for(int i = 0; i < pfJets.size(); i++) {
+      if(((max_pos >> i) & 0x1) == 1) maxCombination += pfJets[i]->momentum;
+    }
+    
+    treeMap["m3_uncorr"] = maxCombination.M();
+  }
+  else treeMap["m3_uncorr"] = -1.;
 
   treeMap["ele_pt"] = (tightEles.size() > 0) ? tightEles[0]->momentum.Pt() : -1.;
   treeMap["ele_phi"] = (tightEles.size() > 0) ? tightEles[0]->momentum.Phi() : -100.;

@@ -1,13 +1,13 @@
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
-enum photonModes {kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
+enum photonModes {kSignal, kFake, kNumPhotonModes};
 
 void makeHistograms() {
 
   gROOT->Reset();
   gROOT->LoadMacro("CreateHistograms_C.so");
 
-  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v6/SingleElectron.root";
-  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v6/SingleMu.root";
+  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v7/SingleElectron.root";
+  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v7/SingleMu.root";
 
   double metCut = -1.;
 
@@ -18,13 +18,10 @@ void makeHistograms() {
 
   bool blinded = false;
 
-  const int nChannels = 4;
-  TString channels[nChannels] = {"ele_jjj", "muon_jjj",
-                                 "ele_bjj", "muon_bjj"};
+  const int nChannels = 2;
+  TString channels[nChannels] = {"ele_bjj", "muon_bjj"};
 
   for(int i = 0; i < nChannels; i++) {
-    if(controlRegion == kSigmaPlot && channels[i].Contains("jjj")) continue;
-
     if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion, photonMode);
     else CreateHistograms(input_muon, i, metCut, blinded, controlRegion, photonMode);
   }  

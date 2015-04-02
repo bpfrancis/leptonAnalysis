@@ -32,31 +32,21 @@
 
 using namespace std;
 
-const int nChannels = 4;
+const int nChannels = 2;
 
-TString channels[nChannels] = {"ele_jjj", "muon_jjj",
-                               "ele_bjj", "muon_bjj"};
+TString channels[nChannels] = {"ele_bjj", "muon_bjj"};
 
-unsigned int nBtagReq[nChannels] = {0, 0,
-                                    1, 1};
+unsigned int nBtagReq[nChannels] = {1, 1};
 
-TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "muon_jjj_muQCDTree",
-				  "ele_jjj_veto_eQCDTree", "muon_jjj_veto_muQCDTree"};
+TString qcdChannels[nChannels] = {"ele_jjj_veto_eQCDTree", "muon_jjj_veto_muQCDTree"};
 
-TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_muQCDnoSigmaIetaIetaTree",
-                                                  "ele_jjj_veto_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
-
-TString qcdChannels_noChargedHadronIso[nChannels] = {"ele_jjj_eQCDnoChargedHadronIsoTree", "muon_jjj_muQCDnoChargedHadronIsoTree",
-						     "ele_jjj_veto_eQCDnoChargedHadronIsoTree", "muon_jjj_veto_muQCDnoChargedHadronIsoTree"};
-
-TString qcdChannels_superFake[nChannels] = {"ele_jjj_eQCDsuperFakeTree", "muon_jjj_muQCDsuperFakeTree",
-					    "ele_jjj_veto_eQCDsuperFakeTree", "muon_jjj_veto_muQCDsuperFakeTree"};
+TString qcdChannels_fakePhotons[nChannels] = {"ele_jjj_veto_eQCDfakeTree", "muon_jjj_veto_muQCDfakeTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
 
-enum photonModes {kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
+enum photonModes {kSignal, kFake, kNumPhotonModes};
 
 class HistogramMaker : public TObject {
   
@@ -495,17 +485,9 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
     signalString = channels[channel]+"_signalTree";
     qcdString = qcdChannels[channel];
   }
-  else if(photonMode == kNoSigmaIetaIeta) {
-    signalString = channels[channel]+"_noSigmaIetaIetaTree";
-    qcdString = qcdChannels_noSigmaIetaIeta[channel];
-  }
-  else if(photonMode == kNoChargedHadronIso) {
-    signalString = channels[channel]+"_noChargedHadronIsoTree";
-    qcdString = qcdChannels_noChargedHadronIso[channel];
-  }
-  else if(photonMode == kSuperFake) {
-    signalString = channels[channel]+"_superFakeTree";
-    qcdString = qcdChannels_superFake[channel];
+  else if(photonMode == kFake) {
+    signalString = channels[channel]+"_fakeTree";
+    qcdString = qcdChannels_fakePhotons[channel];
   }
   else {
     cout << "Invalid photonMode!" << endl;
@@ -1830,7 +1812,7 @@ void HistogramMaker::CreateDatacards() {
     sprintf(code, "_mst_%d_m1_%d", index1, index2);
     TString code_t = code;
 
-    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v6/acceptance/signal_contamination"+code_t+".root", "READ");
+    TFile * f = new TFile("/eos/uscms/store/user/bfrancis/inputs_v7/acceptance/signal_contamination"+code_t+".root", "READ");
     if(f->IsZombie()) {
       f->Close();
       continue;
@@ -1838,9 +1820,7 @@ void HistogramMaker::CreateDatacards() {
     
     TString sig_name;
     if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) sig_name = req+"_signalTree";
-    else if(photonMode == kNoSigmaIetaIeta) sig_name = req+"_noSigmaIetaIetaTree";
-    else if(photonMode == kNoChargedHadronIso) sig_name = req+"_noChargedHadronIsoTree";
-    else if(photonMode == kSuperFake) sig_name = req+"_superFakeTree";
+    else if(photonMode == kFake) sig_name = req+"_fakeTree";
 
     TTree * tree = (TTree*)f->Get(sig_name);
     TTree * tree_JECup = (TTree*)f->Get(sig_name+"_JECup");
@@ -1848,9 +1828,7 @@ void HistogramMaker::CreateDatacards() {
 
     TString contam_name;
     if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) contam_name = qcdChannels[channel];
-    else if(photonMode == kNoSigmaIetaIeta) contam_name = qcdChannels_noSigmaIetaIeta[channel];
-    else if(photonMode == kNoChargedHadronIso) contam_name = qcdChannels_noChargedHadronIso[channel];
-    else if(photonMode == kSuperFake) contam_name = qcdChannels_superFake[channel];
+    else if(photonMode == kFake) contam_name = qcdChannels_fakePhotons[channel];
 
     TTree * tree_contam = (TTree*)f->Get(contam_name);
 

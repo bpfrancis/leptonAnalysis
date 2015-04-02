@@ -21,7 +21,6 @@ sed -i "s/PHOTON_MODE/$PHOTON_MODE/g" makeHistograms.C
 root -b -q -l makeHistograms.C
 
 mv limitInputs_bjj.root limitInputs_bjj_$PHOTON_REGION.root
-mv limitInputs_jjj.root limitInputs_jjj_$PHOTON_REGION.root
 
 mv *.root $WORK_DIR
 mv acc/*.pdf $WORK_DIR

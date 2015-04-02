@@ -2,9 +2,9 @@
 
 if [ $# -ne 2 ]; then
 	echo
-	echo "Usage: ./go_plots.sh kSR2 kNoSigmaIetaIeta"
+	echo "Usage: ./go_plots.sh kSR2 kSignal"
 	echo "                     (kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny)"
-	echo "                     (kSignal, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake)"
+	echo "                     (kSignal, kFake)"
 	echo
 	exit 0
 fi

@@ -75,7 +75,7 @@ bool isAntiIsolatedElectron(susy::Electron ele, vector<susy::SuperCluster> super
   
   float relIso = ele_iso / ele.momentum.Pt();
 
-  return (relIso >= 0.2 && relIso < 1.);
+  return (relIso >= 0.25 && relIso < 1.);
 
 }
 

@@ -11,46 +11,28 @@ using namespace std;
 
 enum searchModes {kSignal, kElectronQCD, kMuonQCD, kNumSearchModes};
 
-enum photonCutModes {kSignalPhotons, kNoSigmaIetaIeta, kNoChargedHadronIso, kSuperFake, kNumPhotonModes};
+enum photonCutModes {kSignalPhotons, kFakePhotons, kNumPhotonModes};
 
-enum jetSystematicMode {kCentral, kJECup, kJECdown, kJERup, kJERdown, kNumJetSytematics};
+enum jetSystematicMode {kCentral, kJECup, kJECdown, kNumJetSytematics};
 
-const int nChannels = 10;
+const int nChannels = 4;
 
-TString channels[nChannels] = {"ele_jj", "muon_jj",
-			       "ele_bj", "muon_bj",
-			       "ele_jjj_veto", "muon_jjj_veto",
-			       "ele_jjj", "muon_jjj",
-			       "ele_bjj", "muon_bjj"};
+TString channels[nChannels] = {"ele_bjj", "muon_bjj",
+			       "ele_jjj_veto", "muon_jjj_veto"};
 
-unsigned int nJetReq[nChannels] = {2, 2,
-				   2, 2,
-				   3, 3,
-				   3, 3,
+unsigned int nJetReq[nChannels] = {3, 3,
 				   3, 3};
 
-unsigned int nBtagReq[nChannels] = {0, 0,
-				    1, 1,
-				    0, 0,
-				    0, 0, 
-				    1, 1};
+unsigned int nBtagReq[nChannels] = {1, 1,
+				    0, 0};
 
 bool nBtagInclusive[nChannels] = {true, true,
-				  true, true,
-				  false, false,
-				  true, true,
-				  true, true};
+				  false, false};
 
 int nEleReq[nChannels] = {1, 0,
-			  1, 0,
-			  1, 0,
-			  1, 0,
 			  1, 0};
 
 int nMuonReq[nChannels] = {0, 1,
-			   0, 1,
-			   0, 1,
-			   0, 1,
 			   0, 1};
 
 typedef std::vector<std::vector<TH1F*> > VTH1F;

@@ -11,17 +11,9 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     sigName = channels[channel]+"_signalTree";
     qcdName = qcdChannels[channel];
   }
-  else if(photonMode == kNoSigmaIetaIeta) {
-    sigName = channels[channel]+"_noSigmaIetaIetaTree";
-    qcdName = qcdChannels_noSigmaIetaIeta[channel];
-  }
-  else if(photonMode == kNoChargedHadronIso) {
-    sigName = channels[channel]+"_noChargedHadronIsoTree";
-    qcdName = qcdChannels_noChargedHadronIso[channel];
-  }
-  else if(photonMode == kSuperFake) {
-    sigName = channels[channel]+"_superFakeTree";
-    qcdName = qcdChannels_superFake[channel];
+  else if(photonMode == kFake) {
+    sigName = channels[channel]+"_fakeTree";
+    qcdName = qcdChannels_fakePhotons[channel];
   }
   else {
     cout << "Invalid photonMode!" << endl;
@@ -31,10 +23,10 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TTree * ggTree = (TTree*)in->Get(sigName);
   TTree * qcdTree = (TTree*)in->Get(qcdName);
 
-  TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v6/acceptance/signal_contamination_mst_460_m1_175.root", "READ");
+  TFile * fSigA = new TFile("/eos/uscms/store/user/bfrancis/inputs_v7/acceptance/signal_contamination_mst_460_m1_175.root", "READ");
   TTree * sigaTree = (TTree*)fSigA->Get(sigName);
 
-  TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v6/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
+  TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v7/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(sigName);
 
   HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, photonMode);
@@ -60,21 +52,21 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   bool reallyDoTopPt = true;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ttJetsHadronic.root", "ttJetsHadronic", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttJetsHadronic.root", "ttJetsHadronic", 
 					  ttbar_hadronic_xsec, ttbar_hadronic_xsec * 0.025, ttbar_hadronic_xsec * 0.034, ttbar_hadronic_xsec * 0.026, ttbar_hadronic_xsec * 0.026,
 					  true, reallyDoTopPt,
 					  ttjetsSF, ttjetsSFerror);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ttJetsSemiLep.root", "ttJetsSemiLep", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttJetsSemiLep.root", "ttJetsSemiLep", 
 					  ttbar_semiLep_xsec, ttbar_semiLep_xsec * 0.025, ttbar_semiLep_xsec * 0.034, ttbar_semiLep_xsec * 0.026, ttbar_semiLep_xsec * 0.026,
 					  true, reallyDoTopPt,
 					  ttjetsSF, ttjetsSFerror);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep", 
 					  ttbar_fullLep_xsec, ttbar_fullLep_xsec * 0.025, ttbar_fullLep_xsec * 0.034, ttbar_fullLep_xsec * 0.026, ttbar_fullLep_xsec * 0.026,
 					  true, reallyDoTopPt,
 					  ttjetsSF, ttjetsSFerror);
 
   /*
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_WJetsToLNu.root", "WJetsToLNu", 
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WJetsToLNu.root", "WJetsToLNu", 
     12234.4 * 3, 79.0, 39.7, 414.7, 414.7,
     false, false,
     wjetsSF, wjetsSFerror);
@@ -102,25 +94,25 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   double pdf_w3 = 414.7 * 640. / 37509.;
   double pdf_w4 = 414.7 * 264. / 37509.;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
 					  xsec_w1,
 					  scaleUp_w1, scaleDown_w1,
 					  pdf_w1, pdf_w1,
 					  false, false,
 					  wjetsSF, wjetsSFerror);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_W2JetsToLNu.root", "W2JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W2JetsToLNu.root", "W2JetsToLNu", 
 					  xsec_w2,
 					  scaleUp_w2, scaleDown_w2,
 					  pdf_w2, pdf_w2,
 					  false, false,
 					  wjetsSF, wjetsSFerror);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_W3JetsToLNu.root", "W3JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W3JetsToLNu.root", "W3JetsToLNu", 
 					  xsec_w3,
 					  scaleUp_w3, scaleDown_w3,
 					  pdf_w3, pdf_w3,
 					  false, false,
 					  wjetsSF, wjetsSFerror);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_W4JetsToLNu.root", "W4JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W4JetsToLNu.root", "W4JetsToLNu", 
 					  xsec_w4,
 					  scaleUp_w4, scaleDown_w4,
 					  pdf_w4, pdf_w4,
@@ -129,7 +121,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
 
   /*
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_dyJetsToLL.root", "dyJetsToLL", 
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dyJetsToLL.root", "dyJetsToLL", 
     1177.3 * 3, 5.9, 3.6, 38.8, 38.8,
     false, false);
   */
@@ -156,76 +148,83 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   double pdf_dy3 = 38.8 * 66.07 / 3503.71;
   double pdf_dy4 = 38.8 * 27.38 / 3503.71;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
 					  xsec_dy1,
 					  scaleUp_dy1, scaleDown_dy1,
 					  pdf_dy1, pdf_dy1,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
 					  xsec_dy2,
 					  scaleUp_dy2, scaleDown_dy2,
 					  pdf_dy2, pdf_dy2,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
 					  xsec_dy3,
 					  scaleUp_dy3, scaleDown_dy3,
 					  pdf_dy3, pdf_dy3,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
 					  xsec_dy4,
 					  scaleUp_dy4, scaleDown_dy4,
 					  pdf_dy4, pdf_dy4,
 					  false, false);
   
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_TBar_s.root", "TBar_s", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_s.root", "TBar_s", 
 					  1.76, 0.01, 0.01, 0.08, 0.08,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_TBar_t.root", "TBar_t", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_t.root", "TBar_t", 
 					  30.7, 0.7, 0.7, 0.9, 1.1,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_TBar_tW.root", "TBar_tW", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_tW.root", "TBar_tW", 
 					  11.1, 0.3, 0.3, 0.7, 0.7,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_T_s.root", "T_s", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_T_s.root", "T_s", 
 					  3.79, 0.07, 0.07, 0.13, 0.13,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_T_t.root", "T_t", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_T_t.root", "T_t", 
 					  56.4, 2.1, 0.3, 1.1, 1.1,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_T_tW.root", "T_tW", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_T_tW.root", "T_tW", 
 					  11.1, 0.3, 0.3, 0.7, 0.7,
 					  false, false);
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_WW.root", "WW",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WW.root", "WW",
 					  57.1097, 2.3, 2.3, 2.0, 2.0,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_WZ.root", "WZ",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WZ.root", "WZ",
 					  32.3161, 1.3, 1.3, 1.3, 1.3,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ZZ.root", "ZZ",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ZZ.root", "ZZ",
 					  8.25561, 0.3, 0.3, 0.3, 0.3,
 					  false, false);
   
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_TTWJets.root", "TTWJets", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WGToLNuG.root", "WGToLNuG",
+					  553.9, 0., 0., 0., 0.,
+					  false, false);
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ZGToLLG.root", "ZGToLLG",
+					  159.1, 0., 0., 0., 0.,
+					  false, false);
+
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TTWJets.root", "TTWJets", 
 					  0.232, 0.067, 0.067, 0.03, 0.03,
 					  false, false);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_TTZJets.root", "TTZJets", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TTZJets.root", "TTZJets", 
 					  0.2057, 0., 0., 0.019, 0.024,
 					  false, false);
 
   // http://arxiv.org/abs/1102.1967
-  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ttgjets.root", "ttgjets", 
+  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttgjets.root", "ttgjets", 
   //2.166, 2.166 * .25, 2.166 * .25, 2.166 * 0.076, 2.166 * 0.099,
   //false, true,
   //ttgammaSF, ttgammaSFerror);
 
   // https://twiki.cern.ch/twiki/bin/viewauth/CMS/WhizardMCTeeTeeGamma#2_to_5_All_ttbar_decay_channels
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ttA_2to5.root", "ttA_2to5", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttA_2to5.root", "ttA_2to5", 
 					  .9081 * 2, .9081 * .5, .9081 * .5, .9081 * 2 * 0.076, .9081 * 2 * 0.099, 
 					  false, reallyDoTopPt,
 					  ttgammaSF, ttgammaSFerror);
 
-  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v6/signal_contamination_ttGG.root", "ttGG", 0.146, channel, 6, kCyan+3, "t#bar{t} + #gamma#gamma");
+  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttGG.root", "ttGG", 0.146, channel, 6, kCyan+3, "t#bar{t} + #gamma#gamma");
 
   if(!loadSuccess) return;
 

@@ -59,64 +59,13 @@ float photonIso_corrected(susy::Photon gamma, float rho) {
   return iso;
 }
 
-bool passCutBasedPhotonID(susy::Photon gamma, float rho, int point) {
-
-  bool common = gamma.momentum.Et() > 25.0 && gamma.hadTowOverEm < 0.05 && gamma.passelectronveto;
-
-  float chIso = chargedHadronIso_corrected(gamma, rho);
-  float nIso = neutralHadronIso_corrected(gamma, rho) - 0.04*gamma.momentum.Pt();
-  float pIso = photonIso_corrected(gamma, rho) - 0.005*gamma.momentum.Pt();
-
-  float pho_eta = fabs(gamma.caloPosition.Eta());
-
-  if(point == 0) {
-    if(pho_eta < 1.4442) return common && 
-			   gamma.sigmaIetaIeta < 0.012 &&
-			   chIso < 2.6 &&
-			   nIso < 3.5 &&
-			   pIso < 1.3;
-    else if(pho_eta > 1.566 && pho_eta < 2.5) return common &&
-						gamma.sigmaIetaIeta < 0.034 &&
-						chIso < 2.3 &&
-						nIso < 2.9;
-  }
-
-  else if(point == 1) {
-    if(pho_eta < 1.4442) return common && 
-			   gamma.sigmaIetaIeta < 0.011 &&
-			   chIso < 1.5 &&
-			   nIso < 1.0 &&
-			   pIso < 0.7;
-    else if(pho_eta > 1.566 && pho_eta < 2.5) return common &&
-						gamma.sigmaIetaIeta < 0.033 &&
-						chIso < 1.2 &&
-						nIso < 1.5 &&
-						pIso < 1.0;
-  }
-
-  else if(point == 2) {
-    if(pho_eta < 1.4442) return common && 
-			   gamma.sigmaIetaIeta < 0.011 &&
-			   chIso < 0.7 &&
-			   nIso < 0.4 &&
-			   pIso < 0.5;
-    else if(pho_eta > 1.566 && pho_eta < 2.5) return common &&
-						gamma.sigmaIetaIeta < 0.031 &&
-						chIso < 0.5 &&
-						nIso < 1.5 &&
-						pIso < 1.0;
-  }
-
-  return false;
-
-}
-
 bool is_loosePhoton(susy::Photon gamma, float rho) {
 
   if(fabs(gamma.caloPosition.Eta()) < 1.4442 &&
      gamma.momentum.Et() > 20.0 &&
      gamma.hadTowOverEm < 0.05 &&
      gamma.passelectronveto &&
+     gamma.nPixelSeeds == 0 &&
      neutralHadronIso_corrected(gamma, rho) < 3.5 + 0.04*gamma.momentum.Pt() &&
      photonIso_corrected(gamma, rho) < 1.3 + 0.005*gamma.momentum.Pt() &&
      chargedHadronIso_corrected(gamma, rho) < 2.6 &&
@@ -132,56 +81,20 @@ bool is_loosePhoton(susy::Photon gamma, float rho) {
   return false;
 }
 
-bool is_loosePhoton_noSigmaIetaIeta(susy::Photon gamma, float rho) {
+bool is_fakePhoton(susy::Photon gamma, float rho) {
 
   if(fabs(gamma.caloPosition.Eta()) < 1.4442 &&
      gamma.momentum.Et() > 20.0 &&
      gamma.hadTowOverEm < 0.05 &&
      gamma.passelectronveto &&
+     gamma.nPixelSeeds == 0 &&
      neutralHadronIso_corrected(gamma, rho) < 3.5 + 0.04*gamma.momentum.Pt() &&
      photonIso_corrected(gamma, rho) < 1.3 + 0.005*gamma.momentum.Pt() &&
-     chargedHadronIso_corrected(gamma, rho) < 2.6 &&
      gamma.r9 < 1.0 &&
      gamma.sigmaIetaIeta > 0.001 &&
-     gamma.sigmaIphiIphi > 0.001) {
-    
-    return true;
+     gamma.sigmaIphiIphi > 0.001 &&
+     (gamma.sigmaIetaIeta >= 0.012 || chargedHadronIso_corrected(gamma, rho) >= 2.6)) {
 
-  }
-  
-  return false;
-}
-
-bool is_loosePhoton_noChargedHadronIso(susy::Photon gamma, float rho) {
-
-  if(fabs(gamma.caloPosition.Eta()) < 1.4442 &&
-     gamma.momentum.Et() > 20.0 &&
-     gamma.hadTowOverEm < 0.05 &&
-     gamma.passelectronveto &&
-     neutralHadronIso_corrected(gamma, rho) < 3.5 + 0.04*gamma.momentum.Pt() &&
-     photonIso_corrected(gamma, rho) < 1.3 + 0.005*gamma.momentum.Pt() &&
-     gamma.sigmaIetaIeta < 0.012 &&
-     gamma.r9 < 1.0 &&
-     gamma.sigmaIetaIeta > 0.001 &&
-     gamma.sigmaIphiIphi > 0.001) {
-    
-    return true;
-
-  }
-  
-  return false;
-}
-
-bool is_loosePhoton_superFake(susy::Photon gamma, float rho) {
-
-  if(fabs(gamma.caloPosition.Eta()) < 1.4442 &&
-     gamma.momentum.Et() > 20.0 &&
-     gamma.hadTowOverEm < 0.05 &&
-     gamma.passelectronveto &&
-     gamma.r9 < 1.0 &&
-     gamma.sigmaIetaIeta > 0.001 &&
-     gamma.sigmaIphiIphi > 0.001) {
-    
     return true;
 
   }

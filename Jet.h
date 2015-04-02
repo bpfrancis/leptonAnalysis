@@ -8,8 +8,7 @@ bool isGoodJet(susy::PFJet jet, TLorentzVector corrP4) {
 
     if((jet.neutralHadronEnergy/jet.momentum.Energy() < 0.99) &&
        (jet.neutralEmEnergy/jet.momentum.Energy() < 0.99) &&
-       ((unsigned int)jet.nConstituents > 1) &&
-       jet.passPuJetIdTight(susy::kPUJetIdFull)) {
+       ((unsigned int)jet.nConstituents > 1)) {
 
       if(fabs(corrP4.Eta()) < 2.4) {
 	if((jet.chargedHadronEnergy > 0.0) &&
@@ -86,7 +85,7 @@ bool JetsOverlapsPhoton(TLorentzVector corrP4, vector<susy::Photon*> photons) {
   bool same_photon = false;
 
   for(unsigned int i = 0; i < photons.size(); i++) {
-    if(deltaR_jetPhoton(corrP4, photons[i]->caloPosition) < 0.5) {
+    if(deltaR_jetPhoton(corrP4, photons[i]->caloPosition) < 0.7) {
       same_photon = true;
       break;
     }

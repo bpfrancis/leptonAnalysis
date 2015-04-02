@@ -52,7 +52,8 @@ then
 	mv btagEfficiency_DATASETNAME.root $WORK_DIR/btagEfficiency_DATASETNAME_$JOB_NUMBER.root
 elif [ "$STAGING" == "acceptance" ];
 then
-	mv signal_contamination_DATASETNAME.root $WORK_DIR/signal_contamination_DATASETNAME_$JOB_NUMBER.root
+	#mv signal_contamination_DATASETNAME.root $WORK_DIR/signal_contamination_DATASETNAME_$JOB_NUMBER.root
+	mv signal_contamination_DATASETNAME.root /eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_DATASETNAME_$JOB_NUMBER.root
 else
 	mv *.root $WORK_DIR
 fi

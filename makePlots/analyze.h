@@ -41,21 +41,16 @@ using namespace RooFit;
 
 const TString gifOrPdf = ".pdf";
 
-const int nChannels = 4;
-TString channels[nChannels] = {"ele_jjj", "ele_bjj",
-			       "muon_jjj", "muon_bjj"};
+const int nChannels = 2;
+TString channels[nChannels] = {"ele_bjj", "muon_bjj"};
 
-TString channelLabels[nChannels] = {"e + XYZ #gamma", "e + XYZ #gamma",
-				    "#mu + XYZ #gamma", "#mu + XYZ #gamma"};
+TString channelLabels[nChannels] = {"e + XYZ #gamma", "#mu + XYZ #gamma"};
 
-TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "ele_jjj_veto_eQCDTree",
-				  "muon_jjj_muQCDTree", "muon_jjj_veto_muQCDTree"};
+TString qcdChannels[nChannels] = {"ele_jjj_eQCDTree", "muon_jjj_veto_muQCDTree"};
 
-TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "ele_jjj_veto_eQCDnoSigmaIetaIetaTree",
-						  "muon_jjj_muQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
+TString qcdChannels_noSigmaIetaIeta[nChannels] = {"ele_jjj_eQCDnoSigmaIetaIetaTree", "muon_jjj_veto_muQCDnoSigmaIetaIetaTree"};
 
-TString qcdChannels_noChHadIso[nChannels] = {"ele_jjj_eQCDnoChHadIsoTree", "ele_jjj_veto_eQCDnoChHadIsoTree",
-					     "muon_jjj_muQCDnoChHadIsoTree", "muon_jjj_veto_muQCDnoChHadIsoTree"};
+TString qcdChannels_noChHadIso[nChannels] = {"ele_jjj_eQCDnoChHadIsoTree", "muon_jjj_veto_muQCDnoChHadIsoTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kNumControlRegions};
 

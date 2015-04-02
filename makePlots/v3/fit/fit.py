@@ -119,7 +119,7 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
 
     (QCDSF, QCDSFerror, MCSF, MCSFerror) = doQCDFit(channel, controlRegion, systematic, 0.0, 300.0)
 
-    input = '../histograms_'+channel+'_'+controlRegion+'.root'
+    input = 'histograms_'+channel+'_'+controlRegion+'.root'
 
     dataHist = get1DHist(input, 'm3_gg_'+channel)
 
@@ -153,6 +153,8 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
     bkgHist.Add(get1DHist(input, 'm3_TTWJets_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'm3_TTZJets_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'm3_ttA_2to5_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_ZGToLLG_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_WGToLNuG_'+channel+systematic))
     ScaleWithError(bkgHist, MCSF, MCSFerror)
 
     dataHist.Add(qcdHist, -1.0)
