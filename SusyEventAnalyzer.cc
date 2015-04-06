@@ -652,8 +652,8 @@ void SusyEventAnalyzer::Acceptance() {
 
   TH1D * h_nEvents = new TH1D("nEvents"+output_code_t, "nEvents"+output_code_t, 1, 0, 1);
 
-  TH2D * h_whizard_phaseSpace = new TH2D("whizard_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
-  TH2D * h_madgraph_phaseSpace = new TH2D("madgraph_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
+  TH2D * h_whizard_phaseSpace = new TH2D("whizard_phaseSpace"+output_code_t, "whizard_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
+  TH2D * h_madgraph_phaseSpace = new TH2D("madgraph_phaseSpace"+output_code_t, "madgraph_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
 
   const int nTreeVariables = 132;
 
@@ -831,8 +831,8 @@ void SusyEventAnalyzer::Acceptance() {
     int nPVertex = GetNumberPV(event);
     if(nPVertex == 0) continue;
     
-    fill_whizard_phaseSpace(event, h_whizard_phaseSpace);
-    fill_madgraph_phaseSpace(event, h_madgraph_phaseSpace);
+    fill_whizard_phaseSpace(h_whizard_phaseSpace);
+    fill_madgraph_phaseSpace(h_madgraph_phaseSpace);
 
     for(int qcdMode = kSignal; qcdMode < kNumSearchModes; qcdMode++) {
       for(int jetSyst = kCentral; jetSyst < kNumJetSytematics; jetSyst++) {
