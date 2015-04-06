@@ -1186,8 +1186,8 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["metFilterBit"] = event.metFilterBit;
   if(isMC && scan == "stop-bino") treeMap["ttbarDecayMode"] = FigureTTbarDecayMode();
   if(isMC) {
-    treeMap["overlaps_whizard"] = overlaps_whizard(event);
-    treeMap["overlaps_madgraph"] = overlaps_madgraph(event);
+    treeMap["overlaps_whizard"] = overlaps_whizard();
+    treeMap["overlaps_madgraph"] = overlaps_madgraph();
     treeMap["TopPtReweighting"] = TopPtReweighting(event);
     treeMap["TopPtReweighting_ttHbb"] = TopPtReweighting_ttHbb(event);
   }
@@ -1279,13 +1279,13 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       treeMap["dR_leadPhoton_l"] = deltaR(tightEles[0]->momentum, photons[0]->momentum);
       treeMap["dEta_leadPhoton_l"] = fabs(tightEles[0]->momentum.Eta() - photons[0]->momentum.Eta());
       treeMap["dPhi_leadPhoton_l"] = TVector2::Phi_mpi_pi(tightEles[0]->momentum.Phi() - photons[0]->momentum.Phi());
-      treeMap["cosTheta_leadPhoton_l"] = TMath::Cos(tightEles[0]->momentum.Angle(photons[0]->momentum));
+      treeMap["cosTheta_leadPhoton_l"] = TMath::Cos(tightEles[0]->momentum.Angle(photons[0]->momentum.Vect()));
     }
     else if(tightMuons.size() == 1) {
       treeMap["dR_leadPhoton_l"] = deltaR(tightMuons[0]->momentum, photons[0]->momentum);
       treeMap["dEta_leadPhoton_l"] = fabs(tightMuons[0]->momentum.Eta() - photons[0]->momentum.Eta());
       treeMap["dPhi_leadPhoton_l"] = TVector2::Phi_mpi_pi(tightMuons[0]->momentum.Phi() - photons[0]->momentum.Phi());
-      treeMap["cosTheta_leadPhoton_l"] = TMath::Cos(tightMuons[0]->momentum.Angle(photons[0]->momentum));
+      treeMap["cosTheta_leadPhoton_l"] = TMath::Cos(tightMuons[0]->momentum.Angle(photons[0]->momentum.Vect()));
     }
 
     if(btags_corrP4.size() > 0) {
@@ -1298,7 +1298,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       treeMap["dR_leadPhoton_b_min"] = min_b_angle;
       treeMap["dEta_leadPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[0]->momentum.Eta());
       treeMap["dPhi_leadPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[0]->momentum.Phi());
-      treeMap["cosTheta_leadPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[0]->momentum));
+      treeMap["cosTheta_leadPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[0]->momentum.Vect()));
     }
     else {
       treeMap["dR_leadPhoton_b_min"] = -2.;
@@ -1324,13 +1324,13 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       treeMap["dR_trailPhoton_l"] = deltaR(tightEles[0]->momentum, photons[1]->momentum);
       treeMap["dEta_trailPhoton_l"] = fabs(tightEles[0]->momentum.Eta() - photons[1]->momentum.Eta());
       treeMap["dPhi_trailPhoton_l"] = TVector2::Phi_mpi_pi(tightEles[0]->momentum.Phi() - photons[1]->momentum.Phi());
-      treeMap["cosTheta_trailPhoton_l"] = TMath::Cos(tightEles[0]->momentum.Angle(photons[1]->momentum));
+      treeMap["cosTheta_trailPhoton_l"] = TMath::Cos(tightEles[0]->momentum.Angle(photons[1]->momentum.Vect()));
     }
     else if(tightMuons.size() == 1) {
       treeMap["dR_trailPhoton_l"] = deltaR(tightMuons[0]->momentum, photons[1]->momentum);
       treeMap["dEta_trailPhoton_l"] = fabs(tightMuons[0]->momentum.Eta() - photons[1]->momentum.Eta());
       treeMap["dPhi_trailPhoton_l"] = TVector2::Phi_mpi_pi(tightMuons[0]->momentum.Phi() - photons[1]->momentum.Phi());
-      treeMap["cosTheta_trailPhoton_l"] = TMath::Cos(tightMuons[0]->momentum.Angle(photons[1]->momentum));
+      treeMap["cosTheta_trailPhoton_l"] = TMath::Cos(tightMuons[0]->momentum.Angle(photons[1]->momentum.Vect()));
     }
 
     if(btags_corrP4.size() > 0) {
@@ -1343,7 +1343,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       treeMap["dR_trailPhoton_b_min"] = min_b_angle;
       treeMap["dEta_trailPhoton_b_min"] = fabs(btags_corrP4[min_b_index].Eta() - photons[1]->momentum.Eta());
       treeMap["dPhi_trailPhoton_b_min"] = TVector2::Phi_mpi_pi(btags_corrP4[min_b_index].Phi() - photons[1]->momentum.Phi());
-      treeMap["cosTheta_trailPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[1]->momentum));
+      treeMap["cosTheta_trailPhoton_b_min"] = TMath::Cos(btags_corrP4[min_b_index].Angle(photons[1]->momentum.Vect()));
     }
     else {
       treeMap["dR_trailPhoton_b_min"] = -2.;
