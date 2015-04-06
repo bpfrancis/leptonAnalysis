@@ -12,7 +12,7 @@ using namespace std;
 // These are calculated from a ScaleFactorInfo object for each jet
 class BtagInfo {
  public:
-  BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo, TString DataPeriod, double fractionAB, double fractionC, double fractionD);
+  BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo, TString DataPeriod);
   virtual ~BtagInfo() {};
 
   bool isTagged() { return (discr > discr_cut); };
@@ -64,7 +64,7 @@ class BtagInfo {
 
 };
   
-BtagInfo::BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo, TString DataPeriod, double fractionAB, double fractionC, double fractionD) {
+BtagInfo::BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo, TString DataPeriod) {
 
   isMC = iIsMC;
   isFastSim = iIsFastSim;

@@ -166,7 +166,7 @@ class SusyEventAnalyzer {
      
   bool GetDiJetPt(susy::Event& ev, vector<susy::Photon*> candidates, float& diJetPt, float& leadpt, float& trailpt);
   bool PhotonMatchesElectron(susy::Event& ev, vector<susy::Photon*> candidates, int& bothMatchCounter);
-  int FigureTTbarDecayMode(susy::Event& ev);
+  int FigureTTbarDecayMode();
 
   double TopPtReweighting(susy::Event& ev);
   double TopPtReweighting_ttHbb(susy::Event& ev);
@@ -751,8 +751,7 @@ void SusyEventAnalyzer::findElectrons(susy::Event& ev, vector<susy::Muon*> tight
       bool passesLoose = isLooseElectron(*ele_it,
 					 event.superClusters, 
 					 event.rho25, 
-					 d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
-					 dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
+					 d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
 
       if(mode != kElectronQCD) {
 	if(passesTight && isIsolatedElectron(*ele_it, event.superClusters, event.rho25) && ele_it->mvaTrig > 0.5) {
@@ -878,7 +877,7 @@ bool SusyEventAnalyzer::PhotonMatchesElectron(susy::Event& ev, vector<susy::Phot
   return (matchesLead || matchesTrail);
 }
 
-int SusyEventAnalyzer::FigureTTbarDecayMode(susy::Event& ev) {
+int SusyEventAnalyzer::FigureTTbarDecayMode() {
 
   int decayMode = -1;
 
@@ -1027,7 +1026,7 @@ void SusyEventAnalyzer::fill_whizard_phaseSpace(susy::Event& ev, TH2D*& h) {
 
     for(unsigned int j = 0; j < legs.size(); j++) {
       dr = deltaR(photons[i]->momentum, legs[i]->momentum);
-      if(dr < minDR) minDR < dr;
+      if(dr < minDR) minDR = dr;
     }
 
     h->Fill(photons[i]->momentum.Pt(), minDR);
@@ -1361,7 +1360,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 
       bool foundMatch = false;
 
-      for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+      for(vector<susy::Particle>::iterator it = event_.genParticles.begin(); it != event_.genParticles.end(); it++) {
 
 	bool et_eta_match = deltaR(it->momentum, photons[0]->caloPosition) < 0.2 &&
 	  (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
@@ -1377,7 +1376,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1415,7 +1414,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1462,7 +1461,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       
       bool foundMatch = false;
 
-      for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+      for(vector<susy::Particle>::iterator it = event_.genParticles.begin(); it != event_.genParticles.end(); it++) {
 
 	bool et_eta_match = deltaR(it->momentum, photons[1]->caloPosition) < 0.2 &&
 	  (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
@@ -1478,7 +1477,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1516,7 +1515,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1664,13 +1663,13 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     for(int i = 0; i < comb; i++) {
 
       int npicked = 0; 
-      for(int j = 0; j < pfJets_corrP4.size(); j++) { 
-	if(((i >> j) & 0x1) == 1) npicked++; 
+      for(unsigned int j = 0; j < pfJets_corrP4.size(); j++) { 
+	if(((i >> j) & 0x1) == 1) npicked++;
       } 
 
       if(npicked == 3) {
 	TLorentzVector thisCombination(0., 0., 0., 0.);
-	for(int j = 0; j < pfJets_corrP4.size(); j++) {
+	for(unsigned int j = 0; j < pfJets_corrP4.size(); j++) {
 	  if(((i >> j ) & 0x1) == 1) thisCombination += pfJets_corrP4[j];
 	}
 	if(thisCombination.Pt() > maxSumPt) {
@@ -1682,7 +1681,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     }
     
     TLorentzVector maxCombination(0., 0., 0., 0.);
-    for(int i = 0; i < pfJets_corrP4.size(); i++) {
+    for(unsigned int i = 0; i < pfJets_corrP4.size(); i++) {
       if(((max_pos >> i) & 0x1) == 1) maxCombination += pfJets_corrP4[i];
     }
     
@@ -1699,13 +1698,13 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     for(int i = 0; i < comb; i++) {
 
       int npicked = 0; 
-      for(int j = 0; j < pfJets.size(); j++) { 
+      for(unsigned int j = 0; j < pfJets.size(); j++) { 
 	if(((i >> j) & 0x1) == 1) npicked++; 
       } 
 
       if(npicked == 3) {
 	TLorentzVector thisCombination(0., 0., 0., 0.);
-	for(int j = 0; j < pfJets.size(); j++) {
+	for(unsigned int j = 0; j < pfJets.size(); j++) {
 	  if(((i >> j ) & 0x1) == 1) thisCombination += pfJets[j]->momentum;
 	}
 	if(thisCombination.Pt() > maxSumPt) {
@@ -1717,7 +1716,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     }
     
     TLorentzVector maxCombination(0., 0., 0., 0.);
-    for(int i = 0; i < pfJets.size(); i++) {
+    for(unsigned int i = 0; i < pfJets.size(); i++) {
       if(((max_pos >> i) & 0x1) == 1) maxCombination += pfJets[i]->momentum;
     }
     

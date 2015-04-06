@@ -20,10 +20,10 @@ class ScaleFactorInfo {
   Float_t GetSFcharm(Float_t pt) { return GetSFbottom(pt); }; // SFc = SFb with twice the quoted uncertainty
 
   // SFlightMin and SFlightMax correspond to SFlight +- (stat+syst error)
-  Float_t GetSFlight(TString meanminmax, Float_t eta, TString DataPeriod, Float_t pt);
-  Float_t GetSFlightMin(Float_t eta, TString DataPeriod, Float_t pt)  { return GetSFlight("min", eta, DataPeriod, pt); };
-  Float_t GetSFlightMean(Float_t eta, TString DataPeriod, Float_t pt) { return GetSFlight("mean", eta, DataPeriod, pt); };
-  Float_t GetSFlightMax(Float_t eta, TString DataPeriod, Float_t pt)  { return GetSFlight("max", eta, DataPeriod, pt); };
+  Float_t GetSFlight(TString meanminmax, Float_t eta, Float_t pt);
+  Float_t GetSFlightMin(Float_t eta, Float_t pt)  { return GetSFlight("min", eta, pt); };
+  Float_t GetSFlightMean(Float_t eta, Float_t pt) { return GetSFlight("mean", eta, pt); };
+  Float_t GetSFlightMax(Float_t eta, Float_t pt)  { return GetSFlight("max", eta, pt); };
   
   // Tagging efficiencies. MC reweighting requires knowledge of all tagging efficiencies for that sample beforehand
   void SetTaggingEfficiencies(TH1F * eff_light, TH1F * eff_charm, TH1F * eff_bottom) {
@@ -390,7 +390,7 @@ Float_t ScaleFactorInfo::GetSFbottom(Float_t pt) {
   return 0.;
 }
 
-Float_t ScaleFactorInfo::GetSFlight(TString meanminmax, Float_t eta, TString DataPeriod, Float_t pt) {
+Float_t ScaleFactorInfo::GetSFlight(TString meanminmax, Float_t eta, Float_t pt) {
   
   Float_t eta_ = fabs(eta);
   Float_t x = pt;

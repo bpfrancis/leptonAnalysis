@@ -3,7 +3,7 @@
 
 #include "../src/SusyEvent.h"
 
-bool isLooseElectron(susy::Electron ele, vector<susy::SuperCluster> superClusters, double rho, double d0, double dz) {
+bool isLooseElectron(susy::Electron ele, vector<susy::SuperCluster> superClusters, double rho, double d0) {
 
   if((int)ele.superClusterIndex >= (int)superClusters.size() || (int)ele.superClusterIndex < 0) return false;
   float ele_eta = fabs(superClusters[ele.superClusterIndex].position.Eta());

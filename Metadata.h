@@ -33,13 +33,13 @@ bool nBtagInclusive[nChannels] = {true, true,
 				  false, false,
 				  true, true};
 
-int nEleReq[nChannels] = {1, 0,
-			  1, 0,
-			  1, 0};
+unsigned int nEleReq[nChannels] = {1, 0,
+				   1, 0,
+				   1, 0};
 
-int nMuonReq[nChannels] = {0, 1,
-			   0, 1,
-			   0, 1};
+unsigned int nMuonReq[nChannels] = {0, 1,
+				    0, 1,
+				    0, 1};
 
 typedef std::vector<std::vector<TH1F*> > VTH1F;
 typedef std::vector<std::vector<TH2F*> > VTH2F;

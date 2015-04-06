@@ -555,7 +555,7 @@ void SusyEventAnalyzer::Data() {
 	
 	////////////////////
 	
-	for(unsigned int chan = 0; chan < nChannels; chan++) {
+	for(int chan = 0; chan < nChannels; chan++) {
 	  
 	  if(pfJets.size() < nJetReq[chan]) continue;
 	  if((nBtagInclusive[chan] && btags.size() < nBtagReq[chan]) || (!nBtagInclusive[chan] && btags.size() != nBtagReq[chan])) continue;
@@ -927,7 +927,7 @@ void SusyEventAnalyzer::Acceptance() {
 	  
 	  ////////////////////
 	  
-	  for(unsigned int chan = 0; chan < nChannels; chan++) {
+	  for(int chan = 0; chan < nChannels; chan++) {
 	    
 	    if(pfJets.size() < nJetReq[chan]) continue;
 	    if((nBtagInclusive[chan] && btags.size() < nBtagReq[chan]) || (!nBtagInclusive[chan] && btags.size() != nBtagReq[chan])) continue;
