@@ -1242,7 +1242,9 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["pfMVAMET"]    = pfMVAMet->met();
   if(isMC) treeMap["genMET"]      = genMet->met();
 
-  float mLepGammaLead, mLepGammaTrail, mLepGammaGamma;
+  float mLepGammaLead = -1.;
+  float mLepGammaTrail = -1.;
+  float mLepGammaGamma = -1.;
   if(photons.size() > 0) {
     if(tightEles.size() == 1) mLepGammaLead = (tightEles[0]->momentum + photons[0]->momentum).M();
     else if(tightMuons.size() == 1) mLepGammaLead = (tightMuons[0]->momentum + photons[0]->momentum).M();
@@ -1570,7 +1572,8 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   float metphi_mvamet = (pfMVAMet->mEt - sysShiftCorr).Phi();
   float metphi_genmet = (isMC) ? (genMet->mEt - sysShiftCorr).Phi() : -100.;
 
-  float leptonphi, leptonpt;
+  float leptonphi = -100.;
+  float leptonpt = -1.;
   if(tightEles.size() == 1) {
     leptonphi = tightEles[0]->momentum.Phi();
     leptonpt = tightEles[0]->momentum.Pt();
@@ -1783,8 +1786,8 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["photon_invmass"] = (photons.size() > 1) ? (photons[0]->momentum + photons[1]->momentum).M() : -10.;
   
   float diJetPt, lead_matched_jetpt, trail_matched_jetpt;
-  //bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
-  treeMap["diJetPt"] = diJetPt;
+  bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
+  treeMap["diJetPt"] = matchingWorked ? diJetPt : -1.;
   
   float dEta = (photons.size() > 1) ? photons[0]->caloPosition.Eta() - photons[1]->caloPosition.Eta() : -100;
   float photon_dPhi = (photons.size() > 1) ? TVector2::Phi_mpi_pi(photons[0]->caloPosition.Phi() - photons[1]->caloPosition.Phi()) : -100;
