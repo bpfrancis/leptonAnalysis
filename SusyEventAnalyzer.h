@@ -177,7 +177,6 @@ class SusyEventAnalyzer {
   bool overlaps_madgraph(susy::Event& ev);
   
   void SetTreeValues(map<TString, float>& treeMap,
-		     susy::Event& event_,
 		     vector<susy::Muon*> tightMuons, vector<susy::Electron*> tightEles, 
 		     vector<susy::PFJet*> pfJets, vector<susy::PFJet*> btags,
 		     vector<susy::Photon*> photons,
@@ -557,7 +556,7 @@ void SusyEventAnalyzer::findJets(susy::Event& ev,
 	
       if(fabs(corrP4.Eta()) < 2.4) {
 	if(isMC) {
-	  BtagInfo info((*it), corrP4, btagger, 1., isMC, isFastSim, sf, btagTechnicalStop, (15906. + 77789.) / 328124., 117192. / 328124., 117237. / 328124.);
+	  BtagInfo info((*it), corrP4, btagger, 1., isMC, isFastSim, sf);
 	  tagInfos.push_back(info);
 	}
 
@@ -621,7 +620,7 @@ void SusyEventAnalyzer::findJets_inMC(susy::Event& ev,
 	
       if(fabs(corrP4.Eta()) < 2.4) {
 	if(isMC) {
-	  BtagInfo info((*it), corrP4, btagger, 1., isMC, isFastSim, sf, btagTechnicalStop, (15906. + 77789.) / 328124., 117192. / 328124., 117237. / 328124.);
+	  BtagInfo info((*it), corrP4, btagger, 1., isMC, isFastSim, sf);
 	  tagInfos.push_back(info);
 	}
 
@@ -1160,7 +1159,6 @@ bool SusyEventAnalyzer::overlaps_madgraph(susy::Event& ev) {
 }
   
 void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
-				      susy::Event& event_,
 				      vector<susy::Muon*> tightMuons, vector<susy::Electron*> tightEles, 
 				      vector<susy::PFJet*> pfJets, vector<susy::PFJet*> btags,
 				      vector<susy::Photon*> photons,
@@ -1175,21 +1173,21 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["Nmuons"] = tightMuons.size();
   treeMap["Nelectrons"] = tightEles.size();
   treeMap["nPV"] = nPVertex;
-  treeMap["metFilterBit"] = event_.metFilterBit;
-  if(isMC && scan == "stop-bino") treeMap["ttbarDecayMode"] = FigureTTbarDecayMode(event_);
+  treeMap["metFilterBit"] = event.metFilterBit;
+  if(isMC && scan == "stop-bino") treeMap["ttbarDecayMode"] = FigureTTbarDecayMode();
   if(isMC) {
-    treeMap["overlaps_whizard"] = overlaps_whizard(event_);
-    treeMap["overlaps_madgraph"] = overlaps_madgraph(event_);
-    treeMap["TopPtReweighting"] = TopPtReweighting(event_);
-    treeMap["TopPtReweighting_ttHbb"] = TopPtReweighting_ttHbb(event_);
+    treeMap["overlaps_whizard"] = overlaps_whizard(event);
+    treeMap["overlaps_madgraph"] = overlaps_madgraph(event);
+    treeMap["TopPtReweighting"] = TopPtReweighting(event);
+    treeMap["TopPtReweighting_ttHbb"] = TopPtReweighting_ttHbb(event);
   }
   treeMap["Nphotons"] = photons.size();
 
   int nGamma = 0;
   int nFake = 0;
   for(unsigned int i = 0; i < photons.size(); i++) {
-    if(is_loosePhoton(*photons[i], event_.rho25)) nGamma++;
-    if(is_fakePhoton(*photons[i], event_.rho25)) nFake++;
+    if(is_loosePhoton(*photons[i], event.rho25)) nGamma++;
+    if(is_fakePhoton(*photons[i], event.rho25)) nFake++;
   }
   treeMap["Ngamma"] = nGamma;
   treeMap["Nfake"] = nFake;
@@ -1217,14 +1215,14 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   if(isMC) treeMap["pileupWeightUp"] = eventWeight_up;
   if(isMC) treeMap["pileupWeightDown"] = eventWeight_down;
         
-  susy::MET* pfMet         = &(event_.metMap.find("pfMet")->second);
-  susy::MET* pfMetType1    = &(event_.metMap.find("pfType1CorrectedMet")->second);
-  susy::MET* pfMetType1p2  = &(event_.metMap.find("pfType1p2CorrectedMet")->second);
-  susy::MET* pfMetType01   = &(event_.metMap.find("pfType01CorrectedMet")->second);
-  susy::MET* pfMetType01p2 = &(event_.metMap.find("pfType01p2CorrectedMet")->second);
-  susy::MET* pfNoPileUpMet = &(event_.metMap.find("pfNoPileUpMet")->second);
-  susy::MET* pfMVAMet      = &(event_.metMap.find("pfMVAMet")->second);
-  susy::MET* genMet        = &(event_.metMap.find("genMetTrue")->second);
+  susy::MET* pfMet         = &(event.metMap.find("pfMet")->second);
+  susy::MET* pfMetType1    = &(event.metMap.find("pfType1CorrectedMet")->second);
+  susy::MET* pfMetType1p2  = &(event.metMap.find("pfType1p2CorrectedMet")->second);
+  susy::MET* pfMetType01   = &(event.metMap.find("pfType01CorrectedMet")->second);
+  susy::MET* pfMetType01p2 = &(event.metMap.find("pfType01p2CorrectedMet")->second);
+  susy::MET* pfNoPileUpMet = &(event.metMap.find("pfNoPileUpMet")->second);
+  susy::MET* pfMVAMet      = &(event.metMap.find("pfMVAMet")->second);
+  susy::MET* genMet        = &(event.metMap.find("genMetTrue")->second);
   
   treeMap["pfMET"]     = pfMet->met();
   treeMap["pfMET_x"]   = pfMet->metX();
@@ -1360,7 +1358,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 
       bool foundMatch = false;
 
-      for(vector<susy::Particle>::iterator it = event_.genParticles.begin(); it != event_.genParticles.end(); it++) {
+      for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
 
 	bool et_eta_match = deltaR(it->momentum, photons[0]->caloPosition) < 0.2 &&
 	  (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
@@ -1376,7 +1374,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1414,7 +1412,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1461,7 +1459,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
       
       bool foundMatch = false;
 
-      for(vector<susy::Particle>::iterator it = event_.genParticles.begin(); it != event_.genParticles.end(); it++) {
+      for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
 
 	bool et_eta_match = deltaR(it->momentum, photons[1]->caloPosition) < 0.2 &&
 	  (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
@@ -1477,7 +1475,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1515,7 +1513,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
 	  double minDR = 999.0;
 	  double dR;
 
-	  for(vector<susy::Particle>::iterator oit = event_.genParticles.begin(); oit != event_.genParticles.end(); oit++) {
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
 
 	    if(oit == it) continue;
 	    if(oit->momentum.M() > 10) continue;
@@ -1730,7 +1728,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["ele_mvaTrigV0"] = (tightEles.size() > 0) ? tightEles[0]->mvaTrig : -100.;
 
   if(tightEles.size() > 0) {
-    float ele_eta = fabs(event_.superClusters[tightEles[0]->superClusterIndex].position.Eta());
+    float ele_eta = fabs(event.superClusters[tightEles[0]->superClusterIndex].position.Eta());
     float ea;
     if(ele_eta < 1.0) ea = 0.13;
     else if(ele_eta < 1.479) ea = 0.14;
@@ -1740,7 +1738,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     else if(ele_eta < 2.4) ea = 0.11;
     else ea = 0.14;
       
-    float ele_iso = max(0., (double)(tightEles[0]->photonIso + tightEles[0]->neutralHadronIso - event_.rho25*ea));
+    float ele_iso = max(0., (double)(tightEles[0]->photonIso + tightEles[0]->neutralHadronIso - event.rho25*ea));
     ele_iso += tightEles[0]->chargedHadronIso;
     
     treeMap["ele_relIso"] = ele_iso / tightEles[0]->momentum.Pt();
@@ -1762,9 +1760,9 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["leadPhotonEt"] = (photons.size() > 0) ? photons[0]->momentum.Et() : -1.;
   treeMap["leadPhotonEta"] = (photons.size() > 0) ? photons[0]->caloPosition.Eta() : -100.;
   treeMap["leadPhotonPhi"] = (photons.size() > 0) ? photons[0]->caloPosition.Phi() : -100.;
-  treeMap["leadChargedHadronIso"] = (photons.size() > 0) ? chargedHadronIso_corrected(*photons[0], event_.rho25) : -100.;
-  treeMap["leadNeutralHadronIso"] = (photons.size() > 0) ? neutralHadronIso_corrected(*photons[0], event_.rho25) - 0.04*(photons[0]->momentum.Pt()) : -100.;
-  treeMap["leadPhotonIso"] = (photons.size() > 0) ? photonIso_corrected(*photons[0], event_.rho25) - 0.005*(photons[0]->momentum.Pt()) : -100.;
+  treeMap["leadChargedHadronIso"] = (photons.size() > 0) ? chargedHadronIso_corrected(*photons[0], event.rho25) : -100.;
+  treeMap["leadNeutralHadronIso"] = (photons.size() > 0) ? neutralHadronIso_corrected(*photons[0], event.rho25) - 0.04*(photons[0]->momentum.Pt()) : -100.;
+  treeMap["leadPhotonIso"] = (photons.size() > 0) ? photonIso_corrected(*photons[0], event.rho25) - 0.005*(photons[0]->momentum.Pt()) : -100.;
   treeMap["leadSigmaIetaIeta"] = (photons.size() > 0) ? photons[0]->sigmaIetaIeta : -100.;
   treeMap["lead_nPixelSeeds"] = (photons.size() > 0) ? photons[0]->nPixelSeeds : -10.;
   treeMap["leadMVAregEnergy"] = (photons.size() > 0) ? photons[0]->MVAregEnergy : -10.;
@@ -1774,9 +1772,9 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["trailPhotonEta"] = (photons.size() > 1) ? photons[1]->caloPosition.Eta() : -100.;
   treeMap["trailPhotonPhi"] = (photons.size() > 1) ? photons[1]->caloPosition.Phi() : -100.;
   treeMap["trail_nPixelSeeds"] = (photons.size() > 1) ? photons[1]->nPixelSeeds : -100.;
-  treeMap["trailChargedHadronIso"] = (photons.size() > 1) ? chargedHadronIso_corrected(*photons[1], event_.rho25) : -100.;
-  treeMap["trailNeutralHadronIso"] = (photons.size() > 1) ? neutralHadronIso_corrected(*photons[1], event_.rho25) - 0.04*(photons[1]->momentum.Pt()) : -100.;
-  treeMap["trailPhotonIso"] = (photons.size() > 1) ? photonIso_corrected(*photons[1], event_.rho25) - 0.005*(photons[1]->momentum.Pt()) : -100.;
+  treeMap["trailChargedHadronIso"] = (photons.size() > 1) ? chargedHadronIso_corrected(*photons[1], event.rho25) : -100.;
+  treeMap["trailNeutralHadronIso"] = (photons.size() > 1) ? neutralHadronIso_corrected(*photons[1], event.rho25) - 0.04*(photons[1]->momentum.Pt()) : -100.;
+  treeMap["trailPhotonIso"] = (photons.size() > 1) ? photonIso_corrected(*photons[1], event.rho25) - 0.005*(photons[1]->momentum.Pt()) : -100.;
   treeMap["trailSigmaIetaIeta"] = (photons.size() > 1) ? photons[1]->sigmaIetaIeta : -100.;
   treeMap["trailMVAregEnergy"] = (photons.size() > 1) ? photons[1]->MVAregEnergy : -10.;
   treeMap["trailMVAregErr"] = (photons.size() > 1) ? photons[1]->MVAregErr : -10.;
@@ -1785,7 +1783,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["photon_invmass"] = (photons.size() > 1) ? (photons[0]->momentum + photons[1]->momentum).M() : -10.;
   
   float diJetPt, lead_matched_jetpt, trail_matched_jetpt;
-  bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event_, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
+  bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
   treeMap["diJetPt"] = diJetPt;
   
   float dEta = (photons.size() > 1) ? photons[0]->caloPosition.Eta() - photons[1]->caloPosition.Eta() : -100;
@@ -1795,9 +1793,9 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["photon_dR"] = photon_dR;
   
   if(!isMC) {
-    treeMap["runNumber"] = event_.runNumber;
-    treeMap["eventNumber"] = event_.eventNumber;
-    treeMap["lumiBlock"] = event_.luminosityBlockNumber;
+    treeMap["runNumber"] = event.runNumber;
+    treeMap["eventNumber"] = event.eventNumber;
+    treeMap["lumiBlock"] = event.luminosityBlockNumber;
     treeMap["jentry"] = jentry;
   }
 

@@ -12,7 +12,7 @@ using namespace std;
 // These are calculated from a ScaleFactorInfo object for each jet
 class BtagInfo {
  public:
-  BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo, TString DataPeriod);
+  BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo);
   virtual ~BtagInfo() {};
 
   bool isTagged() { return (discr > discr_cut); };
@@ -64,7 +64,7 @@ class BtagInfo {
 
 };
   
-BtagInfo::BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo, TString DataPeriod) {
+BtagInfo::BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger, double iScale, bool& iIsMC, bool& iIsFastSim, ScaleFactorInfo& iSfInfo) {
 
   isMC = iIsMC;
   isFastSim = iIsFastSim;
@@ -95,21 +95,21 @@ BtagInfo::BtagInfo(susy::PFJet& iJet, TLorentzVector& iCorrP4, TString& iTagger,
 
   // (LIGHT FLAVORS): for pt > ptmax: use the SFlight value at ptmax with twice the quoted uncertainty 
   if(pt > ptmax_light) {
-    SFl = iSfInfo.GetSFlightMean(eta, DataPeriod, ptmax_light);
+    SFl = iSfInfo.GetSFlightMean(eta, ptmax_light);
       
-    SFl_max = iSfInfo.GetSFlightMax(eta, DataPeriod, ptmax_light);
+    SFl_max = iSfInfo.GetSFlightMax(eta, ptmax_light);
     SFl_max = 2.*SFl_max - SFl;
 
-    SFl_min = iSfInfo.GetSFlightMin(eta, DataPeriod, ptmax_light);
+    SFl_min = iSfInfo.GetSFlightMin(eta, ptmax_light);
     SFl_min = SFl - 2.*SFl_min;
   }
 
   else {
-    SFl = iSfInfo.GetSFlightMean(eta, DataPeriod, pt);
+    SFl = iSfInfo.GetSFlightMean(eta, pt);
       
-    SFl_max = iSfInfo.GetSFlightMax(eta, DataPeriod, pt);
+    SFl_max = iSfInfo.GetSFlightMax(eta, pt);
       
-    SFl_min = iSfInfo.GetSFlightMin(eta, DataPeriod, pt);
+    SFl_min = iSfInfo.GetSFlightMin(eta, pt);
   }
 
   // for pt > 800 GeV: use the SFb value at 800 GeV with twice the quoted uncertainty 

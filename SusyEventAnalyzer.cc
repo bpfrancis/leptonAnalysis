@@ -541,7 +541,6 @@ void SusyEventAnalyzer::Data() {
 		 HT_jets, hadronicSystem);
 	
 	SetTreeValues(treeMap,
-		      event,
 		      tightMuons, tightEles, 
 		      pfJets, btags,
 		      photons,
@@ -913,7 +912,6 @@ void SusyEventAnalyzer::Acceptance() {
 	  }
 	  
 	  SetTreeValues(treeMap,
-			event,
 			tightMuons, tightEles, 
 			pfJets, btags,
 			photons,
