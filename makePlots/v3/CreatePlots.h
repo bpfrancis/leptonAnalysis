@@ -45,7 +45,7 @@ class PlotMaker : public TObject {
   ClassDef(PlotMaker, 1);
 
  public:
-  PlotMaker(int chanNo, int cr, bool useQCD);
+  PlotMaker(int chanNo, int cr, bool useQCD, TString metType_);
   virtual ~PlotMaker();
 
   void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, Float_t scale = -1., Float_t scaleErr = -1.) { 
@@ -331,6 +331,7 @@ class PlotMaker : public TObject {
   TString channelLabel;
   int controlRegion;
   bool needsQCD;
+  TString metType;
 
   bool doRebinMET;
 
@@ -340,12 +341,13 @@ class PlotMaker : public TObject {
 
 };
 
-PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD) {
+PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_) {
 
   channel = channels[chanNo];
   channelLabel = channelLabels[chanNo];
   controlRegion = cr;
   needsQCD = useQCD;
+  metType = metType_;
 
   doRebinMET = false;
 
@@ -927,7 +929,7 @@ void PlotMaker::CalculateQCDNormalization() {
   bool foundMET = false;
 
   for(unsigned int i = 0; i < variables.size(); i++) {
-    if(variables[i] == "pfMET") {
+    if(variables[i] == metType) {
       met_index = i;
       foundMET = true;
       break;
@@ -935,7 +937,7 @@ void PlotMaker::CalculateQCDNormalization() {
   }
 
   if(!foundMET) {
-    cout << endl << endl << "Can't normalize QCD in pfMET if you don't plot pfMET!" << endl << endl;
+    cout << endl << endl << "Can't normalize QCD in " << metType << " if you don't plot " << metType << "!" << endl << endl;
     return;
   }
 
@@ -1377,6 +1379,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   double multiply_up_linear = 1.3;
 
   for(Int_t ibin = 0; ibin < data->GetNbinsX(); ibin++) {
+    if(xMaximums[n] > xMinimums[n] && ibin > data->FindBin(xMaximums[n])) break;
     double value_up = data->GetBinContent(ibin+1) + data->GetBinError(ibin+1) * multiply_up;
     double value_down = (data->GetBinContent(ibin+1) - data->GetBinError(ibin+1)) * multiply_down;
 
@@ -1385,6 +1388,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   }
 
   for(Int_t ibin = 0; ibin < mc.back()->GetNbinsX(); ibin++) {
+    if(xMaximums[n] > xMinimums[n] && ibin > mc.back()->FindBin(xMaximums[n])) break;
     double value_up = mc.back()->GetBinContent(ibin+1) + mc.back()->GetBinError(ibin+1) * multiply_up;
     double value_down = (mc.back()->GetBinContent(ibin+1) - mc.back()->GetBinError(ibin+1)) * multiply_down;
 
@@ -1393,6 +1397,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   }
 
   for(Int_t ibin = 0; ibin < siga->GetNbinsX(); ibin++) {
+    if(xMaximums[n] > xMinimums[n] && ibin > siga->FindBin(xMaximums[n])) break;
     double value_up = siga->GetBinContent(ibin+1) * multiply_up;
     double value_down = siga->GetBinContent(ibin+1) * multiply_down;
 
@@ -1401,6 +1406,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   }
 
   for(Int_t ibin = 0; ibin < sigb->GetNbinsX(); ibin++) {
+    if(xMaximums[n] > xMinimums[n] && ibin > sigb->FindBin(xMaximums[n])) break;
     double value_up = sigb->GetBinContent(ibin+1) * multiply_up;
     double value_down = sigb->GetBinContent(ibin+1) * multiply_down;
 
@@ -1412,12 +1418,14 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
   double padlo_min = 0.;
 
   for(Int_t ibin = 0; ibin < ratio->GetNbinsX(); ibin++) {
+    if(xMaximums[n] > xMinimums[n] && ibin > ratio->FindBin(xMaximums[n])) break;
     double value = ratio->GetBinContent(ibin+1) + ratio->GetBinError(ibin+1) * multiply_up_linear;
 
     if(value > padlo_max) padlo_max = value;
   }
 
   for(Int_t ibin = 0; ibin < ratio_sys->GetNbinsX(); ibin++) {
+    if(xMaximums[n] > xMinimums[n] && ibin > ratio_sys->FindBin(xMaximums[n])) break;
     double value = ratio_sys->GetBinContent(ibin+1) + ratio_sys->GetBinError(ibin+1) * multiply_up_linear;
 
     if(value > padlo_max) padlo_max = value;

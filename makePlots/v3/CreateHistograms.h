@@ -1,4 +1,4 @@
-4#include "TStyle.h"
+#include "TStyle.h"
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -482,7 +482,7 @@ void HistogramMaker::SetTrees(TTree * gg, TTree * qcd, TTree * sig_a, TTree * si
 
 bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
 				      Double_t xsec, Double_t scaleErrorUp, Double_t scaleErrorDown, Double_t pdfErrorUp, Double_t pdfErrorDown,
-				      bool remove_whizard = false, bool remove_madgraph = false, bool reweightTop = false,
+				      bool remove_whizard, bool remove_madgraph, bool reweightTop,
 				      Double_t fitScaling, Double_t fitScalingError) {
 
   mcFiles.push_back(new TFile(fileName, "READ"));

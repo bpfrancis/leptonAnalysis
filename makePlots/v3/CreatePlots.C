@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType) {
+void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
   gROOT->Reset();
   gROOT->SetBatch(true);
@@ -41,7 +41,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType)
   sf_mc = -1.;
   sf_ttbar = -1.;
 
-  PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD);
+  PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType);
 
   vector<TString> ttJets;
   ttJets.push_back("ttJetsSemiLep");
@@ -92,7 +92,8 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType)
   pMaker->BookMCLayer(ttZ, kOrange-7, "ttZ", "t#bar{t} + Z", kGG, kTTbar, sf_mc, sfError_mc);
 
   vector<TString> ttgamma;
-  ttgamma.push_back("ttA_2to5");
+  if(useWhizard) ttgamma.push_back("ttA_2to5");
+  else ttgamma.push_back("TTGamma");
   pMaker->BookMCLayer(ttgamma, 8, "ttgamma", "t#bar{t} + #gamma", kGG, kTTbar, sf_ttgamma, sfError_ttgamma);
 
   ///////////////////////////////////////////////////////
