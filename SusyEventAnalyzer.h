@@ -1783,7 +1783,7 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["photon_invmass"] = (photons.size() > 1) ? (photons[0]->momentum + photons[1]->momentum).M() : -10.;
   
   float diJetPt, lead_matched_jetpt, trail_matched_jetpt;
-  bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
+  //bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
   treeMap["diJetPt"] = diJetPt;
   
   float dEta = (photons.size() > 1) ? photons[0]->caloPosition.Eta() - photons[1]->caloPosition.Eta() : -100;

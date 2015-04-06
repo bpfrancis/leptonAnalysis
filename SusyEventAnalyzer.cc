@@ -1240,16 +1240,15 @@ void SusyEventAnalyzer::LeptonInfo() {
 	    if((int)ele_it->gsfTrackIndex >= (int)(event.tracks).size() || (int)ele_it->gsfTrackIndex < 0) continue;
 
 	    ele_reco_passTight = isTightElectron(*ele_it, 
-					    event.superClusters, 
-					    event.rho25, 
-					    d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
-					    dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
+						 event.superClusters, 
+						 event.rho25, 
+						 d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
+						 dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
 	    
 	    ele_reco_passLoose = isLooseElectron(*ele_it,
-					    event.superClusters, 
-					    event.rho25, 
-					    d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]), 
-					    dZcorrection(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex]));
+						 event.superClusters, 
+						 event.rho25, 
+						 d0correction(event.vertices[0].position, event.tracks[ele_it->gsfTrackIndex])); 
 
 	    ele_reco_pt = ele_it->momentum.Pt();
 	    ele_reco_eta = event.superClusters[ele_it->superClusterIndex].position.Eta();
