@@ -15,24 +15,30 @@ enum photonCutModes {kSignalPhotons, kFakePhotons, kNumPhotonModes};
 
 enum jetSystematicMode {kCentral, kJECup, kJECdown, kNumJetSytematics};
 
-const int nChannels = 4;
+const int nChannels = 6;
 
 TString channels[nChannels] = {"ele_bjj", "muon_bjj",
-			       "ele_jjj_veto", "muon_jjj_veto"};
+			       "ele_jjj_veto", "muon_jjj_veto",
+			       "ele_jjj", "muon_jjj"};
 
 unsigned int nJetReq[nChannels] = {3, 3,
+				   3, 3,
 				   3, 3};
 
 unsigned int nBtagReq[nChannels] = {1, 1,
+				    0, 0,
 				    0, 0};
 
 bool nBtagInclusive[nChannels] = {true, true,
-				  false, false};
+				  false, false,
+				  true, true};
 
 int nEleReq[nChannels] = {1, 0,
+			  1, 0,
 			  1, 0};
 
 int nMuonReq[nChannels] = {0, 1,
+			   0, 1,
 			   0, 1};
 
 typedef std::vector<std::vector<TH1F*> > VTH1F;

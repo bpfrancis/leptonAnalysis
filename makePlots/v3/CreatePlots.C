@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void CreatePlots(int channel, int controlRegion, bool needsQCD) {
+void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType) {
 
   gROOT->Reset();
   gROOT->SetBatch(true);
@@ -78,6 +78,11 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
   diboson.push_back("ZZ");
   pMaker->BookMCLayer(diboson, kCyan, "diboson", "Diboson", kQQ, kVV, sf_mc, sfError_mc);
 
+  vector<TString> vgamma;
+  vgamma.push_back("WGToLNuG");
+  vgamma.push_back("ZGToLLG");
+  pMaker->BookMCLayer(vgamma, kRed, "vgamma", "V#gamma", kQQ, kVV, sf_mc, sfError_mc);
+
   vector<TString>  ttW;
   ttW.push_back("TTWJets");
   pMaker->BookMCLayer(ttW, kAzure-2, "ttW", "t#bar{t} + W", kQQ, kTTbar, sf_mc, sfError_mc);
@@ -92,7 +97,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 
   ///////////////////////////////////////////////////////
 
-  pMaker->BookPlot("pfMET", true,
+  pMaker->BookPlot(metType, true,
 		   "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		   0., 300., 7.e-3, 2.5e5,
 		   0., 1.9,
@@ -205,7 +210,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD) {
 		     true, false, false);
   }
 
-  if(controlRegion != kCR0) {
+  if(controlRegion != kCR0 && controlRegion != kAny) {
     pMaker->BookPlot("leadSigmaIetaIeta", false,
 		     "lead #sigma_{i#eta i#eta}", "Number of Events",
 		     0, 0.035, 2.e-5, 8.e3,

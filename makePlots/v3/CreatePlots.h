@@ -26,11 +26,13 @@
 
 using namespace std;
 
-const int nChannels = 2;
+const int nChannels = 4;
 
-TString channels[nChannels] = {"ele_bjj", "muon_bjj"};
+TString channels[nChannels] = {"ele_bjj", "muon_bjj",
+			       "ele_jjj", "muon_jjj"};
 
-TString channelLabels[nChannels] = {"XYZ e", "XYZ #mu"};
+TString channelLabels[nChannels] = {"XYZ e", "XYZ #mu",
+				    "XYZ e (no b-tag)", "XYZ #mu (no b-tag)"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};

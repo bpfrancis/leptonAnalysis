@@ -1,4 +1,4 @@
-#include "TStyle.h"
+4#include "TStyle.h"
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -32,15 +32,19 @@
 
 using namespace std;
 
-const int nChannels = 2;
+const int nChannels = 4;
 
-TString channels[nChannels] = {"ele_bjj", "muon_bjj"};
+TString channels[nChannels] = {"ele_bjj", "muon_bjj",
+			       "ele_jjj", "muon_jjj"};
 
-unsigned int nBtagReq[nChannels] = {1, 1};
+unsigned int nBtagReq[nChannels] = {1, 1,
+				    0, 0};
 
-TString qcdChannels[nChannels] = {"ele_jjj_veto_eQCDTree", "muon_jjj_veto_muQCDTree"};
+TString qcdChannels[nChannels] = {"ele_jjj_veto_eQCDTree", "muon_jjj_veto_muQCDTree",
+				  "ele_jjj_eQCDTree", "muon_jjj_muQCDTree"};
 
-TString qcdChannels_fakePhotons[nChannels] = {"ele_jjj_veto_eQCDfakeTree", "muon_jjj_veto_muQCDfakeTree"};
+TString qcdChannels_fakePhotons[nChannels] = {"ele_jjj_veto_eQCDfakeTree", "muon_jjj_veto_muQCDfakeTree",
+					      "ele_jjj_eQCDfakeTree", "muon_jjj_muQCDfakeTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 
@@ -53,7 +57,7 @@ class HistogramMaker : public TObject {
   ClassDef(HistogramMaker, 1);
 
  public:
-  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode);
+  HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode, TString metType_, bool useNormalTopReweighting_);
   ~HistogramMaker();
   
   Float_t getValue(TString name) {
@@ -117,7 +121,7 @@ class HistogramMaker : public TObject {
   bool isBlindedRegion() { return (blinded && (controlRegion == kSR2 || controlRegion == kSR1)); };
 
   bool passMetCut() {
-    if(metCut > 0.) return (getValue("pfMET") < metCut);
+    if(metCut > 0.) return (getValue(metType) < metCut);
     return true;
   };
     
@@ -139,7 +143,7 @@ class HistogramMaker : public TObject {
 
   bool LoadMCBackground(TString fileName, TString scanName,
 			Double_t xsec, Double_t scaleErrorUp, Double_t scaleErrorDown, Double_t pdfErrorUp, Double_t pdfErrorDown,
-			bool removeTTA, bool reweightTop,
+			bool remove_whizard = false, bool remove_madgraph = false, bool reweightTop = false,
 			Double_t fitScaling = -1.0, Double_t fitScalingError = 0.0);
   
   void SetTrees(TTree * gg, TTree * qcd, TTree * sig_a, TTree * sig_b);
@@ -215,7 +219,8 @@ class HistogramMaker : public TObject {
   vector<Double_t> pdfErrDown;
 
   // reweighting flags
-  vector<bool> removeTTAoverlap;
+  vector<bool> removeWhizardOverlap;
+  vector<bool> removeMadgraphOverlap;
   vector<bool> reweightTopPt;
 
   // additional scalings
@@ -292,25 +297,29 @@ class HistogramMaker : public TObject {
 
   Float_t metCut;
   int photonMode;
+  TString metType;
+  bool useNormalTopReweighting;
 
   TString req;
 
   Float_t puWeight, btagWeight;
   Float_t puWeightErr, btagWeightErr;
   Float_t puWeightUp, puWeightDown, btagWeightUp, btagWeightDown;
-  Float_t overlaps_ttA;
+  Float_t overlaps_whizard, overlaps_madgraph;
   Float_t topPtReweighting;
 
   Float_t relIso;
 
 };
 
-HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode) :
+HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode, TString metType_, bool useNormalTopReweighting_) :
   channel(chanNo),
   blinded(blind),
   controlRegion(cRegion),
   metCut(cutOnMet),
-  photonMode(mode)
+  photonMode(mode),
+  metType(metType_),
+  useNormalTopReweighting(useNormalTopReweighting_)
 {
   req = channels[chanNo];
 
@@ -349,7 +358,8 @@ HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutO
 
   mcNames.clear();
 
-  removeTTAoverlap.clear();
+  removeWhizardOverlap.clear();
+  removeMadgraphOverlap.clear();
   reweightTopPt.clear();
 
   fitScale.clear();
@@ -430,7 +440,8 @@ HistogramMaker::~HistogramMaker() {
 
   mcNames.clear();
 
-  removeTTAoverlap.clear();
+  removeWhizardOverlap.clear();
+  removeMadgraphOverlap.clear();
   reweightTopPt.clear();
 
   fitScale.clear();
@@ -471,7 +482,7 @@ void HistogramMaker::SetTrees(TTree * gg, TTree * qcd, TTree * sig_a, TTree * si
 
 bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
 				      Double_t xsec, Double_t scaleErrorUp, Double_t scaleErrorDown, Double_t pdfErrorUp, Double_t pdfErrorDown,
-				      bool removeTTA, bool reweightTop,
+				      bool remove_whizard = false, bool remove_madgraph = false, bool reweightTop = false,
 				      Double_t fitScaling, Double_t fitScalingError) {
 
   mcFiles.push_back(new TFile(fileName, "READ"));
@@ -533,7 +544,8 @@ bool HistogramMaker::LoadMCBackground(TString fileName, TString scanName,
 
   mcNames.push_back(scanName);
 
-  removeTTAoverlap.push_back(removeTTA);
+  removeWhizardOverlap.push_back(remove_whizard);
+  removeMadgraphOverlap.push_back(remove_madgraph);
   reweightTopPt.push_back(reweightTop);
 
   fitScale.push_back(fitScaling);
@@ -898,18 +910,27 @@ void HistogramMaker::FillMCBackgrounds() {
     if(req.Contains("ele")) mcQCDTrees[i]->SetBranchAddress("ele_relIso", &relIso);
     else mcQCDTrees[i]->SetBranchAddress("muon_relIso", &relIso);
 
-    if(removeTTAoverlap[i]) {
-      mcTrees[i]->SetBranchAddress("overlaps_ttA", &overlaps_ttA);
-      mcTrees_JECup[i]->SetBranchAddress("overlaps_ttA", &overlaps_ttA);
-      mcTrees_JECdown[i]->SetBranchAddress("overlaps_ttA", &overlaps_ttA);
-      mcQCDTrees[i]->SetBranchAddress("overlaps_ttA", &overlaps_ttA);
+    if(removeWhizardOverlap[i]) {
+      mcTrees[i]->SetBranchAddress("overlaps_whizard", &overlaps_whizard);
+      mcTrees_JECup[i]->SetBranchAddress("overlaps_whizard", &overlaps_whizard);
+      mcTrees_JECdown[i]->SetBranchAddress("overlaps_whizard", &overlaps_whizard);
+      mcQCDTrees[i]->SetBranchAddress("overlaps_whizard", &overlaps_whizard);
     }
 
+    if(removeMadgraphOverlap[i]) {
+      mcTrees[i]->SetBranchAddress("overlaps_madgraph", &overlaps_madgraph);
+      mcTrees_JECup[i]->SetBranchAddress("overlaps_madgraph", &overlaps_madgraph);
+      mcTrees_JECdown[i]->SetBranchAddress("overlaps_madgraph", &overlaps_madgraph);
+      mcQCDTrees[i]->SetBranchAddress("overlaps_madgraph", &overlaps_madgraph);
+    }
+
+    TString topPtReweightingName = (useNormalTopReweighting) ? "TopPtReweighting" : "TopPtReweighting_ttHbb";
+
     if(reweightTopPt[i]) {
-      mcTrees[i]->SetBranchAddress("TopPtReweighting", &topPtReweighting);
-      mcTrees_JECup[i]->SetBranchAddress("TopPtReweighting", &topPtReweighting);
-      mcTrees_JECdown[i]->SetBranchAddress("TopPtReweighting", &topPtReweighting);
-      mcQCDTrees[i]->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+      mcTrees[i]->SetBranchAddress(topPtReweightingName, &topPtReweighting);
+      mcTrees_JECup[i]->SetBranchAddress(topPtReweightingName, &topPtReweighting);
+      mcTrees_JECdown[i]->SetBranchAddress(topPtReweightingName, &topPtReweighting);
+      mcQCDTrees[i]->SetBranchAddress(topPtReweightingName, &topPtReweighting);
     }
 
   }
@@ -928,8 +949,9 @@ void HistogramMaker::FillMCBackgrounds() {
       if(!passMetCut()) continue;
       if(!inControlRegion()) continue;
       
-      if(removeTTAoverlap[i] && overlaps_ttA > 0.001) continue;
-      if(topPtReweighting < 0) topPtReweighting = 1.;
+      if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
+      if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
+      if(reweightTopPt[i] && topPtReweighting < 0.) continue;
       
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
@@ -1103,8 +1125,9 @@ void HistogramMaker::FillMCBackgrounds() {
       if(!passMetCut()) continue;
       if(!inControlRegion()) continue;
       
-      if(removeTTAoverlap[i] && overlaps_ttA > 0.001) continue;
-      if(topPtReweighting < 0) topPtReweighting = 1.;
+      if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
+      if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
+      if(reweightTopPt[i] && topPtReweighting < 0.) continue;
       
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
@@ -1130,8 +1153,9 @@ void HistogramMaker::FillMCBackgrounds() {
       if(!passMetCut()) continue;
       if(!inControlRegion()) continue;
       
-      if(removeTTAoverlap[i] && overlaps_ttA > 0.001) continue;
-      if(topPtReweighting < 0) topPtReweighting = 1.;
+      if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
+      if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
+      if(reweightTopPt[i] && topPtReweighting < 0.) continue;
       
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
@@ -1157,8 +1181,9 @@ void HistogramMaker::FillMCBackgrounds() {
       if(!passMetCut()) continue;
       if(!inControlRegion()) continue;
 
-      if(removeTTAoverlap[i] && overlaps_ttA > 0.001) continue;
-      if(topPtReweighting < 0) topPtReweighting = 1.;
+      if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
+      if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
+      if(reweightTopPt[i] && topPtReweighting < 0.) continue;
 
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
@@ -1232,6 +1257,8 @@ void HistogramMaker::FillSignal() {
     sigbTree->SetBranchAddress(variables[i], &(varMap[variables[i]]));
   }
 
+  TString topPtReweightingName = (useNormalTopReweighting) ? "TopPtReweighting" : "TopPtReweighting_ttHbb";
+
   sigaTree->SetBranchAddress("pileupWeight", &puWeight);
   sigaTree->SetBranchAddress("pileupWeightErr", &puWeightErr);
   sigaTree->SetBranchAddress("btagWeight", &btagWeight);
@@ -1240,7 +1267,7 @@ void HistogramMaker::FillSignal() {
   sigaTree->SetBranchAddress("btagWeightDown", &btagWeightDown);
   sigaTree->SetBranchAddress("pileupWeightUp", &puWeightUp);
   sigaTree->SetBranchAddress("pileupWeightDown", &puWeightDown);
-  sigaTree->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+  sigaTree->SetBranchAddress(topPtReweightingName, &topPtReweighting);
 
   sigbTree->SetBranchAddress("pileupWeight", &puWeight);
   sigbTree->SetBranchAddress("pileupWeightErr", &puWeightErr);
@@ -1250,7 +1277,7 @@ void HistogramMaker::FillSignal() {
   sigbTree->SetBranchAddress("btagWeightDown", &btagWeightDown);
   sigbTree->SetBranchAddress("pileupWeightUp", &puWeightUp);
   sigbTree->SetBranchAddress("pileupWeightDown", &puWeightDown);
-  sigbTree->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+  sigbTree->SetBranchAddress(topPtReweightingName, &topPtReweighting);
 
   Float_t leptonSF, leptonSFup, leptonSFdown;
   Float_t photonSF, photonSFup, photonSFdown;
@@ -1262,19 +1289,17 @@ void HistogramMaker::FillSignal() {
     if(!passMetCut()) continue;
     if(!inControlRegion()) continue;
     
-    if(removeTTAoverlap[i] && overlaps_ttA > 0.001) continue;
-    if(topPtReweighting < 0) topPtReweighting = 1.;
+    if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
+    if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
     
     GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
     GetPhotonSF(photonSF, photonSFup, photonSFdown);
 
     Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
 
-    if(topPtReweighting < 0) topPtReweighting = 1.;
-
     for(unsigned int j = 0; j < variables.size(); j++) {
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       Float_t olderror = h_siga[j]->GetBinError(h_siga[j]->FindBin(getValue(j)));
       Float_t newerror = sqrt(olderror*olderror + addError2);
       h_siga[j]->Fill(getValue(j), totalWeight);
@@ -1303,19 +1328,17 @@ void HistogramMaker::FillSignal() {
     if(!passMetCut()) continue;
     if(!inControlRegion()) continue;
     
-    if(removeTTAoverlap[i] && overlaps_ttA > 0.001) continue;
-    if(topPtReweighting < 0) topPtReweighting = 1.;
+    if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
+    if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
     
     GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
     GetPhotonSF(photonSF, photonSFup, photonSFdown);
 
     Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
 
-    if(topPtReweighting < 0) topPtReweighting = 1.;
-
     for(unsigned int j = 0; j < variables.size(); j++) {
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       Float_t olderror = h_sigb[j]->GetBinError(h_sigb[j]->FindBin(getValue(j)));
       Float_t newerror = sqrt(olderror*olderror + addError2);
       h_sigb[j]->Fill(getValue(j), totalWeight);
@@ -1413,7 +1436,7 @@ void HistogramMaker::NormalizeQCD() {
 
   unsigned int met_index = 0;
   for(unsigned int i = 0; i < variables.size(); i++) {
-    if(variables[i] == "pfMET") {
+    if(variables[i] == metType) {
       met_index = i;
       break;
     }
@@ -1842,10 +1865,10 @@ void HistogramMaker::CreateDatacards() {
     Float_t lead_photon_et, lead_photon_eta;
     Float_t trail_photon_et, trail_photon_eta;
 
-    tree->SetBranchAddress("pfMET", &met);
-    tree_JECup->SetBranchAddress("pfMET", &met);
-    tree_JECdown->SetBranchAddress("pfMET", &met);
-    tree_contam->SetBranchAddress("pfMET", &met);
+    tree->SetBranchAddress(metType, &met);
+    tree_JECup->SetBranchAddress(metType, &met);
+    tree_JECdown->SetBranchAddress(metType, &met);
+    tree_contam->SetBranchAddress(metType, &met);
 
     tree->SetBranchAddress("Ngamma", &ngamma);
     tree_JECup->SetBranchAddress("Ngamma", &ngamma);
@@ -1905,6 +1928,8 @@ void HistogramMaker::CreateDatacards() {
       tree_contam->SetBranchAddress("muon_eta", &lepton_eta);
     }
 
+    TString topPtReweightingName = (useNormalTopReweighting) ? "TopPtReweighting" : "TopPtReweighting_ttHbb";
+
     tree->SetBranchAddress("pileupWeight", &puWeight);
     tree->SetBranchAddress("pileupWeightErr", &puWeightErr);
     tree->SetBranchAddress("btagWeight", &btagWeight);
@@ -1913,7 +1938,7 @@ void HistogramMaker::CreateDatacards() {
     tree->SetBranchAddress("btagWeightDown", &btagWeightDown);
     tree->SetBranchAddress("pileupWeightUp", &puWeightUp);
     tree->SetBranchAddress("pileupWeightDown", &puWeightDown);
-    tree->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+    tree->SetBranchAddress(topPtReweightingName, &topPtReweighting);
     
     tree_JECup->SetBranchAddress("pileupWeight", &puWeight);
     tree_JECup->SetBranchAddress("pileupWeightErr", &puWeightErr);
@@ -1923,7 +1948,7 @@ void HistogramMaker::CreateDatacards() {
     tree_JECup->SetBranchAddress("btagWeightDown", &btagWeightDown);
     tree_JECup->SetBranchAddress("pileupWeightUp", &puWeightUp);
     tree_JECup->SetBranchAddress("pileupWeightDown", &puWeightDown);
-    tree_JECup->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+    tree_JECup->SetBranchAddress(topPtReweightingName, &topPtReweighting);
     
     tree_JECdown->SetBranchAddress("pileupWeight", &puWeight);
     tree_JECdown->SetBranchAddress("pileupWeightErr", &puWeightErr);
@@ -1933,7 +1958,7 @@ void HistogramMaker::CreateDatacards() {
     tree_JECdown->SetBranchAddress("btagWeightDown", &btagWeightDown);
     tree_JECdown->SetBranchAddress("pileupWeightUp", &puWeightUp);
     tree_JECdown->SetBranchAddress("pileupWeightDown", &puWeightDown);
-    tree_JECdown->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+    tree_JECdown->SetBranchAddress(topPtReweightingName, &topPtReweighting);
 
     tree_contam->SetBranchAddress("pileupWeight", &puWeight);
     tree_contam->SetBranchAddress("pileupWeightErr", &puWeightErr);
@@ -1943,7 +1968,7 @@ void HistogramMaker::CreateDatacards() {
     tree_contam->SetBranchAddress("btagWeightDown", &btagWeightDown);
     tree_contam->SetBranchAddress("pileupWeightUp", &puWeightUp);
     tree_contam->SetBranchAddress("pileupWeightDown", &puWeightDown);
-    tree_contam->SetBranchAddress("TopPtReweighting", &topPtReweighting);
+    tree_contam->SetBranchAddress(topPtReweightingName, &topPtReweighting);
 
     TH1D * h = new TH1D("signal"+code_t, "signal"+code_t, nMetBins, xbins_met); h->Sumw2();
 
@@ -1980,8 +2005,6 @@ void HistogramMaker::CreateDatacards() {
 
       Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
 
-      if(topPtReweighting < 0) topPtReweighting = 1.;
-      
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
@@ -1989,7 +2012,7 @@ void HistogramMaker::CreateDatacards() {
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 
       if(totalWeight < 0) continue;
 
@@ -1998,55 +2021,55 @@ void HistogramMaker::CreateDatacards() {
       h->Fill(met, totalWeight);
       h->SetBinError(h->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeightUp * leptonSF * photonSF * topPtReweighting;
+      totalWeight = puWeight * btagWeightUp * leptonSF * photonSF;
       olderror = h_btagWeightUp->GetBinError(h_btagWeightUp->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_btagWeightUp->Fill(met, totalWeight);
       h_btagWeightUp->SetBinError(h_btagWeightUp->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeightDown * leptonSF * photonSF * topPtReweighting;
+      totalWeight = puWeight * btagWeightDown * leptonSF * photonSF;
       olderror = h_btagWeightDown->GetBinError(h_btagWeightDown->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_btagWeightDown->Fill(met, totalWeight);
       h_btagWeightDown->SetBinError(h_btagWeightDown->FindBin(met), newerror);
 
-      totalWeight = puWeightUp * btagWeight * leptonSF * photonSF * topPtReweighting;
+      totalWeight = puWeightUp * btagWeight * leptonSF * photonSF;
       olderror = h_puWeightUp->GetBinError(h_puWeightUp->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_puWeightUp->Fill(met, totalWeight);
       h_puWeightUp->SetBinError(h_puWeightUp->FindBin(met), newerror);
 
-      totalWeight = puWeightDown * btagWeight * leptonSF * photonSF * topPtReweighting;
+      totalWeight = puWeightDown * btagWeight * leptonSF * photonSF;
       olderror = h_puWeightDown->GetBinError(h_puWeightDown->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_puWeightDown->Fill(met, totalWeight);
       h_puWeightDown->SetBinError(h_puWeightDown->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeight * leptonSFup * photonSF * topPtReweighting;
+      totalWeight = puWeight * btagWeight * leptonSFup * photonSF;
       olderror = h_leptonSFup->GetBinError(h_leptonSFup->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_leptonSFup->Fill(met, totalWeight);
       h_leptonSFup->SetBinError(h_leptonSFup->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeight * leptonSFdown * photonSF * topPtReweighting;
+      totalWeight = puWeight * btagWeight * leptonSFdown * photonSF;
       olderror = h_leptonSFdown->GetBinError(h_leptonSFdown->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_leptonSFdown->Fill(met, totalWeight);
       h_leptonSFdown->SetBinError(h_leptonSFdown->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeight * leptonSF * photonSFup * topPtReweighting;
+      totalWeight = puWeight * btagWeight * leptonSF * photonSFup;
       olderror = h_photonSFup->GetBinError(h_photonSFup->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_photonSFup->Fill(met, totalWeight);
       h_photonSFup->SetBinError(h_photonSFup->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeight * leptonSF * photonSFdown * topPtReweighting;
+      totalWeight = puWeight * btagWeight * leptonSF * photonSFdown;
       olderror = h_photonSFdown->GetBinError(h_photonSFdown->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_photonSFdown->Fill(met, totalWeight);
       h_photonSFdown->SetBinError(h_photonSFdown->FindBin(met), newerror);
 
-      totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting * topPtReweighting;
+      totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       olderror = h_topPtUp->GetBinError(h_topPtUp->FindBin(met));
       newerror = sqrt(olderror*olderror + addError2);
       h_topPtUp->Fill(met, totalWeight);
@@ -2074,8 +2097,6 @@ void HistogramMaker::CreateDatacards() {
 
       Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
       
-      if(topPtReweighting < 0) topPtReweighting = 1.;
-      
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
@@ -2083,7 +2104,7 @@ void HistogramMaker::CreateDatacards() {
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       Float_t olderror = h->GetBinError(h->FindBin(met));
       Float_t newerror = sqrt(olderror*olderror + addError2);
       h_JECup->Fill(met, totalWeight);
@@ -2105,8 +2126,6 @@ void HistogramMaker::CreateDatacards() {
 
       Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
       
-      if(topPtReweighting < 0) topPtReweighting = 1.;
-      
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
@@ -2114,7 +2133,7 @@ void HistogramMaker::CreateDatacards() {
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       Float_t olderror = h->GetBinError(h->FindBin(met));
       Float_t newerror = sqrt(olderror*olderror + addError2);
       h_JECdown->Fill(met, totalWeight);
@@ -2136,8 +2155,6 @@ void HistogramMaker::CreateDatacards() {
 
       if(!checkBtagging()) continue;
 
-      if(topPtReweighting < 0) topPtReweighting = 1.;
-      
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
@@ -2145,7 +2162,7 @@ void HistogramMaker::CreateDatacards() {
       GetPhotonSF(lead_photon_et, lead_photon_eta, trail_photon_et, trail_photon_eta, nphotons, 
 		  photonSF, photonSFup, photonSFdown);
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF * topPtReweighting;
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 
       contamination += totalWeight;
     }

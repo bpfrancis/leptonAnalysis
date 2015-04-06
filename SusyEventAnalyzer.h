@@ -167,12 +167,14 @@ class SusyEventAnalyzer {
   bool GetDiJetPt(susy::Event& ev, vector<susy::Photon*> candidates, float& diJetPt, float& leadpt, float& trailpt);
   bool PhotonMatchesElectron(susy::Event& ev, vector<susy::Photon*> candidates, int& bothMatchCounter);
   int FigureTTbarDecayMode(susy::Event& ev);
-  double TopPtReweighting(susy::Event& ev);
-  double ttA_TopPtReweighting(susy::Event& ev);
 
-  void ttA_phaseSpace(susy::Event& ev, TH2D*& h);
-  void ttbar_phaseSpace(susy::Event& ev, TH2D*& h);
-  bool overlaps_ttA(susy::Event& ev);
+  double TopPtReweighting(susy::Event& ev);
+  double TopPtReweighting_ttHbb(susy::Event& ev);
+
+  void fill_whizard_phaseSpace(susy::Event& ev, TH2D*& h);
+  void fill_madgraph_phaseSpace(susy::Event& ev, TH2D*& h);
+  bool overlaps_whizard(susy::Event& ev);
+  bool overlaps_madgraph(susy::Event& ev);
   
   void SetTreeValues(map<TString, float>& treeMap,
 		     susy::Event& event_,
@@ -950,58 +952,21 @@ double SusyEventAnalyzer::TopPtReweighting(susy::Event& ev) {
 
   if(!top || !antitop) return -1;
 
-  susy::Particle * wplus  = 0;
-  susy::Particle * wminus = 0;
-
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(abs(it->pdgId) != 24 || it->status != 3 || abs(ev.genParticles[it->motherIndex].pdgId) != 6) continue;
-    if(it->mother == top && !wplus) wplus = &*it;
-    if(it->mother == antitop && !wminus) wminus = &*it;
-    if(wplus && wminus) break;
-  }
-
-  if(!wplus || !wminus) {
-    double weight = 0.156 - 0.00137*top->momentum.Pt();
-    weight += 0.156 - 0.00137*antitop->momentum.Pt();
-    weight = exp(weight / 2.);
-    return weight;
-  }
-
-  int leptonicWs = 0;
-
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(it->mother == wplus) {
-      if(abs(it->pdgId) >= 11 && abs(it->pdgId) <= 16) {
-	leptonicWs++;
-	break;
-      }
-    }
-  }
-
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(it->mother == wminus) {
-      if(abs(it->pdgId) >= 11 && abs(it->pdgId) <= 16) {
-	leptonicWs++;
-	break;
-      }
-    }
-  }
-
   double weight;
 
-  if(leptonicWs == 0) {
+  if(scan == "ttJetsHadronic") {
     weight = 0.156 - 0.00137*top->momentum.Pt();
     weight += 0.156 - 0.00137*antitop->momentum.Pt();
     weight = exp(weight / 2.);
   }
 
-  else if(leptonicWs == 1) {
+  else if(scan == "ttJetsSemiLep") {
     weight = 0.159 - 0.00141*top->momentum.Pt();
     weight += 0.159 - 0.00141*antitop->momentum.Pt();
     weight = exp(weight / 2.);
   }
 
-  else if(leptonicWs == 2) {
+  else if(scan == "ttJetsFullLep") {
     weight = 0.148 - 0.00129*top->momentum.Pt();
     weight += 0.148 - 0.00129*antitop->momentum.Pt();
     weight = exp(weight / 2.);
@@ -1012,237 +977,187 @@ double SusyEventAnalyzer::TopPtReweighting(susy::Event& ev) {
   return weight;
 }
 
-double SusyEventAnalyzer::ttA_TopPtReweighting(susy::Event& ev) {
+double SusyEventAnalyzer::TopPtReweighting_ttHbb(susy::Event& ev) {
 
-  susy::Particle * b      = 0;
-  susy::Particle * bbar   = 0;
-  susy::Particle * wplus  = 0;
-  susy::Particle * wminus = 0;
+  susy::Particle * top     = 0;
 
   for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-
-    if(it->pdgId == 5 && it->status == 2 && !b) b = &*it;
-    if(it->pdgId == -5 && it->status == 2 && !bbar) bbar = &*it;
-      
-    if(it->pdgId == 24 && it->status == 3 && !wplus) wplus = &*it;
-    if(it->pdgId == -24 && it->status == 3 && !wminus) wminus = &*it;
-
-  }
-
-  if(!b || !bbar || !wplus || !wminus) return -1;
-
-  int leptonicWs = 0;
-
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(it->mother == wplus) {
-      if(abs(it->pdgId) >= 11 && abs(it->pdgId) <= 16) {
-	leptonicWs++;
-	break;
-      }
+    if(it->pdgId == 6 && it->status == 3 && !top) {
+      top = &*it;
+      break;
     }
   }
 
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(it->mother == wminus) {
-      if(abs(it->pdgId) >= 11 && abs(it->pdgId) <= 16) {
-	leptonicWs++;
-	break;
-      }
-    }
-  }
+  if(!top) return -1;
 
-  TLorentzVector top = wplus->momentum + b->momentum;
-  TLorentzVector antitop = wminus->momentum + bbar->momentum;
+  double p0 = 1.18246e+00;
+  double p1 = 4.63312e+02;
+  double p2 = 2.10061e-06;
 
-  double weight;
+  double topPt = top->momentum.Pt();
 
-  if(leptonicWs == 0) {
-    weight = 0.156 - 0.00137*top.Pt();
-    weight += 0.156 - 0.00137*antitop.Pt();
-    weight = exp(weight / 2.);
-  }
+  if(topPt > p1) topPt = p1;
 
-  else if(leptonicWs == 1) {
-    weight = 0.159 - 0.00141*top.Pt();
-    weight += 0.159 - 0.00141*antitop.Pt();
-    weight = exp(weight / 2.);
-  }
-
-  else if(leptonicWs == 2) {
-    weight = 0.148 - 0.00129*top.Pt();
-    weight += 0.148 - 0.00129*antitop.Pt();
-    weight = exp(weight / 2.);
-  }
-
-  else weight = -1;
+  double weight = p0 + p2 * topPt * (topPt - 2 * p1);
 
   return weight;
 }
 
-void SusyEventAnalyzer::ttA_phaseSpace(susy::Event& ev, TH2D*& h) {
-
-  susy::Particle * gamma = 0;
-
-  vector<susy::Particle*> all;
-
-  int nW = 0;
-  int nB = 0;
-
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-
-    //if(abs(ev.genParticles[ev.genParticles[it->motherIndex].motherIndex].pdgId) != 2212 || abs(ev.genParticles[it->motherIndex].pdgId) != 2212) continue;
-
-    if(abs(it->pdgId) == 24 && it->status == 3) {
-      nW++;
-      all.push_back(&*it);
-    }
-
-    if(abs(it->pdgId) == 5 && it->status == 2) {
-      nB++;
-      all.push_back(&*it);
-    }
-  }
-
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(it->status != 1 || abs(it->pdgId) != 22) continue;
-
-    int nSisters = 0;
-    for(unsigned int i = 0; i < all.size(); i++) {
-      if(it->motherIndex == all[i]->motherIndex && 
-	 (abs(all[i]->pdgId) == 5 || abs(all[i]->pdgId) == 24)) nSisters++;
-    }
-
-    if(nSisters == 4) {
-      gamma = &*it;
-      break;
-    }
-
-  }
-
-  if(!gamma) return;
-
-  double minDR = 100;
-
-  for(unsigned int i = 0; i < all.size(); i++) {
-    if(abs(all[i]->pdgId) != 5) continue;
-    double thisDR = deltaR(gamma->momentum, all[i]->momentum);
-    if(thisDR < minDR) minDR = thisDR;
-  }
-
-  h->Fill(gamma->momentum.Pt(), minDR);
-}
-
-void SusyEventAnalyzer::ttbar_phaseSpace(susy::Event& ev, TH2D*& h) {
+void SusyEventAnalyzer::fill_whizard_phaseSpace(susy::Event& ev, TH2D*& h) {
 
   vector<susy::Particle*> photons;
-
-  // find relevant photons -- coming from tops, b's, or W's
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(abs(it->pdgId) != 22) continue;
-    
-    int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
-    if(mom_id != 6 && mom_id != 24 && mom_id != 5) continue;
-    
-    photons.push_back(&*it);
-  }
-  
-  susy::Particle * b    = 0;
-  susy::Particle * bbar = 0;
-  
-  // If there is b --> b+gamma, take the second b as our interesting leg
-  for(unsigned int i = 0; i < photons.size(); i++) {
-    
-    if(abs(event.genParticles[photons[i]->motherIndex].pdgId) != 5) continue;
-    
-    for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-      if(it->motherIndex != photons[i]->motherIndex) continue;
-      if(it->pdgId == 5) b     = &*it;
-      if(it->pdgId == -5) bbar = &*it;
-    }
-    
-  }
-  
-  // If a photon didn't come off a b, then the status 3 b's are taken
-  // Go backwards to get the final legs
-  for(vector<susy::Particle>::reverse_iterator rit = ev.genParticles.rbegin(); rit != ev.genParticles.rend(); ++rit) {
-    if(!b && rit->status == 3 && rit->pdgId == 5) b = &*rit;
-    if(!bbar && rit->status == 3 && rit->pdgId == -5) bbar = &*rit;
-    if(b && bbar) break;
-  }
-  
-  // If top didn't decay to W+b, boogie
-  if(!(b && bbar)) return;
-
-  for(unsigned int i = 0; i < photons.size(); i++) {
-
-    double dr_b    = deltaR(photons[i]->momentum, b->momentum);
-    double dr_bbar = deltaR(photons[i]->momentum, bbar->momentum);
-
-    h->Fill(photons[i]->momentum.Pt(), min(dr_b, dr_bbar));
-  }
-
-}
-
-
-bool SusyEventAnalyzer::overlaps_ttA(susy::Event& ev) {
-
-  vector<susy::Particle*> photons;
-
-  // find relevant photons -- coming from tops, b's, or W's
-  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-    if(abs(it->pdgId) != 22) continue;
-    
-    int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
-    if(mom_id != 6 && mom_id != 24 && mom_id != 5) continue;
-    
-    photons.push_back(&*it);
-  }
-  
-  susy::Particle * b    = 0;
-  susy::Particle * bbar = 0;
-  
-  // If there is b --> b+gamma, take the second b as our interesting leg
-  for(unsigned int i = 0; i < photons.size(); i++) {
-    
-    if(abs(event.genParticles[photons[i]->motherIndex].pdgId) != 5) continue;
-    
-    for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
-      if(it->motherIndex != photons[i]->motherIndex) continue;
-      if(it->pdgId == 5) b     = &*it;
-      if(it->pdgId == -5) bbar = &*it;
-    }
-    
-  }
-  
-  // If a photon didn't come off a b, then the status 3 b's are taken
-  // Go backwards to get the final legs
-  for(vector<susy::Particle>::reverse_iterator rit = ev.genParticles.rbegin(); rit != ev.genParticles.rend(); ++rit) {
-    if(!b && rit->status == 3 && rit->pdgId == 5) b = &*rit;
-    if(!bbar && rit->status == 3 && rit->pdgId == -5) bbar = &*rit;
-    if(b && bbar) break;
-  }
-  
-  // If top didn't decay to W+b, boogie
-  if(!(b && bbar)) return false;
-
   vector<susy::Particle*> legs;
-  legs.push_back(b);
-  legs.push_back(bbar);
-  
-  for(unsigned int i = 0; i < photons.size(); i++) {
 
-    if(photons[i]->momentum.Pt() > 20) {
+  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
 
-      for(unsigned int j = 0; j < legs.size(); j++) {
-	if(deltaR(photons[i]->momentum, legs[j]->momentum) < 0.1) return true;
-      }
+    int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
 
-    }
+    bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+    bool fromWboson = (mom_id == 24);
+
+    if(abs(it->pdgId) == 22 && (fromQCD || fromWboson)) photons.push_back(&*it);
+    if(abs(it->pdgId) == 5 && mom_id == 6) legs.push_back(&*it);
 
   }
+
+  for(unsigned int i = 0; i < photons.size(); i++) {
+
+    double minDR = 999.0;
+    double dr;
+
+    for(unsigned int j = 0; j < legs.size(); j++) {
+      dr = deltaR(photons[i]->momentum, legs[i]->momentum);
+      if(dr < minDR) minDR < dr;
+    }
+
+    h->Fill(photons[i]->momentum.Pt(), minDR);
     
-  return false;
+  }
+
+}
+
+void SusyEventAnalyzer::fill_madgraph_phaseSpace(susy::Event& ev, TH2D*& h) {
+
+  double eta_cut = 3.0;
   
+  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+
+    int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+    bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+    bool fromWboson = (mom_id == 24);
+    bool fromLepton = (mom_id == 11 || mom_id == 13 || mom_id == 15);
+
+    if(abs(it->pdgId) == 22 &&
+       fabs(it->momentum.Eta()) < eta_cut &&
+       (fromQCD || fromWboson || fromLepton)) {
+
+      double minDR = 999.0;
+      double dR;
+
+      for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+
+	if(oit == it) continue;
+	if(oit->momentum.M() > 10) continue;
+	if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	dR = deltaR(it->momentum, oit->momentum);
+
+	if(dR < minDR) minDR = dR;
+
+      } // other gen particle loop
+	
+      h->Fill(it->momentum.Pt(), minDR);
+
+    } // if candidate photon
+
+  } // photon loop
+
+}
+
+bool SusyEventAnalyzer::overlaps_whizard(susy::Event& ev) {
+
+  double et_cut = 20.0;
+  double dR_cut = 0.1;
+
+  bool haveOverlap = false;
+
+  vector<susy::Particle*> photons;
+  vector<susy::Particle*> legs;
+
+  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+
+    int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+    bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+    bool fromWboson = (mom_id == 24);
+
+    if(abs(it->pdgId) == 22 && it->momentum.Et() > et_cut && (fromQCD || fromWboson)) photons.push_back(&*it);
+    if(abs(it->pdgId) == 5 && mom_id == 6) legs.push_back(&*it);
+
+  }
+
+  for(unsigned int i = 0; i < photons.size(); i++) {
+
+    bool haveLeg = false;
+    bool closeToLeg = false;
+
+    for(unsigned int j = 0; j < legs.size(); j++) {
+      haveLeg = true;
+      if(deltaR(photons[i]->momentum, legs[i]->momentum) < dR_cut) closeToLeg = true;
+    }
+    
+    if(haveLeg && !closeToLeg) haveOverlap = true;
+    
+  }
+
+  return haveOverlap;
+}
+
+bool SusyEventAnalyzer::overlaps_madgraph(susy::Event& ev) {
+
+  double et_cut = 13.0;
+  double eta_cut = 3.0;
+  double dR_cut = 0.2;
+
+  bool haveOverlap = false;
+  
+  for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+
+    int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+    bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+    bool fromWboson = (mom_id == 24);
+    bool fromLepton = (mom_id == 11 || mom_id == 13 || mom_id == 15);
+
+    if(abs(it->pdgId) == 22 && 
+       it->momentum.Et() > et_cut &&
+       fabs(it->momentum.Eta()) < eta_cut &&
+       (fromQCD || fromWboson || fromLepton)) {
+
+      double minDR = 999.0;
+      double dR;
+
+      for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+
+	if(oit == it) continue;
+	if(oit->momentum.M() > 10) continue;
+	if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	dR = deltaR(it->momentum, oit->momentum);
+
+	if(dR < minDR) minDR = dR;
+
+      } // other gen particle loop
+	
+      if(minDR > dR_cut) haveOverlap = true;
+
+    } // if candidate photon
+
+  } // photon loop
+
+  return haveOverlap;
+
 }
   
 void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
@@ -1263,10 +1178,11 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
   treeMap["nPV"] = nPVertex;
   treeMap["metFilterBit"] = event_.metFilterBit;
   if(isMC && scan == "stop-bino") treeMap["ttbarDecayMode"] = FigureTTbarDecayMode(event_);
-  if(isMC) treeMap["overlaps_ttA"] = overlaps_ttA(event_);
   if(isMC) {
-    if(scan == "ttA_2to5") treeMap["TopPtReweighting"] = ttA_TopPtReweighting(event_);
-    else treeMap["TopPtReweighting"] = TopPtReweighting(event_);
+    treeMap["overlaps_whizard"] = overlaps_whizard(event_);
+    treeMap["overlaps_madgraph"] = overlaps_madgraph(event_);
+    treeMap["TopPtReweighting"] = TopPtReweighting(event_);
+    treeMap["TopPtReweighting_ttHbb"] = TopPtReweighting_ttHbb(event_);
   }
   treeMap["Nphotons"] = photons.size();
 
@@ -1438,6 +1354,213 @@ void SusyEventAnalyzer::SetTreeValues(map<TString, float>& treeMap,
     treeMap["dPhi_trailPhoton_b_min"] = -100.;
     treeMap["cosTheta_trailPhoton_b_min"] = -100.;
   }
+
+  // photon gen match
+  if(isMC) {
+    if(photons.size() > 0) {
+
+      bool foundMatch = false;
+
+      for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+
+	bool et_eta_match = deltaR(it->momentum, photons[0]->caloPosition) < 0.2 &&
+	  (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
+
+	int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+	bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+	bool fromBoson = (mom_id == 23 || mom_id == 24 || mom_id == 25);
+	bool fromLepton = (mom_id == 11 || mom_id == 13 || mom_id == 15);
+
+	if(et_eta_match && abs(event.genParticles[it->motherIndex].pdgId) == 22) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if((fromQCD || fromBoson || fromLepton) &&
+	     (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[0]->caloPosition.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[0]->caloPosition) < 0.01) {
+	    treeMap["leadMatchGamma"] = 1;
+	    treeMap["leadMatchElectron"] = 0;
+	    treeMap["leadMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["leadMatchGamma"] = 0;
+	    treeMap["leadMatchElectron"] = 0;
+	    treeMap["leadMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to a photon
+
+	else if(et_eta_match && abs(event.genParticles[it->motherIndex].pdgId) == 11) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if(fromBoson &&
+	     (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[0]->caloPosition.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[0]->caloPosition) < 0.04) {
+	    treeMap["leadMatchGamma"] = 0;
+	    treeMap["leadMatchElectron"] = 1;
+	    treeMap["leadMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["leadMatchGamma"] = 0;
+	    treeMap["leadMatchElectron"] = 0;
+	    treeMap["leadMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to an electron
+
+      } // gen particles loop
+
+      if(!foundMatch) {
+	treeMap["leadMatchGamma"] = 0;
+	treeMap["leadMatchElectron"] = 0;
+	treeMap["leadMatchJet"] = 1;
+      }
+	
+    } // nPhotons > 0
+
+    if(photons.size() > 1) {
+      
+      bool foundMatch = false;
+
+      for(vector<susy::Particle>::iterator it = ev.genParticles.begin(); it != ev.genParticles.end(); it++) {
+
+	bool et_eta_match = deltaR(it->momentum, photons[1]->caloPosition) < 0.2 &&
+	  (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
+
+	int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+	bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+	bool fromBoson = (mom_id == 23 || mom_id == 24 || mom_id == 25);
+	bool fromLepton = (mom_id == 11 || mom_id == 13 || mom_id == 15);
+
+	if(et_eta_match && abs(event.genParticles[it->motherIndex].pdgId) == 22) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if((fromQCD || fromBoson || fromLepton) &&
+	     (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[1]->caloPosition.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[1]->caloPosition) < 0.01) {
+	    treeMap["trailMatchGamma"] = 1;
+	    treeMap["trailMatchElectron"] = 0;
+	    treeMap["trailMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["trailMatchGamma"] = 0;
+	    treeMap["trailMatchElectron"] = 0;
+	    treeMap["trailMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to a photon
+
+	else if(et_eta_match && abs(event.genParticles[it->motherIndex].pdgId) == 11) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = ev.genParticles.begin(); oit != ev.genParticles.end(); oit++) {
+
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if(fromBoson &&
+	     (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[1]->caloPosition.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[1]->caloPosition) < 0.04) {
+	    treeMap["trailMatchGamma"] = 0;
+	    treeMap["trailMatchElectron"] = 1;
+	    treeMap["trailMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["trailMatchGamma"] = 0;
+	    treeMap["trailMatchElectron"] = 0;
+	    treeMap["trailMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to an electron
+
+      } // gen particles loop
+
+      if(!foundMatch) {
+	treeMap["trailMatchGamma"] = 0;
+	treeMap["trailMatchElectron"] = 0;
+	treeMap["trailMatchJet"] = 1;
+      }
+
+    } // if nphotons > 1
+
+  } // ifMC
+
 
   // Transverse W mass
 

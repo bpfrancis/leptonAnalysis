@@ -7,6 +7,11 @@ void makeHistograms() {
   TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v7/SingleElectron.root";
   TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v7/SingleMu.root";
 
+  TString metType = "pfMET_t01";
+  bool useNormalTopReweighting = true;
+
+  bool useWhizard = false; // false = use madgraph
+
   double metCut = -1.;
 
   int controlRegion = PHOTON_REGION;
@@ -16,12 +21,13 @@ void makeHistograms() {
 
   bool blinded = false;
 
-  const int nChannels = 2;
-  TString channels[nChannels] = {"ele_bjj", "muon_bjj"};
+  const int nChannels = 4;
+  TString channels[nChannels] = {"ele_bjj", "muon_bjj",
+				 "ele_jjj", "muon_jjj"};
 
   for(int i = 0; i < nChannels; i++) {
-    if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion, photonMode);
-    else CreateHistograms(input_muon, i, metCut, blinded, controlRegion, photonMode);
+    if(channels[i].Contains("ele")) CreateHistograms(input_ele, i, metCut, blinded, controlRegion, photonMode, metType, useNormalTopReweighting, useWhizard);
+    else CreateHistograms(input_muon, i, metCut, blinded, controlRegion, photonMode, metType, useNormalTopReweighting, useWhizard);
   }  
 
 }

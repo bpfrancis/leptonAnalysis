@@ -653,10 +653,10 @@ void SusyEventAnalyzer::Acceptance() {
 
   TH1D * h_nEvents = new TH1D("nEvents"+output_code_t, "nEvents"+output_code_t, 1, 0, 1);
 
-  TH2D * h_ttA_phaseSpace = new TH2D("ttA_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
-  TH2D * h_ttbar_phaseSpace = new TH2D("ttbar_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
+  TH2D * h_whizard_phaseSpace = new TH2D("whizard_phaseSpace"+output_code_t, "ttA_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
+  TH2D * h_madgraph_phaseSpace = new TH2D("madgraph_phaseSpace"+output_code_t, "ttbar_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
 
-  const int nTreeVariables = 124;
+  const int nTreeVariables = 132;
 
   TString varNames[nTreeVariables] = {
     "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
@@ -699,8 +699,10 @@ void SusyEventAnalyzer::Acceptance() {
     "btagWeight", "btagWeightUp", "btagWeightDown", "btagWeightErr",
     "metFilterBit",
     "ttbarDecayMode",
-    "overlaps_ttA",
-    "TopPtReweighting"};
+    "overlaps_whizard", "overlaps_madgraph",
+    "TopPtReweighting", "TopPtReweighting_ttHbb",
+    "leadMatchGamma", "leadMatchElectron", "leadMatchJet",
+    "trailMatchGamma", "trailMatchElectron", "trailMatchJet"};
     
   map<TString, float> treeMap;
   for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
@@ -830,9 +832,9 @@ void SusyEventAnalyzer::Acceptance() {
     int nPVertex = GetNumberPV(event);
     if(nPVertex == 0) continue;
     
-    ttA_phaseSpace(event, h_ttA_phaseSpace);
-    ttbar_phaseSpace(event, h_ttbar_phaseSpace);
-    
+    fill_whizard_phaseSpace(event, h_whizard_phaseSpace);
+    fill_madgraph_phaseSpace(event, h_madgraph_phaseSpace);
+
     for(int qcdMode = kSignal; qcdMode < kNumSearchModes; qcdMode++) {
       for(int jetSyst = kCentral; jetSyst < kNumJetSytematics; jetSyst++) {
 	for(int photonMode = kSignalPhotons; photonMode < kNumPhotonModes; photonMode++) {

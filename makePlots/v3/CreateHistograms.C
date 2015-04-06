@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, int photonMode) {
+void CreateHistograms(TString input, int channel, double metCut, bool blinded, int controlRegion, int photonMode, TString metType, bool useNormalTopReweighting, bool useWhizard) {
 
   TFile * in = new TFile(input, "READ");
 
@@ -29,47 +29,30 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   TFile * fSigB = new TFile("/eos/uscms/store/user/bfrancis/inputs_v7/acceptance/signal_contamination_mst_560_m1_325.root", "READ");
   TTree * sigbTree = (TTree*)fSigB->Get(sigName);
 
-  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, photonMode);
+  HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, photonMode, metType, useNormalTopReweighting);
   hMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
   hMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
   bool loadSuccess = true;
-  
-  Double_t wjetsSF, wjetsSFerror;
-  Double_t ttjetsSF, ttjetsSFerror;
-  Double_t ttgammaSF, ttgammaSFerror;
-
-  wjetsSF = -1.;
-  wjetsSFerror = 0.;
-  ttjetsSF = -1.;
-  ttjetsSFerror = 0.;
-  ttgammaSF = -1.;
-  ttgammaSFerror = 0.;
 
   Double_t ttbar_hadronic_xsec = 245.8 * 0.457;
   Double_t ttbar_semiLep_xsec  = 245.8 * 0.438;
   Double_t ttbar_fullLep_xsec  = 245.8 * 0.105;
 
-  bool reallyDoTopPt = true;
-
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttJetsHadronic.root", "ttJetsHadronic", 
 					  ttbar_hadronic_xsec, ttbar_hadronic_xsec * 0.025, ttbar_hadronic_xsec * 0.034, ttbar_hadronic_xsec * 0.026, ttbar_hadronic_xsec * 0.026,
-					  true, reallyDoTopPt,
-					  ttjetsSF, ttjetsSFerror);
+					  useWhizard, !useWhizard, true);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttJetsSemiLep.root", "ttJetsSemiLep", 
 					  ttbar_semiLep_xsec, ttbar_semiLep_xsec * 0.025, ttbar_semiLep_xsec * 0.034, ttbar_semiLep_xsec * 0.026, ttbar_semiLep_xsec * 0.026,
-					  true, reallyDoTopPt,
-					  ttjetsSF, ttjetsSFerror);
+					  useWhizard, !useWhizard, true);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep", 
 					  ttbar_fullLep_xsec, ttbar_fullLep_xsec * 0.025, ttbar_fullLep_xsec * 0.034, ttbar_fullLep_xsec * 0.026, ttbar_fullLep_xsec * 0.026,
-					  true, reallyDoTopPt,
-					  ttjetsSF, ttjetsSFerror);
+					  useWhizard, !useWhizard, true);
 
   /*
     loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WJetsToLNu.root", "WJetsToLNu", 
     12234.4 * 3, 79.0, 39.7, 414.7, 414.7,
-    false, false,
-    wjetsSF, wjetsSFerror);
+    false, false);
   */
   
   double fix_wjets_xsec = 3. * 12234.4 / 37509.;
@@ -97,33 +80,23 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
 					  xsec_w1,
 					  scaleUp_w1, scaleDown_w1,
-					  pdf_w1, pdf_w1,
-					  false, false,
-					  wjetsSF, wjetsSFerror);
+					  pdf_w1, pdf_w1);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W2JetsToLNu.root", "W2JetsToLNu", 
 					  xsec_w2,
 					  scaleUp_w2, scaleDown_w2,
-					  pdf_w2, pdf_w2,
-					  false, false,
-					  wjetsSF, wjetsSFerror);
+					  pdf_w2, pdf_w2);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W3JetsToLNu.root", "W3JetsToLNu", 
 					  xsec_w3,
 					  scaleUp_w3, scaleDown_w3,
-					  pdf_w3, pdf_w3,
-					  false, false,
-					  wjetsSF, wjetsSFerror);
+					  pdf_w3, pdf_w3);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W4JetsToLNu.root", "W4JetsToLNu", 
 					  xsec_w4,
 					  scaleUp_w4, scaleDown_w4,
-					  pdf_w4, pdf_w4,
-					  false, false,
-					  wjetsSF, wjetsSFerror);
-
+					  pdf_w4, pdf_w4);
 
   /*
     loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dyJetsToLL.root", "dyJetsToLL", 
-    1177.3 * 3, 5.9, 3.6, 38.8, 38.8,
-    false, false);
+    1177.3 * 3, 5.9, 3.6, 38.8, 38.8);
   */
   
   double fix_zjets_xsec = 3. * 1177.3 / 3503.71;
@@ -151,80 +124,65 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
 					  xsec_dy1,
 					  scaleUp_dy1, scaleDown_dy1,
-					  pdf_dy1, pdf_dy1,
-					  false, false);
+					  pdf_dy1, pdf_dy1);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
 					  xsec_dy2,
 					  scaleUp_dy2, scaleDown_dy2,
-					  pdf_dy2, pdf_dy2,
-					  false, false);
+					  pdf_dy2, pdf_dy2);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
 					  xsec_dy3,
 					  scaleUp_dy3, scaleDown_dy3,
-					  pdf_dy3, pdf_dy3,
-					  false, false);
+					  pdf_dy3, pdf_dy3);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
 					  xsec_dy4,
 					  scaleUp_dy4, scaleDown_dy4,
-					  pdf_dy4, pdf_dy4,
-					  false, false);
+					  pdf_dy4, pdf_dy4);
   
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_s.root", "TBar_s", 
-					  1.76, 0.01, 0.01, 0.08, 0.08,
-					  false, false);
+					  1.76, 0.01, 0.01, 0.08, 0.08);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_t.root", "TBar_t", 
-					  30.7, 0.7, 0.7, 0.9, 1.1,
-					  false, false);
+					  30.7, 0.7, 0.7, 0.9, 1.1);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_tW.root", "TBar_tW", 
-					  11.1, 0.3, 0.3, 0.7, 0.7,
-					  false, false);
+					  11.1, 0.3, 0.3, 0.7, 0.7);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_T_s.root", "T_s", 
-					  3.79, 0.07, 0.07, 0.13, 0.13,
-					  false, false);
+					  3.79, 0.07, 0.07, 0.13, 0.13);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_T_t.root", "T_t", 
-					  56.4, 2.1, 0.3, 1.1, 1.1,
-					  false, false);
+					  56.4, 2.1, 0.3, 1.1, 1.1);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_T_tW.root", "T_tW", 
-					  11.1, 0.3, 0.3, 0.7, 0.7,
-					  false, false);
+					  11.1, 0.3, 0.3, 0.7, 0.7);
 
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WW.root", "WW",
-					  57.1097, 2.3, 2.3, 2.0, 2.0,
-					  false, false);
+					  57.1097, 2.3, 2.3, 2.0, 2.0);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WZ.root", "WZ",
-					  32.3161, 1.3, 1.3, 1.3, 1.3,
-					  false, false);
+					  32.3161, 1.3, 1.3, 1.3, 1.3);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ZZ.root", "ZZ",
-					  8.25561, 0.3, 0.3, 0.3, 0.3,
-					  false, false);
+					  8.25561, 0.3, 0.3, 0.3, 0.3);
   
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_WGToLNuG.root", "WGToLNuG",
-					  553.9, 0., 0., 0., 0.,
-					  false, false);
+					  553.9, 0.5 * 553.9, 0.5 * 553.9, 0.5 * 553.9, 0.5 * 553.9);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ZGToLLG.root", "ZGToLLG",
-					  159.1, 0., 0., 0., 0.,
-					  false, false);
+					  159.1, 0.5 * 159.1, 0.5 * 159.1, 0.5 * 159.1, 0.5 * 159.1);
 
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TTWJets.root", "TTWJets", 
-					  0.232, 0.067, 0.067, 0.03, 0.03,
-					  false, false);
+					  0.232, 0.067, 0.067, 0.03, 0.03);
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TTZJets.root", "TTZJets", 
-					  0.2057, 0., 0., 0.019, 0.024,
-					  false, false);
+					  0.2057, 0., 0., 0.019, 0.024);
 
   // http://arxiv.org/abs/1102.1967
   //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttgjets.root", "ttgjets", 
-  //2.166, 2.166 * .25, 2.166 * .25, 2.166 * 0.076, 2.166 * 0.099,
-  //false, true,
-  //ttgammaSF, ttgammaSFerror);
+  //2.166, 2.166 * .25, 2.166 * .25, 2.166 * 0.076, 2.166 * 0.099);
 
-  // https://twiki.cern.ch/twiki/bin/viewauth/CMS/WhizardMCTeeTeeGamma#2_to_5_All_ttbar_decay_channels
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttA_2to5.root", "ttA_2to5", 
-					  .9081 * 2, .9081 * .5, .9081 * .5, .9081 * 2 * 0.076, .9081 * 2 * 0.099, 
-					  false, reallyDoTopPt,
-					  ttgammaSF, ttgammaSFerror);
-
-  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttGG.root", "ttGG", 0.146, channel, 6, kCyan+3, "t#bar{t} + #gamma#gamma");
+  if(useWhizard) {
+    // https://twiki.cern.ch/twiki/bin/viewauth/CMS/WhizardMCTeeTeeGamma#2_to_5_All_ttbar_decay_channels
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_ttA_2to5.root", "ttA_2to5", 
+					    .9081 * 2, .9081 * .5, .9081 * .5, .9081 * 2 * 0.076, .9081 * 2 * 0.099);
+  }
+  else {
+    // else use madgraph TTGamma 2to7
+    double ttgamma_xsec = 0.033 * 9 + 0.148 * 12 + 0.8; // 2l(NLO) + l+jets(NLO) + all_had (approx)
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TTGamma.root", "TTGamma",
+					    ttgamma_xsec, 0.5 * ttgamma_xsec, 0.5 * ttgamma_xsec, 0.076 * ttgamma_xsec, 0.099 * ttgamma_xsec);
+  }
 
   if(!loadSuccess) return;
 
@@ -234,7 +192,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);
-    hMaker->BookHistogram("pfMET", 200, 0., 2000.);
+    hMaker->BookHistogram(metType, 200, 0., 2000.);
     hMaker->BookHistogram("HT", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("Njets", 20, 0., 20.);
     hMaker->BookHistogram("Nbtags", 20, 0., 20.);
@@ -262,7 +220,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);
-    hMaker->BookHistogram("pfMET", nMetBins_2g, xbins_met_2g);
+    hMaker->BookHistogram(metType, nMetBins_2g, xbins_met_2g);
     hMaker->BookHistogram("HT", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("Njets", 20, 0., 20.);
     hMaker->BookHistogram("Nbtags", 20, 0., 20.);
@@ -293,8 +251,8 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("leadPhotonIso", 100, 0., 100.);
     hMaker->BookHistogram("mLepGammaLead", nKinematicBins_1g, xbins_kinematic_1g); // 24
 
-    hMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 160, 0., 0.04, 20, 0., 350.);
-    hMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
+    hMaker->BookHistogram2D("leadSigmaIetaIeta", metType, 160, 0., 0.04, 20, 0., 350.);
+    hMaker->BookHistogram2D("leadChargedHadronIso", metType, 70, 0., 15., 20, 0., 350.);
     hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }
   
@@ -302,7 +260,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);
     hMaker->BookHistogram("Ngamma", 4, 0., 4.);
     hMaker->BookHistogram("Nfake", 4, 0., 4.);
-    hMaker->BookHistogram("pfMET", nMetBins_2g, xbins_met_2g);
+    hMaker->BookHistogram(metType, nMetBins_2g, xbins_met_2g);
     hMaker->BookHistogram("HT", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("Njets", 20, 0., 20.);
     hMaker->BookHistogram("Nbtags", 20, 0., 20.);
@@ -335,8 +293,8 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("leadPhotonIso", 100, 0., 100.);
     hMaker->BookHistogram("mLepGammaLead", nKinematicBins_2g, xbins_kinematic_2g);
     
-    hMaker->BookHistogram2D("leadSigmaIetaIeta", "pfMET", 160, 0., 0.04, 20, 0., 350.);
-    hMaker->BookHistogram2D("leadChargedHadronIso", "pfMET", 70, 0., 15., 20, 0., 350.);
+    hMaker->BookHistogram2D("leadSigmaIetaIeta", metType, 160, 0., 0.04, 20, 0., 350.);
+    hMaker->BookHistogram2D("leadChargedHadronIso", metType, 70, 0., 15., 20, 0., 350.);
     hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
 
     hMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 25
