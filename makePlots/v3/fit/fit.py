@@ -1,6 +1,6 @@
 from utils import *
 
-def normalizeQCD(input):
+def normalizeQCD(input, channel, systematic):
 
     varName = 'pfMET_t01'
 
@@ -224,7 +224,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     MCHist.Add(wjetsHist)
 
     qcdHist = get1DHist(input, varName+'_qcd_'+channel)
-    (qcdSF, qcdSFerror) = normalizeQCD(input)
+    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
     
     dataHist.Add(bkgHist, -1.0)
@@ -295,7 +295,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi):
     MCHist.Add(zHist)
 
     qcdHist = get1DHist(input, varName+'_qcd_'+channel)
-    (qcdSF, qcdSFerror) = normalizeQCD(input)
+    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
 
     bkgHist.Add(qcd)
