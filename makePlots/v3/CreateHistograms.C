@@ -77,6 +77,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   double pdf_w3 = 414.7 * 640. / 37509.;
   double pdf_w4 = 414.7 * 264. / 37509.;
 
+  /* No longer using W1 and W2
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
 					  xsec_w1,
 					  scaleUp_w1, scaleDown_w1,
@@ -85,6 +86,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 					  xsec_w2,
 					  scaleUp_w2, scaleDown_w2,
 					  pdf_w2, pdf_w2);
+  */
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_W3JetsToLNu.root", "W3JetsToLNu", 
 					  xsec_w3,
 					  scaleUp_w3, scaleDown_w3,

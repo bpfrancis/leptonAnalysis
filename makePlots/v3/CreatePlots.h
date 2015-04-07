@@ -17,6 +17,8 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
+
 #include <map>
 #include <vector>
 #include <stdio.h>
@@ -48,7 +50,8 @@ class PlotMaker : public TObject {
   PlotMaker(int chanNo, int cr, bool useQCD, TString metType_);
   virtual ~PlotMaker();
 
-  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, Float_t scale = -1., Float_t scaleErr = -1.) { 
+  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, 
+		   vector<Float_t> scale, vector<Float_t> scaleErr) { 
     TH1D * h;
     mc.push_back(h);
 
@@ -80,6 +83,11 @@ class PlotMaker : public TObject {
 
     fitScales.push_back(scale);
     fitScaleErrors.push_back(scaleErr);
+  };
+
+  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr) {
+    vector<Float_t> emptyVector;
+    BookMCLayer(newNames, color, limitName, legendEntry, pdfCorr, scaleCorr, emptyVector, emptyVector);
   };
 
   void BookPlot(TString variable, bool divideByWidth,
@@ -211,7 +219,7 @@ class PlotMaker : public TObject {
   void CalculateRatio(unsigned int n);
   void SetStyles(unsigned int n);
 
-  void ScaleByFit(unsigned int n, vector<TH1D*>& h);
+  void ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfError);
 
   void CalculateQCDNormalization();
   void ScaleQCD();
@@ -313,8 +321,8 @@ class PlotMaker : public TObject {
   vector<int> pdfCorrelations;
   vector<int> scaleCorrelations;
 
-  vector<Float_t> fitScales;
-  vector<Float_t> fitScaleErrors;
+  vector< vector<Float_t> > fitScales;
+  vector< vector<Float_t> > fitScaleErrors;
 
   // below exist vectors of qualities for each variable -- these are what is looped over
 
@@ -531,24 +539,24 @@ void PlotMaker::GetHistograms(unsigned int n) {
   }
 
   for(unsigned int i = 0; i < mc.size(); i++) {
-    if(fitScales[i] > 0) {
-      ScaleByFit(i, mc);
-      ScaleByFit(i, mc_btagWeightUp);
-      ScaleByFit(i, mc_btagWeightDown);
-      ScaleByFit(i, mc_puWeightUp);
-      ScaleByFit(i, mc_puWeightDown);
-      ScaleByFit(i, mc_scaleUp);
-      ScaleByFit(i, mc_scaleDown);
-      ScaleByFit(i, mc_pdfUp);
-      ScaleByFit(i, mc_pdfDown);
-      ScaleByFit(i, mc_topPtUp);
-      ScaleByFit(i, mc_topPtDown);
-      ScaleByFit(i, mc_JECUp);
-      ScaleByFit(i, mc_JECDown);
-      ScaleByFit(i, mc_leptonSFUp);
-      ScaleByFit(i, mc_leptonSFDown);
-      ScaleByFit(i, mc_photonSFUp);
-      ScaleByFit(i, mc_photonSFDown);
+    if(fitScales[i].size() == 13) {
+      ScaleByFit(i, mc, fitScales[i][0], fitScaleErrors[i][0]);
+      ScaleByFit(i, mc_btagWeightUp, fitScales[i][1], fitScaleErrors[i][1]);
+      ScaleByFit(i, mc_btagWeightDown, fitScales[i][2], fitScaleErrors[i][2]);
+      ScaleByFit(i, mc_puWeightUp, fitScales[i][3], fitScaleErrors[i][3]);
+      ScaleByFit(i, mc_puWeightDown, fitScales[i][4], fitScaleErrors[i][4]);
+      ScaleByFit(i, mc_scaleUp, fitScales[i][0], fitScaleErrors[i][0]);
+      ScaleByFit(i, mc_scaleDown, fitScales[i][0], fitScaleErrors[i][0]);
+      ScaleByFit(i, mc_pdfUp, fitScales[i][0], fitScaleErrors[i][0]);
+      ScaleByFit(i, mc_pdfDown, fitScales[i][0], fitScaleErrors[i][0]);
+      ScaleByFit(i, mc_topPtUp, fitScales[i][5], fitScaleErrors[i][5]);
+      ScaleByFit(i, mc_topPtDown, fitScales[i][6], fitScaleErrors[i][6]);
+      ScaleByFit(i, mc_JECUp, fitScales[i][7], fitScaleErrors[i][7]);
+      ScaleByFit(i, mc_JECDown, fitScales[i][8], fitScaleErrors[i][8]);
+      ScaleByFit(i, mc_leptonSFUp, fitScales[i][9], fitScaleErrors[i][9]);
+      ScaleByFit(i, mc_leptonSFDown, fitScales[i][10], fitScaleErrors[i][10]);
+      ScaleByFit(i, mc_photonSFUp, fitScales[i][11], fitScaleErrors[i][11]);
+      ScaleByFit(i, mc_photonSFDown, fitScales[i][12], fitScaleErrors[i][12]);
     }
   }
 
@@ -774,7 +782,10 @@ void PlotMaker::MakeLegends() {
   if(needsQCD) legDrawSignal->AddEntry(bkg, "QCD", "F");
 
   legDrawSignal->AddEntry(mc[0], layerLegends[0], "F");
-  for(unsigned int i = 1; i < mc.size(); i++) legDrawSignal->AddEntry(mc[i], layerLegends[i], "F");
+  for(unsigned int i = 1; i < mc.size(); i++) {
+    if(layerLegends[i] == layerLegends[i-1]) continue;
+    legDrawSignal->AddEntry(mc[i], layerLegends[i], "F");
+  }
   if(!needsQCD) legDrawSignal->AddEntry((TObject*)0, "", "");
   legDrawSignal->SetFillColor(0);
   legDrawSignal->SetTextSize(0.028);
@@ -874,14 +885,9 @@ void PlotMaker::SetStyles(unsigned int n) {
 
 }
 
-void PlotMaker::ScaleByFit(unsigned int n, vector<TH1D*>& h) {
+void PlotMaker::ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfError) {
 
-  if(n >= fitScales.size() ||
-     n >= fitScaleErrors.size() ||
-     n >= h.size()) return;
-
-  Float_t sf = fitScales[n];
-  Float_t sfError = fitScaleErrors[n];
+  if(n >= h.size()) return;
 
   Float_t olderror, newerror;
   Float_t oldcontent;

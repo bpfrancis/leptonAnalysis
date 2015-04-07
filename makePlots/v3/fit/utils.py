@@ -1,6 +1,42 @@
 import ROOT
 from ROOT import gROOT
 from ROOT import gStyle
+import math
+
+openfiles = {}
+
+def get1DHist(filename, histname):
+    if filename not in openfiles:
+        openfiles[filename] = ROOT.TFile(filename,'READ')
+    thisFile = openfiles[filename]
+
+    hist = ROOT.TH1D()
+    hist = thisFile.Get(histname)
+    hist.SetDirectory(0)
+    hist.SetFillColor(0)
+    return hist
+
+def ScaleWithError(h, sf, err):
+
+    if sf == 1.0:
+        return
+
+    if sf == 0.0:
+        h.Reset()
+        return
+
+    for ibin in range(h.GetNbinsX()):
+        oldcontent = h.GetBinContent(ibin+1)
+        olderror = h.GetBinError(ibin+1)
+
+        if oldcontent == 0:
+            continue
+
+        newcontent = sf * oldcontent
+        newerror = newcontent * math.sqrt((err*err/sf/sf) + (olderror*olderror/oldcontent/oldcontent))
+
+        h.SetBinContent(ibin+1, newcontent)
+        h.SetBinError(ibin+1, newerror)
 
 def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name):
 
@@ -83,72 +119,35 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     
     can.SaveAs(name+'.png')
     #can.SaveAs(name+'.C')
-    
-def drawPlots_threeParameters(a, aSF, b, bSF, c, cSF, data, name):
 
-    a.Scale(aSF)
-    a.SetLineColor(2)
-    a.SetLineWidth(3)
+def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
 
-    b.Scale(bSF)
-    b.SetLineColor(3)
-    b.SetLineWidth(3)
+    # RooFit variables
+    var = ROOT.RooRealVar(varname, varname, varmin, varmax)
+    argList = ROOT.RooArgList()
+    argList.add(var)
+    argSet = ROOT.RooArgSet()
+    argSet.add(var)
 
-    c.Scale(cSF)
-    c.SetLineColor(4)
-    c.SetLineWidth(3)
+    # create PDFs
+    signalDataHist = ROOT.RooDataHist('signalDataHist', 'signal RooDataHist', argList, signalHist)
+    signalPdf = ROOT.RooHistPdf('signalPdf', varname+' of signal', argSet, signalDataHist)
 
-    sumHist = a.Clone('sumHist')
-    sumHist.Add(b)
-    sumHist.Add(c)
-    sumHist.SetLineColor(1)
-    sumHist.SetLineWidth(3)
+    backgroundDataHist = ROOT.RooDataHist('backgroundDataHist', 'background RooDataHist', argList, backgroundHist)
+    backgroundPdf = ROOT.RooHistPdf('backgroundPdf', varname+' of background', argSet, backgroundDataHist)
 
-    leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
-    leg.AddEntry(data, 'Data', 'ELP')
-    leg.AddEntry(a, a.GetName(), 'L')
-    leg.AddEntry(b, b.GetName(), 'L')
-    leg.AddEntry(c, c.GetName(), 'L')
+    # data
+    dataDataHist = ROOT.RooDataHist('data '+varname, varname+' in Data', argList, dataHist)
 
-    can = ROOT.TCanvas()
-    can.SetLogy(False)
+    # signal fraction parameter
+    signalFractionVar = ROOT.RooRealVar('signal fraction', 'signal fraction', 0.5, 0.0, 1.0)
+    sumPdf = ROOT.RooAddPdf('totalPdf', 'signal and background', signalPdf, backgroundPdf, signalFractionVar)
 
-    sumHist.Draw('hist')
-    a.Draw('hist same')
-    b.Draw('hist same')
-    c.Draw('hist same')
-    data.Draw('e1 same')
-    leg.Draw()
-    can.SaveAs(name+'.png')
+    # fit
+    sumPdf.fitTo(dataDataHist, ROOT.RooFit.SumW2Error(ROOT.kFALSE), ROOT.RooFit.PrintLevel(-1))
+    #sumPdf.fitTo(dataDataHist, ROOT.RooFit.SumW2Error(ROOT.kTRUE), ROOT.RooFit.PrintLevel(-1))
 
-def drawShapes(a, b, c, data, name):
+    print 'fit returned value ', signalFractionVar.getVal(), ' +/- ', signalFractionVar.getError()
+    return (signalFractionVar.getVal(), signalFractionVar.getError())
 
-    a.Scale(1. / a.Integral())
-    a.SetLineColor(2)
-    a.SetLineWidth(3)
 
-    b.Scale(1. / b.Integral())
-    b.SetLineColor(3)
-    b.SetLineWidth(3)
-
-    c.Scale(1. / c.Integral())
-    c.SetLineColor(4)
-    c.SetLineWidth(3)
-
-    data.Scale(1. / data.Integral())
-
-    leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
-    leg.AddEntry(data, 'Data', 'ELP')
-    leg.AddEntry(a, a.GetName(), 'L')
-    leg.AddEntry(b, b.GetName(), 'L')
-    leg.AddEntry(c, c.GetName(), 'L')
-
-    can = ROOT.TCanvas()
-    can.SetLogy(False)
-
-    a.Draw('hist')
-    b.Draw('hist same')
-    c.Draw('hist same')
-    data.Draw('e1 same')
-    leg.Draw()
-    can.SaveAs(name+'.png')

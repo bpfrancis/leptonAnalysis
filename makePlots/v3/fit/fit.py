@@ -1,138 +1,105 @@
-from draw import *
-import math
+from utils import *
 
-def ScaleWithError(h, sf, err):
+def normalizeQCD(dataHist, qcdHist, MCHist):
 
-    if sf == 1.0:
-        return
+    lowbin = 1
+    highbin = dataHist.FindBin(20.0) - 1
 
-    for ibin in range(h.GetNbinsX()):
-        oldcontent = h.GetBinContent(ibin+1)
-        olderror = h.GetBinError(ibin+1)
+    ndata = dataHist.Integral(lowbin, highbin)
+    nqcd = qcdHist.Integral(lowbin, highbin)
+    nmc = MCHist.Integral(lowbin, highbin)
 
-        if oldcontent == 0:
-            continue
+    sigma_data = 0
+    sigma_qcd = 0
+    sigma_mc = 0
 
-        newcontent = sf * oldcontent
-        newerror = newcontent * math.sqrt((err*err/sf/sf) + (olderror*olderror/oldcontent/oldcontent))
+    for ibin in range(highbin):
+        sigma_data += pow(dataHist.GetBinError(ibin+1), 2)
+        sigma_qcd += pow(qcdHist.GetBinError(ibin+1), 2)
+        sigma_mc += pow(MCHist.GetBinError(ibin+1), 2)
 
-        h.SetBinContent(ibin+1, newcontent)
-        h.SetBinError(ibin+1, newerror)
+    sigma_data = math.sqrt(sigma_data)
+    sigma_qcd = math.sqrt(sigma_qcd)
+    sigma_mc = math.sqrt(sigma_mc)
 
-def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
+    qcdScale = (ndata - nmc) / nqcd;
+    if qcdScale < 0:
+        return (0.0, 0.0)
 
-    # RooFit variables
-    var = ROOT.RooRealVar(varname, varname, varmin, varmax)
-    argList = ROOT.RooArgList()
-    argList.add(var)
-    argSet = ROOT.RooArgSet()
-    argSet.add(var)
+    qcdScaleError = (pow(sigma_data, 2) + pow(sigma_mc, 2)) / pow(ndata - nmc, 2)
+    qcdScaleError += pow(sigma_qcd, 2) / pow(nqcd, 2)
+    qcdScaleError = qcdScale * math.sqrt(qcdScaleError)
+    
+    return (qcdScale, qcdScaleError)
 
-    # create PDFs
-    signalDataHist = ROOT.RooDataHist('signalDataHist', 'signal RooDataHist', argList, signalHist)
-    signalPdf = ROOT.RooHistPdf('signalPdf', varname+' of signal', argSet, signalDataHist)
-
-    backgroundDataHist = ROOT.RooDataHist('backgroundDataHist', 'background RooDataHist', argList, backgroundHist)
-    backgroundPdf = ROOT.RooHistPdf('backgroundPdf', varname+' of background', argSet, backgroundDataHist)
-
-    # data
-    dataDataHist = ROOT.RooDataHist('data '+varname, varname+' in Data', argList, dataHist)
-
-    # signal fraction parameter
-    signalFractionVar = ROOT.RooRealVar('signal fraction', 'signal fraction', 0.5, 0.0, 1.0)
-    sumPdf = ROOT.RooAddPdf('totalPdf', 'signal and background', signalPdf, backgroundPdf, signalFractionVar)
-
-    # fit
-    sumPdf.fitTo(dataDataHist, ROOT.RooFit.SumW2Error(ROOT.kFALSE), ROOT.RooFit.PrintLevel(-1))
-    #sumPdf.fitTo(dataDataHist, ROOT.RooFit.SumW2Error(ROOT.kTRUE), ROOT.RooFit.PrintLevel(-1))
-
-    print 'fit returned value ', signalFractionVar.getVal(), ' +/- ', signalFractionVar.getError()
-    return (signalFractionVar.getVal(), signalFractionVar.getError())
-
-openfiles = {}
-
-def get1DHist(filename, histname):
-    if filename not in openfiles:
-        openfiles[filename] = ROOT.TFile(filename,'READ')
-    thisFile = openfiles[filename]
-
-    hist = ROOT.TH1D()
-    hist = thisFile.Get(histname)
-    hist.SetDirectory(0)
-    hist.SetFillColor(0)
-    return hist
-
-###########################################################
-def doQCDFit(channel, controlRegion, systematic, xlo, xhi):
+def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi):
 
     input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
-    dataHist = get1DHist(input, 'pfMET_gg_'+channel)
-    qcdHist = get1DHist(input, 'pfMET_qcd_'+channel)
+    varName = 'pfMET_t01'
 
-    MCHist = get1DHist(input, 'pfMET_ttJetsHadronic_'+channel+systematic)
-    MCHist.Add(get1DHist(input, 'pfMET_ttJetsSemiLep_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_ttJetsFullLep_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_W1JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_W2JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_W3JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_W4JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_TBar_s_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_TBar_t_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_TBar_tW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_T_s_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_T_t_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_T_tW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_dy1JetsToLL_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_dy2JetsToLL_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_dy3JetsToLL_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_dy4JetsToLL_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_ttA_2to5_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_WW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_WZ_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_ZZ_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_TTWJets_'+channel+systematic))
-    MCHist.Add(get1DHist(input, 'pfMET_TTZJets_'+channel+systematic))
+    dataHist = get1DHist(input, varName+'_gg_'+channel)
+    qcdHist = get1DHist(input, varName+'_qcd_'+channel)
 
-    (qcdFrac, qcdFracErr) = makeFit('pfMET', xlo, xhi, qcdHist, MCHist, dataHist)
+    MCHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systematic)
+    MCHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_T_s_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_dy1JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_WW_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_WZ_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
+    MCHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
 
-    #lowbin = dataHist.FindBin(xlo)
-    #highbin = dataHist.FindBin(xhi) - 1
+    (qcdFrac, qcdFracErr) = makeFit(varName+'', xlo, xhi, qcdHist, MCHist, dataHist)
 
-    lowbin = 1
-    highbin = dataHist.GetNbinsX()+1
+    lowbin = dataHist.FindBin(xlo)
+    highbin = dataHist.FindBin(xhi) - 1
 
     dataInt = dataHist.Integral(lowbin, highbin)
     qcdInt = qcdHist.Integral(lowbin, highbin)
-    mcInt = MCHist.Integral(lowbin, highbin)
 
     QCDSF = qcdFrac*dataInt/qcdInt
     QCDSFerror = qcdFracErr*dataInt/qcdInt
-    MCSF = (1-qcdFrac)*dataInt/mcInt
-    MCSFerror = qcdFracErr*dataInt/mcInt
 
-    drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, MCSF, 'MC', xlo, xhi, 'pfMET_'+channel+systematic)
+    (QCDSF, QCDSFerror) = normalizeQCD(channel, controlRegion, systematic)
 
-    return (QCDSF, QCDSFerror, MCSF, MCSFerror)
+    output.write(systematic+'\t'+
+                 str(QCDSF)+'\t'+
+                 str(QCDSFerror)+'\n')
 
-def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
+    drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic)
 
-    (QCDSF, QCDSFerror, MCSF, MCSFerror) = doQCDFit(channel, controlRegion, systematic, 0.0, 300.0)
+    return (QCDSF, QCDSFerror)
 
-    input = 'histograms_'+channel+'_'+controlRegion+'.root'
+def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo, xhi, qcdSFPair):
+
+    (QCDSF, QCDSFerror) = qcdSFPair
+
+    input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
     dataHist = get1DHist(input, 'm3_gg_'+channel)
 
     topHist = get1DHist(input, 'm3_ttJetsHadronic_'+channel+systematic)
     topHist.Add(get1DHist(input, 'm3_ttJetsFullLep_'+channel+systematic))
     topHist.Add(get1DHist(input, 'm3_ttJetsSemiLep_'+channel+systematic))
-    ScaleWithError(topHist, MCSF, MCSFerror)
 
-    wjetsHist = get1DHist(input, 'm3_W1JetsToLNu_'+channel+systematic)
-    wjetsHist.Add(get1DHist(input, 'm3_W2JetsToLNu_'+channel+systematic))
-    wjetsHist.Add(get1DHist(input, 'm3_W3JetsToLNu_'+channel+systematic))
+    wjetsHist = get1DHist(input, 'm3_W3JetsToLNu_'+channel+systematic)
     wjetsHist.Add(get1DHist(input, 'm3_W4JetsToLNu_'+channel+systematic))
-    ScaleWithError(wjetsHist, MCSF, MCSFerror)
 
     qcdHist = get1DHist(input, 'm3_qcd_'+channel)
     ScaleWithError(qcdHist, QCDSF, QCDSFerror)
@@ -152,10 +119,9 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
     bkgHist.Add(get1DHist(input, 'm3_ZZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'm3_TTWJets_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'm3_TTZJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_ttA_2to5_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'm3_TTGamma_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'm3_ZGToLLG_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'm3_WGToLNuG_'+channel+systematic))
-    ScaleWithError(bkgHist, MCSF, MCSFerror)
 
     dataHist.Add(qcdHist, -1.0)
     dataHist.Add(bkgHist, -1.0)
@@ -175,29 +141,33 @@ def doM3Fit(channel, controlRegion, systematic, output, xlo, xhi):
     wjetsSF = (1.0-fitFrac) * dataInt / wjetsInt
     wjetsSFerror = fitFracErr * dataInt / wjetsInt
 
-    output.write(systematic+'\t'+
-            str(topSF)+'\t'+
-            str(topSFerror)+'\t'+
-            str(wjetsSF)+'\t'+
-            str(wjetsSFerror)+'\t'+
-            str(QCDSF)+'\t'+
-            str(QCDSFerror)+'\t'+
-            str(MCSF)+'\t'+
-            str(MCSFerror)+'\n')
+    output_wjets.write(systematic+'\t'+
+                       str(wjetsSF)+'\t'+
+                       str(wjetsSFerror)+'\n')
+
+    output_ttbar.write(systematic+'\t'+
+                       str(topSF)+'\t'+
+                       str(topSFerror)+'\n')
 
     drawPlots(dataHist, topHist, topSF, 'ttbar', wjetsHist, wjetsSF, 'wjets', xlo, xhi, 'm3_'+channel+systematic)
 
-def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi, version):
+    return (topSF, topSFerror, wjetsSF, wjetsSFerror)
 
-    input = 'histograms_'+channel+'_'+version+'.root'
+def doSigmaFit(channel, controlRegion, systematic, output_ttbar, output_ttgamma, xlo, xhi, wjetsResults, topM3Results):
+
+    (wjetsSF, wjetsSFerror) = wjetsResults
+    (topM3sf, topM3sfError) = topM3Results
+
+    input = '../histograms_'+channel+'_SigmaPlot.root'
 
     dataHist = get1DHist(input, 'leadSigmaIetaIeta_gg_'+channel)
 
     topHist = get1DHist(input, 'leadSigmaIetaIeta_ttJetsHadronic_'+channel+systematic)
     topHist.Add(get1DHist(input, 'leadSigmaIetaIeta_ttJetsFullLep_'+channel+systematic))
     topHist.Add(get1DHist(input, 'leadSigmaIetaIeta_ttJetsSemiLep_'+channel+systematic))
+    ScaleWithError(topHist, topM3sf, topM3sfError)
 
-    ttgammaHist = get1DHist(input, 'leadSigmaIetaIeta_ttA_2to5_'+channel+systematic)
+    ttgammaHist = get1DHist(input, 'leadSigmaIetaIeta_TTGamma_'+channel+systematic)
 
     bkgHist = get1DHist(input, 'leadSigmaIetaIeta_TBar_s_'+channel+systematic)
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_TBar_t_'+channel+systematic))
@@ -205,54 +175,38 @@ def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi, version):
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_T_s_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_T_t_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_T_tW_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy1JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy2JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy3JetsToLL_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy4JetsToLL_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_WW_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_WZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_ZZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_TTWJets_'+channel+systematic))
     bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_TTZJets_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_ZGToLLG_'+channel+systematic))
+    bkgHist.Add(get1DHist(input, 'leadSigmaIetaIeta_WGToLNuG_'+channel+systematic))
 
-    wjetsHist = get1DHist(input, 'leadSigmaIetaIeta_W1JetsToLNu_'+channel+systematic)
-    wjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W2JetsToLNu_'+channel+systematic))
-    wjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W3JetsToLNu_'+channel+systematic))
+    wjetsHist = get1DHist(input, 'leadSigmaIetaIeta_W3JetsToLNu_'+channel+systematic)
     wjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_W4JetsToLNu_'+channel+systematic))
-
-    zjetsHist = get1DHist(input, 'leadSigmaIetaIeta_dy1JetsToLL_'+channel+systematic)
-    zjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy2JetsToLL_'+channel+systematic))
-    zjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy3JetsToLL_'+channel+systematic))
-    zjetsHist.Add(get1DHist(input, 'leadSigmaIetaIeta_dy4JetsToLL_'+channel+systematic))
+    ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
 
     qcdHist = get1DHist(input, 'leadSigmaIetaIeta_qcd_'+channel)
-    if channel == 'ele_bjj':
-        ScaleWithError(qcdHist, 0.57381, 0.079112)
-        ScaleWithError(wjetsHist, 1.72687920543, 0.0272087469619)
-    if channel == 'muon_bjj':
-        ScaleWithError(qcdHist, 0.0144609, 0.0192772)
-        ScaleWithError(wjetsHist, 1.50657303747, 0.0263282690732)
-
+    (qcdSF, qcdSFerror) = normalizeQCD(dataHist, qcdHist, MCHist)
+    ScaleWithError(qcdHist, qcdSF, qcdSFerror)
+    
     dataHist.Add(bkgHist, -1.0)
     dataHist.Add(qcdHist, -1.0)
     dataHist.Add(wjetsHist, -1.0)
-    dataHist.Add(zjetsHist, -1.0)
-    #ttgammaHist.Add(zjetsHist)
-
-    if version == 'noSigma':
-	dataHist.Rebin(2)
-	topHist.Rebin(2)
-	ttgammaHist.Rebin(2)
 
     (fitFrac, fitFracErr) = makeFit('leadSigmaIetaIeta', xlo, xhi, topHist, ttgammaHist, dataHist)
 
     lowbin = dataHist.FindBin(xlo)
     highbin = dataHist.FindBin(xhi) - 1
-
-    dataInt = dataHist.Integral()
-    topInt = topHist.Integral()
-    ttgammaInt = ttgammaHist.Integral()
-
-    #durp
-    #dataInt = dataHist.Integral(lowbin, highbin)
-    #topInt = topHist.Integral(lowbin, highbin)
-    #ttgammaInt = ttgammaHist.Integral(lowbin, highbin)
+    
+    dataInt = dataHist.Integral(lowbin, highbin)
+    topInt = topHist.Integral(lowbin, highbin)
+    ttgammaInt = ttgammaHist.Integral(lowbin, highbin)
 
     topSF = fitFrac * dataInt / topInt
     topSFerror = fitFracErr * dataInt / topInt
@@ -260,24 +214,21 @@ def doSigmaFit(channel, controlRegion, systematic, output, xlo, xhi, version):
     ttgammaSF = (1.0-fitFrac) * dataInt / ttgammaInt
     ttgammaSFerror = fitFracErr * dataInt / ttgammaInt
 
-    if systematic == '':
-        topInt = topInt	* topSF
-        ttgammaInt = ttgammaInt	* ttgammaSF
-        #print '\n\nN(top) = '+repr(topInt)+'\nN(ttgamma) = '+repr(ttgammaInt)+'\n\n'
+    output_ttbar.write(systematic+'\t'+
+                       str(topSF)+'\t'+
+                       str(topSFerror)+'\n')
 
-    output.write(systematic+'\t'+
-            str(topSF)+'\t'+
-            str(topSFerror)+'\t'+
-            str(ttgammaSF)+'\t'+
-            str(ttgammaSFerror)+'\t'+'\n')
+    output_ttgamma.write(systematic+'\t'+
+                         str(ttgammaSF)+'\t'+
+                         str(ttgammaSFerror)+'\n')
 
     drawPlots(dataHist, topHist, topSF, 'ttbar', ttgammaHist, ttgammaSF, 'ttgamma', xlo, xhi, 'leadSigmaIetaIeta_'+channel+systematic)
 
-    return (fitFrac, topSF, ttgammaSF)
+    return (topSF, topSFerror, ttgammaSF, ttgammaSFerror)
 
 def doChHadIsoFit(channel, controlRegion, systematic, output, xlo, xhi, version):
 
-    input = 'histograms_'+channel+'_'+version+'.root'
+    input = '../histograms_'+channel+'_'+version+'.root'
 
     dataHist = get1DHist(input, 'leadChargedHadronIso_gg_'+channel)
 
@@ -285,7 +236,7 @@ def doChHadIsoFit(channel, controlRegion, systematic, output, xlo, xhi, version)
     topHist.Add(get1DHist(input, 'leadChargedHadronIso_ttJetsFullLep_'+channel+systematic))
     topHist.Add(get1DHist(input, 'leadChargedHadronIso_ttJetsSemiLep_'+channel+systematic))
 
-    ttgammaHist = get1DHist(input, 'leadChargedHadronIso_ttA_2to5_'+channel+systematic)
+    ttgammaHist = get1DHist(input, 'leadChargedHadronIso_TTGamma_'+channel+systematic)
 
     bkgHist = get1DHist(input, 'leadChargedHadronIso_TBar_s_'+channel+systematic)
     bkgHist.Add(get1DHist(input, 'leadChargedHadronIso_TBar_t_'+channel+systematic))
@@ -347,7 +298,7 @@ def doChHadIsoFit(channel, controlRegion, systematic, output, xlo, xhi, version)
             str(topSF)+'\t'+
             str(topSFerror)+'\t'+
             str(ttgammaSF)+'\t'+
-            str(ttgammaSFerror)+'\t'+'\n')
+            str(ttgammaSFerror)+'\n')
 
     drawPlots(dataHist, topHist, topSF, 'ttbar', ttgammaHist, ttgammaSF, 'ttgamma', xlo, xhi, 'leadChargedHadronIso_'+channel+systematic)
 

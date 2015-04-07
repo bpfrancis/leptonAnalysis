@@ -2,6 +2,35 @@
 
 using namespace std;
 
+void readFitResults(string fileName, vector<Float_t>& scales, vector<Float_t>& errors) {
+
+  scales.clear();
+  errors.clear();
+
+  double sf, sfError;
+  string dummy;
+
+  ifstream input;
+  input.open(fileName);
+
+  // skip the first line
+  getline(input, dummy);
+
+  // get the central value (systematic is empty)
+  input >> sf >> sfError;
+  scales.push_back(sf);
+  errors.push_back(sfError);
+
+  for(int i = 0; i < 12; i++) {
+    input >> dummy >> sf >> sfError;
+    scales.push_back(sf);
+    errors.push_back(sfError);
+  }
+
+  input.close();
+
+}
+
 void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
   gROOT->Reset();
@@ -10,36 +39,35 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   gStyle->SetOptStat(0000);
   gStyle->SetOptTitle(0);
 
-  // derived from CR0
-  //systematic    topSF           topSFerror              wjetsSF         wjetsSFerror    QCDSF           QCDSFerror              MCSF            MCSFerror
-  //e             0.858155455758  0.00530696636038        1.72687920543   0.0272087469619 0.329063044627  0.00388312156924        1.06815211075   0.0018533136753
-  //mu            0.901305990296  0.00512420403339        1.50657303747   0.0263282690732 0.0145787340776 0.000532393744709	  1.07209994177   0.00218894359086
+  vector<Float_t> sf_ttbar, sfError_ttbar;
+  //readFitResults(fileName, sf_ttbar, sfError_ttbar);
 
-  Float_t sf_wJets = (channels[channel].Contains("ele")) ? 1.72687920543 : 1.50657303747;
-  Float_t sfError_wJets = (channels[channel].Contains("ele")) ? 0.0272087469619 : 0.0263282690732;
+  vector<Float_t> sf_wjets, sfError_wjets;
+  //readFitResults(fileName, sf_wjets, sfError_wjets);
 
-  Float_t sf_ttbar = (channels[channel].Contains("ele")) ? 0.858155455758 : 0.901305990296;
-  Float_t sfError_ttbar = (channels[channel].Contains("ele")) ? 0.00530696636038 : 0.00512420403339;
+  vector<Float_t> sf_ttgamma, sfError_ttgamma;
+  if(controlRegion != kCR0 && controlRegion != kAny) {
+    vector<Float_t> sf_ttbar_extra, sfError_ttbar_extra;
+    //readFitResults(fileName, sf_ttbar_extra, sfError_ttbar_extra);
+    for(unsigned int i = 0; i < sf_ttbar.size(); i++) {
+      sf_ttbar[i] *= sf_ttbar_extra[i];
+      sfError_ttbar[i] = sqrt(sfError_ttbar_extra[i]*sfError_ttbar_extra[i] + sfError_ttbar[i]*sfError_ttbar[i]);
+    }
 
-  Float_t sf_mc = (channels[channel].Contains("ele")) ? 1.06815211075 : 1.07209994177;
-  Float_t sfError_mc = (channels[channel].Contains("ele")) ? 0.0018533136753 : 0.00218894359086;
+    //readFitResults(fileName, sf_ttgamma, sfError_ttgamma);
+  }
 
-  //Float_t sf_qcd = (channels[channel].Contains("ele")) ? 0.329063044627 : 0.0145787340776;
-  //Float_t sfError_qcd = (channels[channel].Contains("ele")) ? 0.00388312156924 : 0.000532393744709;
+  vector<Float_t> sf_qcd, sfError_qcd;
+  if(controlRegion == kAny) //readFitResults(fileName, sf_qcd, sfError_qcd);
+  
+  // to do:
+  // put in qcd scaling for kAny case
+  // do vgamma fit in mLepGamma, and put the scalings in here
 
   // invert both sIetaIeta and chHadIso
   // fit sIetaIeta (0.006-0.02) --> central
   // also fit chHadIso (0-20) --> systematic
   // MET < 50
-
-  Float_t sf_ttjets = (channels[channel].Contains("ele")) ? 0.948467461175 : 1.04147892559;
-  Float_t sfError_ttjets = (channels[channel].Contains("ele")) ? 0.0213520487837 : 0.0219131353559;
-  
-  Float_t sf_ttgamma = (channels[channel].Contains("ele")) ? 0.802607703245 : 1.0182321871;
-  Float_t sfError_ttgamma = (channels[channel].Contains("ele")) ? 0.156110926201 : 0.160640063318;
-
-  sf_mc = -1.;
-  sf_ttbar = -1.;
 
   PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType);
 
@@ -47,21 +75,21 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   ttJets.push_back("ttJetsSemiLep");
   ttJets.push_back("ttJetsFullLep");
   ttJets.push_back("ttJetsHadronic");
-  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} + Jets", kGG, kTTbar, sf_ttjets, sfError_ttjets);
+  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} + Jets", kGG, kTTbar, sf_ttabr, sfError_ttbar);
 
   vector<TString> wJets;
-  wJets.push_back("W1JetsToLNu");
-  wJets.push_back("W2JetsToLNu");
+  //wJets.push_back("W1JetsToLNu");
+  //wJets.push_back("W2JetsToLNu");
   wJets.push_back("W3JetsToLNu");
   wJets.push_back("W4JetsToLNu");
-  pMaker->BookMCLayer(wJets, kOrange-3, "wjets", "W + Jets", kQQ, kV, sf_wJets, sfError_wJets);
+  pMaker->BookMCLayer(wJets, kOrange-3, "wjets", "W + Jets", kQQ, kV, sf_wjets, sfError_wjets);
 
   vector<TString> zJets;
   zJets.push_back("dy1JetsToLL");
   zJets.push_back("dy2JetsToLL");
   zJets.push_back("dy3JetsToLL");
   zJets.push_back("dy4JetsToLL");
-  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV);
 
   vector<TString> singleTop;
   singleTop.push_back("TBar_s");
@@ -70,26 +98,26 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   singleTop.push_back("T_s");
   singleTop.push_back("T_t");
   singleTop.push_back("T_tW");
-  pMaker->BookMCLayer(singleTop, kRed, "singleTop", "Single top", kQG, kTTbar, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(singleTop, kRed, "singleTop", "Single top", kQG, kTTbar);
 
   vector<TString> diboson;
   diboson.push_back("WW");
   diboson.push_back("WZ");
   diboson.push_back("ZZ");
-  pMaker->BookMCLayer(diboson, kViolet-2, "diboson", "VV, V#gamma", kQQ, kVV, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(diboson, kViolet-2, "diboson", "VV, V#gamma", kQQ, kVV);
 
   vector<TString> vgamma;
   vgamma.push_back("WGToLNuG");
   vgamma.push_back("ZGToLLG");
-  pMaker->BookMCLayer(vgamma, kAzure-2, "vgamma", "VV, V#gamma", kQQ, kVV, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(vgamma, kAzure-2, "vgamma", "VV, V#gamma", kQQ, kVV);
 
   vector<TString>  ttW;
   ttW.push_back("TTWJets");
-  pMaker->BookMCLayer(ttW, kCyan, "ttW", "t#bar{t} + V", kQQ, kTTbar, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttW, kCyan, "ttW", "t#bar{t} + V", kQQ, kTTbar);
 
   vector<TString>  ttZ;
   ttZ.push_back("TTZJets");
-  pMaker->BookMCLayer(ttZ, kOrange-5, "ttZ", "t#bar{t} + V", kGG, kTTbar, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttZ, kOrange-5, "ttZ", "t#bar{t} + V", kGG, kTTbar);
 
   vector<TString> ttgamma;
   if(useWhizard) ttgamma.push_back("ttA_2to5");
