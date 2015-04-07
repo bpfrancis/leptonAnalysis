@@ -757,7 +757,10 @@ void PlotMaker::MakeLegends() {
   if(needsQCD) leg->AddEntry(bkg, "QCD", "F");
 
   leg->AddEntry(mc[0], layerLegends[0], "F");
-  for(unsigned int i = 1; i < mc.size(); i++) leg->AddEntry(mc[i], layerLegends[i], "F");
+  for(unsigned int i = 1; i < mc.size(); i++) {
+    if(layerLegends[i] == layerLegends[i-1]) continue;
+    leg->AddEntry(mc[i], layerLegends[i], "F");
+  }
   if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
@@ -1030,6 +1033,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   bkg->Draw("hist");
   for(unsigned int i = 0; i < mc.size(); i++) {
     if(!needsQCD && i == 0) continue;
+    if(i > 0 && layerLegends[i] == layerLegends[i-1]) continue;
     mc[i]->Draw("same hist");
   }
   //errors_stat->Draw("same e2");
