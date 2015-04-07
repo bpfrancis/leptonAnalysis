@@ -117,8 +117,8 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratio.Draw('e1 same')
     ratio.Draw('axis same')
     
-    can.SaveAs(name+'.png')
-    #can.SaveAs(name+'.C')
+    can.SaveAs('plots/'+name+'.png')
+    #can.SaveAs('canvases/'+name+'.C')
 
 def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
 

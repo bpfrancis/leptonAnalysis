@@ -13,7 +13,28 @@ systematics = ['',
 
 for channel in channels:
 
-    # Firstly calculate QCD sf in kAny for the WJets fit
+    # First calculate e --> gamma fake rate sf
+
+    zResults = []
+
+    channel_noTag = channel
+    if channel.find('ele'):
+        channel_noTag = 'ele_jjj'
+    else:
+        channel_noTag = 'muon_jjj'
+
+    output_z = open('zSF_'+channel_noTag+'.txt', 'w')
+    output_z.write('systematic\tSF\tError\n')
+
+    for systematic in systematics:
+        if channel.find('ele') == 0:
+            zResults.append(doElectronFit(channel_noTag, 'SigmaPlot', systematic, output_z, 20.0, 180.0))
+        else:
+            zResults.append(doElectronFit(channel_noTag, 'SigmaPlot', systematic, output_z, 20.0, 180.0))
+
+    output_z.close()
+
+    # Now calculate QCD sf in kAny for the WJets fit
 
     qcdResults_kAny = []
     
@@ -52,20 +73,20 @@ for channel in channels:
     ttbarResults_sigma = []
     ttgammaResults = []
 
-    output_ttbar = open('ttbarSF_sigma_'+channel+'.txt', 'w')
-    output_ttbar.write('systematic\tSF\tError\n')
+    output_ttjets = open('ttbarSF_sigma_'+channel+'.txt', 'w')
+    output_ttjets.write('systematic\tSF\tError\n')
 
     output_ttgamma = open('ttgammaSF_'+channel+'.txt', 'w')
     output_ttgamma.write('systematic\tSF\tError\n')
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit(channel, controlRegion, systematic, outpt_ttbar, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst])
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst])
         ttbarResults_sigma.append((topSF, topSFerror))
         ttgammaResults.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
 
-    output_ttbar.close()
+    output_ttjets.close()
     output_ttgamma.close()
 
     
