@@ -76,20 +76,20 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   diboson.push_back("WW");
   diboson.push_back("WZ");
   diboson.push_back("ZZ");
-  pMaker->BookMCLayer(diboson, kCyan, "diboson", "Diboson", kQQ, kVV, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(diboson, kViolet-2, "diboson", "Diboson", kQQ, kVV, sf_mc, sfError_mc);
 
   vector<TString> vgamma;
   vgamma.push_back("WGToLNuG");
   vgamma.push_back("ZGToLLG");
-  pMaker->BookMCLayer(vgamma, kRed, "vgamma", "V#gamma", kQQ, kVV, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(vgamma, kAzure-2, "vgamma", "V#gamma", kQQ, kVV, sf_mc, sfError_mc);
 
   vector<TString>  ttW;
   ttW.push_back("TTWJets");
-  pMaker->BookMCLayer(ttW, kAzure-2, "ttW", "t#bar{t} + W", kQQ, kTTbar, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttW, kCyan, "ttW", "t#bar{t} + W", kQQ, kTTbar, sf_mc, sfError_mc);
 
   vector<TString>  ttZ;
   ttZ.push_back("TTZJets");
-  pMaker->BookMCLayer(ttZ, kOrange-7, "ttZ", "t#bar{t} + Z", kGG, kTTbar, sf_mc, sfError_mc);
+  pMaker->BookMCLayer(ttZ, kOrange-5, "ttZ", "t#bar{t} + Z", kGG, kTTbar, sf_mc, sfError_mc);
 
   vector<TString> ttgamma;
   if(useWhizard) ttgamma.push_back("ttA_2to5");

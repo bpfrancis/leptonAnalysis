@@ -40,10 +40,10 @@ TString channels[nChannels] = {"ele_bjj", "muon_bjj",
 unsigned int nBtagReq[nChannels] = {1, 1,
 				    0, 0};
 
-TString qcdChannels[nChannels] = {"ele_jjj_veto_eQCDTree", "muon_jjj_veto_muQCDTree",
+TString qcdChannels[nChannels] = {"ele_bjj_eQCDTree", "muon_bjj_muQCDTree",
 				  "ele_jjj_eQCDTree", "muon_jjj_muQCDTree"};
 
-TString qcdChannels_fakePhotons[nChannels] = {"ele_jjj_veto_eQCDfakeTree", "muon_jjj_veto_muQCDfakeTree",
+TString qcdChannels_fakePhotons[nChannels] = {"ele_bjj_eQCDfakeTree", "muon_bjj_muQCDfakeTree",
 					      "ele_jjj_eQCDfakeTree", "muon_jjj_muQCDfakeTree"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
