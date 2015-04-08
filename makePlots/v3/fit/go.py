@@ -28,9 +28,9 @@ for channel in channels:
 
     for systematic in systematics:
         if channel.find('ele') == 0:
-            zResults.append(doElectronFit(channel_noTag, 'SigmaPlot', systematic, output_z, 20.0, 180.0))
+            zResults.append(doElectronFit(channel_noTag, 'SR1', systematic, output_z, 20.0, 180.0))
         else:
-            zResults.append(doElectronFit(channel_noTag, 'SigmaPlot', systematic, output_z, 20.0, 180.0))
+            zResults.append(doElectronFit(channel_noTag, 'SR1', systematic, output_z, 20.0, 180.0))
 
     output_z.close()
 
@@ -67,26 +67,46 @@ for channel in channels:
     output_wjets.close()
     output_ttbar.close()
  
-    # Now calculate TTGamma sf in kSigmaPlot
+    # Now calculate TTGamma sf in kSigmaPlot for lead sigma ieta ieta
     # using the M3 results above, and just normalizing QCD in MET < 20
 
     ttbarResults_sigma = []
-    ttgammaResults = []
+    ttgammaResults_sigma = []
 
     output_ttjets = open('ttbarSF_sigma_'+channel+'.txt', 'w')
     output_ttjets.write('systematic\tSF\tError\n')
 
-    output_ttgamma = open('ttgammaSF_'+channel+'.txt', 'w')
+    output_ttgamma = open('ttgammaSF_sigma'+channel+'.txt', 'w')
     output_ttgamma.write('systematic\tSF\tError\n')
 
     isyst = 0
     for systematic in systematics:
         (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst])
         ttbarResults_sigma.append((topSF, topSFerror))
-        ttgammaResults.append((ttgammaSF, ttgammaSFerror))
+        ttgammaResults_sigma.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
 
     output_ttjets.close()
     output_ttgamma.close()
 
-    
+    # Now calculate TTGamma sf in kSigmaPlot for charged hadron isolation
+    # using the M3 results above, and just normalizing QCD in MET < 20
+
+    ttbarResults_chHadIso = []
+    ttgammaResults_chHadIso = []
+
+    output_ttjets = open('ttbarSF_chHadIso_'+channel+'.txt', 'w')
+    output_ttjets.write('systematic\tSF\tError\n')
+
+    output_ttgamma = open('ttgammaSF_chHadIso_'+channel+'.txt', 'w')
+    output_ttgamma.write('systematic\tSF\tError\n')
+
+    isyst = 0
+    for systematic in systematics:
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst])
+        ttbarResults_chHadIso.append((topSF, topSFerror))
+        ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
+        isyst += 1
+
+    output_ttjets.close()
+    output_ttgamma.close()

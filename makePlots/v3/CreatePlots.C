@@ -11,7 +11,7 @@ void readFitResults(string fileName, vector<Float_t>& scales, vector<Float_t>& e
   string dummy;
 
   ifstream input;
-  input.open(fileName);
+  input.open(fileName.c_str());
 
   // skip the first line
   getline(input, dummy);
@@ -40,36 +40,30 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   gStyle->SetOptTitle(0);
 
   vector<Float_t> sf_ttbar, sfError_ttbar;
-  //readFitResults(fileName, sf_ttbar, sfError_ttbar);
+  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttbar, sfError_ttbar);
 
   vector<Float_t> sf_wjets, sfError_wjets;
-  //readFitResults(fileName, sf_wjets, sfError_wjets);
+  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
 
   vector<Float_t> sf_ttgamma, sfError_ttgamma;
-  if(controlRegion != kCR0 && controlRegion != kAny) {
+  if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("bjj")) {
     vector<Float_t> sf_ttbar_extra, sfError_ttbar_extra;
-    //readFitResults(fileName, sf_ttbar_extra, sfError_ttbar_extra);
+    readFitResults("scaleFactors/ttbarSF_sigma_"+channels[channel]+".txt", sf_ttbar_extra, sfError_ttbar_extra);
     for(unsigned int i = 0; i < sf_ttbar.size(); i++) {
       sf_ttbar[i] *= sf_ttbar_extra[i];
       sfError_ttbar[i] = sqrt(sfError_ttbar_extra[i]*sfError_ttbar_extra[i] + sfError_ttbar[i]*sfError_ttbar[i]);
     }
 
-    //readFitResults(fileName, sf_ttgamma, sfError_ttgamma);
+    readFitResults("scaleFactors/ttgammaSF_sigma_"+channels[channel]+".txt", sf_ttgamma, sfError_ttgamma);
   }
 
+  vector<Float_t> sf_vgamma, sfError_vgamma;
+  if(controlRegion != kCR0 && controlRegion != kAny) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+
   vector<Float_t> sf_qcd, sfError_qcd;
-  if(controlRegion == kAny) //readFitResults(fileName, sf_qcd, sfError_qcd);
+  if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
   
-  // to do:
-  // put in qcd scaling for kAny case
-  // do vgamma fit in mLepGamma, and put the scalings in here
-
-  // invert both sIetaIeta and chHadIso
-  // fit sIetaIeta (0.006-0.02) --> central
-  // also fit chHadIso (0-20) --> systematic
-  // MET < 50
-
-  PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType);
+  PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
 
   vector<TString> ttJets;
   ttJets.push_back("ttJetsSemiLep");
@@ -89,7 +83,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   zJets.push_back("dy2JetsToLL");
   zJets.push_back("dy3JetsToLL");
   zJets.push_back("dy4JetsToLL");
-  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV);
+  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV, sf_vgamma, sfError_vgamma);
 
   vector<TString> singleTop;
   singleTop.push_back("TBar_s");
@@ -109,7 +103,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   vector<TString> vgamma;
   vgamma.push_back("WGToLNuG");
   vgamma.push_back("ZGToLLG");
-  pMaker->BookMCLayer(vgamma, kAzure-2, "vgamma", "VV, V#gamma", kQQ, kVV);
+  pMaker->BookMCLayer(vgamma, kAzure-2, "vgamma", "VV, V#gamma", kQQ, kVV, sf_vgamma, sfError_vgamma);
 
   vector<TString>  ttW;
   ttW.push_back("TTWJets");

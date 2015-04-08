@@ -298,7 +298,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi):
     (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
 
-    bkgHist.Add(qcd)
+    bkgHist.Add(qcdHist)
     
     (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, zHist, bkgHist, dataHist)
 

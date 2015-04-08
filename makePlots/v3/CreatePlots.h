@@ -47,7 +47,7 @@ class PlotMaker : public TObject {
   ClassDef(PlotMaker, 1);
 
  public:
-  PlotMaker(int chanNo, int cr, bool useQCD, TString metType_);
+  PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_);
   virtual ~PlotMaker();
 
   void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, 
@@ -341,6 +341,9 @@ class PlotMaker : public TObject {
   bool needsQCD;
   TString metType;
 
+  vector<Float_t> sf_qcd;
+  vector<Float_t> sfError_qcd;
+
   bool doRebinMET;
 
   TLegend * leg;
@@ -349,7 +352,7 @@ class PlotMaker : public TObject {
 
 };
 
-PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_) {
+PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_) {
 
   channel = channels[chanNo];
   channelLabel = channelLabels[chanNo];
@@ -357,7 +360,13 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_) {
   needsQCD = useQCD;
   metType = metType_;
 
+  sf_qcd = sf_qcd_;
+  sfError_qcd = sfError_qcd_;
+
   doRebinMET = false;
+
+  sf_qcd.clear();
+  sfError_qcd.clear();
 
   mc.clear();
   mc_btagWeightUp.clear();
@@ -408,6 +417,9 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_) {
 }
 
 PlotMaker::~PlotMaker() {
+
+  sf_qcd.clear();
+  sfError_qcd.clear();
 
   mc.clear();
   mc_btagWeightUp.clear();
@@ -933,6 +945,12 @@ void PlotMaker::ScaleQCD() {
 }
 
 void PlotMaker::CalculateQCDNormalization() {
+
+  if(sf_qcd.size() > 0) {
+    qcdScale = sf_qcd[0];
+    qcdScaleError = sfError_qcd[0];
+    return;
+  }
 
   unsigned int met_index = 0;
   bool foundMET = false;
