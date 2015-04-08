@@ -18,7 +18,7 @@ for channel in channels:
     zResults = []
 
     channel_noTag = channel
-    if channel.find('ele'):
+    if channel.find('ele') == 0:
         channel_noTag = 'ele_jjj'
     else:
         channel_noTag = 'muon_jjj'
@@ -27,10 +27,7 @@ for channel in channels:
     output_z.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
-        if channel.find('ele') == 0:
-            zResults.append(doElectronFit(channel_noTag, 'SR1', systematic, output_z, 20.0, 180.0))
-        else:
-            zResults.append(doElectronFit(channel_noTag, 'SR1', systematic, output_z, 20.0, 180.0))
+        zResults.append(doElectronFit(channel_noTag, 'SR1', systematic, output_z, 20.0, 180.0))
 
     output_z.close()
 
@@ -103,7 +100,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst])
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], zResults[isyst])
         ttbarResults_chHadIso.append((topSF, topSFerror))
         ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
         isyst += 1

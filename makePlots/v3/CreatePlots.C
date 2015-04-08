@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void readFitResults(string fileName, vector<Float_t>& scales, vector<Float_t>& errors) {
+void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& errors) {
 
   scales.clear();
   errors.clear();
@@ -11,7 +11,7 @@ void readFitResults(string fileName, vector<Float_t>& scales, vector<Float_t>& e
   string dummy;
 
   ifstream input;
-  input.open(fileName.c_str());
+  input.open(fileName.Data());
 
   // skip the first line
   getline(input, dummy);
@@ -69,7 +69,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   ttJets.push_back("ttJetsSemiLep");
   ttJets.push_back("ttJetsFullLep");
   ttJets.push_back("ttJetsHadronic");
-  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} + Jets", kGG, kTTbar, sf_ttabr, sfError_ttbar);
+  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} + Jets", kGG, kTTbar, sf_ttbar, sfError_ttbar);
 
   vector<TString> wJets;
   //wJets.push_back("W1JetsToLNu");

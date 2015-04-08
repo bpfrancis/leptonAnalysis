@@ -180,12 +180,13 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
 
     return (topSF, topSFerror, wjetsSF, wjetsSFerror)
 
-def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output_ttgamma, xlo, xhi, wjetsResults, topM3Results):
+def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output_ttgamma, xlo, xhi, wjetsResults, topM3Results, zResults):
 
     (wjetsSF, wjetsSFerror) = wjetsResults
     (topM3sf, topM3sfError) = topM3Results
+    (zSF, zSFerror) = zResults
 
-    input = '../histograms_'+channel+'_SigmaPlot.root'
+    input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
     dataHist = get1DHist(input, varName+'_gg_'+channel)
 
@@ -202,26 +203,29 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_dy1JetsToLL_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systematic))
     bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
-
+    
     wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systematic)
     wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systematic))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
+
+    zHist = get1DHist(input, varName+'_dy1JetsToLL_'+channel+systematic)
+    zHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systematic))
+    zHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systematic))
+    zHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systematic))
+    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
+    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
+    ScaleWithError(zHist, zSF, zSFerror)
 
     MCHist = bkgHist.Clone('bkgClone')
     MCHist.Add(topHist)
     MCHist.Add(ttgammaHist)
     MCHist.Add(wjetsHist)
+    MCHist.Add(zHist)
 
     qcdHist = get1DHist(input, varName+'_qcd_'+channel)
     (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
@@ -230,6 +234,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     dataHist.Add(bkgHist, -1.0)
     dataHist.Add(qcdHist, -1.0)
     dataHist.Add(wjetsHist, -1.0)
+    dataHist.Add(zHist, -1.0)
 
     (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, topHist, ttgammaHist, dataHist)
 
@@ -262,7 +267,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi):
 
     varName = 'mLepGammaLead'
 
-    input = '../histograms_'+channel+'_SigmaPlot.root'
+    input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
     dataHist = get1DHist(input, varName+'_gg_'+channel)
 
