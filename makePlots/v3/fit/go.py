@@ -11,6 +11,12 @@ systematics = ['',
                '_leptonSFUp', '_leptonSFDown',
                '_photonSFUp', '_photonSFDown']
 
+zFitRegion = 'SR1' # maybe SigmaPlot
+qcdFitRegion = 'Any'
+m3FitRegion = 'Any'
+sigmaFitRegion = 'SigmaPlot' # MET < 50, g/f
+chHadIsoFitRegion = 'SigmaPlot'
+
 for channel in channels:
 
     # First calculate e --> gamma fake rate sf
@@ -27,7 +33,7 @@ for channel in channels:
     output_z.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
-        zResults.append(doElectronFit(channel_noTag, 'SR1', systematic, output_z, 20.0, 180.0))
+        zResults.append(doElectronFit(channel_noTag, zFitRegion, systematic, output_z, 20.0, 180.0))
 
     output_z.close()
 
@@ -39,7 +45,7 @@ for channel in channels:
     output_qcd.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
-        qcdResults_kAny.append(doQCDFit(channel, 'Any', systematic, output_qcd, 0.0, 300.0))
+        qcdResults_kAny.append(doQCDFit(channel, qcdFitRegion, systematic, output_qcd, 0.0, 300.0))
 
     output_qcd.close()
 
@@ -56,7 +62,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, wjetsSF, wjetsSFerror) = doM3Fit(channel, 'Any', systematic, output_wjets, output_ttbar, 40.0, 660.0, qcdResults_kAny[isyst])
+        (topSF, topSFerror, wjetsSF, wjetsSFerror) = doM3Fit(channel, m3FitRegion, systematic, output_wjets, output_ttbar, 40.0, 660.0, qcdResults_kAny[isyst])
         wjetsResults.append((wjetsSF, wjetsSFerror))
         ttbarResults_M3.append((topSF, topSFerror))
         isyst += 1
@@ -73,12 +79,12 @@ for channel in channels:
     output_ttjets = open('ttbarSF_sigma_'+channel+'.txt', 'w')
     output_ttjets.write('systematic\tSF\tError\n')
 
-    output_ttgamma = open('ttgammaSF_sigma'+channel+'.txt', 'w')
+    output_ttgamma = open('ttgammaSF_sigma_'+channel+'.txt', 'w')
     output_ttgamma.write('systematic\tSF\tError\n')
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst])
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], zResults[isyst])
         ttbarResults_sigma.append((topSF, topSFerror))
         ttgammaResults_sigma.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
@@ -100,7 +106,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, 'SigmaPlot', systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], zResults[isyst])
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], zResults[isyst])
         ttbarResults_chHadIso.append((topSF, topSFerror))
         ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
         isyst += 1

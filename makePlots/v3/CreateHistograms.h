@@ -1970,25 +1970,37 @@ void HistogramMaker::CreateDatacards() {
     tree_contam->SetBranchAddress("pileupWeightDown", &puWeightDown);
     tree_contam->SetBranchAddress(topPtReweightingName, &topPtReweighting);
 
-    TH1D * h = new TH1D("signal"+code_t, "signal"+code_t, nMetBins, xbins_met); h->Sumw2();
+    int tmp_nbins = nMetBins;
+    if(controlRegion == kCR1 || controlRegion == kSR1 || controlRegion == kSigmaPlot) tmp_nbins = nMetBins_1g;
+    if(controlRegion == kCR2 || controlRegion == kSR2) tmp_nbins = nMetBins_2g;
 
-    TH1D * h_btagWeightUp = new TH1D("signal"+code_t+"_btagWeightUp", "signal"+code_t+"_btagWeightUp", nMetBins, xbins_met); h_btagWeightUp->Sumw2();
-    TH1D * h_btagWeightDown = new TH1D("signal"+code_t+"_btagWeightDown", "signal"+code_t+"_btagWeightDown", nMetBins, xbins_met); h_btagWeightDown->Sumw2();
+    const this_nbins = tmp_nbins;
+    Double_t this_xbins[this_nbins+1];
+    for(int ibin = 0; ibin < tmp_nbins+1; ibin++) {
+      if(controlRegion == kCR1 || controlRegion == kSR1 || controlRegion == kSigmaPlot) this_xbins[ibin] = xbins_met_1g[ibin];
+      else if(controlRegion == kCR2 || controlRegion == kSR2) this_xbins[ibin] = xbins_met_2g[ibin];
+      else this_xbins[ibin] = xbins_met[ibin];
+    }
 
-    TH1D * h_puWeightUp = new TH1D("signal"+code_t+"_puWeightUp", "signal"+code_t+"_puWeightUp", nMetBins, xbins_met); h_puWeightUp->Sumw2();
-    TH1D * h_puWeightDown = new TH1D("signal"+code_t+"_puWeightDown", "signal"+code_t+"_puWeightDown", nMetBins, xbins_met); h_puWeightDown->Sumw2();
+    TH1D * h = new TH1D("signal"+code_t, "signal"+code_t, this_nbins, this_xbins); h->Sumw2();
 
-    TH1D * h_topPtUp = new TH1D("signal"+code_t+"_topPtUp", "signal"+code_t+"_topPtUp", nMetBins, xbins_met); h_topPtUp->Sumw2();
-    TH1D * h_topPtDown = new TH1D("signal"+code_t+"_topPtDown", "signal"+code_t+"_topPtDown", nMetBins, xbins_met); h_topPtDown->Sumw2();
+    TH1D * h_btagWeightUp = new TH1D("signal"+code_t+"_btagWeightUp", "signal"+code_t+"_btagWeightUp", this_nbins, this_xbins); h_btagWeightUp->Sumw2();
+    TH1D * h_btagWeightDown = new TH1D("signal"+code_t+"_btagWeightDown", "signal"+code_t+"_btagWeightDown", this_nbins, this_xbins); h_btagWeightDown->Sumw2();
 
-    TH1D * h_JECup = new TH1D("signal"+code_t+"_JECUp", "signal"+code_t+"_JECUp", nMetBins, xbins_met); h_JECup->Sumw2();
-    TH1D * h_JECdown = new TH1D("signal"+code_t+"_JECDown", "signal"+code_t+"_JECDown", nMetBins, xbins_met); h_JECdown->Sumw2();
+    TH1D * h_puWeightUp = new TH1D("signal"+code_t+"_puWeightUp", "signal"+code_t+"_puWeightUp", this_nbins, this_xbins); h_puWeightUp->Sumw2();
+    TH1D * h_puWeightDown = new TH1D("signal"+code_t+"_puWeightDown", "signal"+code_t+"_puWeightDown", this_nbins, this_xbins); h_puWeightDown->Sumw2();
 
-    TH1D * h_leptonSFup = new TH1D("signal"+code_t+"_leptonSFUp", "signal"+code_t+"_leptonSFUp", nMetBins, xbins_met); h_leptonSFup->Sumw2();
-    TH1D * h_leptonSFdown = new TH1D("signal"+code_t+"_leptonSFDown", "signal"+code_t+"_leptonSFDown", nMetBins, xbins_met); h_leptonSFdown->Sumw2();
+    TH1D * h_topPtUp = new TH1D("signal"+code_t+"_topPtUp", "signal"+code_t+"_topPtUp", this_nbins, this_xbins); h_topPtUp->Sumw2();
+    TH1D * h_topPtDown = new TH1D("signal"+code_t+"_topPtDown", "signal"+code_t+"_topPtDown", this_nbins, this_xbins); h_topPtDown->Sumw2();
 
-    TH1D * h_photonSFup = new TH1D("signal"+code_t+"_photonSFUp", "signal"+code_t+"_photonSFUp", nMetBins, xbins_met); h_photonSFup->Sumw2();
-    TH1D * h_photonSFdown = new TH1D("signal"+code_t+"_photonSFDown", "signal"+code_t+"_photonSFDown", nMetBins, xbins_met); h_photonSFdown->Sumw2();
+    TH1D * h_JECup = new TH1D("signal"+code_t+"_JECUp", "signal"+code_t+"_JECUp", this_nbins, this_xbins); h_JECup->Sumw2();
+    TH1D * h_JECdown = new TH1D("signal"+code_t+"_JECDown", "signal"+code_t+"_JECDown", this_nbins, this_xbins); h_JECdown->Sumw2();
+
+    TH1D * h_leptonSFup = new TH1D("signal"+code_t+"_leptonSFUp", "signal"+code_t+"_leptonSFUp", this_nbins, this_xbins); h_leptonSFup->Sumw2();
+    TH1D * h_leptonSFdown = new TH1D("signal"+code_t+"_leptonSFDown", "signal"+code_t+"_leptonSFDown", this_nbins, this_xbins); h_leptonSFdown->Sumw2();
+
+    TH1D * h_photonSFup = new TH1D("signal"+code_t+"_photonSFUp", "signal"+code_t+"_photonSFUp", this_nbins, this_xbins); h_photonSFup->Sumw2();
+    TH1D * h_photonSFdown = new TH1D("signal"+code_t+"_photonSFDown", "signal"+code_t+"_photonSFDown", this_nbins, this_xbins); h_photonSFdown->Sumw2();
 
     for(int i = 0; i < tree->GetEntries(); i++) {
       tree->GetEntry(i);
