@@ -126,16 +126,23 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   if(controlRegion == kAny) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
-		     0., 300., 7.e-3, 7.5e4,
+		     0., 300., 7.e-3, 2.5e6,
 		     0., 1.9,
 		     true, true, true);
   }
+  else if(controlRegion == kCR1) {
+    pMaker->BookPlot(metType, true,
+		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
+		     0., 800., 2.e-3, 1.e2,
+		     0., 1.9,
+		     false, true, true);
+  }
   else {
-  pMaker->BookPlot(metType, true,
-		   "#slash{E}_{T} (GeV)", "Number of Events / GeV",
-		   0., 300., 7.e-3, 2.5e5,
-		   0., 1.9,
-		   true, true, true);
+    pMaker->BookPlot(metType, true,
+		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
+		     0., 300., 7.e-3, 2.5e5,
+		     0., 1.9,
+		     true, true, true);
   }
   
   //if(controlRegion == kCR1) pMaker->SetDoRebinMET(true);
@@ -150,7 +157,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   if(controlRegion == kAny) {
     pMaker->BookPlot("Njets", false,
 		     "Njets", "Number of Events",
-		     2., 10., 2.e-2, 5.e6,
+		     2., 11., 2.e-2, 1.1e8,
 		     0., 1.9,
 		     true, true, true);
   }
@@ -274,11 +281,20 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     0., 2.1,
 		     false, false, false);
 
-    pMaker->BookPlot("leadPhotonEt", true,
-		     "E_{T} of leading #gamma", "Number of Events / GeV",
-		     0., 700., 2.e-4, 5.e2,
-		     0., 5.1,
-		     true, true, true);
+    if(controlRegion == kCR1) {
+      pMaker->BookPlot("leadPhotonEt", true,
+		       "E_{T} of leading #gamma", "Number of Events / GeV",
+		       0., 200., 2.e-4, 5.e2,
+		       0., 5.1,
+		       false, true, true);
+    }
+    else {
+      pMaker->BookPlot("leadPhotonEt", true,
+		       "E_{T} of leading #gamma", "Number of Events / GeV",
+		       0., 700., 2.e-4, 5.e2,
+		       0., 5.1,
+		       true, true, true);
+    }
 
     pMaker->BookPlot("mLepGammaLead", true,
 		     "m_{#ell#gamma_{lead}}", "Number of Events / GeV",
