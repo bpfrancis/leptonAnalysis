@@ -253,7 +253,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("leadPhotonIso", 100, 0., 100.);
     hMaker->BookHistogram("mLepGammaLead", 40, 0., 400.);
 
-    hMaker->BookHistogram2D("leadSigmaIetaIeta", , 80, 0., 0.04, 20, 0., 350.);
+    hMaker->BookHistogram2D("leadSigmaIetaIeta", metType, 80, 0., 0.04, 20, 0., 350.);
     hMaker->BookHistogram2D("leadChargedHadronIso", metType, 110, -2.0, 20.0, 20, 0., 350.);
     hMaker->BookHistogram2D("Ngamma", "Nfake", 4, 0., 4., 4, 0., 4.);
   }

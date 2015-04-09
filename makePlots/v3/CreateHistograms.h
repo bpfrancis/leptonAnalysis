@@ -1974,7 +1974,7 @@ void HistogramMaker::CreateDatacards() {
     if(controlRegion == kCR1 || controlRegion == kSR1 || controlRegion == kSigmaPlot) tmp_nbins = nMetBins_1g;
     if(controlRegion == kCR2 || controlRegion == kSR2) tmp_nbins = nMetBins_2g;
 
-    const this_nbins = tmp_nbins;
+    const int this_nbins = tmp_nbins;
     Double_t this_xbins[this_nbins+1];
     for(int ibin = 0; ibin < tmp_nbins+1; ibin++) {
       if(controlRegion == kCR1 || controlRegion == kSR1 || controlRegion == kSigmaPlot) this_xbins[ibin] = xbins_met_1g[ibin];
