@@ -33,6 +33,9 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
 
 void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
+  // aps15
+  if(controlRegion == kCR2) needsQCD = false;
+
   gROOT->Reset();
   gROOT->SetBatch(true);
   gROOT->SetStyle("Plain");
@@ -134,6 +137,13 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 800., 2.e-3, 1.e2,
+		     0., 1.9,
+		     false, true, true);
+  }
+  else if(controlRegion == kCR2) {
+    pMaker->BookPlot(metType, true,
+		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
+		     0., 799.9, 3.e-4, 40.0,
 		     0., 1.9,
 		     false, true, true);
   }
@@ -284,8 +294,15 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
     if(controlRegion == kCR1) {
       pMaker->BookPlot("leadPhotonEt", true,
 		       "E_{T} of leading #gamma", "Number of Events / GeV",
-		       0., 200., 2.e-4, 5.e2,
-		       0., 5.1,
+		       0., 200., 2.e-4, 2.e4,
+		       0., 1.9,
+		       false, true, true);
+    }
+    else if(controlRegion == kCR2) {
+      pMaker->BookPlot("leadPhotonEt", true,
+		       "E_{T} of leading #gamma", "Number of Events / GeV",
+		       0., 199.9, 2.e-4, 40.0,
+		       0., 1.9,
 		       false, true, true);
     }
     else {
