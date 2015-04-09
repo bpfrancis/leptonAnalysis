@@ -124,7 +124,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   if(controlRegion == kAny) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
-		     0., 650., 7.e-3, 2.5e4,
+		     0., 300., 7.e-3, 7.5e4,
 		     0., 1.9,
 		     true, true, true);
   }
@@ -148,7 +148,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   if(controlRegion == kAny) {
     pMaker->BookPlot("Njets", false,
 		     "Njets", "Number of Events",
-		     2., 14., 2.e-2, 9.e5,
+		     2., 10., 2.e-2, 5.e6,
 		     0., 1.9,
 		     true, true, true);
   }
