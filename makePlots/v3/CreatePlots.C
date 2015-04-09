@@ -120,11 +120,21 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
   ///////////////////////////////////////////////////////
 
+  // aps15
+  if(controlRegion == kAny) {
+    pMaker->BookPlot(metType, true,
+		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
+		     0., 650., 7.e-3, 2.5e4,
+		     0., 1.9,
+		     true, true, true);
+  }
+  else {
   pMaker->BookPlot(metType, true,
 		   "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		   0., 300., 7.e-3, 2.5e5,
 		   0., 1.9,
 		   true, true, true);
+  }
   
   //if(controlRegion == kCR1) pMaker->SetDoRebinMET(true);
 
@@ -133,12 +143,22 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		   0., 300., 7.e-5, 2.e5,
 		   0., 1.9,
 		   true, true, true);
-		   
-  pMaker->BookPlot("Njets", false,
-		   "Njets", "Number of Events",
-		   2., 14., 2.e-3, 9.e5,
-		   0., 1.9,
-		   true, true, true);
+
+  // aps15
+  if(controLRegion == kAny) {
+    pMaker->BookPlot("Njets", false,
+		     "Njets", "Number of Events",
+		     2., 14., 2.e-2, 9.e5,
+		     0., 1.9,
+		     true, true, true);
+  }
+  else{
+    pMaker->BookPlot("Njets", false,
+		     "Njets", "Number of Events",
+		     2., 14., 2.e-3, 9.e5,
+		     0., 1.9,
+		     true, true, true);
+  }
 
   pMaker->BookPlot("Nbtags", false,
 		   "Nbtags", "Number of Events",
