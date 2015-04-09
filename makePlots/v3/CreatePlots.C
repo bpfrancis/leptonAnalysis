@@ -34,7 +34,7 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
 void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
   // aps15
-  if(controlRegion == kCR2) needsQCD = false;
+  if(controlRegion == kCR2 || controlRegion == kSR2) needsQCD = false;
 
   gROOT->Reset();
   gROOT->SetBatch(true);
@@ -146,6 +146,20 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     0., 799.9, 3.e-4, 40.0,
 		     0., 1.9,
 		     false, true, true);
+  }
+  else if(controlRegion == kSR1) {
+    pMaker->BookPlot(metType, true,
+		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
+		     0., 799.9, 9.e-4, 1.e2,
+		     0., 1.9,
+		     true, true, true);
+  }
+  else if(controlRegion == kSR2) {
+    pMaker->BookPlot(metType, true,
+		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
+		     0., 799.9, 3.e-4, 4.0,
+		     0., 1.9,
+		     true, true, true);
   }
   else {
     pMaker->BookPlot(metType, true,

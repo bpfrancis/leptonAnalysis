@@ -1068,7 +1068,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   }
   //errors_stat->Draw("same e2");
   errors_sys->Draw("same e2");
-  data->Draw("same e1");
+  if(controlRegion != kSR1 && controlRegion != kSR2) data->Draw("same e1"); // aps15
   bkg->Draw("same axis");
 
   if(doDrawSignal[n]) {
@@ -1085,10 +1085,14 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   padlo->cd();
 
-  ratio->Draw("e1");
-  ratio_sys->Draw("e2 same");
+  //aps15
+  if(controlRegion != kSR1 && controlRegion != kSR2) {
+    ratio->Draw("e1");
+    ratio_sys->Draw("e2 same");
+  }
+  else ratio_sys->Draw("e2");
   ratio_stat->Draw("e2 same");
-  ratio->Draw("e1 same");
+  if(controlRegion != kSR1 && controlRegion != kSR2) ratio->Draw("e1 same"); //aps15
   ratio->Draw("axis same");
   ratioLeg->Draw("same");
 
