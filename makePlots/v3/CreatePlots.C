@@ -145,7 +145,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		   true, true, true);
 
   // aps15
-  if(controLRegion == kAny) {
+  if(controlRegion == kAny) {
     pMaker->BookPlot("Njets", false,
 		     "Njets", "Number of Events",
 		     2., 14., 2.e-2, 9.e5,

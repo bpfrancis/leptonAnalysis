@@ -40,7 +40,8 @@ TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
   //"XYZ e (no b-tag)", "XYZ #mu (no b-tag)"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
-TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", /*aps15"Any"*/"Pre-selection"};
+TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
+TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", /*aps15"Any"*/"Pre-selection"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
@@ -817,7 +818,7 @@ void PlotMaker::MakeLegends() {
   reqText->SetFillColor(0);
   reqText->SetFillStyle(0);
   reqText->SetLineColor(0);
-  reqText->AddText(channelLabel.ReplaceAll("XYZ", crNames[controlRegion]));
+  reqText->AddText(channelLabel.ReplaceAll("XYZ", crLabels[controlRegion]));
 
   lumiHeader = new TPaveText(0.1, 0.901, 0.9, 0.94, "NDC");
   lumiHeader->SetFillColor(0);
