@@ -46,6 +46,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
 
   vector<Float_t> sf_ttgamma, sfError_ttgamma;
+  /*
   if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("bjj")) {
     vector<Float_t> sf_ttbar_extra, sfError_ttbar_extra;
     readFitResults("scaleFactors/ttbarSF_sigma_"+channels[channel]+".txt", sf_ttbar_extra, sfError_ttbar_extra);
@@ -56,6 +57,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
     readFitResults("scaleFactors/ttgammaSF_sigma_"+channels[channel]+".txt", sf_ttgamma, sfError_ttgamma);
   }
+  */
 
   vector<Float_t> sf_vgamma, sfError_vgamma;
   if(controlRegion != kCR0 && controlRegion != kAny) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
