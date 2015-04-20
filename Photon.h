@@ -65,14 +65,11 @@ bool is_loosePhoton(susy::Photon gamma, float rho) {
      gamma.momentum.Et() > 20.0 &&
      gamma.hadTowOverEm < 0.05 &&
      gamma.passelectronveto &&
-     gamma.nPixelSeeds == 0 &&
+     //gamma.nPixelSeeds == 0 &&
      neutralHadronIso_corrected(gamma, rho) < 3.5 + 0.04*gamma.momentum.Pt() &&
      photonIso_corrected(gamma, rho) < 1.3 + 0.005*gamma.momentum.Pt() &&
      chargedHadronIso_corrected(gamma, rho) < 2.6 &&
-     gamma.sigmaIetaIeta < 0.012 &&
-     gamma.r9 < 1.0 &&
-     gamma.sigmaIetaIeta > 0.001 &&
-     gamma.sigmaIphiIphi > 0.001) {
+     gamma.sigmaIetaIeta < 0.012) {
     
     return true;
 
@@ -87,12 +84,10 @@ bool is_fakePhoton(susy::Photon gamma, float rho) {
      gamma.momentum.Et() > 20.0 &&
      gamma.hadTowOverEm < 0.05 &&
      gamma.passelectronveto &&
-     gamma.nPixelSeeds == 0 &&
+     //gamma.nPixelSeeds == 0 &&
      neutralHadronIso_corrected(gamma, rho) < 3.5 + 0.04*gamma.momentum.Pt() &&
      photonIso_corrected(gamma, rho) < 1.3 + 0.005*gamma.momentum.Pt() &&
-     gamma.r9 < 1.0 &&
-     gamma.sigmaIetaIeta > 0.001 &&
-     gamma.sigmaIphiIphi > 0.001 &&
+     chargedHadronIso_corrected(gamma, rho) < 20.0 &&
      (gamma.sigmaIetaIeta >= 0.012 || chargedHadronIso_corrected(gamma, rho) >= 2.6)) {
 
     return true;

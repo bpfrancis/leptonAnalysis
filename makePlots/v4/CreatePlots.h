@@ -33,12 +33,15 @@ const int nChannels = 4;
 TString channels[nChannels] = {"ele_bjj", "muon_bjj",
 			       "ele_jjj", "muon_jjj"};
 
+// aps15
 TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
 				    "XYZ ele (no b-tag)", "XYZ muon (no b-tag)"};
+  //{"XYZ e", "XYZ #mu",
+  //"XYZ e (no b-tag)", "XYZ #mu (no b-tag)"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
-TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Pre-selection"};
+TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", /*aps15"Any"*/"Pre-selection"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
@@ -821,8 +824,9 @@ void PlotMaker::MakeLegends() {
   lumiHeader->SetFillColor(0);
   lumiHeader->SetFillStyle(0);
   lumiHeader->SetLineColor(0);
-  lumiHeader->AddText("CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
-  //aps15 lumiHeader->AddText("Work in Progress     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
+  // aps15
+  //lumiHeader->AddText("CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
+  lumiHeader->AddText("Work in Progress     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
 
 }
 
@@ -869,7 +873,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetTitleSize(0.12);
   ratio->GetXaxis()->SetTitleOffset(0.6);
 
-  DetermineAxisRanges(n);
+  // aps15 DetermineAxisRanges(n);
   //DetermineLegendRanges(n);
 
   if(xMaximums[n] > xMinimums[n]) {
@@ -1064,7 +1068,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   }
   //errors_stat->Draw("same e2");
   errors_sys->Draw("same e2");
-  data->Draw("same e1");
+  if(controlRegion != kSR1 && controlRegion != kSR2) data->Draw("same e1"); // aps15
   bkg->Draw("same axis");
 
   if(doDrawSignal[n]) {
@@ -1081,10 +1085,17 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   padlo->cd();
 
-  ratio->Draw("e1");
-  ratio_sys->Draw("e2 same");
+  //aps15
+  if(controlRegion != kSR1 && controlRegion != kSR2) {
+    ratio->Draw("e1");
+    ratio_sys->Draw("e2 same");
+  }
+  else {
+    ratio->Draw("axis");
+    ratio_sys->Draw("e2 same");
+  }
   ratio_stat->Draw("e2 same");
-  ratio->Draw("e1 same");
+  if(controlRegion != kSR1 && controlRegion != kSR2) ratio->Draw("e1 same"); //aps15
   ratio->Draw("axis same");
   ratioLeg->Draw("same");
 

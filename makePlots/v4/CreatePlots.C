@@ -33,6 +33,9 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
 
 void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
+  // aps15
+  if(controlRegion == kCR2 || controlRegion == kSR2) needsQCD = false;
+
   gROOT->Reset();
   gROOT->SetBatch(true);
   gROOT->SetStyle("Plain");

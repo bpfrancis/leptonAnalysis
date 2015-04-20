@@ -820,4 +820,101 @@ void overlayThing(TString channel) {
 
 }
 
+void overlayClosure1(TString channel) {
 
+  TString names[10] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "ttW", "ttZ", "ttgamma", "vgamma", "qcd"};
+
+  TFile * input = new TFile("limitInputs_bjj.root", "READ");
+
+  TH1D * h_mc = (TH1D*)input->Get(channel+"_SR1/ttjets");
+  TH1D * h_data = (TH1D*)input->Get(channel+"_CR1/data_obs");
+
+  for(int i = 1; i < 10; i++) {
+    TH1D * h = (TH1D*)input->Get(channel+"_SR1/"+names[i]);
+
+    double n, err;
+    n = h->IntegralAndError(0, -1, err);
+
+    if(n < 1.e-6) continue;
+    if(err > n) continue;
+
+    h_mc->Add(h);
+  }
+
+  h_mc->Scale(1./h_mc->Integral());
+  h_data->Scale(1./h_data->Integral());
+
+  TH1D * h_mc_sys = (TH1D*)h_mc->Clone("mc_sys");
+  TH1D * h_data_sys = (TH1D*)h_data->Clone("data_sys");
+
+  TCanvas * can = new TCanvas("can", "Plot", 10, 10, 800, 800);
+  padhi = new TPad("padhi", "padhi", 0, 0.3, 1, 1);
+  padlo = new TPad("padlo", "padlo", 0, 0, 1, 0.3);
+  padhi->SetTickx(true);
+  padhi->SetTicky(true);
+  padhi->SetBottomMargin(0);
+
+  padlo->SetTopMargin(0);
+  padlo->SetBottomMargin(0.2);
+
+  padhi->Draw();
+  padlo->Draw();
+
+  padhi->cd();
+
+  h_mc_sys->SetFillColor(kOrange+10);
+  h_mc_sys->SetFillStyle(3154);
+  h_mc_sys->SetMarkerSize(0);
+  h_mc_sys->GetYaxis()->SetRangeUser(0., 0.5);
+
+  h_data->SetMarkerStyle(20);
+  h_data->SetMarkerSize(1.5);
+
+  h_mc_sys->Draw("e2");
+  h_mc->Draw("hist same");
+  h_data->Draw("e1 same");
+  
+  TLegend * leg = new TLegend(0.55, 0.65, 0.85, 0.85, channel.Data(), "brNDC");
+  leg->AddEntry(h_mc_sys, "MC in SR1", "LPF");
+  leg->AddEntry(h_data, "Data in CR1", "LP");
+  leg->Draw("same");
+
+  padlo->cd();
+
+  TH1D * ratio = (TH1D*)h_data->Clone("ratio");
+  ratio->Divide(h_mc);
+
+  ratio->SetLineWidth(2);
+  ratio->GetXaxis()->SetTitle("MET");
+
+  TH1D * ratio_sys = (TH1D*)h_mc_sys->Clone("ratio_sys");
+  for(int i = 0; i < ratio_sys->GetNbinsX(); i++) {
+    if(h_mc->GetBinContent(i+1) == 0.) ratio_sys->SetBinError(i+1, 0.);
+    else ratio_sys->SetBinError(i+1, h_mc_sys->GetBinError(i+1) / h_mc->GetBinContent(i+1));
+    ratio_sys->SetBinContent(i+1, 1.);
+  }
+
+  ratio_sys->SetFillStyle(1001);
+  ratio_sys->SetFillColor(kGray);
+  ratio_sys->SetLineColor(kGray);
+  ratio_sys->SetMarkerColor(kGray);
+
+  TLine * oneLine = new TLine(ratio->GetXaxis()->GetBinLowEdge(1), 1, 
+			      ratio->GetXaxis()->GetBinLowEdge(ratio->GetNbinsX()) + ratio->GetXaxis()->GetBinWidth(ratio->GetNbinsX()), 1);
+  oneLine->SetLineStyle(2);
+
+  ratio->Draw("e1");
+  ratio_sys->Draw("e2 same");
+  ratio->Draw("e1 same");
+  ratio->Draw("axis same");
+  oneLine->Draw();
+  
+  can->SaveAs("dataCR1_to_mcSR1_"+channel+".png");
+
+  TFile * output = new TFile("extraErrors.root", "UPDATE");
+  ratio->Write("dataCR1_to_mcSR1_"+channel);
+  output->Close();
+
+  input->Close();
+
+}
