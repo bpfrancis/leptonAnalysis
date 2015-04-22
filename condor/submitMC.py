@@ -45,6 +45,9 @@ parser.add_option ('--inputFolder', dest='inputFolder', type='string',
 parser.add_option ('--runStaged', action="store_true",
                    dest="runStaged", default=False,
                    help="Run PileupWeights, CalculateBtagEfficiency, and Acceptance one at a time. This is forced true if njobs > 1. Further instructions will be shown if thflag is set.")
+parser.add_option ('--zgamma', action="store_true",
+                   dest="zgamma", default=False,
+                   help="Submit this job as ZGamma seleciton -- require two leptons instead of one.")
 
 options, args = parser.parse_args()
 
@@ -54,9 +57,14 @@ scriptBase = options.scriptBase
 anaBase = options.anaBase
 njobs = options.njobs
 test = options.test
+zgamma = options.zgamma
 datasetName = options.datasetName
 inputFolder = options.inputFolder
 runStaged = options.runStaged
+
+if zgamma:
+    anaBase = "zgamma_"+anaBase
+    scriptBase = "zgamma_"+scriptBase
 
 baseOutdir = baseOutdir+"_"+datetime.datetime.now().strftime("%b%d")
 

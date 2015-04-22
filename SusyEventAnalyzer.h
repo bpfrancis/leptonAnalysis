@@ -71,6 +71,8 @@ class SusyEventAnalyzer {
   virtual void LeptonInfo();
   virtual void CalculateBtagEfficiency();
   virtual void PileupWeights(TString puFile, TString puFile_up, TString puFile_down);
+  virtual void ZGammaData();
+  virtual void ZGammaAcceptance();
 
   // utility functions
   float deltaR(TLorentzVector& p1, TLorentzVector& p2);
@@ -187,6 +189,18 @@ class SusyEventAnalyzer {
 		     int nPVertex,
 		     float eventWeight, float eventWeightErr, float eventWeight_up, float eventWeight_down,
 		     Long64_t jentry);
+
+  void SetTreeValues_ZGamma(map<TString, float>& treeMap,
+			    vector<susy::Muon*> tightMuons, vector<susy::Electron*> tightEles, 
+			    vector<susy::PFJet*> pfJets, vector<susy::PFJet*> btags,
+			    vector<susy::Photon*> photons,
+			    vector<TLorentzVector> pfJets_corrP4, vector<TLorentzVector> btags_corrP4,
+			    vector<float> csvValues,
+			    TLorentzVector hadronicSystem,
+			    float HT, float HT_jets,
+			    int nPVertex,
+			    float eventWeight, float eventWeightErr, float eventWeight_up, float eventWeight_down,
+			    Long64_t jentry);
 
   // lazy junk
   void FillMetFilter2D(susy::Event& ev, TH2F*& h);
@@ -1847,3 +1861,426 @@ void SusyEventAnalyzer::IncludeSyncFile(char* file) {
 }
 
 #endif
+
+void SusyEventAnalyzer::SetTreeValues_ZGamma(map<TString, float>& treeMap,
+					     vector<susy::Muon*> tightMuons, vector<susy::Electron*> tightEles, 
+					     vector<susy::PFJet*> pfJets, vector<susy::PFJet*> btags,
+					     vector<susy::Photon*> photons,
+					     vector<TLorentzVector> pfJets_corrP4, vector<TLorentzVector> btags_corrP4,
+					     vector<float> csvValues,
+					     TLorentzVector hadronicSystem,
+					     float HT, float HT_jets,
+					     int nPVertex,
+					     float eventWeight, float eventWeightErr, float eventWeight_up, float eventWeight_down,
+					     Long64_t jentry) {
+
+  treeMap["nPV"] = nPVertex;
+  treeMap["metFilterBit"] = event.metFilterBit;
+  if(isMC && scan == "stop-bino") treeMap["ttbarDecayMode"] = FigureTTbarDecayMode();
+  if(isMC) {
+    treeMap["overlaps_whizard"] = overlaps_whizard();
+    treeMap["overlaps_madgraph"] = overlaps_madgraph();
+    treeMap["TopPtReweighting"] = TopPtReweighting(event);
+    treeMap["TopPtReweighting_ttHbb"] = TopPtReweighting_ttHbb(event);
+  }
+  treeMap["Nphotons"] = photons.size();
+
+  int nGamma = 0;
+  int nFake = 0;
+  for(unsigned int i = 0; i < photons.size(); i++) {
+    if(is_loosePhoton(*photons[i], event.rho25)) nGamma++;
+    if(is_fakePhoton(*photons[i], event.rho25)) nFake++;
+  }
+  treeMap["Ngamma"] = nGamma;
+  treeMap["Nfake"] = nFake;
+
+  treeMap["Njets"] = pfJets.size();
+  treeMap["Nbtags"] = btags.size();
+  treeMap["HT_jets"] = HT_jets;
+  treeMap["HT"] = HT + HT_jets;
+  treeMap["hadronic_pt"] = hadronicSystem.Pt();
+  
+  treeMap["max_csv"] = (csvValues.size() >= 1) ? csvValues[0] : -1.;
+  treeMap["submax_csv"] = (csvValues.size() >= 2) ? csvValues[1] : -1.;
+  treeMap["min_csv"] = (csvValues.size() >= 1) ? csvValues.back() : -1.;
+  
+  treeMap["jet1_pt"] = (pfJets_corrP4.size() >= 1) ? pfJets_corrP4[0].Pt() : -1.;
+  treeMap["jet2_pt"] = (pfJets_corrP4.size() >= 2) ? pfJets_corrP4[1].Pt() : -1.;
+  treeMap["jet3_pt"] = (pfJets_corrP4.size() >= 3) ? pfJets_corrP4[2].Pt() : -1.;
+  treeMap["jet4_pt"] = (pfJets_corrP4.size() >= 4) ? pfJets_corrP4[3].Pt() : -1.;
+  
+  treeMap["btag1_pt"] = (btags_corrP4.size() >= 1) ? btags_corrP4[0].Pt() : -1.;
+  treeMap["btag2_pt"] = (btags_corrP4.size() >= 2) ? btags_corrP4[1].Pt() : -1.;
+
+  if(isMC) treeMap["pileupWeight"] = eventWeight;
+  if(isMC) treeMap["pileupWeightErr"] = eventWeightErr;
+  if(isMC) treeMap["pileupWeightUp"] = eventWeight_up;
+  if(isMC) treeMap["pileupWeightDown"] = eventWeight_down;
+        
+  susy::MET* pfMet         = &(event.metMap.find("pfMet")->second);
+  susy::MET* pfMetType1    = &(event.metMap.find("pfType1CorrectedMet")->second);
+  susy::MET* pfMetType1p2  = &(event.metMap.find("pfType1p2CorrectedMet")->second);
+  susy::MET* pfMetType01   = &(event.metMap.find("pfType01CorrectedMet")->second);
+  susy::MET* pfMetType01p2 = &(event.metMap.find("pfType01p2CorrectedMet")->second);
+  susy::MET* pfNoPileUpMet = &(event.metMap.find("pfNoPileUpMet")->second);
+  susy::MET* pfMVAMet      = &(event.metMap.find("pfMVAMet")->second);
+  susy::MET* genMet        = &(event.metMap.find("genMetTrue")->second);
+  
+  treeMap["pfMET"]     = pfMet->met();
+  treeMap["pfMET_x"]   = pfMet->metX();
+  treeMap["pfMET_y"]   = pfMet->metY();
+  treeMap["pfMET_phi"] = pfMet->mEt.Phi();
+  
+  TVector2 sysShiftCorr(1.62861e-01 - 2.38517e-02*nPVertex, 3.60860e-01 - 1.30335e-01*nPVertex);
+  if(!isMC) sysShiftCorr = TVector2(4.83642e-02 + 2.48870e-01*nPVertex, -1.50135e-01 - 8.27917e-02*nPVertex);
+  treeMap["pfMET_sysShift"]     = (pfMet->mEt - sysShiftCorr).Mod();
+  treeMap["pfMET_sysShift_phi"] = (pfMet->mEt - sysShiftCorr).Phi();
+  
+  treeMap["pfMET_t1"]    = pfMetType1->met();
+  treeMap["pfMET_t1p2"]  = pfMetType1p2->met();
+  treeMap["pfMET_t01"]   = pfMetType01->met();
+  treeMap["pfMET_t01p2"] = pfMetType01p2->met();
+  treeMap["pfNoPUMET"]   = pfNoPileUpMet->met();
+  treeMap["pfMVAMET"]    = pfMVAMet->met();
+  if(isMC) treeMap["genMET"]      = genMet->met();
+
+  // photon gen match
+  if(isMC) {
+    if(photons.size() > 0) {
+
+      bool foundMatch = false;
+
+      for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
+
+	if(it->momentum.Pt() < 2.0) continue;
+
+	bool et_eta_match = deltaR(it->momentum, photons[0]->momentum) < 0.2 &&
+	  (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
+
+	if(!et_eta_match) continue;
+
+	int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+	bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+	bool fromBoson = (mom_id == 23 || mom_id == 24 || mom_id == 25);
+	bool fromLepton = (mom_id == 11 || mom_id == 13 || mom_id == 15);
+
+	if(et_eta_match && abs(it->pdgId) == 22) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
+	    
+	    if(oit->momentum.Pt() < 2.0) continue;
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if((fromQCD || fromBoson || fromLepton) &&
+	     (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[0]->momentum.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[0]->momentum) < 0.01) {
+	    treeMap["leadMatchGamma"] = 1;
+	    treeMap["leadMatchElectron"] = 0;
+	    treeMap["leadMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["leadMatchGamma"] = 0;
+	    treeMap["leadMatchElectron"] = 0;
+	    treeMap["leadMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to a photon
+
+	else if(et_eta_match && abs(it->pdgId) == 11) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
+
+	    if(oit->momentum.Pt() < 2.0) continue;
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if(fromBoson &&
+	     (fabs(photons[0]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[0]->momentum.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[0]->momentum) < 0.04) {
+	    treeMap["leadMatchGamma"] = 0;
+	    treeMap["leadMatchElectron"] = 1;
+	    treeMap["leadMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["leadMatchGamma"] = 0;
+	    treeMap["leadMatchElectron"] = 0;
+	    treeMap["leadMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to an electron
+
+      } // gen particles loop
+
+      if(!foundMatch) {
+	treeMap["leadMatchGamma"] = 0;
+	treeMap["leadMatchElectron"] = 0;
+	treeMap["leadMatchJet"] = 1;
+      }
+	
+    } // nPhotons > 0
+
+    if(photons.size() > 1) {
+      
+      bool foundMatch = false;
+
+      for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
+
+	if(it->momentum.Pt() < 2.0) continue;
+
+	bool et_eta_match = deltaR(it->momentum, photons[1]->momentum) < 0.2 &&
+	  (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 1.0;
+
+	if(!et_eta_match) continue;
+
+	int mom_id = abs(event.genParticles[it->motherIndex].pdgId);
+
+	bool fromQCD = ((mom_id >= 1 && mom_id <= 6) || mom_id == 2212 || mom_id == 21);
+	bool fromBoson = (mom_id == 23 || mom_id == 24 || mom_id == 25);
+	bool fromLepton = (mom_id == 11 || mom_id == 13 || mom_id == 15);
+
+	if(et_eta_match && abs(it->pdgId) == 22) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
+
+	    if(oit->momentum.Pt() < 2.0) continue;
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if((fromQCD || fromBoson || fromLepton) &&
+	     (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[1]->momentum.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[1]->momentum) < 0.01) {
+	    treeMap["trailMatchGamma"] = 1;
+	    treeMap["trailMatchElectron"] = 0;
+	    treeMap["trailMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["trailMatchGamma"] = 0;
+	    treeMap["trailMatchElectron"] = 0;
+	    treeMap["trailMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to a photon
+
+	else if(et_eta_match && abs(it->pdgId) == 11) {
+
+	  double minDR = 999.0;
+	  double dR;
+
+	  for(vector<susy::Particle>::iterator oit = event.genParticles.begin(); oit != event.genParticles.end(); oit++) {
+
+	    if(oit->momentum.Pt() < 2.0) continue;
+	    if(oit == it) continue;
+	    if(oit->momentum.M() > 10) continue;
+	    if(abs(it->pdgId) == 12 || abs(it->pdgId) == 14 || abs(it->pdgId) == 16) continue; // skip neutrinos
+
+	    dR = deltaR(it->momentum, oit->momentum);
+
+	    if(dR < minDR) minDR = dR;
+
+	  } // other gen particle loop
+
+	  if(fromBoson &&
+	     (fabs(photons[1]->momentum.Pt() - it->momentum.Pt()) / it->momentum.Pt()) < 0.1 &&
+	     minDR > 0.2 &&
+	     fabs(photons[1]->momentum.Eta() - it->momentum.Eta()) < 0.005 &&
+	     deltaR(it->momentum, photons[1]->momentum) < 0.04) {
+	    treeMap["trailMatchGamma"] = 0;
+	    treeMap["trailMatchElectron"] = 1;
+	    treeMap["trailMatchJet"] = 0;
+	    foundMatch = true;
+	    break;
+	  }
+	  else {
+	    treeMap["trailMatchGamma"] = 0;
+	    treeMap["trailMatchElectron"] = 0;
+	    treeMap["trailMatchJet"] = 1;
+	    foundMatch = true;
+	    break;
+	  }
+
+	} // if matched to an electron
+
+	if(foundMatch) break;
+
+      } // gen particles loop
+
+      if(!foundMatch) {
+	treeMap["trailMatchGamma"] = 0;
+	treeMap["trailMatchElectron"] = 0;
+	treeMap["trailMatchJet"] = 1;
+      }
+
+    } // if nphotons > 1
+
+  } // ifMC
+
+  treeMap["ele1_pt"] = (tightEles.size() > 0) ? tightEles[0]->momentum.Pt() : -1.;
+  treeMap["ele1_phi"] = (tightEles.size() > 0) ? tightEles[0]->momentum.Phi() : -100.;
+  treeMap["ele1_eta"] = (tightEles.size() > 0) ? tightEles[0]->momentum.Eta() : -100.;
+  treeMap["ele1_mvaTrigV0"] = (tightEles.size() > 0) ? tightEles[0]->mvaTrig : -100.;
+
+  treeMap["ele2_pt"] = (tightEles.size() > 1) ? tightEles[1]->momentum.Pt() : -1.;
+  treeMap["ele2_phi"] = (tightEles.size() > 1) ? tightEles[1]->momentum.Phi() : -100.;
+  treeMap["ele2_eta"] = (tightEles.size() > 1) ? tightEles[1]->momentum.Eta() : -100.;
+  treeMap["ele2_mvaTrigV0"] = (tightEles.size() > 1) ? tightEles[1]->mvaTrig : -100.;
+
+  if(tightEles.size() > 0) {
+    float ele_eta = fabs(event.superClusters[tightEles[0]->superClusterIndex].position.Eta());
+    float ea;
+    if(ele_eta < 1.0) ea = 0.13;
+    else if(ele_eta < 1.479) ea = 0.14;
+    else if(ele_eta < 2.0) ea = 0.07;
+    else if(ele_eta < 2.2) ea = 0.09;
+    else if(ele_eta < 2.3) ea = 0.11;
+    else if(ele_eta < 2.4) ea = 0.11;
+    else ea = 0.14;
+      
+    float ele_iso = max(0., (double)(tightEles[0]->photonIso + tightEles[0]->neutralHadronIso - event.rho25*ea));
+    ele_iso += tightEles[0]->chargedHadronIso;
+    
+    treeMap["ele1_relIso"] = ele_iso / tightEles[0]->momentum.Pt();
+  }
+  else treeMap["ele1_relIso"] = -100.;
+
+  if(tightEles.size() > 1) {
+    float ele_eta = fabs(event.superClusters[tightEles[1]->superClusterIndex].position.Eta());
+    float ea;
+    if(ele_eta < 1.0) ea = 0.13;
+    else if(ele_eta < 1.479) ea = 0.14;
+    else if(ele_eta < 2.0) ea = 0.07;
+    else if(ele_eta < 2.2) ea = 0.09;
+    else if(ele_eta < 2.3) ea = 0.11;
+    else if(ele_eta < 2.4) ea = 0.11;
+    else ea = 0.14;
+      
+    float ele_iso = max(0., (double)(tightEles[1]->photonIso + tightEles[1]->neutralHadronIso - event.rho25*ea));
+    ele_iso += tightEles[1]->chargedHadronIso;
+    
+    treeMap["ele1_relIso"] = ele_iso / tightEles[1]->momentum.Pt();
+  }
+  else treeMap["ele2_relIso"] = -100.;
+
+  treeMap["muon1_pt"] = (tightMuons.size() > 0) ? tightMuons[0]->momentum.Pt() : -1.;
+  treeMap["muon1_phi"] = (tightMuons.size() > 0) ? tightMuons[0]->momentum.Phi() : -100.;
+  treeMap["muon1_eta"] = (tightMuons.size() > 0) ? tightMuons[0]->momentum.Eta() : -100.;
+
+  treeMap["muon2_pt"] = (tightMuons.size() > 1) ? tightMuons[1]->momentum.Pt() : -1.;
+  treeMap["muon2_phi"] = (tightMuons.size() > 1) ? tightMuons[1]->momentum.Phi() : -100.;
+  treeMap["muon2_eta"] = (tightMuons.size() > 1) ? tightMuons[1]->momentum.Eta() : -100.;
+
+  if(tightMuons.size() > 0) {
+    float mu_iso = max(0., (double)(tightMuons[0]->sumNeutralHadronEt04 + tightMuons[0]->sumPhotonEt04 - 0.5*(tightMuons[0]->sumPUPt04)));
+    mu_iso += tightMuons[0]->sumChargedHadronPt04;
+    float mu_pt = tightMuons[0]->momentum.Pt();
+    treeMap["muon_relIso"] = mu_iso / mu_pt;
+  }
+  else treeMap["muon2_relIso"] = -10.;
+
+  if(tightMuons.size() > 1) {
+    float mu_iso = max(0., (double)(tightMuons[1]->sumNeutralHadronEt04 + tightMuons[1]->sumPhotonEt04 - 0.5*(tightMuons[1]->sumPUPt04)));
+    mu_iso += tightMuons[1]->sumChargedHadronPt04;
+    float mu_pt = tightMuons[1]->momentum.Pt();
+    treeMap["muon_relIso"] = mu_iso / mu_pt;
+  }
+  else treeMap["muon2_relIso"] = -10.;
+  
+  TLorentzVector z_vector = (tightEles.size() == 2) ? tightEles[0]->momentum + tightEles[1]->momentum : tightMuons[0]->momentum + tightMuons[1]->momentum;
+
+  treeMap["z_mass"] = z_vector.M();
+  treeMap["z_pt"] = z_vector.Pt();
+  treeMap["z_eta"] = z_vector.Eta();
+  treeMap["z_phi"] = z_vector.Phi();
+
+  treeMap["leadPhotonEt"] = (photons.size() > 0) ? photons[0]->momentum.Et() : -1.;
+  treeMap["leadPhotonEta"] = (photons.size() > 0) ? photons[0]->momentum.Eta() : -100.;
+  treeMap["leadPhotonPhi"] = (photons.size() > 0) ? photons[0]->momentum.Phi() : -100.;
+  treeMap["leadChargedHadronIso"] = (photons.size() > 0) ? chargedHadronIso_corrected(*photons[0], event.rho25) : -100.;
+  treeMap["leadNeutralHadronIso"] = (photons.size() > 0) ? neutralHadronIso_corrected(*photons[0], event.rho25) - 0.04*(photons[0]->momentum.Pt()) : -100.;
+  treeMap["leadPhotonIso"] = (photons.size() > 0) ? photonIso_corrected(*photons[0], event.rho25) - 0.005*(photons[0]->momentum.Pt()) : -100.;
+  treeMap["leadSigmaIetaIeta"] = (photons.size() > 0) ? photons[0]->sigmaIetaIeta : -100.;
+  treeMap["lead_nPixelSeeds"] = (photons.size() > 0) ? photons[0]->nPixelSeeds : -10.;
+  treeMap["leadMVAregEnergy"] = (photons.size() > 0) ? photons[0]->MVAregEnergy : -10.;
+  treeMap["leadMVAregErr"] = (photons.size() > 0) ? photons[0]->MVAregErr : -10.;
+  
+  treeMap["trailPhotonEt"] = (photons.size() > 1) ? photons[1]->momentum.Et() : -1.;
+  treeMap["trailPhotonEta"] = (photons.size() > 1) ? photons[1]->momentum.Eta() : -100.;
+  treeMap["trailPhotonPhi"] = (photons.size() > 1) ? photons[1]->momentum.Phi() : -100.;
+  treeMap["trail_nPixelSeeds"] = (photons.size() > 1) ? photons[1]->nPixelSeeds : -100.;
+  treeMap["trailChargedHadronIso"] = (photons.size() > 1) ? chargedHadronIso_corrected(*photons[1], event.rho25) : -100.;
+  treeMap["trailNeutralHadronIso"] = (photons.size() > 1) ? neutralHadronIso_corrected(*photons[1], event.rho25) - 0.04*(photons[1]->momentum.Pt()) : -100.;
+  treeMap["trailPhotonIso"] = (photons.size() > 1) ? photonIso_corrected(*photons[1], event.rho25) - 0.005*(photons[1]->momentum.Pt()) : -100.;
+  treeMap["trailSigmaIetaIeta"] = (photons.size() > 1) ? photons[1]->sigmaIetaIeta : -100.;
+  treeMap["trailMVAregEnergy"] = (photons.size() > 1) ? photons[1]->MVAregEnergy : -10.;
+  treeMap["trailMVAregErr"] = (photons.size() > 1) ? photons[1]->MVAregErr : -10.;
+  
+  treeMap["diEMpT"] = (photons.size() > 1) ? (photons[0]->momentum + photons[1]->momentum).Pt() : -1.;
+  treeMap["photon_invmass"] = (photons.size() > 1) ? (photons[0]->momentum + photons[1]->momentum).M() : -10.;
+  
+  float diJetPt, lead_matched_jetpt, trail_matched_jetpt;
+  bool matchingWorked = (photons.size() > 1 && GetDiJetPt(event, photons, diJetPt, lead_matched_jetpt, trail_matched_jetpt));
+  treeMap["diJetPt"] = matchingWorked ? diJetPt : -1.;
+  
+  float dEta = (photons.size() > 1) ? photons[0]->momentum.Eta() - photons[1]->momentum.Eta() : -100;
+  float photon_dPhi = (photons.size() > 1) ? TVector2::Phi_mpi_pi(photons[0]->momentum.Phi() - photons[1]->momentum.Phi()) : -100;
+  float photon_dR = (photons.size() > 1) ? sqrt(dEta*dEta + photon_dPhi*photon_dPhi) : -100;
+  treeMap["photon_dPhi"] = photon_dPhi;
+  treeMap["photon_dR"] = photon_dR;
+  
+  if(!isMC) {
+    treeMap["runNumber"] = event.runNumber;
+    treeMap["eventNumber"] = event.eventNumber;
+    treeMap["lumiBlock"] = event.luminosityBlockNumber;
+    treeMap["jentry"] = jentry;
+  }
+
+}

@@ -1321,3 +1321,718 @@ void SusyEventAnalyzer::LeptonInfo() {
 
 }
 
+void SusyEventAnalyzer::ZGammaData() {
+
+  TFile* out = new TFile("zgamma_"+outputName+"_"+btagger+".root", "RECREATE");
+  out->cd();
+
+  const int NCNT = 50;
+  int nCnt[NCNT][nChannels];
+  for(int i = 0; i < NCNT; i++) {
+    for(int j = 0; j < nChannels; j++) {
+      nCnt[i][j] = 0;
+    }
+  }
+
+  ///////////////////////////////////////////////////
+  // Define histograms to be filled for all events
+  ///////////////////////////////////////////////////
+
+  TString metFilterNames[susy::nMetFilters] = {
+    "CSCBeamHalo",
+    "HcalNoise",
+    "EcalDeadCellTP",
+    "EcalDeadCellBE",
+    "TrackingFailure",
+    "EEBadSC",
+    "HcalLaserOccupancy",
+    "HcalLaserEventList",
+    "HcalLaserRECOUserStep",
+    "EcalLaserCorr",
+    "ManyStripClus53X",
+    "TooManyStripClus53X",
+    "LogErrorTooManyClusters",
+    "LogErrorTooManyTripletsPairs",
+    "LogErrorTooManySeeds",
+    "EERingOfFire",
+    "InconsistentMuon",
+    "GreedyMuon"};
+
+  TH2F* h_metFilter = new TH2F("metFilter", "MET Filter Failures", susy::nMetFilters, 0, susy::nMetFilters, susy::nMetFilters, 0, susy::nMetFilters);
+  for(int i = 0; i < susy::nMetFilters; i++) {
+    h_metFilter->GetXaxis()->SetBinLabel(i+1, metFilterNames[i]);
+    h_metFilter->GetYaxis()->SetBinLabel(i+1, metFilterNames[i]);
+  }
+
+  /////////////////////////////////
+  // Reweighting trees
+  /////////////////////////////////
+
+  const int nTreeVariables = 86;
+
+  TString varNames[nTreeVariables] = {
+    "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
+    "pfMET_sysShift", "pfMET_sysShift_phi",
+    "pfMET_t1", "pfMET_t1p2", "pfMET_t01", "pfMET_t01p2", "pfNoPUMET", "pfMVAMET",
+    "Njets", "Nbtags", "Nphotons",
+    "Ngamma", "Nfake",
+    "HT", "HT_jets", "hadronic_pt", 
+    "ele1_pt", "ele1_phi", "ele1_eta", "ele1_mvaTrigV0", "ele1_relIso",
+    "ele2_pt", "ele2_phi", "ele2_eta", "ele2_mvaTrigV0", "ele2_relIso",
+    "muon1_pt", "muon1_phi", "muon1_eta", "muon1_relIso",
+    "muon2_pt", "muon2_phi", "muon2_eta", "muon2_relIso",
+    "z_mass", "z_pt", "z_eta", "z_phi",
+    "leadPhotonEt", "leadPhotonEta", "leadPhotonPhi", "leadChargedHadronIso", "leadSigmaIetaIeta", "lead_nPixelSeeds", "leadMVAregEnergy", "leadMVAregErr",
+    "leadNeutralHadronIso", "leadPhotonIso",
+    "trailPhotonEt", "trailPhotonEta", "trailPhotonPhi", "trailChargedHadronIso", "trailSigmaIetaIeta", "trail_nPixelSeeds", "trailMVAregEnergy", "trailMVAregErr",
+    "trailNeutralHadronIso", "trailPhotonIso",
+    "photon_invmass", "photon_dR", "photon_dPhi", "diEMpT", "diJetPt",
+    "mLepGammaLead", "mLepGammaTrail", "mLepGammaGamma",
+    "jet1_pt", "jet2_pt", "jet3_pt", "jet4_pt",
+    "btag1_pt", "btag2_pt",
+    "max_csv", "submax_csv", "min_csv",
+    "nPV",
+    "metFilterBit",
+    "runNumber", "eventNumber", "lumiBlock", "jentry"};
+    
+  map<TString, float> treeMap;
+  for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
+
+  vector<TTree*> signalTrees, fakeTrees,
+    eQCDTrees, eQCDfakeTrees,
+    muQCDTrees, muQCDfakeTrees;
+
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    signalTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_fakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    fakeTrees.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_eQCDTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    eQCDTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_eQCDfakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    eQCDfakeTrees.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDfakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDfakeTrees.push_back(tree);
+  }
+      
+  ScaleFactorInfo sf(btagger);
+
+  bool quitAfterProcessing = false;
+
+  Long64_t nEntries = fTree->GetEntries();
+  cout << "Total events in files : " << nEntries << endl;
+  cout << "Events to be processed : " << processNEvents << endl;
+
+  vector<susy::Muon*> tightMuons, looseMuons;
+  vector<susy::Electron*> tightEles, looseEles;
+  vector<susy::PFJet*> pfJets, btags;
+  vector<TLorentzVector> pfJets_corrP4, btags_corrP4;
+  vector<float> csvValues;
+  vector<susy::Photon*> photons;
+  vector<BtagInfo> tagInfos;
+
+  // start event looping
+  Long64_t jentry = 0;
+  while(jentry != processNEvents && event.getEntry(jentry++) != 0) {
+
+    if(printLevel > 0 || (printInterval > 0 && (jentry >= printInterval && jentry%printInterval == 0))) {
+      cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
+    }
+    
+    if(useSyncFile) {
+      bool sync = false;
+      for(unsigned int i = 0; i < syncRuns.size(); i++) {
+	//if(event.runNumber == syncRuns[i] && event.luminosityBlockNumber == syncLumi[i] && event.eventNumber == syncEvents[i]) {
+	if(event.runNumber == syncRuns[i] && event.eventNumber == syncEvents[i]) {
+	  sync = true;
+	  //Print(*event);
+	  break;
+	}
+      }
+      if(!sync) continue;
+
+      //if(nCnt[0][0] == (syncRuns.size() - 1)) quitAfterProcessing = true;
+    }
+
+    if(singleEvent) {
+      if(event.runNumber != single_run || event.luminosityBlockNumber != single_lumi || event.eventNumber != single_event) continue;
+      //Print(event);
+      quitAfterProcessing = true;
+    }
+
+    FillMetFilter2D(event, h_metFilter);
+
+    nCnt[0][0]++; // events
+
+    if(useJson && event.isRealData && !IsGoodLumi(event.runNumber, event.luminosityBlockNumber)) continue;
+    nCnt[1][0]++;
+
+    if(event.isRealData) {
+      if(event.passMetFilters() != 1 ||
+	 event.passMetFilter(susy::kEcalLaserCorr) != 1 ||
+	 event.passMetFilter(susy::kManyStripClus53X) != 1 ||
+	 event.passMetFilter(susy::kTooManyStripClus53X) != 1) {
+	nCnt[21][0]++;
+	continue;
+      }
+    }
+
+    int nPVertex = GetNumberPV(event);
+    if(nPVertex == 0) {
+      nCnt[22][0]++;
+      continue;
+    }
+
+    for(int qcdMode = kSignal; qcdMode < kNumSearchModes; qcdMode++) {
+
+      for(int photonMode = kSignalPhotons; photonMode < kNumPhotonModes; photonMode++) {
+
+	float HT = 0.;
+	
+	tightMuons.clear();
+	looseMuons.clear();
+	tightEles.clear();
+	looseEles.clear();
+	pfJets.clear();
+	btags.clear();
+	pfJets_corrP4.clear();
+	btags_corrP4.clear();
+	csvValues.clear();
+	photons.clear();
+	tagInfos.clear();
+	
+	findMuons(event, tightMuons, looseMuons, HT, qcdMode);
+	if(tightMuons.size() > 2 || looseMuons.size() > 0) {
+	  nCnt[23][qcdMode]++;
+	  continue;
+	}
+	
+	findElectrons(event, tightMuons, looseMuons, tightEles, looseEles, HT, qcdMode);
+	if(tightEles.size() > 2 || looseEles.size() > 0) {
+	  nCnt[29][qcdMode]++;
+	  continue;
+	}
+	
+	if(tightMuons.size() + tightEles.size() != 2) {
+	  nCnt[24][qcdMode]++;
+	  continue;
+	}
+	if(looseMuons.size() + looseEles.size() != 0) {
+	  nCnt[26][qcdMode]++;
+	  continue;
+	}
+
+	if(tightEles.size() != 2 && tightMuons.size() != 2) continue;
+	
+	bool passHLT = true;
+	if(useTrigger) {
+	  if(tightEles.size() == 2) passHLT = PassTriggers(1);
+
+	  else if(tightMuons.size() == 2) {
+	    if(qcdMode == kSignal) passHLT = PassTriggers(2);
+	    if(kSignal == kMuonQCD) passHLT = PassTriggers(3);
+	  }
+	}
+	if(!passHLT) {
+	  nCnt[25][qcdMode]++;
+	  continue;
+	}
+	
+	findPhotons(event, 
+		    photons,
+		    tightMuons, looseMuons,
+		    tightEles, looseEles,
+		    HT,
+		    photonMode);
+
+	float HT_jets = 0.;
+	TLorentzVector hadronicSystem(0., 0., 0., 0.);
+	
+	findJets(event, 
+		 tightMuons, looseMuons,
+		 tightEles, looseEles,
+		 photons,
+		 pfJets, btags,
+		 sf,
+		 tagInfos, csvValues, 
+		 pfJets_corrP4, btags_corrP4, 
+		 HT_jets, hadronicSystem);
+	
+	SetTreeValues_ZGamma(treeMap,
+			     tightMuons, tightEles, 
+			     pfJets, btags,
+			     photons,
+			     pfJets_corrP4, btags_corrP4,
+			     csvValues,
+			     hadronicSystem,
+			     HT, HT_jets,
+			     nPVertex,
+			     0, 0, 0, 0,
+			     jentry);
+	
+	////////////////////
+	
+	for(int chan = 0; chan < nChannels; chan++) {
+	  
+	  if(pfJets.size() < nJetReq[chan]) continue;
+	  if((nBtagInclusive[chan] && btags.size() < nBtagReq[chan]) || (!nBtagInclusive[chan] && btags.size() != nBtagReq[chan])) continue;
+	  
+	  if(tightEles.size() != nEleReq[chan] * 2) continue;
+	  if(tightMuons.size() != nMuonReq[chan] * 2) continue;
+	  
+	  if(photonMode == kSignalPhotons) {
+	    if(qcdMode == kSignal) {
+	      nCnt[2][chan]++;
+	      signalTrees[chan]->Fill();
+	    }
+	    else if(qcdMode == kElectronQCD) {
+	      nCnt[3][chan]++;
+	      eQCDTrees[chan]->Fill();
+	    }
+	    else if(qcdMode == kMuonQCD) {
+	      nCnt[4][chan]++;
+	      muQCDTrees[chan]->Fill();
+	    }
+	  }
+	  
+	  if(photonMode == kFakePhotons) {
+	    if(qcdMode == kSignal) {
+	      nCnt[5][chan]++;
+	      fakeTrees[chan]->Fill();
+	    }
+	    else if(qcdMode == kElectronQCD) {
+	      nCnt[6][chan]++;
+	      eQCDfakeTrees[chan]->Fill();
+	    }
+	    else if(qcdMode == kMuonQCD) {
+	      nCnt[7][chan]++;
+	      muQCDfakeTrees[chan]->Fill();
+	    }
+	  }
+
+	} // loop over jet/btag req channels
+    
+	///////////////////////////////////
+    
+      } // for photon modes
+
+    } // for qcd modes
+
+    if(quitAfterProcessing) break;
+  } // for entries
+  
+  cout << "-------------------Job Summary-----------------" << endl;
+  cout << "Total_events         : " << nCnt[0][0] << endl;
+  cout << "in_JSON              : " << nCnt[1][0] << endl;
+  cout << "-----------------------------------------------" << endl;
+  cout << endl;
+  for(int i = 0; i < nChannels; i++) {
+    cout << "--------------- " << channels[i] << " Requirement ----------------" << endl;
+    cout << "Signal               " << channels[i] << " events : " << nCnt[2][i] << endl;
+    cout << "eQCD                 " << channels[i] << " events : " << nCnt[3][i] << endl;
+    cout << "muQCD                " << channels[i] << " events : " << nCnt[4][i] << endl;
+    cout << "fake      " << channels[i] << " events : " << nCnt[5][i] << endl;
+    cout << "eQCDfake  " << channels[i] << " events : " << nCnt[6][i] << endl;
+    cout << "muQCDfake " << channels[i] << " events : " << nCnt[7][i] << endl;
+  }
+  cout << "-----------------------------------------------" << endl;
+  cout << endl;
+  cout << "----------------Continues, info----------------" << endl;
+  cout << "fail MET filters         : " << nCnt[21][0] << endl;
+  cout << "No primary vertex        : " << nCnt[22][0] << endl;
+  cout << "Fail signal HLT          : " << nCnt[25][0] << endl;
+  cout << "Fail eQCD HLT            : " << nCnt[25][1] << endl;
+  cout << "Fail muQCD HLT           : " << nCnt[25][2] << endl;
+  cout << "-----------------------------------------------" << endl;
+  cout << endl;
+
+  out->cd();
+  out->Write();
+  out->Close();
+
+}
+
+void SusyEventAnalyzer::ZGammaAcceptance() {
+
+  const int NCNT = 50;
+  int nCnt[NCNT][nChannels];
+  for(int i = 0; i < NCNT; i++) {
+    for(int j = 0; j < nChannels; j++) {
+      nCnt[i][j] = 0;
+    }
+  }
+  
+  TString output_code_t = FormatName(scan);
+
+  // open histogram file and define histograms
+  TFile * out = new TFile("zgamma"+output_code_t+".root", "RECREATE");
+  out->cd();
+
+  TH1D * h_nEvents = new TH1D("nEvents"+output_code_t, "nEvents"+output_code_t, 1, 0, 1);
+
+  TH2D * h_whizard_phaseSpace = new TH2D("whizard_phaseSpace"+output_code_t, "whizard_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
+  TH2D * h_madgraph_phaseSpace = new TH2D("madgraph_phaseSpace"+output_code_t, "madgraph_phaseSpace"+output_code_t, 500, 0, 1000, 500, 0, 5);
+
+  const int nTreeVariables = 101;
+
+  TString varNames[nTreeVariables] = {
+    "pfMET", "pfMET_x", "pfMET_y", "pfMET_phi",
+    "pfMET_sysShift", "pfMET_sysShift_phi",
+    "pfMET_t1", "pfMET_t1p2", "pfMET_t01", "pfMET_t01p2", "pfNoPUMET", "pfMVAMET", "genMET",
+    "Njets", "Nbtags", "Nphotons",
+    "Ngamma", "Nfake",
+    "HT", "HT_jets", "hadronic_pt", 
+    "ele1_pt", "ele1_phi", "ele1_eta", "ele1_mvaTrigV0", "ele1_relIso",
+    "ele2_pt", "ele2_phi", "ele2_eta", "ele2_mvaTrigV0", "ele2_relIso",
+    "muon1_pt", "muon1_phi", "muon1_eta", "muon1_relIso",
+    "muon2_pt", "muon2_phi", "muon2_eta", "muon2_relIso",
+    "z_mass", "z_pt", "z_eta", "z_phi",
+    "leadPhotonEt", "leadPhotonEta", "leadPhotonPhi", "leadChargedHadronIso", "leadSigmaIetaIeta", "lead_nPixelSeeds", "leadMVAregEnergy", "leadMVAregErr",
+    "leadNeutralHadronIso", "leadPhotonIso",
+    "trailPhotonEt", "trailPhotonEta", "trailPhotonPhi", "trailChargedHadronIso", "trailSigmaIetaIeta", "trail_nPixelSeeds", "trailMVAregEnergy", "trailMVAregErr",
+    "trailNeutralHadronIso", "trailPhotonIso",
+    "photon_invmass", "photon_dR", "photon_dPhi", "diEMpT", "diJetPt",
+    "mLepGammaLead", "mLepGammaTrail", "mLepGammaGamma",
+    "jet1_pt", "jet2_pt", "jet3_pt", "jet4_pt",
+    "btag1_pt", "btag2_pt",
+    "max_csv", "submax_csv", "min_csv",
+    "nPV",
+    "pileupWeight", "pileupWeightErr", "pileupWeightUp", "pileupWeightDown",
+    "btagWeight", "btagWeightUp", "btagWeightDown", "btagWeightErr",
+    "metFilterBit",
+    "ttbarDecayMode",
+    "overlaps_whizard", "overlaps_madgraph",
+    "TopPtReweighting", "TopPtReweighting_ttHbb",
+    "leadMatchGamma", "leadMatchElectron", "leadMatchJet",
+    "trailMatchGamma", "trailMatchElectron", "trailMatchJet"};
+    
+  map<TString, float> treeMap;
+  for(int i = 0; i < nTreeVariables; i++) treeMap[varNames[i]] = 0.;
+
+  vector<TTree*> signalTrees, signalTrees_JECup, signalTrees_JECdown;
+  vector<TTree*> fakeTrees, fakeTrees_JECup, fakeTrees_JECdown;
+  vector<TTree*> eQCDTrees, eQCDfakeTrees,
+    muQCDTrees, muQCDfakeTrees;
+  
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_signalTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    signalTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_signalTree_JECup", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    signalTrees_JECup.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_signalTree_JECdown", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    signalTrees_JECdown.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_fakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    fakeTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_fakeTree_JECup", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    fakeTrees_JECup.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_fakeTree_JECdown", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    fakeTrees_JECdown.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_eQCDTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    eQCDTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_eQCDfakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    eQCDfakeTrees.push_back(tree);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDTrees.push_back(tree);
+  }
+  for(int i = 0; i < nChannels; i++) {
+    TTree * tree = new TTree(channels[i]+"_muQCDfakeTree", "An event tree for final analysis");
+    for(int j = 0; j < nTreeVariables; j++) tree->Branch(varNames[j], &treeMap[varNames[j]], varNames[j]+"/F");
+    muQCDfakeTrees.push_back(tree);
+  }
+
+  ScaleFactorInfo sf(btagger);
+  TFile * btagEfficiency = new TFile("btagEfficiency"+output_code_t+".root", "READ");
+  sf.SetTaggingEfficiencies((TH1F*)btagEfficiency->Get("lEff"+output_code_t), (TH1F*)btagEfficiency->Get("cEff"+output_code_t), (TH1F*)btagEfficiency->Get("bEff"+output_code_t));
+
+  // get pileup weights
+  TFile * puFile = new TFile("pileupReweighting"+output_code_t+".root", "READ");
+  TH1F * puWeights = (TH1F*)puFile->Get("puWeights"+output_code_t);
+  TH1F * puWeights_up = (TH1F*)puFile->Get("puWeights_up"+output_code_t);
+  TH1F * puWeights_down = (TH1F*)puFile->Get("puWeights_down"+output_code_t);
+
+  Long64_t nEntries = fTree->GetEntries();
+  cout << "Total events in files : " << nEntries << endl;
+  cout << "Events to be processed : " << processNEvents << endl;
+  h_nEvents->Fill(0., (Double_t)nEntries);
+
+  vector<susy::Muon*> tightMuons, looseMuons;
+  vector<susy::Electron*> tightEles, looseEles;
+  vector<susy::PFJet*> pfJets, btags;
+  vector<TLorentzVector> pfJets_corrP4, btags_corrP4;
+  vector<float> csvValues;
+  vector<susy::Photon*> photons;
+  vector<BtagInfo> tagInfos;
+
+  // start event looping
+  Long64_t jentry = 0;
+  while(jentry != processNEvents && event.getEntry(jentry++) != 0) {
+
+    if(printLevel > 0 || (printInterval > 0 && (jentry >= printInterval && jentry%printInterval == 0))) {
+      cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
+    }
+
+    nCnt[0][0]++; // events
+
+    float numTrueInt = -1.;
+    susy::PUSummaryInfoCollection::const_iterator iBX = event.pu.begin();
+    bool foundInTimeBX = false;
+    while((iBX != event.pu.end()) && !foundInTimeBX) {
+      if(iBX->BX == 0) {
+	numTrueInt = iBX->trueNumInteractions;
+	foundInTimeBX = true;
+      }
+      ++iBX;
+    }
+
+    float eventWeight = 0.;
+    float eventWeightErr = 0.;
+    float eventWeightUp = 0.;
+    float eventWeightDown = 0.;
+    if(numTrueInt >= 0.) {
+      int binNum = puWeights->GetXaxis()->FindBin(numTrueInt);
+      eventWeight = puWeights->GetBinContent(binNum);
+      eventWeightErr = puWeights->GetBinError(binNum);
+      eventWeightUp = puWeights_up->GetBinContent(binNum);
+      eventWeightDown = puWeights_down->GetBinContent(binNum);
+    }
+
+    if(!doPileupReweighting) {
+      eventWeight = 1.;
+      eventWeightErr = 0.;
+      eventWeightUp = 1.;
+      eventWeightDown = 1.;
+    }
+
+    int nPVertex = GetNumberPV(event);
+    if(nPVertex == 0) continue;
+    
+    fill_whizard_phaseSpace(h_whizard_phaseSpace);
+    fill_madgraph_phaseSpace(h_madgraph_phaseSpace);
+
+    for(int qcdMode = kSignal; qcdMode < kNumSearchModes; qcdMode++) {
+      for(int jetSyst = kCentral; jetSyst < kNumJetSytematics; jetSyst++) {
+	for(int photonMode = kSignalPhotons; photonMode < kNumPhotonModes; photonMode++) {
+
+	  if(qcdMode != kSignal && jetSyst != kCentral) continue;
+
+	  float HT = 0.;
+	  
+	  tightMuons.clear();
+	  looseMuons.clear();
+	  tightEles.clear();
+	  looseEles.clear();
+	  pfJets.clear();
+	  btags.clear();
+	  pfJets_corrP4.clear();
+	  btags_corrP4.clear();
+	  csvValues.clear();
+	  photons.clear();
+	  tagInfos.clear();
+	  
+	  findMuons(event, tightMuons, looseMuons, HT, qcdMode);
+	  if(tightMuons.size() > 2 || looseMuons.size() > 0) continue;
+	  
+	  findElectrons(event, tightMuons, looseMuons, tightEles, looseEles, HT, qcdMode);
+	  if(tightEles.size() > 2 || looseEles.size() > 0) continue;
+	  
+	  if(tightMuons.size() + tightEles.size() != 2) continue;
+	  if(looseMuons.size() + looseEles.size() != 0) continue;
+	  
+	  if(tightEles.size() != 2 && tightMuons.size() != 2) continue;
+
+	  bool passHLT = true;
+	  if(useTrigger) {
+	    if(tightEles.size() == 2) passHLT = PassTriggers(1);
+
+	    else if(tightMuons.size() == 2) {
+	      if(qcdMode == kSignal) passHLT = PassTriggers(2);
+	      if(kSignal == kMuonQCD) passHLT = PassTriggers(3);
+	    }
+	  }
+	  if(!passHLT) continue;
+	  
+	  findPhotons(event, 
+		      photons,
+		      tightMuons, looseMuons,
+		      tightEles, looseEles,
+		      HT,
+		      photonMode);
+
+	  float HT_jets = 0.;
+	  TLorentzVector hadronicSystem(0., 0., 0., 0.);
+	  
+	  findJets_inMC(event, 
+			tightMuons, looseMuons,
+			tightEles, looseEles,
+			photons,
+			pfJets, btags,
+			sf,
+			tagInfos, csvValues, 
+			pfJets_corrP4, btags_corrP4, 
+			HT_jets, hadronicSystem,
+			jetSyst);
+	  
+	  float btagWeight[nChannels];
+	  float btagWeightUp[nChannels];
+	  float btagWeightDown[nChannels];
+	  float btagWeightError[nChannels];
+	  for(int chan = 0; chan < nChannels; chan++) {
+	    BtagWeight * tagWeight = new BtagWeight(nBtagReq[chan]);
+	    pair<float, float> weightResult = tagWeight->weight(tagInfos, btags.size(), 0., false, nBtagInclusive[chan]);
+	    btagWeight[chan] = weightResult.first;
+	    btagWeightError[chan] = weightResult.second;
+	    
+	    btagWeightUp[chan] = (tagWeight->weight(tagInfos, btags.size(), 1., true, nBtagInclusive[chan])).first;
+	    btagWeightDown[chan] = (tagWeight->weight(tagInfos, btags.size(), -1., true, nBtagInclusive[chan])).first;
+	    
+	    delete tagWeight;
+	  }
+	  
+	  SetTreeValues_ZGamma(treeMap,
+			       tightMuons, tightEles, 
+			       pfJets, btags,
+			       photons,
+			       pfJets_corrP4, btags_corrP4,
+			       csvValues,
+			       hadronicSystem,
+			       HT, HT_jets,
+			       nPVertex,
+			       eventWeight, eventWeightErr, eventWeightUp, eventWeightDown,
+			       0);
+	  
+	  ////////////////////
+	  
+	  for(int chan = 0; chan < nChannels; chan++) {
+	    
+	    if(pfJets.size() < nJetReq[chan]) continue;
+	    if((nBtagInclusive[chan] && btags.size() < nBtagReq[chan]) || (!nBtagInclusive[chan] && btags.size() != nBtagReq[chan])) continue;
+	    
+	    if(tightEles.size() != nEleReq[chan] * 2) continue;
+	    if(tightMuons.size() != nMuonReq[chan] * 2) continue;
+	    
+	    treeMap["btagWeight"] = btagWeight[chan];
+	    treeMap["btagWeightErr"] = btagWeightError[chan];
+	    treeMap["btagWeightUp"] = btagWeightUp[chan];
+	    treeMap["btagWeightDown"] = btagWeightDown[chan];
+
+	    if(photonMode == kSignalPhotons) {
+	      if(qcdMode == kSignal) {
+		
+		if(jetSyst == kCentral) {
+		  nCnt[2][chan]++;
+		  signalTrees[chan]->Fill();
+		}
+		else if(jetSyst == kJECup) signalTrees_JECup[chan]->Fill();
+		else if(jetSyst == kJECdown) signalTrees_JECdown[chan]->Fill();
+
+	      }
+	      else if(qcdMode == kElectronQCD) {
+		nCnt[3][chan]++;
+		eQCDTrees[chan]->Fill();
+	      }
+	      else if(qcdMode == kMuonQCD) {
+		nCnt[4][chan]++;
+		muQCDTrees[chan]->Fill();
+	      }
+	    }
+	    
+	    if(photonMode == kFakePhotons) {
+	      if(qcdMode == kSignal) {
+		if(jetSyst == kCentral) {
+		  nCnt[5][chan]++;
+		  fakeTrees[chan]->Fill();
+		}
+		else if(jetSyst == kJECup) fakeTrees_JECup[chan]->Fill();
+		else if(jetSyst == kJECdown) fakeTrees_JECdown[chan]->Fill();
+	      }
+	      else if(qcdMode == kElectronQCD && jetSyst == kCentral) {
+		nCnt[6][chan]++;
+		eQCDfakeTrees[chan]->Fill();
+	      }
+	      else if(qcdMode == kMuonQCD && jetSyst == kCentral) {
+		nCnt[7][chan]++;
+		muQCDfakeTrees[chan]->Fill();
+	      }
+	    }
+
+	  } // for channels
+
+	} // for photon modes
+	  
+      } // for jet systematic modes
+	
+    } // for qcd modes
+
+  } // for entries
+
+  cout << "-------------------Job Summary-----------------" << endl;
+  cout << "Total_events         : " << nCnt[0][0] << endl;
+  cout << "-----------------------------------------------" << endl;
+  cout << endl;
+  for(int i = 0; i < nChannels; i++) {
+    cout << "---------------- " << channels[i] << " Requirement ----------------" << endl;
+    cout << "Signal               " << channels[i] << " events : " << nCnt[2][i] << endl;
+    cout << "eQCD                 " << channels[i] << " events : " << nCnt[3][i] << endl;
+    cout << "muQCD                " << channels[i] << " events : " << nCnt[4][i] << endl;
+    cout << "fake                 " << channels[i] << " events : " << nCnt[5][i] << endl;
+    cout << "eQCDfake             " << channels[i] << " events : " << nCnt[6][i] << endl;
+    cout << "muQCDfake            " << channels[i] << " events : " << nCnt[7][i] << endl;
+  }
+  cout << endl;
+  cout << "----------------Continues, info----------------" << endl;
+ 
+  puFile->Close();
+  btagEfficiency->Close();
+
+  out->Write();
+  out->Close();
+
+}

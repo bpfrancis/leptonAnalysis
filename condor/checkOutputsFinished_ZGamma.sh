@@ -8,8 +8,8 @@ if [ $# -ne 1 ]; then
 fi
 
 folder=$1
-partsstorage="/eos/uscms/store/user/bfrancis/inputs_v8/parts/signal_contamination_"
-storage="/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_"
+partsstorage="/eos/uscms/store/user/bfrancis/inputs_zgamma/parts/zgamma_"
+storage="/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_"
 
 source /cvmfs/cms.cern.ch/cmsset_default.csh
 export SCRAM_ARCH=slc5_amd64_gcc462

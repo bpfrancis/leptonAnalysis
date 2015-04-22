@@ -96,49 +96,51 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 					  scaleUp_w4, scaleDown_w4,
 					  pdf_w4, pdf_w4);
 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dyJetsToLL.root", "dyJetsToLL", 
+					  1177.3 * 3, 
+					  5.9, 3.6, 
+					  38.8, 38.8);
+  
   /*
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dyJetsToLL.root", "dyJetsToLL", 
-    1177.3 * 3, 5.9, 3.6, 38.8, 38.8);
+    double fix_zjets_xsec = 3. * 1177.3 / 3503.71;
+    
+    double xsec_dy1 = 666.7 * fix_zjets_xsec;
+    double xsec_dy2 = 215.1 * fix_zjets_xsec;
+    double xsec_dy3 = 66.07 * fix_zjets_xsec;
+    double xsec_dy4 = 27.38 * fix_zjets_xsec;
+    
+    double scaleUp_dy1 = 5.9 * 666.7 / 3503.71;
+    double scaleUp_dy2 = 5.9 * 215.1 / 3503.71;
+    double scaleUp_dy3 = 5.9 * 66.07 / 3503.71;
+    double scaleUp_dy4 = 5.9 * 27.38 / 3503.71;
+    
+    double scaleDown_dy1 = 3.6 * 666.7 / 3503.71;
+    double scaleDown_dy2 = 3.6 * 215.1 / 3503.71;
+    double scaleDown_dy3 = 3.6 * 66.07 / 3503.71;
+    double scaleDown_dy4 = 3.6 * 27.38 / 3503.71;
+    
+    double pdf_dy1 = 38.8 * 666.7 / 3503.71;
+    double pdf_dy2 = 38.8 * 215.1 / 3503.71;
+    double pdf_dy3 = 38.8 * 66.07 / 3503.71;
+    double pdf_dy4 = 38.8 * 27.38 / 3503.71;
+    
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
+    xsec_dy1,
+    scaleUp_dy1, scaleDown_dy1,
+    pdf_dy1, pdf_dy1);
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
+    xsec_dy2,
+    scaleUp_dy2, scaleDown_dy2,
+    pdf_dy2, pdf_dy2);
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
+    xsec_dy3,
+    scaleUp_dy3, scaleDown_dy3,
+    pdf_dy3, pdf_dy3);
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
+    xsec_dy4,
+    scaleUp_dy4, scaleDown_dy4,
+    pdf_dy4, pdf_dy4);
   */
-  
-  double fix_zjets_xsec = 3. * 1177.3 / 3503.71;
-  
-  double xsec_dy1 = 666.7 * fix_zjets_xsec;
-  double xsec_dy2 = 215.1 * fix_zjets_xsec;
-  double xsec_dy3 = 66.07 * fix_zjets_xsec;
-  double xsec_dy4 = 27.38 * fix_zjets_xsec;
-
-  double scaleUp_dy1 = 5.9 * 666.7 / 3503.71;
-  double scaleUp_dy2 = 5.9 * 215.1 / 3503.71;
-  double scaleUp_dy3 = 5.9 * 66.07 / 3503.71;
-  double scaleUp_dy4 = 5.9 * 27.38 / 3503.71;
-
-  double scaleDown_dy1 = 3.6 * 666.7 / 3503.71;
-  double scaleDown_dy2 = 3.6 * 215.1 / 3503.71;
-  double scaleDown_dy3 = 3.6 * 66.07 / 3503.71;
-  double scaleDown_dy4 = 3.6 * 27.38 / 3503.71;
-
-  double pdf_dy1 = 38.8 * 666.7 / 3503.71;
-  double pdf_dy2 = 38.8 * 215.1 / 3503.71;
-  double pdf_dy3 = 38.8 * 66.07 / 3503.71;
-  double pdf_dy4 = 38.8 * 27.38 / 3503.71;
-
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
-					  xsec_dy1,
-					  scaleUp_dy1, scaleDown_dy1,
-					  pdf_dy1, pdf_dy1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
-					  xsec_dy2,
-					  scaleUp_dy2, scaleDown_dy2,
-					  pdf_dy2, pdf_dy2);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
-					  xsec_dy3,
-					  scaleUp_dy3, scaleDown_dy3,
-					  pdf_dy3, pdf_dy3);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
-					  xsec_dy4,
-					  scaleUp_dy4, scaleDown_dy4,
-					  pdf_dy4, pdf_dy4);
   
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v7/signal_contamination_TBar_s.root", "TBar_s", 
 					  1.76, 0.01, 0.01, 0.08, 0.08);
@@ -206,7 +208,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet2_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("jet3_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_1g, xbins_kinematic_1g);
-    hMaker->BookHistogram("w_mT", nKinematicBins_1g, xbins_kinematic_1g);    // 13
+    hMaker->BookHistogram("w_mT_t01", nKinematicBins_1g, xbins_kinematic_1g);    // 13
     hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
@@ -234,7 +236,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet2_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("jet3_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_1g, xbins_kinematic_1g);
-    hMaker->BookHistogram("w_mT", nKinematicBins_1g, xbins_kinematic_1g);    // 13
+    hMaker->BookHistogram("w_mT_t01", nKinematicBins_1g, xbins_kinematic_1g);    // 13
     hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16
@@ -274,7 +276,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet2_pt", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("jet3_pt", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_2g, xbins_kinematic_2g);
-    hMaker->BookHistogram("w_mT", nKinematicBins_2g, xbins_kinematic_2g);    // 13
+    hMaker->BookHistogram("w_mT_t01", nKinematicBins_2g, xbins_kinematic_2g);    // 13
     hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele_pt", nKinematicBins_2g, xbins_kinematic_2g);  // 15
     hMaker->BookHistogram("ele_eta", 60, -2.5, 2.5);                   // 16

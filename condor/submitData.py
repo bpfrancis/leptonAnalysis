@@ -39,6 +39,9 @@ parser.add_option ('--json', dest='json', type='string',
 parser.add_option ('--inputFolders', dest='inputFolders', type='string',
 		   default='',
 		   help='Colon-separated list of folders containing nTuple files to run over. Using ALL will give the full 22Jan2013 DoublePhoton re-reco (tag cms538v1).')
+parser.add_option ('--zgamma', action="store_true",
+                   dest="zgamma", default=False,
+                   help="Submit this job as ZGamma seleciton -- require two leptons instead of one.")
 
 options, args = parser.parse_args()
 
@@ -49,7 +52,11 @@ anaBase = options.anaBase
 njobs = options.njobs
 test = options.test
 json = options.json
+zgamma = options.zgamma
 inputFolders = options.inputFolders
+
+if zgamma:
+    anaBase = "zgamma_"+anaBase
 
 baseOutdir = baseOutdir+"_"+datetime.datetime.now().strftime("%b%d")
 
