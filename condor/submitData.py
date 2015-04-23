@@ -56,7 +56,7 @@ zgamma = options.zgamma
 inputFolders = options.inputFolders
 
 if zgamma:
-    anaBase = "zgamma_"+anaBase
+    anaBase = 'scripts/zgamma_ana_data.C'
 
 baseOutdir = baseOutdir+"_"+datetime.datetime.now().strftime("%b%d")
 
