@@ -63,7 +63,7 @@ inputFolder = options.inputFolder
 runStaged = options.runStaged
 
 if zgamma:
-    anaBase = 'scripts/zgamma_ana_data.C'
+    anaBase = 'scripts/zgamma_ana_mc.C'
     scriptBase = 'scripts/zgamma_go_mc.sh'
 
 baseOutdir = baseOutdir+"_"+datetime.datetime.now().strftime("%b%d")

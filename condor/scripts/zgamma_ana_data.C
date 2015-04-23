@@ -1,4 +1,4 @@
-void ana_data(TString discriminant = "CSVM", bool isMC = false) {
+void zgamma_ana_data(TString discriminant = "CSVM", bool isMC = false) {
 
   gROOT->Reset();
   gSystem->Load("libSusyEvent.so");

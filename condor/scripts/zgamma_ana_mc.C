@@ -1,4 +1,4 @@
-void ana_mc(TString scan = "DATASETNAME", TString discriminant = "CSVM", bool isMC = true, bool isFastSim = false) {
+void zgamma_ana_mc(TString scan = "DATASETNAME", TString discriminant = "CSVM", bool isMC = true, bool isFastSim = false) {
 
   gROOT->Reset();
   gSystem->Load("libSusyEvent.so");
