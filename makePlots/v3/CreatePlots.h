@@ -482,15 +482,8 @@ void PlotMaker::GetHistograms(unsigned int n) {
 
   qcd = (TH1D*)input->Get(variables[n]+"_qcd_"+channel);
   qcd_defUp = (TH1D*)input->Get(variables[n]+"_qcd_relIso_10_"+channel);
-
-  qcd_defDown = (TH1D*)qcd->Clone(variables[n]+"_qcd_down_"+channel);
+  qcd_defDown = (TH1D*)input->Get(variables[n]+"_qcd_relIso_m10_"+channel);
   
-  for(int ibin = 0; ibin < qcd_defUp->GetNbinsX(); ibin++) {
-    // central - (up - central) = 2*central - up
-    Float_t value = 2. * qcd->GetBinContent(ibin+1) - qcd_defUp->GetBinContent(ibin+1);
-    qcd_defDown->SetBinContent(ibin+1, value);
-  }
-
   siga = (TH1D*)input->Get(variables[n]+"_a_"+channel);
   sigb = (TH1D*)input->Get(variables[n]+"_b_"+channel);
 
