@@ -11,19 +11,15 @@ void CreateTemplates(TString input, TString variable, int controlRegion, TString
     sigName = channel+"_signalTree";
     qcdName = (channel.Contains("ele")) ? channel+"_eQCDTree" : channel+"_muQCDTree";
   }
-  else if(photonMode == kFake) {
+  else {
     sigName = channel+"_fakeTree";
     qcdName = (channel.Contains("ele")) ? channel+"_eQCDfakeTree" : channel+"_muQCDfakeTree";
-  }
-  else {
-    cout << "Invalid photonMode!" << endl;
-    return;
   }
 
   TTree * ggTree = (TTree*)in->Get(sigName);
   TTree * qcdTree = (TTree*)in->Get(qcdName);
 
-  TemplateMaker * tMaker = new TemplateMaker(variable, channel, controlRegion, metCut, photonMode);
+  TemplateMaker * tMaker = new TemplateMaker(variable, channel, controlRegion, nBins, xlo, xhi, metCut);
   tMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
   tMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 
@@ -35,13 +31,13 @@ void CreateTemplates(TString input, TString variable, int controlRegion, TString
 
   loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_ttJetsHadronic.root", "ttJetsHadronic", 
 					  ttbar_hadronic_xsec, ttbar_hadronic_xsec * 0.025, ttbar_hadronic_xsec * 0.034, ttbar_hadronic_xsec * 0.026, ttbar_hadronic_xsec * 0.026,
-					  useWhizard, !useWhizard, true);
+					  false, true, true);
   loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_ttJetsSemiLep.root", "ttJetsSemiLep", 
 					  ttbar_semiLep_xsec, ttbar_semiLep_xsec * 0.025, ttbar_semiLep_xsec * 0.034, ttbar_semiLep_xsec * 0.026, ttbar_semiLep_xsec * 0.026,
-					  useWhizard, !useWhizard, true);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep", 
+					  false, true, true);
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_ttJetsFullLep.root", "ttJetsFullLep", 
 					  ttbar_fullLep_xsec, ttbar_fullLep_xsec * 0.025, ttbar_fullLep_xsec * 0.034, ttbar_fullLep_xsec * 0.026, ttbar_fullLep_xsec * 0.026,
-					  useWhizard, !useWhizard, true);
+					  false, true, true);
 
   double fix_wjets_xsec = 3. * 12234.4 / 37509.;
 

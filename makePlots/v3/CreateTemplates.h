@@ -43,7 +43,7 @@ class TemplateMaker : public TObject {
   ClassDef(TemplateMaker, 1);
 
  public:
-  TemplateMaker(TString var, TString chan, int cRegion, Float_t cutOnMet, int mode);
+  TemplateMaker(TString var, TString chan, int cRegion, Int_t n_Bins, Float_t x_lo, Float_t x_hi, Float_t cutOnMet);
   ~TemplateMaker();
   
   bool inControlRegion() {
@@ -250,9 +250,16 @@ class TemplateMaker : public TObject {
   TTree * ggTree;
   TTree * qcdTree;
   
-  TString variable;
+  
   Float_t value;
 
+  TString variable;
+  TString channel;
+  int controlRegion;
+  Int_t nBins;
+  Float_t xlo, xhi;
+  Float_t metCut;
+    
   TFile * fLeptonSF;
   TH2D * sf_muon;
   TH2D * sf_electron;
@@ -263,10 +270,6 @@ class TemplateMaker : public TObject {
   TH2D * sf_photon_veto;
 
   Int_t intLumi_int;
-
-  int controlRegion;
-
-  TString channel;
 
    // friend variables
   Float_t Ngamma, Nfake, Nphotons, met;
@@ -287,12 +290,14 @@ class TemplateMaker : public TObject {
 
 };
 
-TemplateMaker::TemplateMaker(TString var, TString chan, int cRegion, Float_t cutOnMet, int mode) :
+TemplateMaker::TemplateMaker(TString var, TString chan, int cRegion, Int_t n_Bins, Float_t x_lo, Float_t x_hi, Float_t cutOnMet) :
   variable(var),
   channel(chan),
   controlRegion(cRegion),
-  metCut(cutOnMet),
-  photonMode(mode)
+  nBins(n_Bins),
+  xlo(x_lo),
+  xhi(x_hi),
+  metCut(cutOnMet)
 {
   intLumi_int = 19712;
 
@@ -507,10 +512,6 @@ void TemplateMaker::SetTrees(TTree * gg, TTree * qcd) {
 
 void TemplateMaker::SetAddresses() {
 
-  Float_t leptonPt, leptonEta;
-  Float_t leadGammaEt, leadGammaEta;
-  Float_t trailGammaEt, trailGammaEta;
-
   ggTree->SetBranchAddress(variable, &value);
   ggTree->SetBranchAddress("Ngamma", &Ngamma);
   ggTree->SetBranchAddress("Nfake", &Nfake);
@@ -690,13 +691,9 @@ bool TemplateMaker::LoadMCBackground(TString fileName, TString scanName,
     signalString = channel+"_signalTree";
     qcdString = (channel.Contains("ele")) ? channel+"_eQCDTree" : channel+"_muQCDTree";
   }
-  else if(photonMode == kFake) {
+  else {
     signalString = channel+"_fakeTree";
     qcdString = (channel.Contains("ele")) ? channel+"_eQCDfakeTree" : channel+"_muQCDfakeTree";
-  }
-  else {
-    cout << "Invalid photonMode!" << endl;
-    return false;
   }
 
   mcTrees.push_back((TTree*)mcFiles.back()->Get(signalString));
@@ -756,8 +753,8 @@ void TemplateMaker::BookTemplates() {
   h_qcd = new TH1D(variable+"_qcd_"+suffix, variable, nBins, xlo, xhi);
   h_qcd->Sumw2();
 
-  h_qcd_relIso_10 = (TH1D*)qcd->Clone(variable+"_qcd_relIso_10_"+suffix);
-  h_qcd_relIso_m10 = (TH1D*)qcd->Clone(variable+"_qcd_relIso_m10_"+suffix);
+  h_qcd_relIso_10 = (TH1D*)h_qcd->Clone(variable+"_qcd_relIso_10_"+suffix);
+  h_qcd_relIso_m10 = (TH1D*)h_qcd->Clone(variable+"_qcd_relIso_m10_"+suffix);
 
   for(unsigned int i = 0; i < mcTrees.size(); i++) {
   TH1D * h_bkg = new TH1D(variable+"_"+mcNames[i]+"_"+suffix, variable, nBins, xlo, xhi);
@@ -1502,7 +1499,7 @@ void TemplateMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
   if(channel.Contains("ele")) {
     pt = min(leptonPt, (float)199.);
     pt = max(pt, (float)15.);
-    eta = min(fabs(lepton_eta), (double)2.39);
+    eta = min(fabs(leptonEta), (double)2.39);
 
     Float_t id_val = sf_electron->GetBinContent(sf_electron->FindBin(eta, pt));
     Float_t id_error = sf_electron->GetBinError(sf_electron->FindBin(eta, pt));
@@ -1520,7 +1517,7 @@ void TemplateMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
   else {
     pt = min(leptonPt, (float)499.);
     pt = max(pt, (float)10.);
-    eta = min(fabs(lepton_eta), (double)2.09);
+    eta = min(fabs(leptonEta), (double)2.09);
 
     central = sf_muon->GetBinContent(sf_muon->FindBin(pt, eta));
     error = sf_muon->GetBinError(sf_muon->FindBin(pt, eta));

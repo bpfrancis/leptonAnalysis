@@ -2,7 +2,7 @@ enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNum
 
 void makeTemplates() {
 
-  gROOT->LoadMacro("CreateHistograms.C+");
+  gROOT->LoadMacro("CreateTemplates.C+");
 
   TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v8/SingleElectron.root";
   TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v8/SingleMu.root";
