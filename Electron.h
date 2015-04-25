@@ -75,7 +75,7 @@ bool isAntiIsolatedElectron(susy::Electron ele, vector<susy::SuperCluster> super
   
   float relIso = ele_iso / ele.momentum.Pt();
 
-  return (relIso >= 0.25 && relIso < 1.);
+  return (relIso >= 0.25 * 0.9 && relIso < 1.); // hard-cut on -10%, and require 0.25 in CreateHistograms.h
 
 }
 

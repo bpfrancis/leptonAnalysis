@@ -18,7 +18,7 @@ bool isAntiIsolatedMuon(susy::Muon mu) {
   float mu_iso = max(0., (mu.sumNeutralHadronEt04 + mu.sumPhotonEt04 - 0.5*(mu.sumPUPt04)));
   mu_iso += mu.sumChargedHadronPt04;
 
-  return (mu_iso / mu.momentum.Pt() > 0.25 && mu_iso / mu.momentum.Pt() < 1.0);
+  return (mu_iso / mu.momentum.Pt() > 0.25 * 0.9 && mu_iso / mu.momentum.Pt() < 1.0); // hard-cut on -10%, and require 0.25 in CreateHistograms.h
 }
 
 // This doesn't check for relIso! Muons passing this are either signal or QCD muon candidates

@@ -171,7 +171,6 @@ class HistogramMaker : public TObject {
   }
 
   void SubtractMCFromQCD();
-  void NormalizeQCD();
 
   void SaveOutput();
 
@@ -192,6 +191,13 @@ class HistogramMaker : public TObject {
     fPhotonSF = new TFile(fileName, "READ");
     sf_photon_id = (TH2D*)fPhotonSF->Get("PhotonIDSF_LooseWP_Jan22rereco_Full2012_S10_MC_V01");
     sf_photon_veto = (TH2D*)fPhotonSF->Get("PhotonCSEVSF_LooseWP_Jan22rereco_Full2012_S10_MC_V01");
+  };
+
+  void FillWithError(TH1D*& h, Float_t x, Float_t weight, Float_t addError2) {
+    Float_t oldError = h->GetBinError(h->FindBin(x));
+    Float_t newError = sqrt(oldError*oldError + addError2);
+    h->Fill(x, weight);
+    h->SetBinError(h->FindBin(x), newError);
   };
 
   void CreateDatacards();
@@ -857,10 +863,10 @@ void HistogramMaker::FillQCD() {
 	}
       }
 
-      h_qcd[j]->Fill(getValue(j));
+      if(relIso > 0.25) h_qcd[j]->Fill(getValue(j)); // central
 
-      if(relIso > 0.25 * 1.1) h_qcd_relIso_10[j]->Fill(getValue(j));
-      if(relIso > 0.25 * 0.9) h_qcd_relIso_m10[j]->Fill(getValue(j));
+      if(relIso > 0.25 * 1.1) h_qcd_relIso_10[j]->Fill(getValue(j)); // +10%
+      if(relIso > 0.25 * 0.9) h_qcd_relIso_m10[j]->Fill(getValue(j)); // -10%
 
     }
 
@@ -956,26 +962,18 @@ void HistogramMaker::FillMCBackgrounds() {
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
       
-      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
-      if(fitScale[i] > 0) addError2 = fitScale[i]*fitScale[i]*puWeight*puWeight*btagWeightErr*btagWeightErr + 
-			    fitScale[i]*fitScale[i]*btagWeight*btagWeight*puWeightErr*puWeightErr +
-			    puWeight*puWeight*btagWeight*btagWeight*fitScaleError[i]*fitScaleError[i];
-      
-      Float_t addError2_puOnly = btagWeight*btagWeight*puWeightErr*puWeightErr;
-      if(fitScale[i] > 0) addError2_puOnly = fitScale[i]*fitScale[i]*btagWeight*btagWeight*puWeightErr*puWeightErr +
-			    puWeight*puWeight*btagWeight*btagWeight*fitScaleError[i]*fitScaleError[i];
+      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
+      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
+      if(fitScale[i] > 0) totalWeight *= fitScale[i];
+
+      Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
+      if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
+      addError2 *= totalWeight*totalWeight;
       
       for(unsigned int k = 0; k < variables.size(); k++) {
+
+	FillWithError(mcHistograms[i][k], getValue(k), totalWeight, addError2);
 	
-	double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	
-	Float_t oldError = mcHistograms[i][k]->GetBinError(mcHistograms[i][k]->FindBin(getValue(k)));
-	Float_t newerror = sqrt(oldError*oldError + addError2);
-	mcHistograms[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
-					
 	for(unsigned int m = 0; m < variables_2d.size(); m++) {
 	  if(variables[k] == variables_2d[m].first) {
 	    for(unsigned int n = 0; n < variables.size(); n++) {
@@ -989,81 +987,51 @@ void HistogramMaker::FillMCBackgrounds() {
 	totalWeight = puWeight * btagWeightUp * leptonSF * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_btagWeightUp[i][k]->GetBinError(mcHistograms_btagWeightUp[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2_puOnly);
 	mcHistograms_btagWeightUp[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_btagWeightUp[i][k]->SetBinError(mcHistograms_btagWeightUp[i][k]->FindBin(getValue(k)), newerror);
 	
 	totalWeight = puWeight * btagWeightDown * leptonSF * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_btagWeightDown[i][k]->GetBinError(mcHistograms_btagWeightDown[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2_puOnly);
 	mcHistograms_btagWeightDown[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_btagWeightDown[i][k]->SetBinError(mcHistograms_btagWeightDown[i][k]->FindBin(getValue(k)), newerror);
 	
 	totalWeight = puWeightUp * btagWeight * leptonSF * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_puWeightUp[i][k]->GetBinError(mcHistograms_puWeightUp[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2_puOnly);
 	mcHistograms_puWeightUp[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_puWeightUp[i][k]->SetBinError(mcHistograms_puWeightUp[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeightDown * btagWeight * leptonSF * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_puWeightDown[i][k]->GetBinError(mcHistograms_puWeightDown[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2_puOnly);
 	mcHistograms_puWeightDown[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_puWeightDown[i][k]->SetBinError(mcHistograms_puWeightDown[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeight * btagWeight * leptonSFup * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_leptonSFup[i][k]->GetBinError(mcHistograms_leptonSFup[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms_leptonSFup[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_leptonSFup[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeight * btagWeight * leptonSFdown * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_leptonSFdown[i][k]->GetBinError(mcHistograms_leptonSFdown[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms_leptonSFdown[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_leptonSFdown[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeight * btagWeight * leptonSF * photonSFup;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_photonSFup[i][k]->GetBinError(mcHistograms_photonSFup[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms_photonSFup[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_photonSFup[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeight * btagWeight * leptonSF * photonSFdown;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_photonSFdown[i][k]->GetBinError(mcHistograms_photonSFdown[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms_photonSFdown[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_photonSFdown[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 	if(reweightTopPt[i]) totalWeight *= topPtReweighting * topPtReweighting;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_topPtUp[i][k]->GetBinError(mcHistograms_topPtUp[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms_topPtUp[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_topPtUp[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 
 	totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	oldError = mcHistograms_topPtDown[i][k]->GetBinError(mcHistograms_topPtDown[i][k]->FindBin(getValue(k)));
-	newerror = sqrt(oldError*oldError + addError2);
 	mcHistograms_topPtDown[i][k]->Fill(getValue(k), totalWeight);
-	mcHistograms_topPtDown[i][k]->SetBinError(mcHistograms[i][k]->FindBin(getValue(k)), newerror);
 	
       }
 
@@ -1188,38 +1156,23 @@ void HistogramMaker::FillMCBackgrounds() {
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
       
-      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
-      if(fitScale[i] > 0) addError2 = fitScale[i]*fitScale[i]*puWeight*puWeight*btagWeightErr*btagWeightErr + 
-			    fitScale[i]*fitScale[i]*btagWeight*btagWeight*puWeightErr*puWeightErr +
-			    puWeight*puWeight*btagWeight*btagWeight*fitScaleError[i]*fitScaleError[i];
-      
-      GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
-      GetPhotonSF(photonSF, photonSFup, photonSFdown);
-
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
       if(reweightTopPt[i]) totalWeight *= topPtReweighting;
       if(fitScale[i] > 0) totalWeight *= fitScale[i];
 
-      for(unsigned int k = 0; k < variables.size(); k++) {
-		
-	Float_t oldError = mcQCDHistograms[i][k]->GetBinError(mcQCDHistograms[i][k]->FindBin(getValue(k)));
-	Float_t newerror = sqrt(oldError*oldError + addError2);
-	mcQCDHistograms[i][k]->Fill(getValue(k), totalWeight);
-	mcQCDHistograms[i][k]->SetBinError(mcQCDHistograms[i][k]->FindBin(getValue(k)), newerror);
-	
-	if(relIso > 0.25 * 1.1) {
-	  oldError = mcQCDHistograms_relIso_10[i][k]->GetBinError(mcQCDHistograms_relIso_10[i][k]->FindBin(getValue(k)));
-	  newerror = sqrt(oldError*oldError + addError2);
-	  mcQCDHistograms_relIso_10[i][k]->Fill(getValue(k), totalWeight);
-	  mcQCDHistograms_relIso_10[i][k]->SetBinError(mcQCDHistograms_relIso_10[i][k]->FindBin(getValue(k)), newerror);
-	}
+      Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
+      if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
+      addError2 *= totalWeight*totalWeight;
 
-	if(relIso > 0.25 * 0.9) {
-	  oldError = mcQCDHistograms_relIso_m10[i][k]->GetBinError(mcQCDHistograms_relIso_m10[i][k]->FindBin(getValue(k)));
-	  newerror = sqrt(oldError*oldError + addError2);
-	  mcQCDHistograms_relIso_m10[i][k]->Fill(getValue(k), totalWeight);
-	  mcQCDHistograms_relIso_m10[i][k]->SetBinError(mcQCDHistograms_relIso_m10[i][k]->FindBin(getValue(k)), newerror);
-	}
+      GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
+      GetPhotonSF(photonSF, photonSFup, photonSFdown);
+
+      for(unsigned int k = 0; k < variables.size(); k++) {
+
+	if(relIso > 0.25) FillWithError(mcQCDHistograms[i][k], getValue(k), totalWeight, addError2); // central
+			
+	if(relIso > 0.25 * 1.1) mcQCDHistograms_relIso_10[i][k]->Fill(getValue(k), totalWeight); // +10%
+	if(relIso > 0.25 * 0.9) mcQCDHistograms_relIso_m10[i][k]->Fill(getValue(k), totalWeight); // -10%
 	
 	for(unsigned int m = 0; m < variables_2d.size(); m++) {
 	  if(variables[k] == variables_2d[m].first) {
@@ -1295,15 +1248,15 @@ void HistogramMaker::FillSignal() {
     GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
     GetPhotonSF(photonSF, photonSFup, photonSFdown);
 
-    Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
-
+    double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
+    
+    Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
+    if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
+    addError2 *= totalWeight*totalWeight;
+    
     for(unsigned int j = 0; j < variables.size(); j++) {
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-      Float_t olderror = h_siga[j]->GetBinError(h_siga[j]->FindBin(getValue(j)));
-      Float_t newerror = sqrt(olderror*olderror + addError2);
-      h_siga[j]->Fill(getValue(j), totalWeight);
-      h_siga[j]->SetBinError(h_siga[j]->FindBin(getValue(j)), newerror);
+      FillWithError(h_siga[j], getValue(j), totalWeight, addError2);
 
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
@@ -1334,16 +1287,16 @@ void HistogramMaker::FillSignal() {
     GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
     GetPhotonSF(photonSF, photonSFup, photonSFdown);
 
-    Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
+    double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
+    
+    Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
+    if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
+    addError2 *= totalWeight*totalWeight;
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
-      double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-      Float_t olderror = h_sigb[j]->GetBinError(h_sigb[j]->FindBin(getValue(j)));
-      Float_t newerror = sqrt(olderror*olderror + addError2);
-      h_sigb[j]->Fill(getValue(j), totalWeight);
-      h_sigb[j]->SetBinError(h_sigb[j]->FindBin(getValue(j)), newerror);
-
+      FillWithError(h_sigb[j], getValue(j), totalWeight, addError2);
+      
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
 	  for(unsigned int m = 0; m < variables.size(); m++) {
@@ -1429,102 +1382,6 @@ void HistogramMaker::SubtractMCFromQCD() {
       }
     }
   }
-
-}
-
-void HistogramMaker::NormalizeQCD() {
-
-  unsigned int met_index = 0;
-  for(unsigned int i = 0; i < variables.size(); i++) {
-    if(variables[i] == metType) {
-      met_index = i;
-      break;
-    }
-  }
-
-  double n_qcd_before = h_qcd[met_index]->Integral();
-
-  const int endBin = h_gg[met_index]->GetXaxis()->FindBin(20) - 1;
-
-  double n_sig = h_gg[met_index]->Integral(0, endBin);
-  double n_qcd = h_qcd[met_index]->Integral(0, endBin);
-
-  double relIso_10_n_qcd = h_qcd_relIso_10[met_index]->Integral(0, endBin);
-  double relIso_m10_n_qcd = h_qcd_relIso_m10[met_index]->Integral(0, endBin);
-
-  if(n_qcd < 1) return;
-
-  double n_mc = 0;
-  for(unsigned int i = 0; i < mcHistograms.size(); i++) n_mc += mcHistograms[i][met_index]->Integral(0, mcHistograms[i][met_index]->GetXaxis()->FindBin(20) - 1);
-
-  double sigma_sig = 0;
-  double sigma_qcd = 0;
-  double sigma_mc = 0;
-
-  double relIso_10_sigma_qcd = 0;
-  double relIso_m10_sigma_qcd = 0;
-  
-  for(int i = 0; i < endBin; i++) {
-    sigma_sig += h_gg[met_index]->GetBinError(i+1) * h_gg[met_index]->GetBinError(i+1);
-    sigma_qcd += h_qcd[met_index]->GetBinError(i+1) * h_qcd[met_index]->GetBinError(i+1);
-
-    relIso_10_sigma_qcd += h_qcd_relIso_10[met_index]->GetBinError(i+1) * h_qcd_relIso_10[met_index]->GetBinError(i+1);
-    relIso_m10_sigma_qcd += h_qcd_relIso_m10[met_index]->GetBinError(i+1) * h_qcd_relIso_m10[met_index]->GetBinError(i+1);
-
-    for(unsigned int j = 0; j < mcHistograms.size(); j++) sigma_mc += mcHistograms[j][met_index]->GetBinError(i+1) * mcHistograms[j][met_index]->GetBinError(i+1);
-  }
-
-  sigma_sig = sqrt(sigma_sig);
-  sigma_qcd = sqrt(sigma_qcd);
-  sigma_mc = sqrt(sigma_mc);
-
-  relIso_10_sigma_qcd = sqrt(relIso_10_sigma_qcd);
-  relIso_m10_sigma_qcd = sqrt(relIso_m10_sigma_qcd);
-
-  double scale = (n_sig - n_mc) / n_qcd;
-  
-  double relIso_10_scale = (n_sig - n_mc) / relIso_10_n_qcd;
-  double relIso_m10_scale = (n_sig - n_mc) / relIso_m10_n_qcd;
-
-  if(scale < 0) scale = 1.e-6;
-
-  for(unsigned int i = 0; i < h_qcd.size(); i++) {
-
-    for(int j = 0; j < h_qcd[i]->GetNbinsX(); j++) {
-      
-      double newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + scale*scale*sigma_qcd*sigma_qcd;
-      newError *= h_qcd[i]->GetBinContent(j+1)*h_qcd[i]->GetBinContent(j+1) / (n_qcd*n_qcd);
-      newError += h_qcd[i]->GetBinError(j+1)*h_qcd[i]->GetBinError(j+1) * scale*scale;
-      newError = sqrt(newError);
-
-      h_qcd[i]->SetBinContent(j+1, h_qcd[i]->GetBinContent(j+1) * scale);
-      h_qcd[i]->SetBinError(j+1, newError);
-
-      newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_10_scale*relIso_10_scale*relIso_10_sigma_qcd*relIso_10_sigma_qcd;
-      newError *= h_qcd_relIso_10[i]->GetBinContent(j+1)*h_qcd_relIso_10[i]->GetBinContent(j+1) / (relIso_10_n_qcd*relIso_10_n_qcd);
-      newError += h_qcd_relIso_10[i]->GetBinError(j+1)*h_qcd_relIso_10[i]->GetBinError(j+1) * relIso_10_scale*relIso_10_scale;
-      newError = sqrt(newError);
-
-      h_qcd_relIso_10[i]->SetBinContent(j+1, h_qcd_relIso_10[i]->GetBinContent(j+1) * relIso_10_scale);
-      h_qcd_relIso_10[i]->SetBinError(j+1, newError);
-
-      newError = sigma_sig*sigma_sig + sigma_mc*sigma_mc + relIso_m10_scale*relIso_m10_scale*relIso_m10_sigma_qcd*relIso_m10_sigma_qcd;
-      newError *= h_qcd_relIso_10[i]->GetBinContent(j+1)*h_qcd_relIso_10[i]->GetBinContent(j+1) / (relIso_m10_n_qcd*relIso_m10_n_qcd);
-      newError += h_qcd_relIso_10[i]->GetBinError(j+1)*h_qcd_relIso_10[i]->GetBinError(j+1) * relIso_m10_scale*relIso_m10_scale;
-      newError = sqrt(newError);
-
-      h_qcd_relIso_10[i]->SetBinContent(j+1, h_qcd_relIso_10[i]->GetBinContent(j+1) * relIso_m10_scale);
-      h_qcd_relIso_10[i]->SetBinError(j+1, newError);
-
-    }
-
-  }
-
-  for(unsigned int i = 0; i < h_qcd_2d.size(); i++) h_qcd_2d[i]->Scale(scale);
-
-  double n_qcd_after = h_qcd[met_index]->Integral();
-
-  cout << endl << "NormalizeQCD(): Overall scaling factor of " << n_qcd_after / n_qcd_before << " applied." << endl << endl;
 
 }
 

@@ -128,12 +128,10 @@ class TemplateMaker : public TObject {
   };
 
   void FillWithError(TH1D*& h, Float_t x, Float_t weight, Float_t addError2) {
-
     Float_t oldError = h->GetBinError(h->FindBin(x));
     Float_t newError = sqrt(oldError*oldError + addError2);
     h->Fill(x, weight);
     h->SetBinError(h->FindBin(x), newError);
-
   };
 
  private:
@@ -745,7 +743,10 @@ bool TemplateMaker::LoadMCBackground(TString fileName, TString scanName,
 void TemplateMaker::BookTemplates() {
   
   TString suffix = channel;
-  if(metCut > 0.) suffix += "_metCut_" + Form("%.1f", metCut);
+  if(metCut > 0.) {
+    suffix += "_metCut_";
+    suffix += Form("%d", (int)metCut);
+  }
 
   h_gg = new TH1D(variable+"_gg_"+suffix, variable, nBins, xlo, xhi);
   h_gg->Sumw2();
@@ -1003,10 +1004,10 @@ void TemplateMaker::FillQCD() {
     if(variable == "pfMET_t01") met = value;
     if(metCut > 0. && met < metCut) continue;
 
-    h_qcd->Fill(value);
+    if(relIso > 0.25) h_qcd->Fill(value); // central
 
-    if(relIso > 0.25 * 1.1) h_qcd_relIso_10->Fill(value);
-    if(relIso > 0.25 * 0.9) h_qcd_relIso_m10->Fill(value);
+    if(relIso > 0.25 * 1.1) h_qcd_relIso_10->Fill(value); // +10%
+    if(relIso > 0.25 * 0.9) h_qcd_relIso_m10->Fill(value); // -10%
 
   }
 
