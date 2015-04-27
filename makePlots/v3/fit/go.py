@@ -9,7 +9,8 @@ systematics = ['',
                '_topPtUp', '_topPtDown',
                '_JECUp', '_JECDown',
                '_leptonSFUp', '_leptonSFDown',
-               '_photonSFUp', '_photonSFDown']
+               '_photonSFUp', '_photonSFDown',
+               '_qcdDefUp', '_qcdDefDown']
 
 zFitRegion = 'SR1' # maybe SigmaPlot
 qcdFitRegion = 'Any'

@@ -4,29 +4,39 @@ def normalizeQCD(input, channel, systematic):
 
     varName = 'pfMET_t01'
 
-    dataHist = get1DHist(input, varName+'_gg_'+channel)
-    qcdHist = get1DHist(input, varName+'_qcd_'+channel)
+    qcdName = '_qcd_'
+    systName = systematic
 
-    MCHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systematic)
-    MCHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_T_s_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_dyJetsToLL_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_WW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_WZ_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
+    if systematic == '_qcdDefUp':
+        qcdName = '_qcd_relIso_10_'
+        systName = ''
+    else if systematic == '_qcdDefDown':
+        qcdName = '_qcd_relIso_m10_'
+        systName = ''
+
+    dataHist = get1DHist(input, varName+'_gg_'+channel)
+    qcdHist = get1DHist(input, varName+qcdName+channel)
+
+    MCHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
+    MCHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_dyJetsToLL_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
 
     lowbin = 1
     highbin = dataHist.FindBin(20.0) - 1
@@ -64,29 +74,39 @@ def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi):
 
     varName = 'pfMET_t01'
 
-    dataHist = get1DHist(input, varName+'_gg_'+channel)
-    qcdHist = get1DHist(input, varName+'_qcd_'+channel)
+    qcdName = '_qcd_'
+    systName = systematic
 
-    MCHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systematic)
-    MCHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_T_s_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_dyJetsToLL_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_WW_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_WZ_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
-    MCHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
+    if systematic == '_qcdDefUp':
+        qcdName = '_qcd_relIso_10_'
+        systName = ''
+    else if systematic == '_qcdDefDown':
+        qcdName = '_qcd_relIso_m10_'
+        systName = ''
+
+    dataHist = get1DHist(input, varName+'_gg_'+channel)
+    qcdHist = get1DHist(input, varName+qcdName+channel)
+
+    MCHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
+    MCHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_dyJetsToLL_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
+    MCHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
 
     (qcdFrac, qcdFracErr) = makeFit(varName+'', xlo, xhi, qcdHist, MCHist, dataHist)
 
@@ -113,33 +133,43 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
 
     input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
+    qcdName = '_qcd_'
+    systName = systematic
+
+    if systematic == '_qcdDefUp':
+        qcdName = '_qcd_relIso_10_'
+        systName = ''
+    else if systematic == '_qcdDefDown':
+        qcdName = '_qcd_relIso_m10_'
+        systName = ''
+
     dataHist = get1DHist(input, 'm3_gg_'+channel)
 
-    topHist = get1DHist(input, 'm3_ttJetsHadronic_'+channel+systematic)
-    topHist.Add(get1DHist(input, 'm3_ttJetsFullLep_'+channel+systematic))
-    topHist.Add(get1DHist(input, 'm3_ttJetsSemiLep_'+channel+systematic))
+    topHist = get1DHist(input, 'm3_ttJetsHadronic_'+channel+systName)
+    topHist.Add(get1DHist(input, 'm3_ttJetsFullLep_'+channel+systName))
+    topHist.Add(get1DHist(input, 'm3_ttJetsSemiLep_'+channel+systName))
 
-    wjetsHist = get1DHist(input, 'm3_W3JetsToLNu_'+channel+systematic)
-    wjetsHist.Add(get1DHist(input, 'm3_W4JetsToLNu_'+channel+systematic))
+    wjetsHist = get1DHist(input, 'm3_W3JetsToLNu_'+channel+systName)
+    wjetsHist.Add(get1DHist(input, 'm3_W4JetsToLNu_'+channel+systName))
 
-    qcdHist = get1DHist(input, 'm3_qcd_'+channel)
+    qcdHist = get1DHist(input, 'm3'+qcdName+channel)
     ScaleWithError(qcdHist, QCDSF, QCDSFerror)
 
-    bkgHist = get1DHist(input, 'm3_TBar_s_'+channel+systematic)
-    bkgHist.Add(get1DHist(input, 'm3_TBar_t_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_TBar_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_T_s_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_T_t_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_T_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_dyJetsToLL_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_WW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_WZ_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_ZZ_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_TTWJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_TTZJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_TTGamma_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_ZGToLLG_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, 'm3_WGToLNuG_'+channel+systematic))
+    bkgHist = get1DHist(input, 'm3_TBar_s_'+channel+systName)
+    bkgHist.Add(get1DHist(input, 'm3_TBar_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_TBar_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_T_s_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_T_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_T_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_dyJetsToLL_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_WW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_WZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_ZZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_TTWJets_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_TTZJets_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_TTGamma_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_ZGToLLG_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_WGToLNuG_'+channel+systName))
 
     dataHist.Add(qcdHist, -1.0)
     dataHist.Add(bkgHist, -1.0)
@@ -179,34 +209,44 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
 
     input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
+    qcdName = '_qcd_'
+    systName = systematic
+
+    if systematic == '_qcdDefUp':
+        qcdName = '_qcd_relIso_10_'
+        systName = ''
+    else if systematic == '_qcdDefDown':
+        qcdName = '_qcd_relIso_m10_'
+        systName = ''
+
     dataHist = get1DHist(input, varName+'_gg_'+channel)
 
-    topHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systematic)
-    topHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systematic))
-    topHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systematic))
+    topHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
+    topHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
+    topHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
     ScaleWithError(topHist, topM3sf, topM3sfError)
 
-    ttgammaHist = get1DHist(input, varName+'_TTGamma_'+channel+systematic)
+    ttgammaHist = get1DHist(input, varName+'_TTGamma_'+channel+systName)
 
-    bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systematic)
-    bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systematic))
+    bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systName)
+    bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
     
-    wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systematic)
-    wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systematic))
+    wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName)
+    wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
 
-    zHist = get1DHist(input, varName+'_dyJetsToLL_'+channel+systematic)
-    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
-    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
+    zHist = get1DHist(input, varName+'_dyJetsToLL_'+channel+systName)
+    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
     ScaleWithError(zHist, zSF, zSFerror)
 
     MCHist = bkgHist.Clone('bkgClone')
@@ -215,7 +255,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     MCHist.Add(wjetsHist)
     MCHist.Add(zHist)
 
-    qcdHist = get1DHist(input, varName+'_qcd_'+channel)
+    qcdHist = get1DHist(input, varName+qcdName+channel)
     (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
     
@@ -255,39 +295,53 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi):
 
     varName = 'mLepGammaLead'
 
+    inputMatched = '../fitTemplates.root'
     input = '../histograms_'+channel+'_'+controlRegion+'.root'
+
+    qcdName = '_qcd_'
+    systName = systematic
+
+    if systematic == '_qcdDefUp':
+        qcdName = '_qcd_relIso_10_'
+        systName = ''
+    else if systematic == '_qcdDefDown':
+        qcdName = '_qcd_relIso_m10_'
+        systName = ''
 
     dataHist = get1DHist(input, varName+'_gg_'+channel)
 
-    zHist = get1DHist(input, varName+'_dyJetsToLL_'+channel+systematic)
-    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systematic))
-    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systematic))
+    zHist = get1DHist(inputMatched, varName+'_dyJetsToLL_'+channel+'_matchElectron'+systName)
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchElectron'+systName))
 
-    bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systematic)
-    bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_ttJetsHadronic_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systematic))
-    bkgHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systematic))
+    bkgHist = get1DHist(inputMatched, varName+'_dyJetsToLL_'+channel+'_matchPhoton'+systName)
+    bkgHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchPhoton'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchPhoton'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dyJetsToLL_'+channel+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchJet'+systName))
 
-    MCHist = bkgHist.Clone('bkgClone')
-    MCHist.Add(zHist)
+    bkgHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
 
-    qcdHist = get1DHist(input, varName+'_qcd_'+channel)
+    qcdHist = get1DHist(input, varName+qcdName+channel)
     (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
-
     bkgHist.Add(qcdHist)
     
     (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, zHist, bkgHist, dataHist)
