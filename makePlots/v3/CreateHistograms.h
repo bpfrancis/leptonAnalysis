@@ -319,7 +319,7 @@ class HistogramMaker : public TObject {
 };
 
 HistogramMaker::HistogramMaker(int chanNo, bool blind, int cRegion, Float_t cutOnMet, int mode, TString metType_, bool useNormalTopReweighting_) :
-  channel(chanNo),
+channel(chanNo),
   blinded(blind),
   controlRegion(cRegion),
   metCut(cutOnMet),
@@ -970,6 +970,9 @@ void HistogramMaker::FillMCBackgrounds() {
       if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
       addError2 *= totalWeight*totalWeight;
       
+      if(totalWeight < 1.e-6) continue;
+      if(addError2 != addError2) continue;
+
       for(unsigned int k = 0; k < variables.size(); k++) {
 
 	FillWithError(mcHistograms[i][k], getValue(k), totalWeight, addError2);
@@ -1164,6 +1167,9 @@ void HistogramMaker::FillMCBackgrounds() {
       if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
       addError2 *= totalWeight*totalWeight;
 
+      if(totalWeight < 1.e-6) continue;
+      if(addError2 != addError2) continue;
+
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
 
@@ -1254,6 +1260,9 @@ void HistogramMaker::FillSignal() {
     if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
     addError2 *= totalWeight*totalWeight;
     
+    if(totalWeight < 1.e-6) continue;
+    if(addError2 != addError2) continue;
+
     for(unsigned int j = 0; j < variables.size(); j++) {
 
       FillWithError(h_siga[j], getValue(j), totalWeight, addError2);
@@ -1292,6 +1301,9 @@ void HistogramMaker::FillSignal() {
     Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
     if(fitScale[i] > 0.) addError2 += fitScaleError[i]*fitScaleError[i]/fitScale[i]/fitScale[i];
     addError2 *= totalWeight*totalWeight;
+
+    if(totalWeight < 1.e-6) continue;
+    if(addError2 != addError2) continue;
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
@@ -1883,6 +1895,9 @@ void HistogramMaker::CreateDatacards() {
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 
+      if(totalWeight < 1.e-6) continue;
+      if(addError2 != addError2) continue;
+
       if(totalWeight < 0) continue;
 
       Float_t olderror = h->GetBinError(h->FindBin(met));
@@ -1974,10 +1989,15 @@ void HistogramMaker::CreateDatacards() {
 		  photonSF, photonSFup, photonSFdown);
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
+
+      if(totalWeight < 1.e-6) continue;
+      if(addError2 != addError2) continue;
+
       Float_t olderror = h->GetBinError(h->FindBin(met));
       Float_t newerror = sqrt(olderror*olderror + addError2);
       h_JECup->Fill(met, totalWeight);
       h_JECup->SetBinError(h->FindBin(met), newerror);
+
 
     }
 
@@ -2003,6 +2023,10 @@ void HistogramMaker::CreateDatacards() {
 		  photonSF, photonSFup, photonSFdown);
 
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
+
+      if(totalWeight < 1.e-6) continue;
+      if(addError2 != addError2) continue;
+
       Float_t olderror = h->GetBinError(h->FindBin(met));
       Float_t newerror = sqrt(olderror*olderror + addError2);
       h_JECdown->Fill(met, totalWeight);

@@ -34,7 +34,10 @@ for channel in channels:
     output_z.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
-        zResults.append(doElectronFit(channel_noTag, zFitRegion, systematic, output_z, 20.0, 180.0))
+        if channel.find('ele') == 0:
+            zResults.append(doElectronFit(channel_noTag, zFitRegion, systematic, output_z, 20.0, 180.0))
+        else:
+            zResults.append((1.0, 0.0))
 
     output_z.close()
 

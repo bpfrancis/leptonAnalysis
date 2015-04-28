@@ -369,6 +369,9 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<F
   sf_qcd.clear();
   sfError_qcd.clear();
 
+  for(unsigned int i = 0; i < sf_qcd_.size(); i++) sf_qcd.push_back(sf_qcd_[i]);
+  for(unsigned int i = 0; i < sfError_qcd_.size(); i++) sfError_qcd.push_back(sfError_qcd_[i]);
+
   mc.clear();
   mc_btagWeightUp.clear();
   mc_btagWeightDown.clear();
@@ -924,7 +927,7 @@ void PlotMaker::ScaleQCD() {
     olderror = qcd->GetBinError(i+1);
     oldcontent = qcd->GetBinContent(i+1);
 
-    if(olderror == 0) continue;
+    if(oldcontent == 0) continue;
     
     newerror = qcdScaleError*qcdScaleError / qcdScale / qcdScale;
     newerror += olderror*olderror / oldcontent / oldcontent;
@@ -940,12 +943,6 @@ void PlotMaker::ScaleQCD() {
 }
 
 void PlotMaker::CalculateQCDNormalization() {
-
-  if(sf_qcd.size() > 0) {
-    qcdScale = sf_qcd[0];
-    qcdScaleError = sfError_qcd[0];
-    return;
-  }
 
   unsigned int met_index = 0;
   bool foundMET = false;
@@ -964,6 +961,14 @@ void PlotMaker::CalculateQCDNormalization() {
   }
 
   GetHistograms(met_index);
+
+  if(sf_qcd.size() > 0) {
+    qcdScale = sf_qcd[0];
+    qcdScaleError = sfError_qcd[0];
+    qcdScale_defUp = sf_qcd[17];
+    qcdScale_defDown = sf_qcd[18];
+    return;
+  }
 
   const int endBin = data->GetXaxis()->FindBin(20) - 1;
 

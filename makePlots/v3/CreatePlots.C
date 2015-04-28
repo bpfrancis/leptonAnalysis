@@ -21,8 +21,9 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
   scales.push_back(sf);
   errors.push_back(sfError);
 
-  for(int i = 0; i < 12; i++) {
+  while(1) {
     input >> dummy >> sf >> sfError;
+    if(!input.good()) break;
     scales.push_back(sf);
     errors.push_back(sfError);
   }

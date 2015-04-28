@@ -10,7 +10,7 @@ def normalizeQCD(input, channel, systematic):
     if systematic == '_qcdDefUp':
         qcdName = '_qcd_relIso_10_'
         systName = ''
-    else if systematic == '_qcdDefDown':
+    elif systematic == '_qcdDefDown':
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
@@ -80,7 +80,7 @@ def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi):
     if systematic == '_qcdDefUp':
         qcdName = '_qcd_relIso_10_'
         systName = ''
-    else if systematic == '_qcdDefDown':
+    elif systematic == '_qcdDefDown':
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
@@ -139,7 +139,7 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
     if systematic == '_qcdDefUp':
         qcdName = '_qcd_relIso_10_'
         systName = ''
-    else if systematic == '_qcdDefDown':
+    elif systematic == '_qcdDefDown':
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
@@ -215,7 +215,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     if systematic == '_qcdDefUp':
         qcdName = '_qcd_relIso_10_'
         systName = ''
-    else if systematic == '_qcdDefDown':
+    elif systematic == '_qcdDefDown':
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
@@ -304,7 +304,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi):
     if systematic == '_qcdDefUp':
         qcdName = '_qcd_relIso_10_'
         systName = ''
-    else if systematic == '_qcdDefDown':
+    elif systematic == '_qcdDefDown':
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
