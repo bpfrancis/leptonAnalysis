@@ -77,7 +77,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   double pdf_w3 = 414.7 * 640. / 37509.;
   double pdf_w4 = 414.7 * 264. / 37509.;
 
-  /* No longer using W1 and W2
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
 					  xsec_w1,
 					  scaleUp_w1, scaleDown_w1,
@@ -86,7 +85,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 					  xsec_w2,
 					  scaleUp_w2, scaleDown_w2,
 					  pdf_w2, pdf_w2);
-  */
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_W3JetsToLNu.root", "W3JetsToLNu", 
 					  xsec_w3,
 					  scaleUp_w3, scaleDown_w3,
@@ -101,46 +99,44 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 					  5.9, 3.6, 
 					  38.8, 38.8);
   
-  /*
-    double fix_zjets_xsec = 3. * 1177.3 / 3503.71;
-    
-    double xsec_dy1 = 666.7 * fix_zjets_xsec;
-    double xsec_dy2 = 215.1 * fix_zjets_xsec;
-    double xsec_dy3 = 66.07 * fix_zjets_xsec;
-    double xsec_dy4 = 27.38 * fix_zjets_xsec;
-    
-    double scaleUp_dy1 = 5.9 * 666.7 / 3503.71;
-    double scaleUp_dy2 = 5.9 * 215.1 / 3503.71;
-    double scaleUp_dy3 = 5.9 * 66.07 / 3503.71;
-    double scaleUp_dy4 = 5.9 * 27.38 / 3503.71;
-    
-    double scaleDown_dy1 = 3.6 * 666.7 / 3503.71;
-    double scaleDown_dy2 = 3.6 * 215.1 / 3503.71;
-    double scaleDown_dy3 = 3.6 * 66.07 / 3503.71;
-    double scaleDown_dy4 = 3.6 * 27.38 / 3503.71;
-    
-    double pdf_dy1 = 38.8 * 666.7 / 3503.71;
-    double pdf_dy2 = 38.8 * 215.1 / 3503.71;
-    double pdf_dy3 = 38.8 * 66.07 / 3503.71;
-    double pdf_dy4 = 38.8 * 27.38 / 3503.71;
-    
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
-    xsec_dy1,
-    scaleUp_dy1, scaleDown_dy1,
-    pdf_dy1, pdf_dy1);
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
-    xsec_dy2,
-    scaleUp_dy2, scaleDown_dy2,
-    pdf_dy2, pdf_dy2);
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
-    xsec_dy3,
-    scaleUp_dy3, scaleDown_dy3,
-    pdf_dy3, pdf_dy3);
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
-    xsec_dy4,
-    scaleUp_dy4, scaleDown_dy4,
-    pdf_dy4, pdf_dy4);
-  */
+  double fix_zjets_xsec = 3. * 1177.3 / 3503.71;
+  
+  double xsec_dy1 = 666.7 * fix_zjets_xsec;
+  double xsec_dy2 = 215.1 * fix_zjets_xsec;
+  double xsec_dy3 = 66.07 * fix_zjets_xsec;
+  double xsec_dy4 = 27.38 * fix_zjets_xsec;
+  
+  double scaleUp_dy1 = 5.9 * 666.7 / 3503.71;
+  double scaleUp_dy2 = 5.9 * 215.1 / 3503.71;
+  double scaleUp_dy3 = 5.9 * 66.07 / 3503.71;
+  double scaleUp_dy4 = 5.9 * 27.38 / 3503.71;
+  
+  double scaleDown_dy1 = 3.6 * 666.7 / 3503.71;
+  double scaleDown_dy2 = 3.6 * 215.1 / 3503.71;
+  double scaleDown_dy3 = 3.6 * 66.07 / 3503.71;
+  double scaleDown_dy4 = 3.6 * 27.38 / 3503.71;
+  
+  double pdf_dy1 = 38.8 * 666.7 / 3503.71;
+  double pdf_dy2 = 38.8 * 215.1 / 3503.71;
+  double pdf_dy3 = 38.8 * 66.07 / 3503.71;
+  double pdf_dy4 = 38.8 * 27.38 / 3503.71;
+  
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
+					  xsec_dy1,
+					  scaleUp_dy1, scaleDown_dy1,
+					  pdf_dy1, pdf_dy1);
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
+					  xsec_dy2,
+					  scaleUp_dy2, scaleDown_dy2,
+					  pdf_dy2, pdf_dy2);
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
+					  xsec_dy3,
+					  scaleUp_dy3, scaleDown_dy3,
+					  pdf_dy3, pdf_dy3);
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
+					  xsec_dy4,
+					  scaleUp_dy4, scaleDown_dy4,
+					  pdf_dy4, pdf_dy4);
   
   loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_TBar_s.root", "TBar_s", 
 					  1.76, 0.01, 0.01, 0.08, 0.08);

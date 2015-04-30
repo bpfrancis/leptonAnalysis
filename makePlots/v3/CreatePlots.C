@@ -61,7 +61,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   */
 
   vector<Float_t> sf_vgamma, sfError_vgamma;
-  if(controlRegion != kCR0 && controlRegion != kAny) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+  if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("ele")) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
 
   vector<Float_t> sf_qcd, sfError_qcd;
   if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
