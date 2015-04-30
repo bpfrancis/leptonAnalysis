@@ -61,11 +61,11 @@ void CreateTemplates(TString input, TString variable, int controlRegion, TString
   double pdf_w3 = 414.7 * 640. / 37509.;
   double pdf_w4 = 414.7 * 264. / 37509.;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_W1JetsToLNu.root", "W1JetsToLNu", 
 					  xsec_w1,
 					  scaleUp_w1, scaleDown_w1,
 					  pdf_w1, pdf_w1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_W2JetsToLNu.root", "W2JetsToLNu", 
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_W2JetsToLNu.root", "W2JetsToLNu", 
 					  xsec_w2,
 					  scaleUp_w2, scaleDown_w2,
 					  pdf_w2, pdf_w2);
@@ -105,19 +105,19 @@ void CreateTemplates(TString input, TString variable, int controlRegion, TString
   double pdf_dy3 = 38.8 * 66.07 / 3503.71;
   double pdf_dy4 = 38.8 * 27.38 / 3503.71;
   
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy1JetsToLL.root", "dy1JetsToLL", 
 					  xsec_dy1,
 					  scaleUp_dy1, scaleDown_dy1,
 					  pdf_dy1, pdf_dy1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy2JetsToLL.root", "dy2JetsToLL", 
 					  xsec_dy2,
 					  scaleUp_dy2, scaleDown_dy2,
 					  pdf_dy2, pdf_dy2);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy3JetsToLL.root", "dy3JetsToLL", 
 					  xsec_dy3,
 					  scaleUp_dy3, scaleDown_dy3,
 					  pdf_dy3, pdf_dy3);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
+  loadSuccess |= tMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_dy4JetsToLL.root", "dy4JetsToLL", 
 					  xsec_dy4,
 					  scaleUp_dy4, scaleDown_dy4,
 					  pdf_dy4, pdf_dy4);
