@@ -832,12 +832,8 @@ void PlotMaker::ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfE
 
 void PlotMaker::CreatePlot(unsigned int n) {
 
-  if(n > 0) GetHistograms(n);
-
-  if(doRebinMET) RebinMET();
-
+  GetHistograms(n);
   StackHistograms(n);
-
   CalculateRatio(n);
   if(n == 0)  MakeLegends();
 

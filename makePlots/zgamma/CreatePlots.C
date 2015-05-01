@@ -242,27 +242,51 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		   true, true, true);
 
   if(channels[channel].Contains("ele")) {
-    pMaker->BookPlot("ele_pt", true,
-		     "Electron P_{T}", "Number of Events / GeV",
+    pMaker->BookPlot("ele1_pt", true,
+		     "Lead Electron P_{T}", "Number of Events / GeV",
 		     0, 1500, 2.e-4, 8.e3,
 		     0., 2.1, 
 		     true, true, true);
 
-    pMaker->BookPlot("ele_eta", false,
-		     "Electron #Eta", "Number of Events / GeV",
+    pMaker->BookPlot("ele1_eta", false,
+		     "Lead Electron #eta", "Number of Events / GeV",
+		     -2.4, 2.4, 2.e-4, 8.e3,
+		     0., 2.1, 
+		     true, false, false);
+
+    pMaker->BookPlot("ele2_pt", true,
+		     "Trail Electron P_{T}", "Number of Events / GeV",
+		     0, 1500, 2.e-4, 8.e3,
+		     0., 2.1, 
+		     true, true, true);
+
+    pMaker->BookPlot("ele2_eta", false,
+		     "Trail Electron #eta", "Number of Events / GeV",
 		     -2.4, 2.4, 2.e-4, 8.e3,
 		     0., 2.1, 
 		     true, false, false);
   }
   else if(channels[channel].Contains("muon")) {
-    pMaker->BookPlot("muon_pt", true,
-		     "Muon P_{T}", "Number of Events / GeV",
+    pMaker->BookPlot("muon1_pt", true,
+		     "Lead Muon P_{T}", "Number of Events / GeV",
 		     0, 2000, 2.e-4, 8.e3,
 		     0., 2.1, 
 		     true, true, true);
 
-    pMaker->BookPlot("muon_eta", false,
-		     "Muon #Eta", "Number of Events / GeV",
+    pMaker->BookPlot("muon1_eta", false,
+		     "Lead Muon #eta", "Number of Events / GeV",
+		     -2.4, 2.4, 2.e-4, 8.e3,
+		     0., 2.1, 
+		     true, false, false);
+
+    pMaker->BookPlot("muon2_pt", true,
+		     "Trail Muon P_{T}", "Number of Events / GeV",
+		     0, 2000, 2.e-4, 8.e3,
+		     0., 2.1, 
+		     true, true, true);
+
+    pMaker->BookPlot("muon2_eta", false,
+		     "Trail Muon #eta", "Number of Events / GeV",
 		     -2.4, 2.4, 2.e-4, 8.e3,
 		     0., 2.1, 
 		     true, false, false);

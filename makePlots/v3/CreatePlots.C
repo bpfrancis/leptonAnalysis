@@ -266,7 +266,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     true, true, true);
 
     pMaker->BookPlot("ele_eta", false,
-		     "Electron #Eta", "Number of Events / GeV",
+		     "Electron #eta", "Number of Events / GeV",
 		     -2.4, 2.4, 2.e-4, 8.e3,
 		     0., 2.1, 
 		     true, false, false);
@@ -279,7 +279,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     true, true, true);
 
     pMaker->BookPlot("muon_eta", false,
-		     "Muon #Eta", "Number of Events / GeV",
+		     "Muon #eta", "Number of Events / GeV",
 		     -2.4, 2.4, 2.e-4, 8.e3,
 		     0., 2.1, 
 		     true, false, false);
