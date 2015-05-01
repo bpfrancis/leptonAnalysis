@@ -819,17 +819,19 @@ void HistogramMaker::FillData() {
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
+      Float_t val = getValue(j);
+
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
 	  for(unsigned int m = 0; m < variables.size(); m++) {
 	    if(variables[m] == variables_2d[k].second) {
-	      h_gg_2d[k]->Fill(getValue(j), getValue(m));
+	      h_gg_2d[k]->Fill(val, getValue(m));
 	    }
 	  }
 	}
       }
 
-      h_gg[j]->Fill(getValue(j));
+      h_gg[j]->Fill(val);
     }
 
   }
@@ -853,20 +855,22 @@ void HistogramMaker::FillQCD() {
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
+      Float_t val = getValue(j);
+
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
 	  for(unsigned int m = 0; m < variables.size(); m++) {
 	    if(variables[m] == variables_2d[k].second) {
-	      h_qcd_2d[k]->Fill(getValue(j), getValue(m));
+	      h_qcd_2d[k]->Fill(val, getValue(m));
 	    }
 	  }
 	}
       }
 
-      if(relIso > 0.25) h_qcd[j]->Fill(getValue(j)); // central
+      if(relIso > 0.25) h_qcd[j]->Fill(val); // central
 
-      if(relIso > 0.25 * 1.1) h_qcd_relIso_10[j]->Fill(getValue(j)); // +10%
-      if(relIso > 0.25 * 0.9) h_qcd_relIso_m10[j]->Fill(getValue(j)); // -10%
+      if(relIso > 0.25 * 1.1) h_qcd_relIso_10[j]->Fill(val); // +10%
+      if(relIso > 0.25 * 0.9) h_qcd_relIso_m10[j]->Fill(val); // -10%
 
     }
 
@@ -975,66 +979,40 @@ void HistogramMaker::FillMCBackgrounds() {
 
       for(unsigned int k = 0; k < variables.size(); k++) {
 
-	FillWithError(mcHistograms[i][k], getValue(k), totalWeight, addError2);
+	Float_t val = getValue(k);
+
+	FillWithError(mcHistograms[i][k], val, totalWeight, addError2);
 	
 	for(unsigned int m = 0; m < variables_2d.size(); m++) {
 	  if(variables[k] == variables_2d[m].first) {
 	    for(unsigned int n = 0; n < variables.size(); n++) {
 	      if(variables[n] == variables_2d[m].second) {
-		mcHistograms_2d[i][m]->Fill(getValue(k), getValue(n), totalWeight);
+		mcHistograms_2d[i][m]->Fill(val, getValue(n), totalWeight);
 	      }
 	    }
 	  }
 	}
 	
-	totalWeight = puWeight * btagWeightUp * leptonSF * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_btagWeightUp[i][k]->Fill(getValue(k), totalWeight);
+	mcHistograms_btagWeightUp[i][k]->Fill(val, totalWeight * btagWeightUp/btagWeight);
+	mcHistograms_btagWeightDown[i][k]->Fill(val, totalWeight * btagWeightDown/btagWeight);
 	
-	totalWeight = puWeight * btagWeightDown * leptonSF * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_btagWeightDown[i][k]->Fill(getValue(k), totalWeight);
-	
-	totalWeight = puWeightUp * btagWeight * leptonSF * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_puWeightUp[i][k]->Fill(getValue(k), totalWeight);
+	mcHistograms_puWeightUp[i][k]->Fill(val, totalWeight * puWeightUp/puWeight);
+	mcHistograms_puWeightDown[i][k]->Fill(val, totalWeight * puWeightDown/puWeight);
 
-	totalWeight = puWeightDown * btagWeight * leptonSF * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_puWeightDown[i][k]->Fill(getValue(k), totalWeight);
+	mcHistograms_leptonSFup[i][k]->Fill(val, totalWeight * leptonSFup/leptonSF);
+	mcHistograms_leptonSFdown[i][k]->Fill(val, totalWeight * leptonSFdown/leptonSF);
 
-	totalWeight = puWeight * btagWeight * leptonSFup * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_leptonSFup[i][k]->Fill(getValue(k), totalWeight);
+	mcHistograms_photonSFup[i][k]->Fill(val, totalWeight * photonSFup/photonSF);
+	mcHistograms_photonSFdown[i][k]->Fill(val, totalWeight * photonSFdown/photonSF);
 
-	totalWeight = puWeight * btagWeight * leptonSFdown * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_leptonSFdown[i][k]->Fill(getValue(k), totalWeight);
-
-	totalWeight = puWeight * btagWeight * leptonSF * photonSFup;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_photonSFup[i][k]->Fill(getValue(k), totalWeight);
-
-	totalWeight = puWeight * btagWeight * leptonSF * photonSFdown;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_photonSFdown[i][k]->Fill(getValue(k), totalWeight);
-
-	totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-	if(reweightTopPt[i]) totalWeight *= topPtReweighting * topPtReweighting;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_topPtUp[i][k]->Fill(getValue(k), totalWeight);
-
-	totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-	if(fitScale[i] > 0) totalWeight *= fitScale[i];
-	mcHistograms_topPtDown[i][k]->Fill(getValue(k), totalWeight);
+	if(reweightTopPt[i]) {
+	  mcHistograms_topPtUp[i][k]->Fill(val, totalWeight * topPtReweighting);
+	  mcHistograms_topPtDown[i][k]->Fill(val, totalWeight / topPtReweighting);
+	}
+	else {
+	  mcHistograms_topPtUp[i][k]->Fill(val, totalWeight);
+	  mcHistograms_topPtDown[i][k]->Fill(val, totalWeight);
+	}
 	
       }
 
@@ -1175,16 +1153,18 @@ void HistogramMaker::FillMCBackgrounds() {
 
       for(unsigned int k = 0; k < variables.size(); k++) {
 
-	if(relIso > 0.25) FillWithError(mcQCDHistograms[i][k], getValue(k), totalWeight, addError2); // central
+	Float_t val = getValue(k);
+	
+	if(relIso > 0.25) FillWithError(mcQCDHistograms[i][k], val, totalWeight, addError2); // central
 			
-	if(relIso > 0.25 * 1.1) mcQCDHistograms_relIso_10[i][k]->Fill(getValue(k), totalWeight); // +10%
-	if(relIso > 0.25 * 0.9) mcQCDHistograms_relIso_m10[i][k]->Fill(getValue(k), totalWeight); // -10%
+	if(relIso > 0.25 * 1.1) mcQCDHistograms_relIso_10[i][k]->Fill(val, totalWeight); // +10%
+	if(relIso > 0.25 * 0.9) mcQCDHistograms_relIso_m10[i][k]->Fill(val, totalWeight); // -10%
 	
 	for(unsigned int m = 0; m < variables_2d.size(); m++) {
 	  if(variables[k] == variables_2d[m].first) {
 	    for(unsigned int n = 0; n < variables.size(); n++) {
 	      if(variables[n] == variables_2d[m].second) {
-		mcQCDHistograms_2d[i][m]->Fill(getValue(k), getValue(n), totalWeight);
+		mcQCDHistograms_2d[i][m]->Fill(val, getValue(n), totalWeight);
 	      }
 	    }
 	  }
@@ -1265,13 +1245,15 @@ void HistogramMaker::FillSignal() {
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
-      FillWithError(h_siga[j], getValue(j), totalWeight, addError2);
+      Float_t val = getValue(j);
+
+      FillWithError(h_siga[j], val, totalWeight, addError2);
 
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
 	  for(unsigned int m = 0; m < variables.size(); m++) {
 	    if(variables[m] == variables_2d[k].second) {
-	      h_siga_2d[k]->Fill(getValue(j), getValue(m), totalWeight);
+	      h_siga_2d[k]->Fill(val, getValue(m), totalWeight);
 	    }
 	  }
 	}
@@ -1307,13 +1289,15 @@ void HistogramMaker::FillSignal() {
 
     for(unsigned int j = 0; j < variables.size(); j++) {
 
-      FillWithError(h_sigb[j], getValue(j), totalWeight, addError2);
+      Float_t val = getValue(j);
+
+      FillWithError(h_sigb[j], val, totalWeight, addError2);
       
       for(unsigned int k = 0; k < variables_2d.size(); k++) {
 	if(variables[j] == variables_2d[k].first) {
 	  for(unsigned int m = 0; m < variables.size(); m++) {
 	    if(variables[m] == variables_2d[k].second) {
-	      h_sigb_2d[k]->Fill(getValue(j), getValue(m), totalWeight);
+	      h_sigb_2d[k]->Fill(val, getValue(m), totalWeight);
 	    }
 	  }
 	}
@@ -1466,7 +1450,7 @@ void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
     Float_t trigger_error = sf_SingleElectronTrigger->GetBinError(sf_SingleElectronTrigger->FindBin(eta, pt));
 
     central = id_val * trigger_val;
-    error = central * sqrt(id_error*id_error/(id_val*id_val) + trigger_error*trigger_error/(trigger_val*trigger_val));
+    error = central * sqrt(id_error*id_error/id_val/id_val + trigger_error*trigger_error/trigger_val/trigger_val);
 
     up = central + error;
     down = central - error;
@@ -1480,8 +1464,8 @@ void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
     central = sf_muon->GetBinContent(sf_muon->FindBin(pt, eta));
     error = sf_muon->GetBinError(sf_muon->FindBin(pt, eta));
 
-    up = error;
-    down = 2. * central - error;
+    up = central * error;
+    down = central / error;
   }
 
   return;  
@@ -1898,72 +1882,23 @@ void HistogramMaker::CreateDatacards() {
       if(totalWeight < 1.e-6) continue;
       if(addError2 != addError2) continue;
 
-      if(totalWeight < 0) continue;
+      FillWithError(h, met, totalWeight, addError2);
 
-      Float_t olderror = h->GetBinError(h->FindBin(met));
-      Float_t newerror = sqrt(olderror*olderror + addError2);
-      h->Fill(met, totalWeight);
-      h->SetBinError(h->FindBin(met), newerror);
+      h_btagWeightUp->Fill(met, totalWeight * btagWeightUp/btagWeight);
+      h_btagWeightDown->Fill(met, totalWeight * btagWeightDown/btagWeight);
 
-      totalWeight = puWeight * btagWeightUp * leptonSF * photonSF;
-      olderror = h_btagWeightUp->GetBinError(h_btagWeightUp->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_btagWeightUp->Fill(met, totalWeight);
-      h_btagWeightUp->SetBinError(h_btagWeightUp->FindBin(met), newerror);
+      h_puWeightUp->Fill(met, totalWeight * puWeightUp/puWeight);
+      h_puWeightDown->Fill(met, totalWeight * puWeightDown/puWeight);
 
-      totalWeight = puWeight * btagWeightDown * leptonSF * photonSF;
-      olderror = h_btagWeightDown->GetBinError(h_btagWeightDown->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_btagWeightDown->Fill(met, totalWeight);
-      h_btagWeightDown->SetBinError(h_btagWeightDown->FindBin(met), newerror);
+      h_leptonSFup->Fill(met, totalWeight * leptonSFup/leptonSF);
+      h_leptonSFdown->Fill(met, totalWeight * leptonSFdown/leptonSF);
 
-      totalWeight = puWeightUp * btagWeight * leptonSF * photonSF;
-      olderror = h_puWeightUp->GetBinError(h_puWeightUp->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_puWeightUp->Fill(met, totalWeight);
-      h_puWeightUp->SetBinError(h_puWeightUp->FindBin(met), newerror);
+      h_photonSFup->Fill(met, totalWeight * photonSFup/photonSF);
+      h_photonSFdown->Fill(met, totalWeight * photonSFdown/photonSF);
 
-      totalWeight = puWeightDown * btagWeight * leptonSF * photonSF;
-      olderror = h_puWeightDown->GetBinError(h_puWeightDown->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_puWeightDown->Fill(met, totalWeight);
-      h_puWeightDown->SetBinError(h_puWeightDown->FindBin(met), newerror);
-
-      totalWeight = puWeight * btagWeight * leptonSFup * photonSF;
-      olderror = h_leptonSFup->GetBinError(h_leptonSFup->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_leptonSFup->Fill(met, totalWeight);
-      h_leptonSFup->SetBinError(h_leptonSFup->FindBin(met), newerror);
-
-      totalWeight = puWeight * btagWeight * leptonSFdown * photonSF;
-      olderror = h_leptonSFdown->GetBinError(h_leptonSFdown->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_leptonSFdown->Fill(met, totalWeight);
-      h_leptonSFdown->SetBinError(h_leptonSFdown->FindBin(met), newerror);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSFup;
-      olderror = h_photonSFup->GetBinError(h_photonSFup->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_photonSFup->Fill(met, totalWeight);
-      h_photonSFup->SetBinError(h_photonSFup->FindBin(met), newerror);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSFdown;
-      olderror = h_photonSFdown->GetBinError(h_photonSFdown->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
-      h_photonSFdown->Fill(met, totalWeight);
-      h_photonSFdown->SetBinError(h_photonSFdown->FindBin(met), newerror);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-      olderror = h_topPtUp->GetBinError(h_topPtUp->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
       h_topPtUp->Fill(met, totalWeight);
-      h_topPtUp->SetBinError(h_topPtUp->FindBin(met), newerror);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-      olderror = h_topPtDown->GetBinError(h_topPtDown->FindBin(met));
-      newerror = sqrt(olderror*olderror + addError2);
       h_topPtDown->Fill(met, totalWeight);
-      h_topPtDown->SetBinError(h_topPtDown->FindBin(met), newerror);
+
     }
 
     for(int i = 0; i < tree_JECup->GetEntries(); i++) {
@@ -1979,8 +1914,6 @@ void HistogramMaker::CreateDatacards() {
 
       if(!checkBtagging()) continue;
 
-      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
-      
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
@@ -1991,13 +1924,8 @@ void HistogramMaker::CreateDatacards() {
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 
       if(totalWeight < 1.e-6) continue;
-      if(addError2 != addError2) continue;
 
-      Float_t olderror = h->GetBinError(h->FindBin(met));
-      Float_t newerror = sqrt(olderror*olderror + addError2);
       h_JECup->Fill(met, totalWeight);
-      h_JECup->SetBinError(h->FindBin(met), newerror);
-
 
     }
 
@@ -2013,8 +1941,6 @@ void HistogramMaker::CreateDatacards() {
 
       if(!checkBtagging()) continue;
 
-      Float_t addError2 = puWeight*puWeight*btagWeightErr*btagWeightErr + btagWeight*btagWeight*puWeightErr*puWeightErr;
-      
       Float_t leptonSF, leptonSFup, leptonSFdown;
       Float_t photonSF, photonSFup, photonSFdown;
 
@@ -2025,12 +1951,8 @@ void HistogramMaker::CreateDatacards() {
       double totalWeight = puWeight * btagWeight * leptonSF * photonSF;
 
       if(totalWeight < 1.e-6) continue;
-      if(addError2 != addError2) continue;
 
-      Float_t olderror = h->GetBinError(h->FindBin(met));
-      Float_t newerror = sqrt(olderror*olderror + addError2);
       h_JECdown->Fill(met, totalWeight);
-      h_JECdown->SetBinError(h->FindBin(met), newerror);
 
     }
 

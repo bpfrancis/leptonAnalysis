@@ -82,13 +82,11 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   pMaker->BookMCLayer(wJets, kOrange-3, "wjets", "W + Jets", kQQ, kV, sf_wjets, sfError_wjets);
 
   vector<TString> zJets;
-  zJets.push_back("dyJetsToLL");
-  /*
-    zJets.push_back("dy1JetsToLL");
-    zJets.push_back("dy2JetsToLL");
-    zJets.push_back("dy3JetsToLL");
-    zJets.push_back("dy4JetsToLL");
-  */
+  //zJets.push_back("dyJetsToLL");
+  zJets.push_back("dy1JetsToLL");
+  zJets.push_back("dy2JetsToLL");
+  zJets.push_back("dy3JetsToLL");
+  zJets.push_back("dy4JetsToLL");
   pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV, sf_vgamma, sfError_vgamma);
 
   vector<TString> singleTop;

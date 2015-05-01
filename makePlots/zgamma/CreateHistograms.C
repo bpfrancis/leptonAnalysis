@@ -191,7 +191,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet2_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("jet3_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_1g, xbins_kinematic_1g);
-    hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele1_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
     hMaker->BookHistogram("ele1_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon1_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
@@ -216,7 +215,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet2_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("jet3_pt", nKinematicBins_1g, xbins_kinematic_1g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_1g, xbins_kinematic_1g);
-    hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele1_pt", nKinematicBins_1g, xbins_kinematic_1g);  // 15
     hMaker->BookHistogram("ele1_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon1_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
@@ -249,7 +247,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("jet2_pt", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("jet3_pt", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("btag1_pt", nKinematicBins_2g, xbins_kinematic_2g);
-    hMaker->BookHistogram("m3", 200, 0., 2000.);
     hMaker->BookHistogram("ele1_pt", nKinematicBins_2g, xbins_kinematic_2g);  // 15
     hMaker->BookHistogram("ele1_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon1_pt", nKinematicBins_2g, xbins_kinematic_2g); // 17
