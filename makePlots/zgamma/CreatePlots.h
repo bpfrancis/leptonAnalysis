@@ -736,8 +736,8 @@ void PlotMaker::MakeLegends() {
   lumiHeader->SetFillStyle(0);
   lumiHeader->SetLineColor(0);
   // aps15
-  //lumiHeader->AddText("CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
-  lumiHeader->AddText("Work in Progress     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
+  lumiHeader->AddText("CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
+  //lumiHeader->AddText("Work in Progress     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
 
 }
 
@@ -783,7 +783,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetTitleSize(0.12);
   ratio->GetXaxis()->SetTitleOffset(0.6);
 
-  // aps15 DetermineAxisRanges(n);
+  DetermineAxisRanges(n);
   //DetermineLegendRanges(n);
 
   if(xMaximums[n] > xMinimums[n]) {
@@ -850,7 +850,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   }
   //errors_stat->Draw("same e2");
   errors_sys->Draw("same e2");
-  if(controlRegion != kSR1 && controlRegion != kSR2) data->Draw("same e1"); // aps15
+  data->Draw("same e1"); // aps15
   bkg->Draw("same axis");
 
   lumiHeader->Draw("same");
@@ -862,17 +862,10 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   padlo->cd();
 
-  //aps15
-  if(controlRegion != kSR1 && controlRegion != kSR2) {
-    ratio->Draw("e1");
-    ratio_sys->Draw("e2 same");
-  }
-  else {
-    ratio->Draw("axis");
-    ratio_sys->Draw("e2 same");
-  }
+  ratio->Draw("e1");
+  ratio_sys->Draw("e2 same");
   ratio_stat->Draw("e2 same");
-  if(controlRegion != kSR1 && controlRegion != kSR2) ratio->Draw("e1 same"); //aps15
+  ratio->Draw("e1 same"); //aps15
   ratio->Draw("axis same");
   ratioLeg->Draw("same");
 
