@@ -68,7 +68,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   vector<Float_t> sf_qcd, sfError_qcd;
   //if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
   
-  PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
+  PlotMaker * pMaker = new PlotMaker(channel, controlRegion, metType);
 
   vector<TString> ttJets;
   ttJets.push_back("ttJetsSemiLep");
