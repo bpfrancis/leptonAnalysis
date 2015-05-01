@@ -43,10 +43,10 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   gStyle->SetOptTitle(0);
 
   vector<Float_t> sf_ttbar, sfError_ttbar;
-  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttbar, sfError_ttbar);
+  //if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttbar, sfError_ttbar);
 
   vector<Float_t> sf_wjets, sfError_wjets;
-  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
+  //if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
 
   vector<Float_t> sf_ttgamma, sfError_ttgamma;
   /*
@@ -63,10 +63,10 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   */
 
   vector<Float_t> sf_vgamma, sfError_vgamma;
-  if(controlRegion != kCR0 && controlRegion != kAny) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+  //if(controlRegion != kCR0 && controlRegion != kAny) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
 
   vector<Float_t> sf_qcd, sfError_qcd;
-  if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
+  //if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
   
   PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
 
@@ -171,10 +171,10 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   
   //if(controlRegion == kCR1) pMaker->SetDoRebinMET(true);
 
-  pMaker->BookPlot("m3", false,
-		   "M3 (GeV/c^{2})", "Number of Events / GeV",
-		   0., 300., 7.e-5, 2.e5,
-		   0., 1.9,
+  pMaker->BookPlot("z_mass", false,
+		   channels[channel].Contains("ele") ? "m_{ee}" : "m_{#mu#mu}", "Number of Events",
+		   0, 1200, 2.e-3, 5.e4,
+		   0., 5.1,
 		   true, true, true);
 
   // aps15
@@ -240,24 +240,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		   0, 1400, 2.e-4, 8.e3,
 		   0., 2.1, 
 		   true, true, true);
-
-  pMaker->BookPlot("w_mT", true,
-		   "W Transverse Mass", "Number of Events / GeV",
-		   0, 1000, 2.e-4, 8.e3,
-		   0., 2.1, 
-		   true, true, true);
-
-  pMaker->BookPlot("dPhi_met_l", false,
-		   "#Delta#phi(#ell, #slash{E}_T)", "Number of Events",
-		   -3.2, 3.2, 2.e-4, 8.e3,
-		   0., 2.1,
-		   true, false, false);
-
-  pMaker->BookPlot("dPhi_met_ht", false,
-		   "#Delta#phi(#ell, #vec{HT})", "Number of Events",
-		   -3.2, 3.2, 2.e-4, 8.e3,
-		   0., 2.1,
-		   true, false, false);
 
   if(channels[channel].Contains("ele")) {
     pMaker->BookPlot("ele_pt", true,
@@ -327,11 +309,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		       true, true, true);
     }
 
-    pMaker->BookPlot("mLepGammaLead", true,
-		     "m_{#ell#gamma_{lead}}", "Number of Events / GeV",
-		     0., 1200., 2.e-3, 5.e4,
-		     0., 5.1, 
-		     true, true, true);
   }
 
   if(controlRegion == kSR2 || controlRegion == kCR2 || controlRegion == kCR2a) {
@@ -357,12 +334,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     "E_{T} of trailing #gamma", "Number of Events / GeV",
 		     0., 700., 2.e-4, 5.e2,
 		     0., 5.1,
-		     true, true, true);
-
-    pMaker->BookPlot("mLepGammaTrail", true,
-		     "m_{#ell#gamma_{trail}}", "Number of Events / GeV",
-		     0., 1200., 2.e-3, 5.e4,
-		     0., 5.1, 
 		     true, true, true);
 
     pMaker->BookPlot("photon_dR", false,
@@ -395,11 +366,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     0., 5.1,
 		     true, true, true);
 
-    pMaker->BookPlot("mLepGammaGamma", true,
-		     "m_{#ell#gamma#gamma}", "Number of Events",
-		     0, 1200, 2.e-3, 5.e4,
-		     0., 5.1,
-		     true, true, true);
   }
 
   pMaker->CreatePlots();

@@ -199,6 +199,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("ele2_eta", 60, -2.5, 2.5);                   // 16
     hMaker->BookHistogram("muon2_pt", nKinematicBins_1g, xbins_kinematic_1g); // 17
     hMaker->BookHistogram("muon2_eta", 60, -2.5, 2.5);
+    hMaker->BookHistogram("z_mass", 40, 0., 400.);
   }
 
   if(controlRegion == kCR1 || controlRegion == kSR1 || controlRegion == kSigmaPlot) {
@@ -230,7 +231,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("leadChargedHadronIso", 110, -2.0, 20.0);    // 23
     hMaker->BookHistogram("leadNeutralHadronIso", 50, -20., 30.);
     hMaker->BookHistogram("leadPhotonIso", 100, 0., 100.);
-    hMaker->BookHistogram("mLepGammaLead", 40, 0., 400.);
+    hMaker->BookHistogram("z_mass", 40, 0., 400.);
   }
   
   if(controlRegion == kSR2 || controlRegion == kCR2 || controlRegion == kCR2a) {
@@ -262,7 +263,6 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("leadChargedHadronIso", 110, -2.0, 20.0);
     hMaker->BookHistogram("leadNeutralHadronIso", 50, -20., 30.);
     hMaker->BookHistogram("leadPhotonIso", 100, 0., 100.);
-    hMaker->BookHistogram("mLepGammaLead", 40, 0., 400.);
     hMaker->BookHistogram("trailPhotonEt", nKinematicBins_2g, xbins_kinematic_2g); // 25
     hMaker->BookHistogram("trailPhotonPhi", 63, -3.14159, 3.14159);          // 26
     hMaker->BookHistogram("trailPhotonEta", 40, -1.5, 1.5);                  // 27
@@ -275,6 +275,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
     hMaker->BookHistogram("photon_invmass", nKinematicBins_2g, xbins_kinematic_2g);
     hMaker->BookHistogram("photon_dR", 50, 0., 5.);
     hMaker->BookHistogram("photon_dPhi", 35, 0., 3.14159);
+    hMaker->BookHistogram("z_mass", 40, 0., 400.);
   }
 
   hMaker->FillHistograms();
