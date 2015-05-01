@@ -51,7 +51,7 @@ class PlotMaker : public TObject {
   ClassDef(PlotMaker, 1);
 
  public:
-  PlotMaker(int chanNo, int cr, TString metType_);
+  PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_);
   virtual ~PlotMaker();
 
   void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, 
@@ -102,7 +102,8 @@ class PlotMaker : public TObject {
 
   void DivideWidth() {
     data = (TH1D*)DivideByBinWidth(data);
-    
+    qcd = (TH1D*)DivideByBinWidth(qcd);
+
     bkg = (TH1D*)DivideByBinWidth(bkg);
     bkg_btagWeightUp = (TH1D*)DivideByBinWidth(bkg_btagWeightUp);
     bkg_btagWeightDown = (TH1D*)DivideByBinWidth(bkg_btagWeightDown);
@@ -153,6 +154,9 @@ class PlotMaker : public TObject {
     if(variables.size() == 0) return;
 
     data = (TH1D*)data->Rebin(nMetBins_2g, "data_reb", xbins_met_2g);
+    qcd = (TH1D*)qcd->Rebin(nMetBins_2g, "qcd_reb", xbins_met_2g);
+    qcd_defUp = (TH1D*)qcd_defUp->Rebin(nMetBins_2g, "qcd_defUp_reb", xbins_met_2g);
+    qcd_defDown = (TH1D*)qcd_defDown->Rebin(nMetBins_2g, "qcd_defDown_reb", xbins_met_2g);
 
     for(unsigned int i = 0; i < mc.size(); i++) {
       mc[i] = (TH1D*)mc[i]->Rebin(nMetBins_2g, "mc_reb", xbins_met_2g);
@@ -215,12 +219,16 @@ class PlotMaker : public TObject {
 
   void ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfError);
 
+  void CalculateQCDNormalization();
+  void ScaleQCD();
+
   void DetermineAxisRanges(unsigned int n);
   void DetermineLegendRanges(unsigned int n);
 
   void CreatePlot(unsigned int n);
   void CreatePlots() {
     MakeCanvas();
+    CalculateQCDNormalization();
     for(unsigned int i = 0; i < variables.size(); i++) CreatePlot(i);
   };
   
@@ -248,7 +256,14 @@ class PlotMaker : public TObject {
 
   // only one copy of each below for all variables -- for each variable, copy over histograms
   
+  Float_t qcdScale, qcdScale_defUp, qcdScale_defDown;
+  Float_t qcdScaleError;
+
   TH1D * data;
+
+  TH1D * qcd;
+  TH1D * qcd_defUp;
+  TH1D * qcd_defDown;
   
   vector<TH1D*> mc;
   vector<TH1D*> mc_btagWeightUp, mc_btagWeightDown;
@@ -314,7 +329,11 @@ class PlotMaker : public TObject {
   TString channel;
   TString channelLabel;
   int controlRegion;
+  bool needsQCD;
   TString metType;
+
+  vector<Float_t> sf_qcd;
+  vector<Float_t> sfError_qcd;
 
   bool doRebinMET;
 
@@ -324,14 +343,21 @@ class PlotMaker : public TObject {
 
 };
 
-PlotMaker::PlotMaker(int chanNo, int cr, TString metType_) {
+PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_) {
 
   channel = channels[chanNo];
   channelLabel = channelLabels[chanNo];
   controlRegion = cr;
+  needsQCD = useQCD;
   metType = metType_;
 
   doRebinMET = false;
+
+  sf_qcd.clear();
+  sfError_qcd.clear();
+
+  for(unsigned int i = 0; i < sf_qcd_.size(); i++) sf_qcd.push_back(sf_qcd_[i]);
+  for(unsigned int i = 0; i < sfError_qcd_.size(); i++) sfError_qcd.push_back(sfError_qcd_[i]);
 
   mc.clear();
   mc_btagWeightUp.clear();
@@ -382,6 +408,9 @@ PlotMaker::PlotMaker(int chanNo, int cr, TString metType_) {
 }
 
 PlotMaker::~PlotMaker() {
+
+  sf_qcd.clear();
+  sfError_qcd.clear();
 
   mc.clear();
   mc_btagWeightUp.clear();
@@ -440,6 +469,10 @@ PlotMaker::~PlotMaker() {
 void PlotMaker::GetHistograms(unsigned int n) {
 
   data = (TH1D*)input->Get(variables[n]+"_gg_"+channel);
+
+  qcd = (TH1D*)input->Get(variables[n]+"_qcd_"+channel);
+  qcd_defUp = (TH1D*)input->Get(variables[n]+"_qcd_relIso_10_"+channel);
+  qcd_defDown = (TH1D*)input->Get(variables[n]+"_qcd_relIso_m10_"+channel);
 
   for(unsigned int i = 0; i < layerNames.size(); i++) {
     mc[i] = (TH1D*)input->Get(variables[n]+"_"+layerNames[i][0]+"_"+channel);
@@ -546,25 +579,49 @@ void PlotMaker::BookPlot(TString variable, bool divideByWidth,
 
 void PlotMaker::StackHistograms(unsigned int n) {
 
-  bkg = (TH1D*)mc[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]);
-  bkg_btagWeightUp = (TH1D*)mc_btagWeightUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightUp");
-  bkg_btagWeightDown = (TH1D*)mc_btagWeightDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightDown");
-  bkg_puWeightUp = (TH1D*)mc_puWeightUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightUp");
-  bkg_puWeightDown = (TH1D*)mc_puWeightDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightDown");
-  bkg_scaleUp = (TH1D*)mc_scaleUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleUp");
-  bkg_scaleDown = (TH1D*)mc_scaleDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleDown");
-  bkg_pdfUp = (TH1D*)mc_pdfUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfUp");
-  bkg_pdfDown = (TH1D*)mc_pdfDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfDown");
-  bkg_topPtUp = (TH1D*)mc_topPtUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtUp");
-  bkg_topPtDown = (TH1D*)mc_topPtDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtDown");
-  bkg_JECUp = (TH1D*)mc_JECUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
-  bkg_JECDown = (TH1D*)mc_JECDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
-  bkg_leptonSFUp = (TH1D*)mc_leptonSFUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
-  bkg_leptonSFDown = (TH1D*)mc_leptonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
-  bkg_photonSFUp = (TH1D*)mc_photonSFUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
-  bkg_photonSFDown = (TH1D*)mc_photonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
+  if(needsQCD) {
+    bkg = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]);
+    bkg_btagWeightUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightUp");
+    bkg_btagWeightDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightDown");
+    bkg_puWeightUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightUp");
+    bkg_puWeightDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightDown");
+    bkg_scaleUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleUp");
+    bkg_scaleDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleDown");
+    bkg_pdfUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfUp");
+    bkg_pdfDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfDown");
+    bkg_topPtUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtUp");
+    bkg_topPtDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtDown");
+    bkg_JECUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
+    bkg_JECDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
+    bkg_leptonSFUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
+    bkg_leptonSFDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
+    bkg_photonSFUp = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
+    bkg_photonSFDown = (TH1D*)qcd->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
+  }
+  
+  else {
+    bkg = (TH1D*)mc[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]);
+    bkg_btagWeightUp = (TH1D*)mc_btagWeightUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightUp");
+    bkg_btagWeightDown = (TH1D*)mc_btagWeightDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_btagWeightDown");
+    bkg_puWeightUp = (TH1D*)mc_puWeightUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightUp");
+    bkg_puWeightDown = (TH1D*)mc_puWeightDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_puWeightDown");
+    bkg_scaleUp = (TH1D*)mc_scaleUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleUp");
+    bkg_scaleDown = (TH1D*)mc_scaleDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_scaleDown");
+    bkg_pdfUp = (TH1D*)mc_pdfUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfUp");
+    bkg_pdfDown = (TH1D*)mc_pdfDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_pdfDown");
+    bkg_topPtUp = (TH1D*)mc_topPtUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtUp");
+    bkg_topPtDown = (TH1D*)mc_topPtDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_topPtDown");
+    bkg_JECUp = (TH1D*)mc_JECUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECUp");
+    bkg_JECDown = (TH1D*)mc_JECDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_JECDown");
+    bkg_leptonSFUp = (TH1D*)mc_leptonSFUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFUp");
+    bkg_leptonSFDown = (TH1D*)mc_leptonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_leptonSFDown");
+    bkg_photonSFUp = (TH1D*)mc_photonSFUp[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFUp");
+    bkg_photonSFDown = (TH1D*)mc_photonSFDown[0]->Clone(variables[n]+"_bkg_"+crNames[controlRegion]+"_photonSFDown");
+  }
 
-  for(unsigned int i = 1; i < mc.size(); i++) {
+  for(unsigned int i = 0; i < mc.size(); i++) {
+
+    if(!needsQCD && i == 0) continue;
 
     bkg->Add(mc[i]);
     bkg_btagWeightUp->Add(mc_btagWeightUp[i]);
@@ -619,6 +676,10 @@ void PlotMaker::CalculateRatio(unsigned int n) {
 
     Double_t stat = bkg->GetBinError(i+1);
 
+    Double_t qcdUp = qcd_defUp->GetBinContent(i+1);
+    Double_t qcdDown = qcd_defDown->GetBinContent(i+1);
+    Double_t qcd_sys = fabs(qcdUp - qcdDown) / 2.;
+
     Double_t btagUp = bkg_btagWeightUp->GetBinContent(i+1);
     Double_t btagDown = bkg_btagWeightDown->GetBinContent(i+1);
     Double_t btag_sys = fabs(btagUp - btagDown) / 2.;
@@ -652,6 +713,7 @@ void PlotMaker::CalculateRatio(unsigned int n) {
     Double_t photonSF_sys = fabs(photonSFup - photonSFdown) / 2.;
 
     Double_t totalError2 = stat*stat + 
+      qcd_sys*qcd_sys +
       btag_sys*btag_sys +
       pu_sys*pu_sys +
       scale_sys*scale_sys + 
@@ -693,13 +755,14 @@ void PlotMaker::MakeLegends() {
   leg->AddEntry((TObject*)0, "", "");
   leg->AddEntry(errors_sys, "Stat. #oplus Syst. Errors", "F");
   leg->AddEntry((TObject*)0, "", "");
+  if(needsQCD) leg->AddEntry(bkg, "QCD", "F");
 
   leg->AddEntry(mc[0], layerLegends[0], "F");
   for(unsigned int i = 1; i < mc.size(); i++) {
     if(layerLegends[i] == layerLegends[i-1]) continue;
     leg->AddEntry(mc[i], layerLegends[i], "F");
   }
-  leg->AddEntry((TObject*)0, "", "");
+  if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
 
@@ -709,13 +772,14 @@ void PlotMaker::MakeLegends() {
   legDrawSignal->AddEntry((TObject*)0, "", "");
   legDrawSignal->AddEntry(errors_sys, "Stat. #oplus Syst. Errors", "F");
   legDrawSignal->AddEntry((TObject*)0, "", "");
+  if(needsQCD) legDrawSignal->AddEntry(bkg, "QCD", "F");
 
   legDrawSignal->AddEntry(mc[0], layerLegends[0], "F");
   for(unsigned int i = 1; i < mc.size(); i++) {
     if(layerLegends[i] == layerLegends[i-1]) continue;
     legDrawSignal->AddEntry(mc[i], layerLegends[i], "F");
   }
-  legDrawSignal->AddEntry((TObject*)0, "", "");
+  if(!needsQCD) legDrawSignal->AddEntry((TObject*)0, "", "");
   legDrawSignal->SetFillColor(0);
   legDrawSignal->SetTextSize(0.028);
 
@@ -764,7 +828,8 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio_sys->SetLineColor(kGray);
   ratio_sys->SetMarkerColor(kGray);
   
-  bkg->SetFillColor(layerColors[0]);
+  if(needsQCD) bkg->SetFillColor(kSpring-6);
+  else bkg->SetFillColor(layerColors[0]);
   bkg->SetMarkerSize(0);
   bkg->SetLineColor(1);
 
@@ -830,9 +895,122 @@ void PlotMaker::ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfE
 
 }
 
+void PlotMaker::ScaleQCD() {
+
+  Float_t olderror, newerror;
+  Float_t oldcontent;
+
+  for(Int_t i = 0; i < qcd->GetNbinsX(); i++) {
+    olderror = qcd->GetBinError(i+1);
+    oldcontent = qcd->GetBinContent(i+1);
+
+    if(oldcontent == 0) continue;
+    
+    newerror = qcdScaleError*qcdScaleError / qcdScale / qcdScale;
+    newerror += olderror*olderror / oldcontent / oldcontent;
+    newerror = qcdScale * oldcontent * sqrt(newerror);
+
+    qcd->SetBinContent(i+1, qcdScale * oldcontent);
+    qcd->SetBinError(i+1, newerror);
+  }
+
+  qcd_defUp->Scale(qcdScale_defUp);
+  qcd_defDown->Scale(qcdScale_defDown);
+
+}
+
+void PlotMaker::CalculateQCDNormalization() {
+
+  unsigned int met_index = 0;
+  bool foundMET = false;
+
+  for(unsigned int i = 0; i < variables.size(); i++) {
+    if(variables[i] == metType) {
+      met_index = i;
+      foundMET = true;
+      break;
+    }
+  }
+
+  if(!foundMET) {
+    cout << endl << endl << "Can't normalize QCD in " << metType << " if you don't plot " << metType << "!" << endl << endl;
+    return;
+  }
+
+  GetHistograms(met_index);
+
+  if(sf_qcd.size() > 0) {
+    qcdScale = sf_qcd[0];
+    qcdScaleError = sfError_qcd[0];
+    qcdScale_defUp = sf_qcd[17];
+    qcdScale_defDown = sf_qcd[18];
+    return;
+  }
+
+  const int endBin = data->GetXaxis()->FindBin(20) - 1;
+
+  double n_data = data->Integral(1, endBin);
+  double n_qcd = qcd->Integral(1, endBin);
+
+  double n_qcd_defUp = qcd_defUp->Integral(1, endBin);
+  double n_qcd_defDown = qcd_defDown->Integral(1, endBin);
+
+  // With the MC subtraction, you can actually have 0 < n_qcd < 1
+  if(n_qcd < 1.e-6) {
+    qcdScale = 1.e-6;
+    qcdScale_defUp = 1.e-6;
+    qcdScale_defDown = 1.e-6;
+    qcdScaleError = 0.0;
+    return;
+  }
+
+  double n_mc = 0;
+  for(unsigned int i = 0; i < mc.size(); i++) n_mc += mc[i]->Integral(1, endBin);
+
+  double sigma_data = 0;
+  double sigma_qcd = 0;
+  double sigma_mc = 0;
+  
+  for(int i = 0; i < endBin; i++) {
+    sigma_data += data->GetBinError(i+1) * data->GetBinError(i+1);
+    sigma_qcd += qcd->GetBinError(i+1) * qcd->GetBinError(i+1);
+
+    for(unsigned int j = 0; j < mc.size(); j++) sigma_mc +=mc[j]->GetBinError(i+1) * mc[j]->GetBinError(i+1);
+  }
+
+  sigma_data = sqrt(sigma_data);
+  sigma_qcd = sqrt(sigma_qcd);
+  sigma_mc = sqrt(sigma_mc);
+
+  qcdScale = (n_data - n_mc) / n_qcd;
+  if(qcdScale < 0) {
+    qcdScale = 1.e-6;
+    qcdScale_defUp = 1.e-6;
+    qcdScale_defDown = 1.e-6;
+    qcdScaleError = 0.0;
+    return;
+  }
+
+  qcdScale_defUp = (n_data - n_mc) / n_qcd_defUp;
+  qcdScale_defDown = (n_data - n_mc) / n_qcd_defDown;
+
+  qcdScaleError = sigma_data*sigma_data + sigma_mc*sigma_mc;
+  qcdScaleError /= (n_data - n_mc) * (n_data - n_mc);
+  qcdScaleError += sigma_qcd*sigma_qcd / n_qcd / n_qcd;
+  qcdScaleError = qcdScale * sqrt(qcdScaleError);
+
+  cout << endl << "CalculateQCDNormalization(): " << qcdScale << " +- " << qcdScaleError << endl << endl;
+
+  return;
+
+}
+
 void PlotMaker::CreatePlot(unsigned int n) {
 
-  GetHistograms(n);
+  if(n > 0) GetHistograms(n);
+
+  ScaleQCD();
+
   StackHistograms(n);
   CalculateRatio(n);
   if(n == 0)  MakeLegends();
@@ -845,6 +1023,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   bkg->Draw("hist");
   for(unsigned int i = 1; i < mc.size(); i++) {
+    if(!needsQCD && i == 0) continue;
     if(i > 0 && layerLegends[i] == layerLegends[i-1]) continue;
     mc[i]->Draw("same hist");
   }

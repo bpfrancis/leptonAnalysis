@@ -6,12 +6,14 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   TFile * in = new TFile(input, "READ");
 
-  TString sigName;
+  TString sigName, qcdName;
   if(controlRegion == kSR1 || controlRegion == kSR2 || controlRegion == kCR0 || controlRegion == kAny) {
     sigName = channels[channel]+"_signalTree";
+    qcdName = qcdChannels[channel];
   }
   else if(photonMode == kFake) {
     sigName = channels[channel]+"_fakeTree";
+    qcdName = qcdChannels_fakePhotons[channel];
   }
   else {
     cout << "Invalid photonMode!" << endl;
@@ -19,6 +21,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   }
 
   TTree * ggTree = (TTree*)in->Get(sigName);
+  TTree * qcdTree = (TTree*)in->Get(qcdName);
 
   HistogramMaker * hMaker = new HistogramMaker(channel, blinded, controlRegion, metCut, photonMode, metType, useNormalTopReweighting);
   hMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
@@ -175,7 +178,7 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
 
   if(!loadSuccess) return;
 
-  hMaker->SetTrees(ggTree);
+  hMaker->SetTrees(ggTree, qcdTree);
 
   if(controlRegion == kCR0 || controlRegion == kAny) {
     hMaker->BookHistogram("Nphotons", 4, 0., 4.);

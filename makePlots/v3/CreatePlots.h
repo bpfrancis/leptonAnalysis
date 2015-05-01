@@ -361,9 +361,6 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<F
   needsQCD = useQCD;
   metType = metType_;
 
-  sf_qcd = sf_qcd_;
-  sfError_qcd = sfError_qcd_;
-
   doRebinMET = false;
 
   sf_qcd.clear();
