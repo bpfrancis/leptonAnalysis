@@ -1190,16 +1190,16 @@ void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
     eta2 = min(fabs(trail_eta), (double)2.09);
 
     Float_t id1_val = sf_muon->GetBinContent(sf_muon->FindBin(pt1, eta1));
-    Float_t id1_error = sf_muon->GetBinError(sf_muon->FindBin(pt1, eta1)) - id1_val;
+    Float_t id1_error = (sf_muon->GetBinError(sf_muon->FindBin(pt1, eta1)) * id1_val) - id1_val;
 
     Float_t id2_val = sf_muon->GetBinContent(sf_muon->FindBin(pt2, eta2));
-    Float_t id2_error = sf_muon->GetBinError(sf_muon->FindBin(pt2, eta2)) - id2_val;
+    Float_t id2_error = (sf_muon->GetBinError(sf_muon->FindBin(pt2, eta2)) * id2_val) - id2_val;
 
     central = id1_val * id2_val;
     error = central * sqrt(id1_error*id1_error/id1_val/id1_val + id2_error*id2_error/id2_val/id2_val);
 
-    up = central * error;
-    down = central / error;
+    up = central + error;
+    down = central - error;
 
   }
 

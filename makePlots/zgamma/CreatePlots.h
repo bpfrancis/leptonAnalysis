@@ -1022,7 +1022,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   padhi->cd();
 
   bkg->Draw("hist");
-  for(unsigned int i = 1; i < mc.size(); i++) {
+  for(unsigned int i = 0; i < mc.size(); i++) {
     if(!needsQCD && i == 0) continue;
     if(i > 0 && layerLegends[i] == layerLegends[i-1]) continue;
     mc[i]->Draw("same hist");
