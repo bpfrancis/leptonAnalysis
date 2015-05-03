@@ -16,11 +16,6 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
   // skip the first line
   getline(input, dummy);
 
-  // get the central value (systematic is empty)
-  input >> sf >> sfError;
-  scales.push_back(sf);
-  errors.push_back(sfError);
-
   while(1) {
     input >> dummy >> sf >> sfError;
     if(!input.good()) break;
@@ -40,12 +35,40 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   gStyle->SetOptStat(0000);
   gStyle->SetOptTitle(0);
 
+  // for vgamma two things, dilepton fit and g->e fake rate fit
+  // Any/CR0/muons: dilepton fit
+  //          (either zero fake rate or zero photons required)
+  // else: dilepton * fake rate
+  
+  vector<Float_t> sf_vgamma, sfError_vgamma;
+  readFitResults("scaleFactors/dilepSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+  if(channels[channel].Contains("ele") && controlRegion != kAny && controlRegion != kCR0) {
+    vector<Float_t> sf_vgamma_fakeRate, sfError_vgamma_fakeRate;
+    readFitResults("scaleFactors/eleFakeRateSF_"+channels[channel]+".txt", sf_vgamma_fakeRate, sfError_vgamma_fakeRate);
+    for(unsigned int i = 0; i < sf_vgamma.size(); i++) {
+      Float_t a = sf_vgamma[i];
+      Float_t b = sf_vgamma_fakeRate[i];
+
+      Float_t erra = sfError_vgamma[i];
+      Float_t errb = sfError_vgamma_fakeRate[i];
+
+      sf_vgamma[i] = a*b;
+      sfError_vgamma[i] = a*b * sqrt(erra*erra/a/a + errb*errb/b/b);
+    }
+  }
+
+  // doQCDFit -- only for *_bjj_Any
+  vector<Float_t> sf_qcd, sfError_qcd;
+  if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
+
+  // doM3Fit
   vector<Float_t> sf_ttbar, sfError_ttbar;
   if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttbar, sfError_ttbar);
 
   vector<Float_t> sf_wjets, sfError_wjets;
   if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
 
+  // doSigmaFit
   vector<Float_t> sf_ttgamma, sfError_ttgamma;
   /*
   if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("bjj")) {
@@ -59,12 +82,6 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
     readFitResults("scaleFactors/ttgammaSF_sigma_"+channels[channel]+".txt", sf_ttgamma, sfError_ttgamma);
   }
   */
-
-  vector<Float_t> sf_vgamma, sfError_vgamma;
-  if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("ele")) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
-
-  vector<Float_t> sf_qcd, sfError_qcd;
-  if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
   
   PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
 
