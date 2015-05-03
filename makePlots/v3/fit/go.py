@@ -29,7 +29,10 @@ for channel in channels:
     dilepResults_noTag = []
 
     output_dilepton = open('dilepSF_'+channel+'.txt', 'w')
+    output_dilepton.write('systematic\tSF\tError\n')
+    
     output_dilepton_noTag = open('dilepSF_'+channels_noTag[ichan]+'.txt', 'w')
+    output_dilepton_noTag.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
         dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, 0.0, 180.0))
