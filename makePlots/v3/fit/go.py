@@ -48,7 +48,7 @@ for channel in channels:
     isyst = 0
     for systematic in systematics:
         if channel.find('ele') == 0:
-            eleFakeRateResults.append(doElectronFit(channels_noTag[ichan], zFitRegion, systematic, output_z, 20.0, 180.0, dilepResults_noTag[isyst]))
+            eleFakeRateResults.append(doElectronFit(channels_noTag[ichan], zFitRegion, systematic, output_eleFakeRate, 20.0, 180.0, dilepResults_noTag[isyst]))
         else:
             eleFakeRateResults.append((1.0, 0.0))
         isyst += 1

@@ -78,14 +78,6 @@ def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepRe
     
     return (qcdScale, qcdScaleError)
 
-def normalizeQCD(input, channel, systematic, dilepResults):
-
-    wjetsResults = (1.0, 0.0)
-    topM3Results = (1.0, 0.0)
-    eleFakeRateResults = (1.0, 0.0)
-
-    return normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
-
 def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi, dilepResults):
 
     (dilepSF, dilepSFerror) = dilepResults
@@ -406,8 +398,12 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
     bkgHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
 
     qcdHist = get1DHist(input, varName+qcdName+channel)
-    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, dilepResults)
+
+    dummyResults = (1.0, 0.0)
+
+    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, dummyResults, dummyResults, dilepResults, dummyResults)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
+
     bkgHist.Add(qcdHist)
 
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
