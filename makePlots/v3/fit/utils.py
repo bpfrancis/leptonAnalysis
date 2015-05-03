@@ -48,6 +48,9 @@ def ScaleWithError(h, sf, err):
 
 def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name):
 
+    gROOT.SetStyle('Plain')
+    gStyle.SetOptStat(0000)
+
     signal.Scale(signalSF)
     background.Scale(backgroundSF)
 
@@ -79,6 +82,15 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
     ratio.GetXaxis().SetRangeUser(xlo, xhi)
     ratio.GetYaxis().SetRangeUser(0.0, 2.0)
+    ratio.GetXaxis().SetLabelFont(63)
+    ratio.GetXaxis().SetLabelSize(48)
+    ratio.GetXaxis().SetTitleSize(0.12)
+    ratio.GetXaxis().SetTitleOffset(0.6)
+    ratio.GetYaxis().SetLabelFont(63)
+    ratio.GetYaxis().SetLabelSize(48)
+    ratio.GetYaxis().SetNdivisions(508)
+    ratio.GetXaxis().SetTitle('M3')
+    ratio.SetLineWidth(2)
 
     ratioStat = sumHist.Clone('ratioStat')
     for ibin in range(ratioStat.GetNbinsX()):
