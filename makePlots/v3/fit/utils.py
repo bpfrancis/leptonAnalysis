@@ -16,6 +16,14 @@ def get1DHist(filename, histname):
     hist.SetFillColor(0)
     return hist
 
+def integrateError(h, xlo, xhi):
+    lowbin = h.FindBin(xlo)
+    highbin = h.FindBin(xhi) - 1
+    
+    err = ROOT.Double(0.0)
+    integral = h.IntegralAndError(lowbin, highbin, err)
+    return integral, err
+
 def ScaleWithError(h, sf, err):
 
     if sf == 1.0:

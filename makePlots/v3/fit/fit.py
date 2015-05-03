@@ -1,14 +1,11 @@
 from utils import *
 
-def integrateError(h, xlo, xhi):
-    lowbin = h.FindBin(xlo)
-    highbin = h.FindBin(xhi) - 1
-    
-    err = ROOT.Double(0.0)
-    integral = h.IntegralAndError(lowbin, highbin, err)
-    return integral, err
+def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults):
 
-def normalizeQCD(input, channel, systematic):
+    (wjetsSF, wjetsSFerror) = wjetsResults
+    (topM3sf, topM3sfError) = topM3Results
+    (dilepSF, dilepSFerror) = dilepResults
+    (eleFakeRateSF, eleFakeRateSFerror) = eleFakeRateResults
 
     varName = 'pfMET_t01'
 
@@ -37,7 +34,6 @@ def normalizeQCD(input, channel, systematic):
     MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
 
-    #MCHist.Add(get1DHist(input, varName+'_dyJetsToLL_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systName))
@@ -81,6 +77,14 @@ def normalizeQCD(input, channel, systematic):
     qcdScaleError = qcdScale * math.sqrt(qcdScaleError)
     
     return (qcdScale, qcdScaleError)
+
+def normalizeQCD(input, channel, systematic, dilepResults):
+
+    wjetsResults = (1.0, 0.0)
+    topM3Results = (1.0, 0.0)
+    eleFakeRateResults = (1.0, 0.0)
+
+    return normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
 
 def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi, dilepResults):
 
@@ -187,7 +191,7 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
     bkgHist.Add(get1DHist(input, 'm3_WGToLNuG_'+channel+systName))
     ScaleWithError(bkgHist, dilepSF, dilepSFerror)
 
-    bkgHist.Addget1DHist(input, 'm3_TBar_s_'+channel+systName))
+    bkgHist.Add(get1DHist(input, 'm3_TBar_s_'+channel+systName))
     bkgHist.Add(get1DHist(input, 'm3_TBar_t_'+channel+systName))
     bkgHist.Add(get1DHist(input, 'm3_TBar_tW_'+channel+systName))
     bkgHist.Add(get1DHist(input, 'm3_T_s_'+channel+systName))
@@ -297,7 +301,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     MCHist.Add(zHist)
 
     qcdHist = get1DHist(input, varName+qcdName+channel)
-    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
+    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
     
     dataHist.Add(bkgHist, -1.0)
@@ -402,7 +406,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
     bkgHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
 
     qcdHist = get1DHist(input, varName+qcdName+channel)
-    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic)
+    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, dilepResults)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
     bkgHist.Add(qcdHist)
 
