@@ -532,7 +532,7 @@ void PlotMaker::GetHistograms(unsigned int n) {
   }
 
   for(unsigned int i = 0; i < mc.size(); i++) {
-    if(fitScales[i].size() == 13) {
+    if(fitScales[i].size() > 0) {
       ScaleByFit(i, mc, fitScales[i][0], fitScaleErrors[i][0]);
       ScaleByFit(i, mc_btagWeightUp, fitScales[i][1], fitScaleErrors[i][1]);
       ScaleByFit(i, mc_btagWeightDown, fitScales[i][2], fitScaleErrors[i][2]);

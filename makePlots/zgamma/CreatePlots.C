@@ -16,13 +16,9 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
   // skip the first line
   getline(input, dummy);
 
-  // get the central value (systematic is empty)
-  input >> sf >> sfError;
-  scales.push_back(sf);
-  errors.push_back(sfError);
-
-  for(int i = 0; i < 12; i++) {
+  while(1) {
     input >> dummy >> sf >> sfError;
+    if(!input.good()) break;
     scales.push_back(sf);
     errors.push_back(sfError);
   }
@@ -33,9 +29,6 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
 
 void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
-  // aps15
-  if(controlRegion == kCR2 || controlRegion == kSR2) needsQCD = false;
-
   gROOT->Reset();
   gROOT->SetBatch(true);
   gROOT->SetStyle("Plain");
@@ -43,30 +36,13 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   gStyle->SetOptTitle(0);
 
   vector<Float_t> sf_ttbar, sfError_ttbar;
-  //if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttbar, sfError_ttbar);
-
   vector<Float_t> sf_wjets, sfError_wjets;
-  //if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
-
   vector<Float_t> sf_ttgamma, sfError_ttgamma;
-  /*
-  if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("bjj")) {
-    vector<Float_t> sf_ttbar_extra, sfError_ttbar_extra;
-    readFitResults("scaleFactors/ttbarSF_sigma_"+channels[channel]+".txt", sf_ttbar_extra, sfError_ttbar_extra);
-    for(unsigned int i = 0; i < sf_ttbar.size(); i++) {
-      sf_ttbar[i] *= sf_ttbar_extra[i];
-      sfError_ttbar[i] = sqrt(sfError_ttbar_extra[i]*sfError_ttbar_extra[i] + sfError_ttbar[i]*sfError_ttbar[i]);
-    }
-
-    readFitResults("scaleFactors/ttgammaSF_sigma_"+channels[channel]+".txt", sf_ttgamma, sfError_ttgamma);
-  }
-  */
 
   vector<Float_t> sf_vgamma, sfError_vgamma;
-  //if(controlRegion != kCR0 && controlRegion != kAny) readFitResults("scaleFactors/zSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+  readFitResults("../v3/scaleFactors/dilepSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
 
   vector<Float_t> sf_qcd, sfError_qcd;
-  //if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
   
   PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
 

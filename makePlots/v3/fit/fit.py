@@ -31,7 +31,7 @@ def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepRe
     wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
 
-    zHist get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName)
+    zHist = get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName)
     zHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systName))
     zHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systName))
     zHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systName))
