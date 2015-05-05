@@ -22,31 +22,40 @@ def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepRe
     dataHist = get1DHist(input, varName+'_gg_'+channel)
     qcdHist = get1DHist(input, varName+qcdName+channel)
 
-    MCHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
-    MCHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systName))
+    topHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
+    topHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
+    topHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
+    ScaleWithError(topHist, topM3sf, topM3sfError)
+
+    wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName)
+    wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
+    ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
+
+    zHist get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName)
+    zHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
+    ScaleWithError(zHist, dilepSF, dilepSFerror)
+    ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
+
+    MCHist = get1DHist(input, varName+'_TBar_s_'+channel+systName)
     MCHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
-
-    MCHist.Add(get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systName))
-
     MCHist.Add(get1DHist(input, varName+'_TTGamma_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
     MCHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
-    MCHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
+
+    MCHist.Add(topHist)
+    MCHist.Add(wjetsHist)
+    MCHist.Add(zHist)
 
     lowbin = 1
     highbin = dataHist.FindBin(20.0) - 1
@@ -138,7 +147,7 @@ def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi, dilepResults)
                      str(QCDSF)+'\t'+
                      str(QCDSFerror)+'\n')
 
-        drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic)
+        drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_T (GeV)')
     else:
         output.write(systematic+'\t'+
                      str(QCDSF)+'\t'+
@@ -220,7 +229,7 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
                            str(topSF)+'\t'+
                            str(topSFerror)+'\n')
 
-        drawPlots(dataHist, topHist, topSF, 'ttbar', wjetsHist, wjetsSF, 'wjets', xlo, xhi, 'm3_'+channel+systematic)
+        drawPlots(dataHist, topHist, topSF, 'ttbar', wjetsHist, wjetsSF, 'wjets', xlo, xhi, 'm3_'+channel+systematic, 'M3 (GeV/c^2)')
 
     else:
         output_wjets.write(systematic+'\t'+
@@ -286,12 +295,6 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     ScaleWithError(zHist, dilepSF, dilepSFerror)
     ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
 
-    MCHist = bkgHist.Clone('bkgClone')
-    MCHist.Add(topHist)
-    MCHist.Add(ttgammaHist)
-    MCHist.Add(wjetsHist)
-    MCHist.Add(zHist)
-
     qcdHist = get1DHist(input, varName+qcdName+channel)
     (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
@@ -322,7 +325,11 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
                              str(ttgammaSF)+'\t'+
                              str(ttgammaSFerror)+'\n')
 
-        drawPlots(dataHist, topHist, topSF, 'ttbar', ttgammaHist, ttgammaSF, 'ttgamma', xlo, xhi, varName+'_'+channel+systematic)
+        xaxisLabel = '#sigma_{i#eta i#eta}'
+        if varName == 'leadChargedHadronIso':
+            xaxisLabel = 'Ch. Hadron Iso. (GeV)'
+
+        drawPlots(dataHist, topHist, topSF, 'ttbar', ttgammaHist, ttgammaSF, 'ttgamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel)
     else:
         output_ttbar.write(systematic+'\t'+
                            str(topSF)+'\t'+
@@ -423,7 +430,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
                        str(zSF)+'\t'+
                        str(zSFerror)+'\n')
 
-        drawPlots(dataHist, zHist, zSF, 'ttbar', bkgHist, bkgSF, 'bkg', xlo, xhi, varName+'_'+channel+systematic)
+        drawPlots(dataHist, zHist, zSF, 'ttbar', bkgHist, bkgSF, 'bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(#ell, #gamma) (GeV/c^2)')
     else:
         output_z.write(systematic+'\t'+
                        str(zSF)+'\t'+
@@ -485,9 +492,12 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
                      str(zSF)+'\t'+
                      str(zSFerror)+'\n')
 
-        drawPlots(dataHist, zHist, zSF, 'ttbar', bkgHist, bkgSF, 'bkg', xlo, xhi, varName+'_'+channel+systName)
-        print '\n\nzSF = ', zSF, ' +/- ', zSFerror
-        print 'bkgSF = ', bkgSF, ' +/- ', bkgSFerror, '\n'
+        xaxisLabel = 'm(ee) (GeV/c^2)'
+        if channel == 'muon_bjj':
+            xaxisLabel = 'm(#mu#mu) (GeV/c^2)'
+
+        drawPlots(dataHist, zHist, zSF, 'ttbar', bkgHist, bkgSF, 'bkg', xlo, xhi, varName+'_'+channel+systName, xaxisLabel)
+
     else:
         output.write(systematic+'\t'+
                      str(zSF)+'\t'+

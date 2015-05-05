@@ -46,7 +46,7 @@ def ScaleWithError(h, sf, err):
         h.SetBinContent(ibin+1, newcontent)
         h.SetBinError(ibin+1, newerror)
 
-def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name):
+def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name, xaxisLabel):
 
     gROOT.SetStyle('Plain')
     gStyle.SetOptStat(0000)
@@ -89,7 +89,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratio.GetYaxis().SetLabelFont(63)
     ratio.GetYaxis().SetLabelSize(48)
     ratio.GetYaxis().SetNdivisions(508)
-    ratio.GetXaxis().SetTitle('M3')
+    ratio.GetXaxis().SetTitle(xaxisLabel)
     ratio.SetLineWidth(2)
 
     ratioStat = sumHist.Clone('ratioStat')
@@ -111,7 +111,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     leg.AddEntry(signal, signalName, 'L')
     leg.AddEntry(background, backgroundName, 'L')
     
-    can = ROOT.TCanvas()
+    can = ROOT.TCanvas('can', 'plot', 10, 10, 2000, 2000)
     padhi = ROOT.TPad('padhi', 'padhi', 0, 0.3, 1, 1)
     padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, 0.3)
     padhi.SetLogy(False)
