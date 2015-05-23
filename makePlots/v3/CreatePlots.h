@@ -1013,8 +1013,8 @@ void PlotMaker::CalculateQCDNormalization() {
     return;
   }
 
-  qcdScale_defUp = (n_qcd_defUp < 1.e-6) ? (n_data - n_mc) / n_qcd_defUp : qcdScale;
-  qcdScale_defDown = (n_qcd_defDown < 1.e-6) ? (n_data - n_mc) / n_qcd_defDown : qcdScale;
+  qcdScale_defUp = (n_qcd_defUp > 1.e-6) ? (n_data - n_mc) / n_qcd_defUp : qcdScale;
+  qcdScale_defDown = (n_qcd_defDown > 1.e-6) ? (n_data - n_mc) / n_qcd_defDown : qcdScale;
 
   qcdScaleError = sigma_data*sigma_data + sigma_mc*sigma_mc;
   qcdScaleError /= (n_data - n_mc) * (n_data - n_mc);
@@ -1407,7 +1407,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
 
   for(Int_t ibin = 0; ibin < data->GetNbinsX(); ibin++) {
     if(xMaximums[n] > xMinimums[n] && ibin > data->FindBin(xMaximums[n])) break;
-    double value_up = data->GetBinContent(ibin+1) + data->GetBinError(ibin+1) * multiply_up;
+    double value_up = (data->GetBinContent(ibin+1) + data->GetBinError(ibin+1)) * multiply_up;
     double value_down = (data->GetBinContent(ibin+1) - data->GetBinError(ibin+1)) * multiply_down;
 
     if(value_up > padhi_max) padhi_max = value_up;
@@ -1416,7 +1416,7 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
 
   for(Int_t ibin = 0; ibin < mc.back()->GetNbinsX(); ibin++) {
     if(xMaximums[n] > xMinimums[n] && ibin > mc.back()->FindBin(xMaximums[n])) break;
-    double value_up = mc.back()->GetBinContent(ibin+1) + mc.back()->GetBinError(ibin+1) * multiply_up;
+    double value_up = (mc.back()->GetBinContent(ibin+1) + mc.back()->GetBinError(ibin+1)) * multiply_up;
     double value_down = (mc.back()->GetBinContent(ibin+1) - mc.back()->GetBinError(ibin+1)) * multiply_down;
 
     if(value_up > padhi_max) padhi_max = value_up;
@@ -1446,14 +1446,14 @@ void PlotMaker::DetermineAxisRanges(unsigned int n) {
 
   for(Int_t ibin = 0; ibin < ratio->GetNbinsX(); ibin++) {
     if(xMaximums[n] > xMinimums[n] && ibin > ratio->FindBin(xMaximums[n])) break;
-    double value = ratio->GetBinContent(ibin+1) + ratio->GetBinError(ibin+1) * multiply_up_linear;
+    double value = (ratio->GetBinContent(ibin+1) + ratio->GetBinError(ibin+1)) * multiply_up_linear;
 
     if(value > padlo_max) padlo_max = value;
   }
 
   for(Int_t ibin = 0; ibin < ratio_sys->GetNbinsX(); ibin++) {
     if(xMaximums[n] > xMinimums[n] && ibin > ratio_sys->FindBin(xMaximums[n])) break;
-    double value = ratio_sys->GetBinContent(ibin+1) + ratio_sys->GetBinError(ibin+1) * multiply_up_linear;
+    double value = (ratio_sys->GetBinContent(ibin+1) + ratio_sys->GetBinError(ibin+1)) * multiply_up_linear;
 
     if(value > padlo_max) padlo_max = value;
   }
