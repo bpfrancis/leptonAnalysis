@@ -72,11 +72,13 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     sumHist.SetLineWidth(3)
     sumHist.GetXaxis().SetRangeUser(xlo, xhi)
 
-    axisMin = signal.GetBinContent(signal.GetMinimumBin()) * .5
-    if data.GetBinContent(data.GetMinimumBin()) * .5 < axisMin:
-        axisMin = data.GetBinContent(data.GetMinimumBin()) * .5
-    if background.GetBinContent(background.GetMinimumBin()) * .5 < axisMin:
-        axisMin = background.GetBinContent(background.GetMinimumBin()) * .5        
+    axisMin = signal.GetBinContent(signal.GetMinimumBin()) / 5
+    if data.GetBinContent(data.GetMinimumBin()) / 5 < axisMin:
+        axisMin = data.GetBinContent(data.GetMinimumBin()) / 5
+    if background.GetBinContent(background.GetMinimumBin()) / 5 < axisMin:
+        axisMin = background.GetBinContent(background.GetMinimumBin()) / 5        
+    if axisMin <= 0:
+        axisMin = 0.2
 
     axisMax = sumHist.GetBinContent(sumHist.GetMaximumBin()) * 5
     sumHist.GetYaxis().SetRangeUser(axisMin, axisMax)
@@ -88,7 +90,6 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
     ratio = data.Clone('ratio')
     ratio.Reset()
-    ratio.SetTitle('Data / Background')
     for ibin in range(ratio.GetNbinsX()):
         if(sumHist.GetBinContent(ibin+1) == 0):
             continue
@@ -99,7 +100,6 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratio.GetYaxis().SetTitle('Data / Background')
     ratio.GetYaxis().SetLabelFont(63)
     ratio.GetYaxis().SetLabelSize(48)
-    ratio.GetYaxis().SetNdivisions(508)
     ratio.GetYaxis().SetTitleSize(0.12)
     ratio.GetYaxis().SetTitleOffset(0.6)
 
@@ -128,6 +128,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
             
     leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
     leg.AddEntry(data, 'Data', 'LP')
+    leg.AddEntry(sumHist, signalName+' + '+backgroundName, 'L')
     leg.AddEntry(signal, signalName, 'L')
     leg.AddEntry(background, backgroundName, 'L')
     

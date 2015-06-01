@@ -154,8 +154,8 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
                                str(bkgSF)+'\t'+
                                str(bkgSFerror)+'\n')
 
-        #drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_T (GeV)')
-        drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, bkgSF, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_T (GeV)')
+        #drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_{T} (GeV)')
+        drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, bkgSF, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_{T} (GeV)')
     else:
         output.write(systematic+'\t'+
                      str(QCDSF)+'\t'+
