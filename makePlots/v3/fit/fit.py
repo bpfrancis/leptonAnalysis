@@ -438,7 +438,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
 
     return (zSF, zSFerror)
 
-def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
+def doDileptonFit(channel, controlRegion, systematic, output, output_allMC, xlo, xhi):
 
     input = '../../zgamma/histograms_'+channel+'_'+controlRegion+'.root'
 
@@ -492,6 +492,10 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
                      str(zSF)+'\t'+
                      str(zSFerror)+'\n')
 
+        output_allMC.write('central\t'+
+                           str(bkgSF)+'\t'+
+                           str(bkgSFerror)+'\n')
+
         xaxisLabel = 'm(ee) (GeV/c^2)'
         if channel == 'muon_bjj':
             xaxisLabel = 'm(#mu#mu) (GeV/c^2)'
@@ -502,5 +506,9 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
         output.write(systematic+'\t'+
                      str(zSF)+'\t'+
                      str(zSFerror)+'\n')
+
+        output_allMC.write('central\t'+
+                           str(bkgSF)+'\t'+
+                           str(bkgSFerror)+'\n')
 
     return (zSF, zSFerror)
