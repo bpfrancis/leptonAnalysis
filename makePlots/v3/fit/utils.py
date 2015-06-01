@@ -60,16 +60,15 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     data.SetFillColor(1)
     data.SetLineColor(1)
 
-    signal.SetLineColor(2)
-    signal.SetLineWidth(3)
-
-    background.SetLineColor(3)
+    background.SetLineColor(1)
     background.SetLineWidth(3)
+    background.SetFillColor(8)
     
     sumHist = signal.Clone('sumHist')
     sumHist.Add(background)
     sumHist.SetLineColor(1)
     sumHist.SetLineWidth(3)
+    sumHist.SetFillColor(ROOT.kGray)
     sumHist.GetXaxis().SetRangeUser(xlo, xhi)
 
     axisMin = signal.GetBinContent(signal.GetMinimumBin()) / 5
@@ -127,11 +126,31 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratioStat.SetMarkerColor(ROOT.kGray+1)
             
     leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
+    leg.SetNColumns(2)
     leg.AddEntry(data, 'Data', 'LP')
-    leg.AddEntry(sumHist, signalName+' + '+backgroundName, 'L')
-    leg.AddEntry(signal, signalName, 'L')
-    leg.AddEntry(background, backgroundName, 'L')
-    
+    leg.AddEntry(0, '', '')
+    leg.AddEntry(sumErrors, 'Stat. Errors', 'F')
+    leg.AddEntry(0, '', '')
+    leg.AddEntry(sumHist, , 'F')
+    leg.AddEntry(background, backgroundName, 'F')
+
+    lumiHeader = ROOT.TPaveText(0.1, 0.901, 0.9, 0.94, 'NDC')
+    lumiHeader.SetFillColor(0)
+    lumiHeader.SetFillStyle(0)
+    lumiHeader.SetLineColor(0)
+    lumiHeader.SetBorderSize(0)
+    lumiHeader.AddText('CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}')
+
+    reqText = ROOT.TPaveText(0.55, 0.57, 0.95, 0.67, 'NDC')
+    reqText.SetFillColor(0)
+    reqText.SetFillStyle(0)
+    reqText.SetLineColor(0)
+    reqText.SetBorderSize(0)
+    if name.Contains('ele_bjj') or name.Contains('ele_jjj'):
+        reqText.AddText('ele')
+    else:
+        reqText.AddText('muon')
+
     can = ROOT.TCanvas('can', 'plot', 10, 10, 2000, 2000)
     padhi = ROOT.TPad('padhi', 'padhi', 0, 0.3, 1, 1)
     padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, 0.3)
@@ -145,12 +164,14 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     padlo.Draw()
 
     padhi.cd()
-    sumHist.Draw('hist')
-    signal.Draw('hist same')
-    background.Draw('hist same')
-    #sumErrors.Draw('e2 same')
+    sumHist.Draw('e2')
+    background.Draw('e2 same')
+    sumErrors.Draw('e2 same')
     data.Draw('e1 same')
+    data.Draw('axis same')
     leg.Draw()
+    lumiHeader.Draw()
+    reqText.Draw()
     
     padlo.cd()
     ratio.Draw('e1')

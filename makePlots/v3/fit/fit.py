@@ -441,7 +441,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
                        str(zSF)+'\t'+
                        str(zSFerror)+'\n')
 
-        drawPlots(dataHist, zHist, zSF, 'Z + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(#ell, #gamma) (GeV/c^2)')
+        drawPlots(dataHist, zHist, zSF, 'Z + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(l, #gamma) (GeV/c^2)')
     else:
         output_z.write(systematic+'\t'+
                        str(zSF)+'\t'+
