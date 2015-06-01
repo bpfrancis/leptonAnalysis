@@ -151,8 +151,8 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
                      str(QCDSF)+'\t'+
                      str(QCDSFerror)+'\n')
         output_allMC_qcd.write('central\t'+
-                               str(QCDSF)+'\t'+
-                               str(QCDSFerror)+'\n')
+                               str(bkgSF)+'\t'+
+                               str(bkgSFerror)+'\n')
 
         drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_T (GeV)')
     else:
@@ -160,8 +160,8 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
                      str(QCDSF)+'\t'+
                      str(QCDSFerror)+'\n')
         output_allMC_qcd.write(systematic+'\t'+
-                               str(QCDSF)+'\t'+
-                               str(QCDSFerror)+'\n')
+                               str(bkgSF)+'\t'+
+                               str(bkgSFerror)+'\n')
 
     return (QCDSF, QCDSFerror)
 
