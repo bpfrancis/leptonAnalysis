@@ -87,7 +87,7 @@ def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepRe
     
     return (qcdScale, qcdScaleError)
 
-def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi, dilepResults):
+def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, xhi, dilepResults):
 
     (dilepSF, dilepSFerror) = dilepResults
 
@@ -136,22 +136,32 @@ def doQCDFit(channel, controlRegion, systematic, output, xlo, xhi, dilepResults)
 
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
     (qcdInt, qcdIntError) = integrateError(qcdHist, xlo, xhi)
+    (bkgInt, bkgIntError) = integrateError(MCHist, xlo, xhi)
 
     (qcdFrac, qcdFracErr) = makeFit(varName+'', xlo, xhi, qcdHist, MCHist, dataHist)
 
     QCDSF = qcdFrac * dataInt / qcdInt
     QCDSFerror = QCDSF * ( (qcdFracErr/qcdFrac)**2 + (dataIntError/dataInt)**2 + (qcdIntError/qcdInt)**2 )**0.5
 
+    bkgSF = (1.0-fitFrac) * dataInt / bkgInt
+    bkgSFerror = bkgSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (bkgIntError/bkgInt)**2 )**0.5
+
     if systematic == '':
         output.write('central\t'+
                      str(QCDSF)+'\t'+
                      str(QCDSFerror)+'\n')
+        output_allMC_qcd.write('central\t'+
+                               str(QCDSF)+'\t'+
+                               str(QCDSFerror)+'\n')
 
         drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_T (GeV)')
     else:
         output.write(systematic+'\t'+
                      str(QCDSF)+'\t'+
                      str(QCDSFerror)+'\n')
+        output_allMC_qcd.write('central\t'+
+                               str(QCDSF)+'\t'+
+                               str(QCDSFerror)+'\n')
 
     return (QCDSF, QCDSFerror)
 
@@ -438,7 +448,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
 
     return (zSF, zSFerror)
 
-def doDileptonFit(channel, controlRegion, systematic, output, output_allMC, xlo, xhi):
+def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
 
     input = '../../zgamma/histograms_'+channel+'_'+controlRegion+'.root'
 
@@ -492,10 +502,6 @@ def doDileptonFit(channel, controlRegion, systematic, output, output_allMC, xlo,
                      str(zSF)+'\t'+
                      str(zSFerror)+'\n')
 
-        output_allMC.write('central\t'+
-                           str(bkgSF)+'\t'+
-                           str(bkgSFerror)+'\n')
-
         xaxisLabel = 'm(ee) (GeV/c^2)'
         if channel == 'muon_bjj':
             xaxisLabel = 'm(#mu#mu) (GeV/c^2)'
@@ -506,9 +512,5 @@ def doDileptonFit(channel, controlRegion, systematic, output, output_allMC, xlo,
         output.write(systematic+'\t'+
                      str(zSF)+'\t'+
                      str(zSFerror)+'\n')
-
-        output_allMC.write('central\t'+
-                           str(bkgSF)+'\t'+
-                           str(bkgSFerror)+'\n')
 
     return (zSF, zSFerror)

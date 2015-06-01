@@ -30,24 +30,16 @@ for channel in channels:
 
     output_dilepton = open('dilepSF_'+channel+'.txt', 'w')
     output_dilepton.write('systematic\tSF\tError\n')
-
-    output_dilepton_allMC = open('allMC_'+channel+'.txt', 'w')
-    output_dilepton_allMC.write('systematic\tSF\tError\n')
     
     output_dilepton_noTag = open('dilepSF_'+channels_noTag[ichan]+'.txt', 'w')
     output_dilepton_noTag.write('systematic\tSF\tError\n')
 
-    output_dilepton_allMC_noTag = open('allMC_'+channels_noTag[ichan]+'.txt', 'w')
-    output_dilepton_allMC_noTag.write('systematic\tSF\tError\n')
-
     for systematic in systematics:
-        dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, output_dilepton_allMC, 0.0, 180.0))
-        dilepResults_noTag.append(doDileptonFit(channels_noTag[ichan], dilepRegion, systematic, output_dilepton_noTag, output_dilepton_allMC_noTag, 0.0, 180.0))
+        dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, 0.0, 180.0))
+        dilepResults_noTag.append(doDileptonFit(channels_noTag[ichan], dilepRegion, systematic, output_dilepton_noTag, 0.0, 180.0))
 
     output_dilepton.close()
-    output_dilepton_allMC.close()
     output_dilepton_noTag.close()
-    output_dilepton_allMC_noTag.close()
 
     # Calculate e --> gamma fake rate sf; do this in jjj
 
@@ -73,12 +65,16 @@ for channel in channels:
     output_qcd = open('qcdSF_kAny_'+channel+'.txt', 'w')
     output_qcd.write('systematic\tSF\tError\n')
 
+    output_allMC_qcd = open('qcd_allMCSF_kAny_'+channel+'.txt', 'w')
+    output_allMC_qcd.write('systematic\tSF\tError\n')
+
     isyst = 0
     for systematic in systematics:
-        qcdResults_kAny.append(doQCDFit(channel, qcdFitRegion, systematic, output_qcd, 0.0, 300.0, dilepResults[isyst]))
+        qcdResults_kAny.append(doQCDFit(channel, qcdFitRegion, systematic, output_qcd, output_allMC_qcd, 0.0, 300.0, dilepResults[isyst]))
         isyst += 1
 
     output_qcd.close()
+    output_allMC_qcd.close()
 
     # Now calculate WJets sf in kAny
 
