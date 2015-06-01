@@ -50,9 +50,13 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
     gROOT.SetStyle('Plain')
     gStyle.SetOptStat(0000)
+    gStyle.SetOptTitle(0);
 
     signal.Scale(signalSF)
     background.Scale(backgroundSF)
+
+    data.SetMarkerStyle(20)
+    data.SetMarkerSize(1.5)
 
     signal.SetLineColor(2)
     signal.SetLineWidth(3)
@@ -82,6 +86,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
     ratio.GetXaxis().SetRangeUser(xlo, xhi)
     ratio.GetYaxis().SetRangeUser(0.0, 2.0)
+    ratio.GetYaxis().SetTitle('Data / Background')
     ratio.GetXaxis().SetLabelFont(63)
     ratio.GetXaxis().SetLabelSize(48)
     ratio.GetXaxis().SetTitleSize(0.12)
@@ -107,14 +112,14 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratioStat.SetMarkerColor(ROOT.kGray+1)
             
     leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
-    leg.AddEntry(data, 'Data', 'ELP')
+    leg.AddEntry(data, 'Data', 'LP')
     leg.AddEntry(signal, signalName, 'L')
     leg.AddEntry(background, backgroundName, 'L')
     
     can = ROOT.TCanvas('can', 'plot', 10, 10, 2000, 2000)
     padhi = ROOT.TPad('padhi', 'padhi', 0, 0.3, 1, 1)
     padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, 0.3)
-    padhi.SetLogy(False)
+    padhi.SetLogy(True)
     padhi.SetTickx(True)
     padhi.SetTicky(True)
     padhi.SetBottomMargin(0)
@@ -137,7 +142,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratio.Draw('e1 same')
     ratio.Draw('axis same')
     
-    can.SaveAs('plots/'+name+'.png')
+    can.SaveAs('plots/'+name+'.pdf')
     #can.SaveAs('canvases/'+name+'.C')
 
 def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
