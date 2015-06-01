@@ -159,7 +159,7 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
         output.write(systematic+'\t'+
                      str(QCDSF)+'\t'+
                      str(QCDSFerror)+'\n')
-        output_allMC_qcd.write('central\t'+
+        output_allMC_qcd.write(systematic+'\t'+
                                str(QCDSF)+'\t'+
                                str(QCDSFerror)+'\n')
 
