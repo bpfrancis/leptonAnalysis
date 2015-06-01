@@ -1429,6 +1429,17 @@ void HistogramMaker::SaveOutput() {
 
   fOut->Close();
 
+  outName = "qcdHistograms_"+req+"_"+crNames[controlRegion]+".root";
+  TFile * fQCDout = new TFile(outName, "UPDATE");
+
+  for(unsigned int i = 0; i < mcQCDHistograms.size(); i++) {
+    for(unsigned int j = 0; j < mcQCDHistograms[i].size(); j++) {
+      mcQCDHistograms[i][j]->Write();
+    }
+  }
+
+  fQCDout->Write();
+
 }
 
 void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
