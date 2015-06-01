@@ -70,6 +70,10 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     sumHist.SetLineWidth(3)
     sumHist.GetXaxis().SetRangeUser(xlo, xhi)
 
+    axisMax = sumHist.GetBinContent(sumHist.GetMaximumBin()) * 5
+    axisMin = sumHist.GetBinContent(sumHist.GetMinimumBin()) * .5
+    sumHist.GetYaxis().SetRangeUser(axisMin, axisMax)
+
     sumErrors = sumHist.Clone('sumErrors')
     sumErrors.SetFillColor(ROOT.kOrange+10)
     sumErrors.SetFillStyle(3154)
@@ -84,17 +88,21 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
         ratio.SetBinContent(ibin+1, data.GetBinContent(ibin+1) / sumHist.GetBinContent(ibin+1))
         ratio.SetBinError(ibin+1, data.GetBinError(ibin+1) / sumHist.GetBinContent(ibin+1))
 
-    ratio.GetXaxis().SetRangeUser(xlo, xhi)
-    ratio.GetYaxis().SetRangeUser(0.0, 2.0)
+    ratio.GetYaxis().SetRangeUser(0.0, 1.9)
     ratio.GetYaxis().SetTitle('Data / Background')
+    ratio.GetYaxis().SetLabelFont(63)
+    ratio.GetYaxis().SetLabelSize(48)
+    ratio.GetYaxis().SetNdivisions(508)
+    ratio.GetYaxis().SetTitleSize(0.12)
+    ratio.GetYaxis().SetTitleOffset(0.6)
+
+    ratio.GetXaxis().SetRangeUser(xlo, xhi)
     ratio.GetXaxis().SetLabelFont(63)
     ratio.GetXaxis().SetLabelSize(48)
     ratio.GetXaxis().SetTitleSize(0.12)
     ratio.GetXaxis().SetTitleOffset(0.6)
-    ratio.GetYaxis().SetLabelFont(63)
-    ratio.GetYaxis().SetLabelSize(48)
-    ratio.GetYaxis().SetNdivisions(508)
     ratio.GetXaxis().SetTitle(xaxisLabel)
+
     ratio.SetLineWidth(2)
 
     ratioStat = sumHist.Clone('ratioStat')
