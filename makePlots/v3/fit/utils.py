@@ -57,6 +57,8 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
     data.SetMarkerStyle(20)
     data.SetMarkerSize(1.5)
+    data.SetFillColor(1)
+    data.SetLineColor(1)
 
     signal.SetLineColor(2)
     signal.SetLineWidth(3)
@@ -70,8 +72,13 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     sumHist.SetLineWidth(3)
     sumHist.GetXaxis().SetRangeUser(xlo, xhi)
 
+    axisMin = signal.GetBinContent(signal.GetMinimumBin()) * .5
+    if data.GetBinContent(data.GetMinimumBin()) * .5 < axisMin:
+        axisMin = data.GetBinContent(data.GetMinimumBin()) * .5
+    if background.GetBinContent(background.GetMinimumBin()) * .5 < axisMin:
+        axisMin = background.GetBinContent(background.GetMinimumBin()) * .5        
+
     axisMax = sumHist.GetBinContent(sumHist.GetMaximumBin()) * 5
-    axisMin = sumHist.GetBinContent(sumHist.GetMinimumBin()) * .5
     sumHist.GetYaxis().SetRangeUser(axisMin, axisMax)
 
     sumErrors = sumHist.Clone('sumErrors')
@@ -140,7 +147,7 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     sumHist.Draw('hist')
     signal.Draw('hist same')
     background.Draw('hist same')
-    sumErrors.Draw('e2 same')
+    #sumErrors.Draw('e2 same')
     data.Draw('e1 same')
     leg.Draw()
     
