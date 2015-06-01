@@ -143,8 +143,8 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
     QCDSF = qcdFrac * dataInt / qcdInt
     QCDSFerror = QCDSF * ( (qcdFracErr/qcdFrac)**2 + (dataIntError/dataInt)**2 + (qcdIntError/qcdInt)**2 )**0.5
 
-    bkgSF = (1.0-fitFrac) * dataInt / bkgInt
-    bkgSFerror = bkgSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (bkgIntError/bkgInt)**2 )**0.5
+    bkgSF = (1.0-qcdFrac) * dataInt / bkgInt
+    bkgSFerror = bkgSF * ( (qcdFracErr/(1.0-qcdFrac))**2 + (dataIntError/dataInt)**2 + (bkgIntError/bkgInt)**2 )**0.5
 
     if systematic == '':
         output.write('central\t'+
