@@ -314,6 +314,8 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   }
 
   hMaker->FillHistograms();
+
+  hMaker->SaveQCDOutput();
   hMaker->SubtractMCFromQCD();
 
   hMaker->SaveOutput();
