@@ -71,6 +71,11 @@ class HistogramMaker : public TObject {
 
   Int_t getIntegerValue(TString name) { return (Int_t)getValue(name); };
 
+  bool onZMass() {
+    Float_t zmass = getValue("z_mass");
+    return zmass > 81.0 && zmass < 101.0;
+  }
+
   bool hasGoodPhotons() {
 
     return true;
@@ -700,7 +705,10 @@ void HistogramMaker::FillData() {
     if(!inControlRegion()) continue;
     if(isBlindedRegion()) continue;
 
+    bool isFromZ = onZMass();
+
     for(unsigned int j = 0; j < variables.size(); j++) {
+      if(variables[j] != "z_mass" && !isFromZ) continue;
       h_gg[j]->Fill(getValue(j));
     }
 
@@ -709,7 +717,7 @@ void HistogramMaker::FillData() {
   ggTree->ResetBranchAddresses();
 
 }
-//durp  
+
 void HistogramMaker::FillQCD() {
 
   for(unsigned int i = 0; i < variables.size(); i++) qcdTree->SetBranchAddress(variables[i], &(varMap[variables[i]]));
@@ -729,7 +737,11 @@ void HistogramMaker::FillQCD() {
     if(!passMetCut()) continue;
     if(!inControlRegion()) continue;
 
+    bool isFromZ = onZMass();
+
     for(unsigned int j = 0; j < variables.size(); j++) {
+
+      if(variables[j] != "z_mass" && !isFromZ) continue;
 
       Float_t val = getValue(j);
 
@@ -853,8 +865,12 @@ void HistogramMaker::FillMCBackgrounds() {
       if(totalWeight < 1.e-6) continue;
       if(addError2 != addError2) continue;
 
+      bool isFromZ = onZMass();
+
       for(unsigned int k = 0; k < variables.size(); k++) {
 	
+	if(variables[k] != "z_mass" && !isFromZ) continue;
+
 	Float_t val = getValue(k);
 
 	FillWithError(mcHistograms[i][k], val, totalWeight, addError2);
@@ -945,7 +961,12 @@ void HistogramMaker::FillMCBackgrounds() {
       if(reweightTopPt[i]) totalWeight *= topPtReweighting;
       if(fitScale[i] > 0) totalWeight *= fitScale[i];
       
-      for(unsigned int k = 0; k < variables.size(); k++) mcHistograms_JECup[i][k]->Fill(getValue(k), totalWeight);
+      bool isFromZ = onZMass();
+
+      for(unsigned int k = 0; k < variables.size(); k++) {
+	if(variables[k] != "z_mass" && !isFromZ) continue;
+	mcHistograms_JECup[i][k]->Fill(getValue(k), totalWeight);
+      }
       
     }
     
@@ -973,7 +994,12 @@ void HistogramMaker::FillMCBackgrounds() {
       if(reweightTopPt[i]) totalWeight *= topPtReweighting;
       if(fitScale[i] > 0) totalWeight *= fitScale[i];
       
-      for(unsigned int k = 0; k < variables.size(); k++) mcHistograms_JECdown[i][k]->Fill(getValue(k), totalWeight);
+      bool isFromZ = onZMass();
+
+      for(unsigned int k = 0; k < variables.size(); k++) {
+	if(variables[k] != "z_mass" && !isFromZ) continue;
+	mcHistograms_JECdown[i][k]->Fill(getValue(k), totalWeight);
+      }
       
     }
     
@@ -1011,8 +1037,12 @@ void HistogramMaker::FillMCBackgrounds() {
       GetLeptonSF(leptonSF, leptonSFup, leptonSFdown);
       GetPhotonSF(photonSF, photonSFup, photonSFdown);
       
+      bool isFromZ = onZMass();
+
       for(unsigned int k = 0; k < variables.size(); k++) {
 	
+	if(variables[k] != "z_mass" && !isFromZ) continue;
+
 	Float_t val = getValue(k);
 	
 	if(relIso1 > 0.25 && relIso2 > 0.25) FillWithError(mcQCDHistograms[i][k], val, totalWeight, addError2); // central
@@ -1163,8 +1193,6 @@ void HistogramMaker::GetLeptonSF(Float_t& central, Float_t& up, Float_t& down) {
 
     Float_t trigger2_val = sf_SingleElectronTrigger->GetBinContent(sf_SingleElectronTrigger->FindBin(eta2, pt2));
     Float_t trigger2_error = sf_SingleElectronTrigger->GetBinError(sf_SingleElectronTrigger->FindBin(eta2, pt2));
-
-    //durp
 
     Float_t x = 1. - trigger1_val;
     Float_t y = 1. - trigger2_val;

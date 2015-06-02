@@ -51,7 +51,7 @@ for channel in channels:
     isyst = 0
     for systematic in systematics:
         if channel.find('ele') == 0:
-            eleFakeRateResults.append(doElectronFit(channels_noTag[ichan], zFitRegion, systematic, output_eleFakeRate, 20.0, 180.0, dilepResults_noTag[isyst], 50, 8e3, True))
+            eleFakeRateResults.append(doElectronFit(channels_noTag[ichan], zFitRegion, systematic, output_eleFakeRate, 20.0, 180.0, dilepResults_noTag[isyst], 0, 3500, False))
         else:
             eleFakeRateResults.append((1.0, 0.0))
         isyst += 1
@@ -111,7 +111,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 1100, False)
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 500, False)
         ttbarResults_sigma.append((topSF, topSFerror))
         ttgammaResults_sigma.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
