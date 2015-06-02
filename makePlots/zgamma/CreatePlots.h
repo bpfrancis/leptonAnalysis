@@ -799,7 +799,7 @@ void PlotMaker::MakeLegends() {
   if(channel.Contains("muon") && crNames[controlRegion] == "Any") thisLabel = "#mu#mu";
   reqText->AddText(channelLabel.ReplaceAll("XYZ", thisLabel));
 
-  zcutText = new TPaveText(0.45, 0.37, 0.85, 0.45, "NDC");
+  zcutText = new TPaveText(0.55, 0.4, 0.75, 0.45, "NDC");
   zcutText->SetFillColor(0);
   zcutText->SetFillStyle(0);
   zcutText->SetLineColor(0);
