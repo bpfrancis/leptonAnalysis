@@ -863,7 +863,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetTitleSize(0.12);
   ratio->GetXaxis()->SetTitleOffset(0.6);
 
-  DetermineAxisRanges(n);
+  //DetermineAxisRanges(n);
   //DetermineLegendRanges(n);
 
   if(xMaximums[n] > xMinimums[n]) {

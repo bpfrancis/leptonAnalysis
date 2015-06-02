@@ -345,8 +345,8 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
     pMaker->BookPlot("mLepGammaLead", true,
 		     "m_{#ell#gamma_{lead}}", "Number of Events / GeV",
-		     0., 1200., 2.e-3, 5.e4,
-		     0., 5.1, 
+		     0., 400., 2.e-3, 5.e4,
+		     0., 1.9, 
 		     true, true, true);
   }
 
