@@ -778,7 +778,6 @@ void PlotMaker::MakeLegends() {
   if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
-  leg->SetBorderSize();
 
   legDrawSignal = new TLegend(0.45, 0.6, 0.85, 0.85, NULL, "brNDC");
   legDrawSignal->SetNColumns(2);
@@ -810,6 +809,7 @@ void PlotMaker::MakeLegends() {
   reqText->SetFillStyle(0);
   reqText->SetLineColor(0);
   reqText->AddText(channelLabel.ReplaceAll("XYZ", crLabels[controlRegion]));
+  reqText->SetBorderSize(0);
 
   lumiHeader = new TPaveText(0.1, 0.901, 0.9, 0.94, "NDC");
   lumiHeader->SetFillColor(0);

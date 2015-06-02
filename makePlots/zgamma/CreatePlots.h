@@ -34,14 +34,14 @@ TString channels[nChannels] = {"ele_bjj", "muon_bjj",
 			       "ele_jjj", "muon_jjj"};
 
 // aps15
-TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
-				    "XYZ ele (no b-tag)", "XYZ muon (no b-tag)"};
+TString channelLabels[nChannels] = {"XYZ", "XYZ",
+				    "XYZ (no b-tag)", "XYZ (no b-tag)"};
   //{"XYZ e", "XYZ #mu",
   //"XYZ e (no b-tag)", "XYZ #mu (no b-tag)"};
 
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
-TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", /*aps15"Any"*/"Pre-selection"};
+TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "ee"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
@@ -299,6 +299,7 @@ class PlotMaker : public TObject {
   TPad * padlo;
 
   TPaveText * reqText;
+  TPaveText * zcutText;
   TPaveText * lumiHeader;
 
   // these three stay the same for all MC and all variables
@@ -765,7 +766,6 @@ void PlotMaker::MakeLegends() {
   if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
-  leg->SetBorderSize(0);
 
   legDrawSignal = new TLegend(0.45, 0.6, 0.85, 0.85, NULL, "brNDC");
   legDrawSignal->SetNColumns(2);
@@ -794,7 +794,17 @@ void PlotMaker::MakeLegends() {
   reqText->SetFillColor(0);
   reqText->SetFillStyle(0);
   reqText->SetLineColor(0);
-  reqText->AddText(channelLabel.ReplaceAll("XYZ", crLabels[controlRegion]));
+  reqText->SetBorderSize(0);
+  TString thisLabel = crLabels[controlRegion];
+  if(channel.Contains("muon") && crNames[controlRegion] == "Any") thisLabel = "#mu#mu";
+  reqText->AddText(channelLabel.ReplaceAll("XYZ", thisLabel));
+
+  zcutText = new TPaveText(0.45, 0.37, 0.85, 0.45, "NDC");
+  zcutText->SetFillColor(0);
+  zcutText->SetFillStyle(0);
+  zcutText->SetLineColor(0);
+  zcutText->SetBorderSize(0);
+  zcutText->AddText("81 < m_{" + thisLabel + "} < 101");
 
   lumiHeader = new TPaveText(0.1, 0.901, 0.9, 0.94, "NDC");
   lumiHeader->SetFillColor(0);
