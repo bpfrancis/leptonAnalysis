@@ -105,7 +105,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   if(controlRegion == kAny) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
-		     0., 300., 7.e-3, 2.5e6,
+		     0., 300., 2.e-3, 5.e3,
 		     0., 1.9,
 		     true, true, true);
   }
@@ -149,8 +149,8 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
   pMaker->BookPlot("z_mass", false,
 		   channels[channel].Contains("ele") ? "m_{ee}" : "m_{#mu#mu}", "Number of Events",
-		   0, 1200, 2.e-3, 5.e4,
-		   0., 5.1,
+		   0, 400, 2.e-1, 8.e4,
+		   0., 1.9,
 		   true, true, true);
 
   // aps15

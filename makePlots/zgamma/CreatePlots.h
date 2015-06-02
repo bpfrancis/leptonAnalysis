@@ -765,6 +765,7 @@ void PlotMaker::MakeLegends() {
   if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
+  leg->SetBorderSize(0);
 
   legDrawSignal = new TLegend(0.45, 0.6, 0.85, 0.85, NULL, "brNDC");
   legDrawSignal->SetNColumns(2);
@@ -848,7 +849,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetTitleSize(0.12);
   ratio->GetXaxis()->SetTitleOffset(0.6);
 
-  DetermineAxisRanges(n);
+  //DetermineAxisRanges(n);
   //DetermineLegendRanges(n);
 
   if(xMaximums[n] > xMinimums[n]) {

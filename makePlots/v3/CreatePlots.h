@@ -778,6 +778,7 @@ void PlotMaker::MakeLegends() {
   if(!needsQCD) leg->AddEntry((TObject*)0, "", "");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
+  leg->SetBorderSize();
 
   legDrawSignal = new TLegend(0.45, 0.6, 0.85, 0.85, NULL, "brNDC");
   legDrawSignal->SetNColumns(2);
