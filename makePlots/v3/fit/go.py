@@ -35,8 +35,8 @@ for channel in channels:
     output_dilepton_noTag.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
-        dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, 0.0, 180.0))
-        dilepResults_noTag.append(doDileptonFit(channels_noTag[ichan], dilepRegion, systematic, output_dilepton_noTag, 0.0, 180.0))
+        dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, 0.0, 180.0, 0.9, 2e4, True))
+        dilepResults_noTag.append(doDileptonFit(channels_noTag[ichan], dilepRegion, systematic, output_dilepton_noTag, 0.0, 180.0, 0.9, 2e5, True))
 
     output_dilepton.close()
     output_dilepton_noTag.close()
@@ -51,7 +51,7 @@ for channel in channels:
     isyst = 0
     for systematic in systematics:
         if channel.find('ele') == 0:
-            eleFakeRateResults.append(doElectronFit(channels_noTag[ichan], zFitRegion, systematic, output_eleFakeRate, 20.0, 180.0, dilepResults_noTag[isyst]))
+            eleFakeRateResults.append(doElectronFit(channels_noTag[ichan], zFitRegion, systematic, output_eleFakeRate, 20.0, 180.0, dilepResults_noTag[isyst], 50, 8e3, True))
         else:
             eleFakeRateResults.append((1.0, 0.0))
         isyst += 1
@@ -70,7 +70,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        qcdResults_kAny.append(doQCDFit(channel, qcdFitRegion, systematic, output_qcd, output_allMC_qcd, 0.0, 300.0, dilepResults[isyst]))
+        qcdResults_kAny.append(doQCDFit(channel, qcdFitRegion, systematic, output_qcd, output_allMC_qcd, 0.0, 300.0, dilepResults[isyst], 50, 2e5, True))
         isyst += 1
 
     output_qcd.close()
@@ -89,7 +89,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, wjetsSF, wjetsSFerror) = doM3Fit(channel, m3FitRegion, systematic, output_wjets, output_ttbar, 40.0, 660.0, qcdResults_kAny[isyst], dilepResults[isyst])
+        (topSF, topSFerror, wjetsSF, wjetsSFerror) = doM3Fit(channel, m3FitRegion, systematic, output_wjets, output_ttbar, 40.0, 660.0, qcdResults_kAny[isyst], dilepResults[isyst], 1, 8e4, True)
         wjetsResults.append((wjetsSF, wjetsSFerror))
         ttbarResults_M3.append((topSF, topSFerror))
         isyst += 1
@@ -111,7 +111,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst])
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 1100, False)
         ttbarResults_sigma.append((topSF, topSFerror))
         ttgammaResults_sigma.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
@@ -133,7 +133,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst])
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0.1, 2e3, True)
         ttbarResults_chHadIso.append((topSF, topSFerror))
         ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
         isyst += 1

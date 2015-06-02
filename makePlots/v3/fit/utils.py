@@ -46,7 +46,7 @@ def ScaleWithError(h, sf, err):
         h.SetBinContent(ibin+1, newcontent)
         h.SetBinError(ibin+1, newerror)
 
-def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name, xaxisLabel):
+def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name, xaxisLabel, axisMin, axisMax, doLogy):
 
     gROOT.SetStyle('Plain')
     gStyle.SetOptStat(0000)
@@ -61,31 +61,15 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     data.SetLineColor(1)
 
     background.SetLineColor(1)
-    background.SetLineWidth(3)
     background.SetFillColor(8)
     
     sumHist = signal.Clone('sumHist')
     sumHist.Add(background)
     sumHist.SetLineColor(1)
-    sumHist.SetLineWidth(3)
     sumHist.SetFillColor(ROOT.kGray)
     sumHist.GetXaxis().SetRangeUser(xlo, xhi)
 
-    axisMin = signal.GetBinContent(signal.GetMinimumBin()) / 5
-    if data.GetBinContent(data.GetMinimumBin()) / 5 < axisMin:
-        axisMin = data.GetBinContent(data.GetMinimumBin()) / 5
-    if background.GetBinContent(background.GetMinimumBin()) / 5 < axisMin:
-        axisMin = background.GetBinContent(background.GetMinimumBin()) / 5        
-    if axisMin <= 0:
-        axisMin = 0.2
-
-    axisMax = sumHist.GetBinContent(sumHist.GetMaximumBin()) * 5
     sumHist.GetYaxis().SetRangeUser(axisMin, axisMax)
-
-    sumErrors = sumHist.Clone('sumErrors')
-    sumErrors.SetFillColor(ROOT.kOrange+10)
-    sumErrors.SetFillStyle(3154)
-    sumErrors.SetMarkerSize(0)
 
     ratio = data.Clone('ratio')
     ratio.Reset()
@@ -109,8 +93,6 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratio.GetXaxis().SetTitleOffset(0.6)
     ratio.GetXaxis().SetTitle(xaxisLabel)
 
-    ratio.SetLineWidth(2)
-
     ratioStat = sumHist.Clone('ratioStat')
     for ibin in range(ratioStat.GetNbinsX()):
         ratioStat.SetBinContent(ibin+1, 1.0)
@@ -124,15 +106,19 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     ratioStat.SetFillColor(ROOT.kGray+1)
     ratioStat.SetLineColor(ROOT.kGray+1)
     ratioStat.SetMarkerColor(ROOT.kGray+1)
-            
-    leg = ROOT.TLegend(0.55, 0.7, 0.95, 0.95, '', 'brNDC')
-    leg.SetNColumns(2)
+
+    legtitle = ''
+    if 'ele_bjj' in name or 'ele_jjj' in name:
+        legtitle = ' ele'
+    else:
+        legtitle = ' muon'
+
+    leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85, legtitle, 'brNDC')
     leg.AddEntry(data, 'Data', 'LP')
-    leg.AddEntry(0, '', '')
-    leg.AddEntry(sumErrors, 'Stat. Errors', 'F')
-    leg.AddEntry(0, '', '')
-    leg.AddEntry(sumHist, , 'F')
+    leg.AddEntry(sumHist, signalName, 'F')
     leg.AddEntry(background, backgroundName, 'F')
+    leg.SetFillColor(0)
+    leg.SetTextSize(0.028)
 
     lumiHeader = ROOT.TPaveText(0.1, 0.901, 0.9, 0.94, 'NDC')
     lumiHeader.SetFillColor(0)
@@ -141,20 +127,10 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     lumiHeader.SetBorderSize(0)
     lumiHeader.AddText('CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}')
 
-    reqText = ROOT.TPaveText(0.55, 0.57, 0.95, 0.67, 'NDC')
-    reqText.SetFillColor(0)
-    reqText.SetFillStyle(0)
-    reqText.SetLineColor(0)
-    reqText.SetBorderSize(0)
-    if name.Contains('ele_bjj') or name.Contains('ele_jjj'):
-        reqText.AddText('ele')
-    else:
-        reqText.AddText('muon')
-
     can = ROOT.TCanvas('can', 'plot', 10, 10, 2000, 2000)
     padhi = ROOT.TPad('padhi', 'padhi', 0, 0.3, 1, 1)
     padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, 0.3)
-    padhi.SetLogy(True)
+    padhi.SetLogy(doLogy)
     padhi.SetTickx(True)
     padhi.SetTicky(True)
     padhi.SetBottomMargin(0)
@@ -164,14 +140,12 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     padlo.Draw()
 
     padhi.cd()
-    sumHist.Draw('e2')
-    background.Draw('e2 same')
-    sumErrors.Draw('e2 same')
+    sumHist.Draw('hist')
+    background.Draw('hist same')
     data.Draw('e1 same')
     data.Draw('axis same')
     leg.Draw()
     lumiHeader.Draw()
-    reqText.Draw()
     
     padlo.cd()
     ratio.Draw('e1')

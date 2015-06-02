@@ -87,7 +87,7 @@ def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepRe
     
     return (qcdScale, qcdScaleError)
 
-def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, xhi, dilepResults):
+def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, xhi, dilepResults, axisMin, axisMax, doLogy):
 
     (dilepSF, dilepSFerror) = dilepResults
 
@@ -154,8 +154,8 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
                                str(bkgSF)+'\t'+
                                str(bkgSFerror)+'\n')
 
-        #drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_{T} (GeV)')
-        drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, bkgSF, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_{T} (GeV)')
+        #drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, 1.0, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_{T} (GeV)', axisMin, axisMax, doLogy)
+        drawPlots(dataHist, qcdHist, QCDSF, 'QCD', MCHist, bkgSF, 'MC', xlo, xhi, varName+'_'+channel+systematic, '#slash{E}_{T} (GeV)', axisMin, axisMax, doLogy)
     else:
         output.write(systematic+'\t'+
                      str(QCDSF)+'\t'+
@@ -166,7 +166,7 @@ def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, 
 
     return (QCDSF, QCDSFerror)
 
-def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo, xhi, qcdSFPair, dilepPair):
+def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo, xhi, qcdSFPair, dilepPair, axisMin, axisMax, doLogy):
 
     (QCDSF, QCDSFerror) = qcdSFPair
     (dilepSF, dilepSFerror) = dilepPair
@@ -240,7 +240,7 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
                            str(topSF)+'\t'+
                            str(topSFerror)+'\n')
 
-        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', wjetsHist, wjetsSF, 'W + Jets', xlo, xhi, 'm3_'+channel+systematic, 'M3 (GeV/c^2)')
+        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', wjetsHist, wjetsSF, 'W + Jets', xlo, xhi, 'm3_'+channel+systematic, 'M3 (GeV/c^2)', axisMin, axisMax, doLogy)
 
     else:
         output_wjets.write(systematic+'\t'+
@@ -253,7 +253,7 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
 
     return (topSF, topSFerror, wjetsSF, wjetsSFerror)
 
-def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output_ttgamma, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults):
+def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output_ttgamma, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, axisMin, axisMax, doLogy):
 
     (wjetsSF, wjetsSFerror) = wjetsResults
     (topM3sf, topM3sfError) = topM3Results
@@ -340,7 +340,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
-        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel)
+        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_ttbar.write(systematic+'\t'+
                            str(topSF)+'\t'+
@@ -352,7 +352,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
 
     return (topSF, topSFerror, ttgammaSF, ttgammaSFerror)
 
-def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepResults):
+def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepResults, axisMin, axisMax, doLogy):
 
     (dilepSF, dilepSFerror) = dilepResults
 
@@ -441,7 +441,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
                        str(zSF)+'\t'+
                        str(zSFerror)+'\n')
 
-        drawPlots(dataHist, zHist, zSF, 'Z + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(l, #gamma) (GeV/c^2)')
+        drawPlots(dataHist, zHist, zSF, 'Z + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(l, #gamma) (GeV/c^2)', axisMin, axisMax, doLogy)
     else:
         output_z.write(systematic+'\t'+
                        str(zSF)+'\t'+
@@ -449,7 +449,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
 
     return (zSF, zSFerror)
 
-def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
+def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi, axisMin, axisMax, doLogy):
 
     input = '../../zgamma/histograms_'+channel+'_'+controlRegion+'.root'
 
@@ -507,7 +507,7 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi):
         if channel == 'muon_bjj':
             xaxisLabel = 'm(#mu#mu) (GeV/c^2)'
 
-        drawPlots(dataHist, zHist, zSF, 'Z + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systName, xaxisLabel)
+        drawPlots(dataHist, zHist, zSF, 'Z + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systName, xaxisLabel, axisMin, axisMax, doLogy)
 
     else:
         output.write(systematic+'\t'+
