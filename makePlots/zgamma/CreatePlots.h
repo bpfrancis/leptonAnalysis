@@ -1048,7 +1048,11 @@ void PlotMaker::CreatePlot(unsigned int n) {
     if(doDrawSignal[n]) legDrawSignal->Draw("same");
     else leg->Draw("same");
   }
-  if(doDrawPrelim[n] && doDrawLegend[n]) reqText->Draw("same");
+  if(doDrawPrelim[n] && doDrawLegend[n]) {
+    reqText->Draw("same");
+    if(variables[n] != "z_mass") zcutText->Draw("same");
+  }
+  
 
   padlo->cd();
 
