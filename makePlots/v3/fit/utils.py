@@ -113,6 +113,9 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     else:
         legtitle = ' muon'
 
+    if 'jjj' in name:
+        legtitle = legtitle + ' (no b-tag)'
+
     leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85, legtitle, 'brNDC')
     leg.AddEntry(data, 'Data', 'LP')
     leg.AddEntry(sumHist, signalName, 'F')

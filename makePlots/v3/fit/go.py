@@ -109,15 +109,19 @@ for channel in channels:
     output_ttgamma = open('ttgammaSF_sigma_'+channel+'.txt', 'w')
     output_ttgamma.write('systematic\tSF\tError\n')
 
+    output_purity = open('photonPurity_sigma_'+channel+'.txt', 'w')
+    output_purity.write('systematic\tSF\tError\n')
+
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 500, False)
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 500, False)
         ttbarResults_sigma.append((topSF, topSFerror))
         ttgammaResults_sigma.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
 
     output_ttjets.close()
     output_ttgamma.close()
+    output_purity.close()
 
     # Now calculate TTGamma sf in kSigmaPlot for charged hadron isolation
     # using the M3 results above, and just normalizing QCD in MET < 20
@@ -131,14 +135,18 @@ for channel in channels:
     output_ttgamma = open('ttgammaSF_chHadIso_'+channel+'.txt', 'w')
     output_ttgamma.write('systematic\tSF\tError\n')
 
+    output_purity = open('photonPurity_chHadIso_'+channel+'.txt', 'w')
+    output_purity.write('systematic\tSF\tError\n')
+
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0.1, 2e3, True)
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0.1, 2e3, True)
         ttbarResults_chHadIso.append((topSF, topSFerror))
         ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
         isyst += 1
 
     output_ttjets.close()
     output_ttgamma.close()
+    output_purity.close()
 
     ichan += 1

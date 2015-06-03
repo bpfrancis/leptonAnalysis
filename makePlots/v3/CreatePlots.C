@@ -264,13 +264,13 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		   true, true, true);
 
   pMaker->BookPlot("dPhi_met_l", false,
-		   "#Delta#phi(#ell, #slash{E}_T)", "Number of Events",
+		   "#Delta#phi(l, #slash{E}_T)", "Number of Events",
 		   -3.2, 3.2, 2.e-4, 8.e3,
 		   0., 2.1,
 		   true, false, false);
 
   pMaker->BookPlot("dPhi_met_ht", false,
-		   "#Delta#phi(#ell, #vec{HT})", "Number of Events",
+		   "#Delta#phi(l, #vec{HT})", "Number of Events",
 		   -3.2, 3.2, 2.e-4, 8.e3,
 		   0., 2.1,
 		   true, false, false);
@@ -344,7 +344,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
     }
 
     pMaker->BookPlot("mLepGammaLead", true,
-		     "m_{#ell#gamma_{lead}}", "Number of Events / GeV",
+		     "m_{l#gamma_{lead}}", "Number of Events / GeV",
 		     0., 400., 2.e-3, 5.e4,
 		     0., 1.9, 
 		     true, true, true);
@@ -376,7 +376,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     true, true, true);
 
     pMaker->BookPlot("mLepGammaTrail", true,
-		     "m_{#ell#gamma_{trail}}", "Number of Events / GeV",
+		     "m_{l#gamma_{trail}}", "Number of Events / GeV",
 		     0., 1200., 2.e-3, 5.e4,
 		     0., 5.1, 
 		     true, true, true);
@@ -412,7 +412,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 		     true, true, true);
 
     pMaker->BookPlot("mLepGammaGamma", true,
-		     "m_{#ell#gamma#gamma}", "Number of Events",
+		     "m_{l#gamma#gamma}", "Number of Events",
 		     0, 1200, 2.e-3, 5.e4,
 		     0., 5.1,
 		     true, true, true);
