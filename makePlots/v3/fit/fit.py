@@ -612,14 +612,14 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_t
                              str(ttgammaSFerror)+'\n')
 
         output_purity.write('central\t'+
-                            str(1.0-fitFrac)+'\t'+
+                            str(fitFrac)+'\t'+
                             str(fitFracErr)+'\n')
 
         xaxisLabel = '#sigma_{i#eta i#eta}'
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
-        drawPlots(dataHist, ttgammaHist, ttgammaSF, 't#bar{t} + Jets', topHist, topSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots(dataHist, ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', topHist, topSF, 't#bar{t} + Jets', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_ttbar.write(systematic+'\t'+
                            str(topSF)+'\t'+
