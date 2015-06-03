@@ -21,10 +21,16 @@ void makeTemplates() {
 
   // sigma fit -- leadSigmaIetaIeta in 'sigmaPlot', bjj, matching, with and without MET cut of 50
   CreateTemplates(input_ele, "leadSigmaIetaIeta", kSigmaPlot, "ele_bjj", 80, 0., 0.04);
+  CreateTemplates(input_muon, "leadSigmaIetaIeta", kSigmaPlot, "muon_bjj", 80, 0., 0.04);
+
+  CreateTemplates(input_ele, "leadSigmaIetaIeta", kSigmaPlot, "ele_bjj", 80, 0., 0.04, 50.0);
   CreateTemplates(input_muon, "leadSigmaIetaIeta", kSigmaPlot, "muon_bjj", 80, 0., 0.04, 50.0);
 
   // chHadIso fit -- leadChargedHadronIso in 'sigmaPlot', bjj, matching, with and without MET cut of 50
   CreateTemplates(input_ele, "leadChargedHadronIso", kSigmaPlot, "ele_bjj", 110, -2.0, 20.0);
+  CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0);
+
+  CreateTemplates(input_ele, "leadChargedHadronIso", kSigmaPlot, "ele_bjj", 110, -2.0, 20.0, 50.0);
   CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0, 50.0);
 
 }

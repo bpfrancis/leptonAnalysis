@@ -523,3 +523,114 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi, axisMin,
                      str(zSFerror)+'\n')
 
     return (zSF, zSFerror)
+
+def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_ttbar, output_ttgamma, output_purity, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, axisMin, axisMax, doLogy):
+
+    (wjetsSF, wjetsSFerror) = wjetsResults
+    (topM3sf, topM3sfError) = topM3Results
+    (dilepSF, dilepSFerror) = dilepResults
+    (eleFakeRateSF, eleFakeRateSFerror) = eleFakeRateResults
+
+
+    inputMatched = '../fitTemplates.root'
+    input = '../histograms_'+channel+'_'+controlRegion+'.root'
+
+    qcdName = '_qcd_'
+    systName = systematic
+
+    if systematic == '_qcdDefUp':
+        qcdName = '_qcd_relIso_10_'
+        systName = ''
+    elif systematic == '_qcdDefDown':
+        qcdName = '_qcd_relIso_m10_'
+        systName = ''
+
+    dataHist = get1DHist(input, varName+'_gg_'+channel)
+
+    topHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
+    topHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
+    topHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
+    ScaleWithError(topHist, topM3sf, topM3sfError)
+    topHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchElectron'+systName))
+    topHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchJet'+systName))
+
+    ttgammaHist = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchPhoton'+systName)
+
+    bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systName)
+    bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
+    bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
+    
+    wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName)
+    wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
+    ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
+
+    zHist = get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName)
+    zHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
+    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
+    ScaleWithError(zHist, dilepSF, dilepSFerror)
+    ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
+
+    qcdHist = get1DHist(input, varName+qcdName+channel)
+    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    ScaleWithError(qcdHist, qcdSF, qcdSFerror)
+    
+    dataHist.Add(bkgHist, -1.0)
+    dataHist.Add(qcdHist, -1.0)
+    dataHist.Add(wjetsHist, -1.0)
+    dataHist.Add(zHist, -1.0)
+
+    (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
+    (topInt, topIntError) = integrateError(topHist, xlo, xhi)
+    (ttgammaInt, ttgammaIntError) = integrateError(ttgammaHist, xlo, xhi)
+
+    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, topHist, ttgammaHist, dataHist)
+
+    topSF = fitFrac * dataInt / topInt
+    topSFerror = topSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (topIntError/topInt)**2 )**0.5
+
+    ttgammaSF = (1.0-fitFrac) * dataInt / ttgammaInt
+    ttgammaSFerror = ttgammaSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (ttgammaIntError/ttgammaInt)**2 )**0.5
+
+    if systematic == '':
+        output_ttbar.write('central\t'+
+                           str(topSF)+'\t'+
+                           str(topSFerror)+'\n')
+
+        output_ttgamma.write('central\t'+
+                             str(ttgammaSF)+'\t'+
+                             str(ttgammaSFerror)+'\n')
+
+        output_purity.write('central\t'+
+                            str(1.0-fitFrac)+'\t'+
+                            str(fitFracErr)+'\n')
+
+        xaxisLabel = '#sigma_{i#eta i#eta}'
+        if varName == 'leadChargedHadronIso':
+            xaxisLabel = 'Ch. Hadron Iso. (GeV)'
+
+        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+    else:
+        output_ttbar.write(systematic+'\t'+
+                           str(topSF)+'\t'+
+                           str(topSFerror)+'\n')
+
+        output_ttgamma.write(systematic+'\t'+
+                             str(ttgammaSF)+'\t'+
+                             str(ttgammaSFerror)+'\n')
+
+        output_purity.write(systematic+'\t'+
+                            str(1.0-fitFrac)+'\t'+
+                            str(fitFracErr)+'\n')
+
+    return (topSF, topSFerror, ttgammaSF, ttgammaSFerror)
