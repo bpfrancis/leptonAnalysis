@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void CreateTemplates(TString input, TString variable, int controlRegion, TString channel, Int_t nBins, Float_t xlo, Float_t xhi, Float_t metCut = -1.0, , bool cutOnSigma = false, bool cutOnChHadIso = false) {
+void CreateTemplates(TString input, TString variable, int controlRegion, TString channel, Int_t nBins, Float_t xlo, Float_t xhi, Float_t metCut = -1.0, bool cutOnSigma = false, bool cutOnChHadIso = false) {
 
   TFile * in = new TFile(input, "READ");
 

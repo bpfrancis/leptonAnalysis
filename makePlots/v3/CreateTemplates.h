@@ -43,7 +43,7 @@ class TemplateMaker : public TObject {
   ClassDef(TemplateMaker, 1);
 
  public:
-  TemplateMaker(TString var, TString chan, int cRegion, Int_t n_Bins, Float_t x_lo, Float_t x_hi, Float_t cutOnMet);
+  TemplateMaker(TString var, TString chan, int cRegion, Int_t n_Bins, Float_t x_lo, Float_t x_hi, Float_t cutOnMet, bool cutOnSigma, bool cutOnChHadIso);
   ~TemplateMaker();
   
   bool inControlRegion() {
