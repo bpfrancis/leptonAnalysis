@@ -140,7 +140,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFit('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0.1, 2e3, True)
+        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFitWithMatching('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0.1, 2e3, True)
         ttbarResults_chHadIso.append((topSF, topSFerror))
         ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
         isyst += 1

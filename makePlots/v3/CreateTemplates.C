@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void CreateTemplates(TString input, TString variable, int controlRegion, TString channel, Int_t nBins, Float_t xlo, Float_t xhi, Float_t metCut = -1.0) {
+void CreateTemplates(TString input, TString variable, int controlRegion, TString channel, Int_t nBins, Float_t xlo, Float_t xhi, Float_t metCut = -1.0, , bool cutOnSigma = false, bool cutOnChHadIso = false) {
 
   TFile * in = new TFile(input, "READ");
 
@@ -19,7 +19,7 @@ void CreateTemplates(TString input, TString variable, int controlRegion, TString
   TTree * ggTree = (TTree*)in->Get(sigName);
   TTree * qcdTree = (TTree*)in->Get(qcdName);
 
-  TemplateMaker * tMaker = new TemplateMaker(variable, channel, controlRegion, nBins, xlo, xhi, metCut);
+  TemplateMaker * tMaker = new TemplateMaker(variable, channel, controlRegion, nBins, xlo, xhi, metCut, cutOnSigma, cutOnChHadIso);
   tMaker->LoadLeptonSFs("/eos/uscms/store/user/bfrancis/data/lepton_SF_8TeV_53x_baseline.root");
   tMaker->LoadPhotonSFs("/eos/uscms/store/user/bfrancis/data/Photon_ID_CSEV_SF_Jan22rereco_Full2012_S10_MC_V01.root");
 

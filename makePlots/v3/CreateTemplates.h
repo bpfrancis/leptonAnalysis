@@ -257,6 +257,9 @@ class TemplateMaker : public TObject {
   Int_t nBins;
   Float_t xlo, xhi;
   Float_t metCut;
+
+  bool cutSigma;
+  bool cutChHadIso;
     
   TFile * fLeptonSF;
   TH2D * sf_muon;
@@ -269,8 +272,10 @@ class TemplateMaker : public TObject {
 
   Int_t intLumi_int;
 
-   // friend variables
+  // friend variables
   Float_t Ngamma, Nfake, Nphotons, met;
+  Float_t leadChHadIso, leadSigma;
+  Float_t trailChHadIso, trailSigma;
 
   Float_t leptonPt, leptonEta;
   Float_t leadGammaEt, leadGammaEta;
@@ -288,14 +293,16 @@ class TemplateMaker : public TObject {
 
 };
 
-TemplateMaker::TemplateMaker(TString var, TString chan, int cRegion, Int_t n_Bins, Float_t x_lo, Float_t x_hi, Float_t cutOnMet) :
-  variable(var),
+TemplateMaker::TemplateMaker(TString var, TString chan, int cRegion, Int_t n_Bins, Float_t x_lo, Float_t x_hi, Float_t cutOnMet, bool cutOnSigma, bool cutOnChHadIso) :
+variable(var),
   channel(chan),
   controlRegion(cRegion),
   nBins(n_Bins),
   xlo(x_lo),
   xhi(x_hi),
-  metCut(cutOnMet)
+  metCut(cutOnMet),
+  cutSigma(cutOnSigma),
+  cutChHadIso(cutOnChHadIso)
 {
   intLumi_int = 19712;
 
@@ -527,6 +534,10 @@ void TemplateMaker::SetAddresses() {
   ggTree->SetBranchAddress("leadPhotonEta", &leadGammaEta);
   ggTree->SetBranchAddress("trailPhotonEt", &trailGammaEt);
   ggTree->SetBranchAddress("trailPhotonEta", &trailGammaEta);
+  if(variable != "leadChargedHadronIso") ggTree->SetBranchAddress("leadChargedHadronIso", &leadChHadIso);
+  if(variable != "trailChargedHadronIso") ggTree->SetBranchAddress("trailChargedHadronIso", &trailChHadIso);
+  if(variable != "leadSigmaIetaIeta") ggTree->SetBranchAddress("leadSigmaIetaIeta", &leadSigma);
+  if(variable != "trailSigmaIetaIeta") ggTree->SetBranchAddress("trailSigmaIetaIeta", &trailSigma);
 
   qcdTree->SetBranchAddress(variable, &value);
   qcdTree->SetBranchAddress("Ngamma", &Ngamma);
@@ -547,6 +558,10 @@ void TemplateMaker::SetAddresses() {
   qcdTree->SetBranchAddress("leadPhotonEta", &leadGammaEta);
   qcdTree->SetBranchAddress("trailPhotonEt", &trailGammaEt);
   qcdTree->SetBranchAddress("trailPhotonEta", &trailGammaEta);
+  if(variable != "leadChargedHadronIso") qcdTree->SetBranchAddress("leadChargedHadronIso", &leadChHadIso);
+  if(variable != "trailChargedHadronIso") qcdTree->SetBranchAddress("trailChargedHadronIso", &trailChHadIso);
+  if(variable != "leadSigmaIetaIeta") qcdTree->SetBranchAddress("leadSigmaIetaIeta", &leadSigma);
+  if(variable != "trailSigmaIetaIeta") qcdTree->SetBranchAddress("trailSigmaIetaIeta", &trailSigma);
 
   for(unsigned int i = 0; i < mcTrees.size(); i++) {
     mcTrees[i]->SetBranchAddress("pileupWeight", &puWeight);
@@ -577,6 +592,10 @@ void TemplateMaker::SetAddresses() {
     mcTrees[i]->SetBranchAddress("leadMatchGamma", &leadMatchGamma);
     mcTrees[i]->SetBranchAddress("leadMatchElectron", &leadMatchElectron);
     mcTrees[i]->SetBranchAddress("leadMatchJet", &leadMatchJet);
+    if(variable != "leadChargedHadronIso") mcTrees[i]->SetBranchAddress("leadChargedHadronIso", &leadChHadIso);
+    if(variable != "trailChargedHadronIso") mcTrees[i]->SetBranchAddress("trailChargedHadronIso", &trailChHadIso);
+    if(variable != "leadSigmaIetaIeta") mcTrees[i]->SetBranchAddress("leadSigmaIetaIeta", &leadSigma);
+    if(variable != "trailSigmaIetaIeta") mcTrees[i]->SetBranchAddress("trailSigmaIetaIeta", &trailSigma);
 
     mcTrees_JECup[i]->SetBranchAddress("pileupWeight", &puWeight);
     mcTrees_JECup[i]->SetBranchAddress("btagWeight", &btagWeight);
@@ -600,6 +619,10 @@ void TemplateMaker::SetAddresses() {
     mcTrees_JECup[i]->SetBranchAddress("leadMatchGamma", &leadMatchGamma);
     mcTrees_JECup[i]->SetBranchAddress("leadMatchElectron", &leadMatchElectron);
     mcTrees_JECup[i]->SetBranchAddress("leadMatchJet", &leadMatchJet);
+    if(variable != "leadChargedHadronIso") mcTrees_JECup[i]->SetBranchAddress("leadChargedHadronIso", &leadChHadIso);
+    if(variable != "trailChargedHadronIso") mcTrees_JECup[i]->SetBranchAddress("trailChargedHadronIso", &trailChHadIso);
+    if(variable != "leadSigmaIetaIeta") mcTrees_JECup[i]->SetBranchAddress("leadSigmaIetaIeta", &leadSigma);
+    if(variable != "trailSigmaIetaIeta") mcTrees_JECup[i]->SetBranchAddress("trailSigmaIetaIeta", &trailSigma);
 
     mcTrees_JECdown[i]->SetBranchAddress("pileupWeight", &puWeight);
     mcTrees_JECdown[i]->SetBranchAddress("btagWeight", &btagWeight);
@@ -623,6 +646,10 @@ void TemplateMaker::SetAddresses() {
     mcTrees_JECdown[i]->SetBranchAddress("leadMatchGamma", &leadMatchGamma);
     mcTrees_JECdown[i]->SetBranchAddress("leadMatchElectron", &leadMatchElectron);
     mcTrees_JECdown[i]->SetBranchAddress("leadMatchJet", &leadMatchJet);
+    if(variable != "leadChargedHadronIso") mcTrees_JECdown[i]->SetBranchAddress("leadChargedHadronIso", &leadChHadIso);
+    if(variable != "trailChargedHadronIso") mcTrees_JECdown[i]->SetBranchAddress("trailChargedHadronIso", &trailChHadIso);
+    if(variable != "leadSigmaIetaIeta") mcTrees_JECdown[i]->SetBranchAddress("leadSigmaIetaIeta", &leadSigma);
+    if(variable != "trailSigmaIetaIeta") mcTrees_JECdown[i]->SetBranchAddress("trailSigmaIetaIeta", &trailSigma);
 
     mcQCDTrees[i]->SetBranchAddress("pileupWeight", &puWeight);
     mcQCDTrees[i]->SetBranchAddress("pileupWeightErr", &puWeightErr);
@@ -651,6 +678,10 @@ void TemplateMaker::SetAddresses() {
     mcQCDTrees[i]->SetBranchAddress("leadPhotonEta", &leadGammaEta);
     mcQCDTrees[i]->SetBranchAddress("trailPhotonEt", &trailGammaEt);
     mcQCDTrees[i]->SetBranchAddress("trailPhotonEta", &trailGammaEta);
+    if(variable != "leadChargedHadronIso") mcQCDTrees[i]->SetBranchAddress("leadChargedHadronIso", &leadChHadIso);
+    if(variable != "trailChargedHadronIso") mcQCDTrees[i]->SetBranchAddress("trailChargedHadronIso", &trailChHadIso);
+    if(variable != "leadSigmaIetaIeta") mcQCDTrees[i]->SetBranchAddress("leadSigmaIetaIeta", &leadSigma);
+    if(variable != "trailSigmaIetaIeta") mcQCDTrees[i]->SetBranchAddress("trailSigmaIetaIeta", &trailSigma);
 
     if(removeWhizardOverlap[i]) {
       mcTrees[i]->SetBranchAddress("overlaps_whizard", &overlaps_whizard);
@@ -758,220 +789,220 @@ void TemplateMaker::BookTemplates() {
   h_qcd_relIso_m10 = (TH1D*)h_qcd->Clone(variable+"_qcd_relIso_m10_"+suffix);
 
   for(unsigned int i = 0; i < mcTrees.size(); i++) {
-  TH1D * h_bkg = new TH1D(variable+"_"+mcNames[i]+"_"+suffix, variable, nBins, xlo, xhi);
-  h_bkg->Sumw2();
-  mcHistograms.push_back(h_bkg);
+    TH1D * h_bkg = new TH1D(variable+"_"+mcNames[i]+"_"+suffix, variable, nBins, xlo, xhi);
+    h_bkg->Sumw2();
+    mcHistograms.push_back(h_bkg);
   
-  TH1D * h_bkg_btagWeightUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_btagWeightUp");
-  mcHistograms_btagWeightUp.push_back(h_bkg_btagWeightUp);
+    TH1D * h_bkg_btagWeightUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_btagWeightUp");
+    mcHistograms_btagWeightUp.push_back(h_bkg_btagWeightUp);
   
-  TH1D * h_bkg_btagWeightDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_btagWeightDown");
-  mcHistograms_btagWeightDown.push_back(h_bkg_btagWeightDown);
+    TH1D * h_bkg_btagWeightDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_btagWeightDown");
+    mcHistograms_btagWeightDown.push_back(h_bkg_btagWeightDown);
   
-  TH1D * h_bkg_puWeightUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_puWeightUp");
-  mcHistograms_puWeightUp.push_back(h_bkg_puWeightUp);
+    TH1D * h_bkg_puWeightUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_puWeightUp");
+    mcHistograms_puWeightUp.push_back(h_bkg_puWeightUp);
   
-  TH1D * h_bkg_puWeightDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_puWeightDown");
-  mcHistograms_puWeightDown.push_back(h_bkg_puWeightDown);
+    TH1D * h_bkg_puWeightDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_puWeightDown");
+    mcHistograms_puWeightDown.push_back(h_bkg_puWeightDown);
   
-  TH1D * h_bkg_scaleUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_scaleUp");
-  mcHistograms_scaleUp.push_back(h_bkg_scaleUp);
+    TH1D * h_bkg_scaleUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_scaleUp");
+    mcHistograms_scaleUp.push_back(h_bkg_scaleUp);
   
-  TH1D * h_bkg_scaleDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_scaleDown");
-  mcHistograms_scaleDown.push_back(h_bkg_scaleDown);
+    TH1D * h_bkg_scaleDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_scaleDown");
+    mcHistograms_scaleDown.push_back(h_bkg_scaleDown);
   
-  TH1D * h_bkg_pdfUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_pdfUp");
-  mcHistograms_pdfUp.push_back(h_bkg_pdfUp);
+    TH1D * h_bkg_pdfUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_pdfUp");
+    mcHistograms_pdfUp.push_back(h_bkg_pdfUp);
   
-  TH1D * h_bkg_pdfDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_pdfDown");
-  mcHistograms_pdfDown.push_back(h_bkg_pdfDown);
+    TH1D * h_bkg_pdfDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_pdfDown");
+    mcHistograms_pdfDown.push_back(h_bkg_pdfDown);
   
-  TH1D * h_bkg_topPtUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_topPtUp");
-  mcHistograms_topPtUp.push_back(h_bkg_topPtUp);
+    TH1D * h_bkg_topPtUp = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_topPtUp");
+    mcHistograms_topPtUp.push_back(h_bkg_topPtUp);
   
-  TH1D * h_bkg_topPtDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_topPtDown");
-  mcHistograms_topPtDown.push_back(h_bkg_topPtDown);
+    TH1D * h_bkg_topPtDown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_topPtDown");
+    mcHistograms_topPtDown.push_back(h_bkg_topPtDown);
   
-  TH1D * h_bkg_JECup = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_JECUp");
-  mcHistograms_JECup.push_back(h_bkg_JECup);
+    TH1D * h_bkg_JECup = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_JECUp");
+    mcHistograms_JECup.push_back(h_bkg_JECup);
   
-  TH1D * h_bkg_JECdown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_JECDown");
-  mcHistograms_JECdown.push_back(h_bkg_JECdown);
+    TH1D * h_bkg_JECdown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_JECDown");
+    mcHistograms_JECdown.push_back(h_bkg_JECdown);
   
-  TH1D * h_bkg_leptonSFup = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_leptonSFUp");
-  mcHistograms_leptonSFup.push_back(h_bkg_leptonSFup);
+    TH1D * h_bkg_leptonSFup = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_leptonSFUp");
+    mcHistograms_leptonSFup.push_back(h_bkg_leptonSFup);
   
-  TH1D * h_bkg_leptonSFdown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_leptonSFDown");
-  mcHistograms_leptonSFdown.push_back(h_bkg_leptonSFdown);
+    TH1D * h_bkg_leptonSFdown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_leptonSFDown");
+    mcHistograms_leptonSFdown.push_back(h_bkg_leptonSFdown);
   
-  TH1D * h_bkg_photonSFup = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_photonSFUp");
-  mcHistograms_photonSFup.push_back(h_bkg_photonSFup);
+    TH1D * h_bkg_photonSFup = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_photonSFUp");
+    mcHistograms_photonSFup.push_back(h_bkg_photonSFup);
   
-  TH1D * h_bkg_photonSFdown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_photonSFDown");
-  mcHistograms_photonSFdown.push_back(h_bkg_photonSFdown);
+    TH1D * h_bkg_photonSFdown = (TH1D*)h_bkg->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_photonSFDown");
+    mcHistograms_photonSFdown.push_back(h_bkg_photonSFdown);
 
-  TH1D * h_bkg_matchPhoton = new TH1D(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton", variable, nBins, xlo, xhi);
-  h_bkg_matchPhoton->Sumw2();
-  mcHistograms_matchPhoton.push_back(h_bkg_matchPhoton);
+    TH1D * h_bkg_matchPhoton = new TH1D(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton", variable, nBins, xlo, xhi);
+    h_bkg_matchPhoton->Sumw2();
+    mcHistograms_matchPhoton.push_back(h_bkg_matchPhoton);
   
-  TH1D * h_bkg_matchPhoton_btagWeightUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_btagWeightUp");
-  mcHistograms_matchPhoton_btagWeightUp.push_back(h_bkg_matchPhoton_btagWeightUp);
+    TH1D * h_bkg_matchPhoton_btagWeightUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_btagWeightUp");
+    mcHistograms_matchPhoton_btagWeightUp.push_back(h_bkg_matchPhoton_btagWeightUp);
   
-  TH1D * h_bkg_matchPhoton_btagWeightDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_btagWeightDown");
-  mcHistograms_matchPhoton_btagWeightDown.push_back(h_bkg_matchPhoton_btagWeightDown);
+    TH1D * h_bkg_matchPhoton_btagWeightDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_btagWeightDown");
+    mcHistograms_matchPhoton_btagWeightDown.push_back(h_bkg_matchPhoton_btagWeightDown);
   
-  TH1D * h_bkg_matchPhoton_puWeightUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_puWeightUp");
-  mcHistograms_matchPhoton_puWeightUp.push_back(h_bkg_matchPhoton_puWeightUp);
+    TH1D * h_bkg_matchPhoton_puWeightUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_puWeightUp");
+    mcHistograms_matchPhoton_puWeightUp.push_back(h_bkg_matchPhoton_puWeightUp);
   
-  TH1D * h_bkg_matchPhoton_puWeightDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_puWeightDown");
-  mcHistograms_matchPhoton_puWeightDown.push_back(h_bkg_matchPhoton_puWeightDown);
+    TH1D * h_bkg_matchPhoton_puWeightDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_puWeightDown");
+    mcHistograms_matchPhoton_puWeightDown.push_back(h_bkg_matchPhoton_puWeightDown);
   
-  TH1D * h_bkg_matchPhoton_scaleUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_scaleUp");
-  mcHistograms_matchPhoton_scaleUp.push_back(h_bkg_matchPhoton_scaleUp);
+    TH1D * h_bkg_matchPhoton_scaleUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_scaleUp");
+    mcHistograms_matchPhoton_scaleUp.push_back(h_bkg_matchPhoton_scaleUp);
   
-  TH1D * h_bkg_matchPhoton_scaleDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_scaleDown");
-  mcHistograms_matchPhoton_scaleDown.push_back(h_bkg_matchPhoton_scaleDown);
+    TH1D * h_bkg_matchPhoton_scaleDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_scaleDown");
+    mcHistograms_matchPhoton_scaleDown.push_back(h_bkg_matchPhoton_scaleDown);
   
-  TH1D * h_bkg_matchPhoton_pdfUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_pdfUp");
-  mcHistograms_matchPhoton_pdfUp.push_back(h_bkg_matchPhoton_pdfUp);
+    TH1D * h_bkg_matchPhoton_pdfUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_pdfUp");
+    mcHistograms_matchPhoton_pdfUp.push_back(h_bkg_matchPhoton_pdfUp);
   
-  TH1D * h_bkg_matchPhoton_pdfDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_pdfDown");
-  mcHistograms_matchPhoton_pdfDown.push_back(h_bkg_matchPhoton_pdfDown);
+    TH1D * h_bkg_matchPhoton_pdfDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_pdfDown");
+    mcHistograms_matchPhoton_pdfDown.push_back(h_bkg_matchPhoton_pdfDown);
   
-  TH1D * h_bkg_matchPhoton_topPtUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_topPtUp");
-  mcHistograms_matchPhoton_topPtUp.push_back(h_bkg_matchPhoton_topPtUp);
+    TH1D * h_bkg_matchPhoton_topPtUp = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_topPtUp");
+    mcHistograms_matchPhoton_topPtUp.push_back(h_bkg_matchPhoton_topPtUp);
   
-  TH1D * h_bkg_matchPhoton_topPtDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_topPtDown");
-  mcHistograms_matchPhoton_topPtDown.push_back(h_bkg_matchPhoton_topPtDown);
+    TH1D * h_bkg_matchPhoton_topPtDown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_topPtDown");
+    mcHistograms_matchPhoton_topPtDown.push_back(h_bkg_matchPhoton_topPtDown);
   
-  TH1D * h_bkg_matchPhoton_JECup = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_JECUp");
-  mcHistograms_matchPhoton_JECup.push_back(h_bkg_matchPhoton_JECup);
+    TH1D * h_bkg_matchPhoton_JECup = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_JECUp");
+    mcHistograms_matchPhoton_JECup.push_back(h_bkg_matchPhoton_JECup);
   
-  TH1D * h_bkg_matchPhoton_JECdown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_JECDown");
-  mcHistograms_matchPhoton_JECdown.push_back(h_bkg_matchPhoton_JECdown);
+    TH1D * h_bkg_matchPhoton_JECdown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_JECDown");
+    mcHistograms_matchPhoton_JECdown.push_back(h_bkg_matchPhoton_JECdown);
   
-  TH1D * h_bkg_matchPhoton_leptonSFup = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_leptonSFUp");
-  mcHistograms_matchPhoton_leptonSFup.push_back(h_bkg_matchPhoton_leptonSFup);
+    TH1D * h_bkg_matchPhoton_leptonSFup = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_leptonSFUp");
+    mcHistograms_matchPhoton_leptonSFup.push_back(h_bkg_matchPhoton_leptonSFup);
   
-  TH1D * h_bkg_matchPhoton_leptonSFdown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_leptonSFDown");
-  mcHistograms_matchPhoton_leptonSFdown.push_back(h_bkg_matchPhoton_leptonSFdown);
+    TH1D * h_bkg_matchPhoton_leptonSFdown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_leptonSFDown");
+    mcHistograms_matchPhoton_leptonSFdown.push_back(h_bkg_matchPhoton_leptonSFdown);
   
-  TH1D * h_bkg_matchPhoton_photonSFup = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_photonSFUp");
-  mcHistograms_matchPhoton_photonSFup.push_back(h_bkg_matchPhoton_photonSFup);
+    TH1D * h_bkg_matchPhoton_photonSFup = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_photonSFUp");
+    mcHistograms_matchPhoton_photonSFup.push_back(h_bkg_matchPhoton_photonSFup);
   
-  TH1D * h_bkg_matchPhoton_photonSFdown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_photonSFDown");
-  mcHistograms_matchPhoton_photonSFdown.push_back(h_bkg_matchPhoton_photonSFdown);
+    TH1D * h_bkg_matchPhoton_photonSFdown = (TH1D*)h_bkg_matchPhoton->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchPhoton"+"_photonSFDown");
+    mcHistograms_matchPhoton_photonSFdown.push_back(h_bkg_matchPhoton_photonSFdown);
 
-  TH1D * h_bkg_matchElectron = new TH1D(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron", variable, nBins, xlo, xhi);
-  h_bkg_matchElectron->Sumw2();
-  mcHistograms_matchElectron.push_back(h_bkg_matchElectron);
+    TH1D * h_bkg_matchElectron = new TH1D(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron", variable, nBins, xlo, xhi);
+    h_bkg_matchElectron->Sumw2();
+    mcHistograms_matchElectron.push_back(h_bkg_matchElectron);
   
-  TH1D * h_bkg_matchElectron_btagWeightUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_btagWeightUp");
-  mcHistograms_matchElectron_btagWeightUp.push_back(h_bkg_matchElectron_btagWeightUp);
+    TH1D * h_bkg_matchElectron_btagWeightUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_btagWeightUp");
+    mcHistograms_matchElectron_btagWeightUp.push_back(h_bkg_matchElectron_btagWeightUp);
   
-  TH1D * h_bkg_matchElectron_btagWeightDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_btagWeightDown");
-  mcHistograms_matchElectron_btagWeightDown.push_back(h_bkg_matchElectron_btagWeightDown);
+    TH1D * h_bkg_matchElectron_btagWeightDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_btagWeightDown");
+    mcHistograms_matchElectron_btagWeightDown.push_back(h_bkg_matchElectron_btagWeightDown);
   
-  TH1D * h_bkg_matchElectron_puWeightUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_puWeightUp");
-  mcHistograms_matchElectron_puWeightUp.push_back(h_bkg_matchElectron_puWeightUp);
+    TH1D * h_bkg_matchElectron_puWeightUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_puWeightUp");
+    mcHistograms_matchElectron_puWeightUp.push_back(h_bkg_matchElectron_puWeightUp);
   
-  TH1D * h_bkg_matchElectron_puWeightDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_puWeightDown");
-  mcHistograms_matchElectron_puWeightDown.push_back(h_bkg_matchElectron_puWeightDown);
+    TH1D * h_bkg_matchElectron_puWeightDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_puWeightDown");
+    mcHistograms_matchElectron_puWeightDown.push_back(h_bkg_matchElectron_puWeightDown);
   
-  TH1D * h_bkg_matchElectron_scaleUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_scaleUp");
-  mcHistograms_matchElectron_scaleUp.push_back(h_bkg_matchElectron_scaleUp);
+    TH1D * h_bkg_matchElectron_scaleUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_scaleUp");
+    mcHistograms_matchElectron_scaleUp.push_back(h_bkg_matchElectron_scaleUp);
   
-  TH1D * h_bkg_matchElectron_scaleDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_scaleDown");
-  mcHistograms_matchElectron_scaleDown.push_back(h_bkg_matchElectron_scaleDown);
+    TH1D * h_bkg_matchElectron_scaleDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_scaleDown");
+    mcHistograms_matchElectron_scaleDown.push_back(h_bkg_matchElectron_scaleDown);
   
-  TH1D * h_bkg_matchElectron_pdfUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_pdfUp");
-  mcHistograms_matchElectron_pdfUp.push_back(h_bkg_matchElectron_pdfUp);
+    TH1D * h_bkg_matchElectron_pdfUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_pdfUp");
+    mcHistograms_matchElectron_pdfUp.push_back(h_bkg_matchElectron_pdfUp);
   
-  TH1D * h_bkg_matchElectron_pdfDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_pdfDown");
-  mcHistograms_matchElectron_pdfDown.push_back(h_bkg_matchElectron_pdfDown);
+    TH1D * h_bkg_matchElectron_pdfDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_pdfDown");
+    mcHistograms_matchElectron_pdfDown.push_back(h_bkg_matchElectron_pdfDown);
   
-  TH1D * h_bkg_matchElectron_topPtUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_topPtUp");
-  mcHistograms_matchElectron_topPtUp.push_back(h_bkg_matchElectron_topPtUp);
+    TH1D * h_bkg_matchElectron_topPtUp = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_topPtUp");
+    mcHistograms_matchElectron_topPtUp.push_back(h_bkg_matchElectron_topPtUp);
   
-  TH1D * h_bkg_matchElectron_topPtDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_topPtDown");
-  mcHistograms_matchElectron_topPtDown.push_back(h_bkg_matchElectron_topPtDown);
+    TH1D * h_bkg_matchElectron_topPtDown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_topPtDown");
+    mcHistograms_matchElectron_topPtDown.push_back(h_bkg_matchElectron_topPtDown);
   
-  TH1D * h_bkg_matchElectron_JECup = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_JECUp");
-  mcHistograms_matchElectron_JECup.push_back(h_bkg_matchElectron_JECup);
+    TH1D * h_bkg_matchElectron_JECup = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_JECUp");
+    mcHistograms_matchElectron_JECup.push_back(h_bkg_matchElectron_JECup);
   
-  TH1D * h_bkg_matchElectron_JECdown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_JECDown");
-  mcHistograms_matchElectron_JECdown.push_back(h_bkg_matchElectron_JECdown);
+    TH1D * h_bkg_matchElectron_JECdown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_JECDown");
+    mcHistograms_matchElectron_JECdown.push_back(h_bkg_matchElectron_JECdown);
   
-  TH1D * h_bkg_matchElectron_leptonSFup = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_leptonSFUp");
-  mcHistograms_matchElectron_leptonSFup.push_back(h_bkg_matchElectron_leptonSFup);
+    TH1D * h_bkg_matchElectron_leptonSFup = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_leptonSFUp");
+    mcHistograms_matchElectron_leptonSFup.push_back(h_bkg_matchElectron_leptonSFup);
   
-  TH1D * h_bkg_matchElectron_leptonSFdown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_leptonSFDown");
-  mcHistograms_matchElectron_leptonSFdown.push_back(h_bkg_matchElectron_leptonSFdown);
+    TH1D * h_bkg_matchElectron_leptonSFdown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_leptonSFDown");
+    mcHistograms_matchElectron_leptonSFdown.push_back(h_bkg_matchElectron_leptonSFdown);
   
-  TH1D * h_bkg_matchElectron_photonSFup = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_photonSFUp");
-  mcHistograms_matchElectron_photonSFup.push_back(h_bkg_matchElectron_photonSFup);
+    TH1D * h_bkg_matchElectron_photonSFup = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_photonSFUp");
+    mcHistograms_matchElectron_photonSFup.push_back(h_bkg_matchElectron_photonSFup);
   
-  TH1D * h_bkg_matchElectron_photonSFdown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_photonSFDown");
-  mcHistograms_matchElectron_photonSFdown.push_back(h_bkg_matchElectron_photonSFdown);
+    TH1D * h_bkg_matchElectron_photonSFdown = (TH1D*)h_bkg_matchElectron->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchElectron"+"_photonSFDown");
+    mcHistograms_matchElectron_photonSFdown.push_back(h_bkg_matchElectron_photonSFdown);
 
-  TH1D * h_bkg_matchJet = new TH1D(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet", variable, nBins, xlo, xhi);
-  h_bkg_matchJet->Sumw2();
-  mcHistograms_matchJet.push_back(h_bkg_matchJet);
+    TH1D * h_bkg_matchJet = new TH1D(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet", variable, nBins, xlo, xhi);
+    h_bkg_matchJet->Sumw2();
+    mcHistograms_matchJet.push_back(h_bkg_matchJet);
   
-  TH1D * h_bkg_matchJet_btagWeightUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_btagWeightUp");
-  mcHistograms_matchJet_btagWeightUp.push_back(h_bkg_matchJet_btagWeightUp);
+    TH1D * h_bkg_matchJet_btagWeightUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_btagWeightUp");
+    mcHistograms_matchJet_btagWeightUp.push_back(h_bkg_matchJet_btagWeightUp);
   
-  TH1D * h_bkg_matchJet_btagWeightDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_btagWeightDown");
-  mcHistograms_matchJet_btagWeightDown.push_back(h_bkg_matchJet_btagWeightDown);
+    TH1D * h_bkg_matchJet_btagWeightDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_btagWeightDown");
+    mcHistograms_matchJet_btagWeightDown.push_back(h_bkg_matchJet_btagWeightDown);
   
-  TH1D * h_bkg_matchJet_puWeightUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_puWeightUp");
-  mcHistograms_matchJet_puWeightUp.push_back(h_bkg_matchJet_puWeightUp);
+    TH1D * h_bkg_matchJet_puWeightUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_puWeightUp");
+    mcHistograms_matchJet_puWeightUp.push_back(h_bkg_matchJet_puWeightUp);
   
-  TH1D * h_bkg_matchJet_puWeightDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_puWeightDown");
-  mcHistograms_matchJet_puWeightDown.push_back(h_bkg_matchJet_puWeightDown);
+    TH1D * h_bkg_matchJet_puWeightDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_puWeightDown");
+    mcHistograms_matchJet_puWeightDown.push_back(h_bkg_matchJet_puWeightDown);
   
-  TH1D * h_bkg_matchJet_scaleUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_scaleUp");
-  mcHistograms_matchJet_scaleUp.push_back(h_bkg_matchJet_scaleUp);
+    TH1D * h_bkg_matchJet_scaleUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_scaleUp");
+    mcHistograms_matchJet_scaleUp.push_back(h_bkg_matchJet_scaleUp);
   
-  TH1D * h_bkg_matchJet_scaleDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_scaleDown");
-  mcHistograms_matchJet_scaleDown.push_back(h_bkg_matchJet_scaleDown);
+    TH1D * h_bkg_matchJet_scaleDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_scaleDown");
+    mcHistograms_matchJet_scaleDown.push_back(h_bkg_matchJet_scaleDown);
   
-  TH1D * h_bkg_matchJet_pdfUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_pdfUp");
-  mcHistograms_matchJet_pdfUp.push_back(h_bkg_matchJet_pdfUp);
+    TH1D * h_bkg_matchJet_pdfUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_pdfUp");
+    mcHistograms_matchJet_pdfUp.push_back(h_bkg_matchJet_pdfUp);
   
-  TH1D * h_bkg_matchJet_pdfDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_pdfDown");
-  mcHistograms_matchJet_pdfDown.push_back(h_bkg_matchJet_pdfDown);
+    TH1D * h_bkg_matchJet_pdfDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_pdfDown");
+    mcHistograms_matchJet_pdfDown.push_back(h_bkg_matchJet_pdfDown);
   
-  TH1D * h_bkg_matchJet_topPtUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_topPtUp");
-  mcHistograms_matchJet_topPtUp.push_back(h_bkg_matchJet_topPtUp);
+    TH1D * h_bkg_matchJet_topPtUp = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_topPtUp");
+    mcHistograms_matchJet_topPtUp.push_back(h_bkg_matchJet_topPtUp);
   
-  TH1D * h_bkg_matchJet_topPtDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_topPtDown");
-  mcHistograms_matchJet_topPtDown.push_back(h_bkg_matchJet_topPtDown);
+    TH1D * h_bkg_matchJet_topPtDown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_topPtDown");
+    mcHistograms_matchJet_topPtDown.push_back(h_bkg_matchJet_topPtDown);
   
-  TH1D * h_bkg_matchJet_JECup = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_JECUp");
-  mcHistograms_matchJet_JECup.push_back(h_bkg_matchJet_JECup);
+    TH1D * h_bkg_matchJet_JECup = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_JECUp");
+    mcHistograms_matchJet_JECup.push_back(h_bkg_matchJet_JECup);
   
-  TH1D * h_bkg_matchJet_JECdown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_JECDown");
-  mcHistograms_matchJet_JECdown.push_back(h_bkg_matchJet_JECdown);
+    TH1D * h_bkg_matchJet_JECdown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_JECDown");
+    mcHistograms_matchJet_JECdown.push_back(h_bkg_matchJet_JECdown);
   
-  TH1D * h_bkg_matchJet_leptonSFup = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_leptonSFUp");
-  mcHistograms_matchJet_leptonSFup.push_back(h_bkg_matchJet_leptonSFup);
+    TH1D * h_bkg_matchJet_leptonSFup = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_leptonSFUp");
+    mcHistograms_matchJet_leptonSFup.push_back(h_bkg_matchJet_leptonSFup);
   
-  TH1D * h_bkg_matchJet_leptonSFdown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_leptonSFDown");
-  mcHistograms_matchJet_leptonSFdown.push_back(h_bkg_matchJet_leptonSFdown);
+    TH1D * h_bkg_matchJet_leptonSFdown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_leptonSFDown");
+    mcHistograms_matchJet_leptonSFdown.push_back(h_bkg_matchJet_leptonSFdown);
   
-  TH1D * h_bkg_matchJet_photonSFup = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_photonSFUp");
-  mcHistograms_matchJet_photonSFup.push_back(h_bkg_matchJet_photonSFup);
+    TH1D * h_bkg_matchJet_photonSFup = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_photonSFUp");
+    mcHistograms_matchJet_photonSFup.push_back(h_bkg_matchJet_photonSFup);
   
-  TH1D * h_bkg_matchJet_photonSFdown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_photonSFDown");
-  mcHistograms_matchJet_photonSFdown.push_back(h_bkg_matchJet_photonSFdown);
+    TH1D * h_bkg_matchJet_photonSFdown = (TH1D*)h_bkg_matchJet->Clone(variable+"_"+mcNames[i]+"_"+suffix+"_matchJet"+"_photonSFDown");
+    mcHistograms_matchJet_photonSFdown.push_back(h_bkg_matchJet_photonSFdown);
 
-  h_bkg = new TH1D(variable+"_qcd_"+mcNames[i]+"_"+suffix, variable, nBins, xlo, xhi);
-  h_bkg->Sumw2();
-  mcQCDHistograms.push_back(h_bkg);
+    h_bkg = new TH1D(variable+"_qcd_"+mcNames[i]+"_"+suffix, variable, nBins, xlo, xhi);
+    h_bkg->Sumw2();
+    mcQCDHistograms.push_back(h_bkg);
   
-  mcQCDHistograms_relIso_10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+suffix));
-  mcQCDHistograms_relIso_m10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_m10_"+mcNames[i]+"_"+suffix));
+    mcQCDHistograms_relIso_10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_10_"+mcNames[i]+"_"+suffix));
+    mcQCDHistograms_relIso_m10.push_back((TH1D*)h_bkg->Clone(variable+"_qcd_relIso_m10_"+mcNames[i]+"_"+suffix));
   }
 
 }
@@ -984,8 +1015,22 @@ void TemplateMaker::FillData() {
     if(!inControlRegion()) continue;
 
     if(variable == "pfMET_t01") met = value;
+    if(variable == "leadChargedHadronIso") leadChHadIso = value;
+    if(variable == "leadSigmaIetaIeta") leadSigma = value;
+    if(variable == "trailChargedHadronIso") trailChHadIso = value;
+    if(variable == "trailSigmaIetaIeta") trailSigma = value;
+
     if(metCut > 0. && met < metCut) continue;
-    
+
+    if(cutSigma) {
+      if(Nphotons == 1 && leadSigma >= 0.012) continue;
+      if(Nphotons >= 2 && (leadSigma >= 0.012 || trailSigma >= 0.012)) continue;
+    }
+    if(cutChHadIso) {
+      if(Nphotons == 1 && leadChHadIso >= 2.6) continue;
+      if(Nphotons >= 2 && (leadChHadIso >= 2.6 || trailChHadIso >= 2.6)) continue;
+    }
+
     h_gg->Fill(value);
 
   }
@@ -1002,7 +1047,21 @@ void TemplateMaker::FillQCD() {
     if(!inControlRegion()) continue;
 
     if(variable == "pfMET_t01") met = value;
+    if(variable == "leadChargedHadronIso") leadChHadIso = value;
+    if(variable == "leadSigmaIetaIeta") leadSigma = value;
+    if(variable == "trailChargedHadronIso") trailChHadIso = value;
+    if(variable == "trailSigmaIetaIeta") trailSigma = value;
+
     if(metCut > 0. && met < metCut) continue;
+
+    if(cutSigma) {
+      if(Nphotons == 1 && leadSigma >= 0.012) continue;
+      if(Nphotons >= 2 && (leadSigma >= 0.012 || trailSigma >= 0.012)) continue;
+    }
+    if(cutChHadIso) {
+      if(Nphotons == 1 && leadChHadIso >= 2.6) continue;
+      if(Nphotons >= 2 && (leadChHadIso >= 2.6 || trailChHadIso >= 2.6)) continue;
+    }
 
     if(relIso > 0.25) h_qcd->Fill(value); // central
 
@@ -1031,7 +1090,21 @@ void TemplateMaker::FillMCBackgrounds() {
       if(!inControlRegion()) continue;
       
       if(variable == "pfMET_t01") met = value;
+      if(variable == "leadChargedHadronIso") leadChHadIso = value;
+      if(variable == "leadSigmaIetaIeta") leadSigma = value;
+      if(variable == "trailChargedHadronIso") trailChHadIso = value;
+      if(variable == "trailSigmaIetaIeta") trailSigma = value;
+
       if(metCut > 0. && met < metCut) continue;
+
+      if(cutSigma) {
+	if(Nphotons == 1 && leadSigma >= 0.012) continue;
+	if(Nphotons >= 2 && (leadSigma >= 0.012 || trailSigma >= 0.012)) continue;
+      }
+      if(cutChHadIso) {
+	if(Nphotons == 1 && leadChHadIso >= 2.6) continue;
+	if(Nphotons >= 2 && (leadChHadIso >= 2.6 || trailChHadIso >= 2.6)) continue;
+      }
 
       if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
       if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
@@ -1264,7 +1337,21 @@ void TemplateMaker::FillMCBackgrounds() {
       if(!inControlRegion()) continue;
       
       if(variable == "pfMET_t01") met = value;
+      if(variable == "leadChargedHadronIso") leadChHadIso = value;
+      if(variable == "leadSigmaIetaIeta") leadSigma = value;
+      if(variable == "trailChargedHadronIso") trailChHadIso = value;
+      if(variable == "trailSigmaIetaIeta") trailSigma = value;
+
       if(metCut > 0. && met < metCut) continue;
+
+      if(cutSigma) {
+	if(Nphotons == 1 && leadSigma >= 0.012) continue;
+	if(Nphotons >= 2 && (leadSigma >= 0.012 || trailSigma >= 0.012)) continue;
+      }
+      if(cutChHadIso) {
+	if(Nphotons == 1 && leadChHadIso >= 2.6) continue;
+	if(Nphotons >= 2 && (leadChHadIso >= 2.6 || trailChHadIso >= 2.6)) continue;
+      }
 
       if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
       if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
@@ -1299,7 +1386,21 @@ void TemplateMaker::FillMCBackgrounds() {
       if(!inControlRegion()) continue;
       
       if(variable == "pfMET_t01") met = value;
+      if(variable == "leadChargedHadronIso") leadChHadIso = value;
+      if(variable == "leadSigmaIetaIeta") leadSigma = value;
+      if(variable == "trailChargedHadronIso") trailChHadIso = value;
+      if(variable == "trailSigmaIetaIeta") trailSigma = value;
+
       if(metCut > 0. && met < metCut) continue;
+
+      if(cutSigma) {
+	if(Nphotons == 1 && leadSigma >= 0.012) continue;
+	if(Nphotons >= 2 && (leadSigma >= 0.012 || trailSigma >= 0.012)) continue;
+      }
+      if(cutChHadIso) {
+	if(Nphotons == 1 && leadChHadIso >= 2.6) continue;
+	if(Nphotons >= 2 && (leadChHadIso >= 2.6 || trailChHadIso >= 2.6)) continue;
+      }
 
       if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
       if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
@@ -1334,7 +1435,21 @@ void TemplateMaker::FillMCBackgrounds() {
       if(!inControlRegion()) continue;
 
       if(variable == "pfMET_t01") met = value;
+      if(variable == "leadChargedHadronIso") leadChHadIso = value;
+      if(variable == "leadSigmaIetaIeta") leadSigma = value;
+      if(variable == "trailChargedHadronIso") trailChHadIso = value;
+      if(variable == "trailSigmaIetaIeta") trailSigma = value;
+
       if(metCut > 0. && met < metCut) continue;
+
+      if(cutSigma) {
+	if(Nphotons == 1 && leadSigma >= 0.012) continue;
+	if(Nphotons >= 2 && (leadSigma >= 0.012 || trailSigma >= 0.012)) continue;
+      }
+      if(cutChHadIso) {
+	if(Nphotons == 1 && leadChHadIso >= 2.6) continue;
+	if(Nphotons >= 2 && (leadChHadIso >= 2.6 || trailChHadIso >= 2.6)) continue;
+      }
 
       if(removeWhizardOverlap[i] && overlaps_whizard > 0.001) continue;
       if(removeMadgraphOverlap[i] && overlaps_madgraph > 0.001) continue;
