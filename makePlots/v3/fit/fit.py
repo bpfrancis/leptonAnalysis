@@ -594,13 +594,13 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_t
     (topInt, topIntError) = integrateError(topHist, xlo, xhi)
     (ttgammaInt, ttgammaIntError) = integrateError(ttgammaHist, xlo, xhi)
 
-    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, topHist, ttgammaHist, dataHist)
+    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, ttgammaHist, topHist, dataHist)
 
-    topSF = fitFrac * dataInt / topInt
-    topSFerror = topSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (topIntError/topInt)**2 )**0.5
+    ttgammaSF = fitFrac * dataInt / ttgammaInt
+    ttgammaSFerror = ttgammaSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (ttgammaIntError/ttgammaInt)**2 )**0.5
 
-    ttgammaSF = (1.0-fitFrac) * dataInt / ttgammaInt
-    ttgammaSFerror = ttgammaSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (ttgammaIntError/ttgammaInt)**2 )**0.5
+    topSF = (1.0-fitFrac) * dataInt / topInt
+    topSFerror = topSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (topIntError/topInt)**2 )**0.5
 
     if systematic == '':
         output_ttbar.write('central\t'+
@@ -619,7 +619,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_t
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
-        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots(dataHist, ttgammaHist, ttgammaSF, 't#bar{t} + Jets', topHist, topSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_ttbar.write(systematic+'\t'+
                            str(topSF)+'\t'+
