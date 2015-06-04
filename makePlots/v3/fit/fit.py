@@ -319,13 +319,25 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     (topInt, topIntError) = integrateError(topHist, xlo, xhi)
     (ttgammaInt, ttgammaIntError) = integrateError(ttgammaHist, xlo, xhi)
 
-    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, topHist, ttgammaHist, dataHist)
+    regularCut = 0.012
+    if varName == 'leadChargedHadronIso':
+        regularCut = 2.6
+    (dataInt_passCut, dataIntError_passCut) = integrateAndError(dataHist, 0, regularCut)
+    (topInt_passCut, topIntError_passCut) = integrateError(topHist, 0, regularCut)
+    (ttgammaInt_passCut, ttgammaIntError_passCut) = integrateError(ttgammaHist, 0, regularCut)
 
-    topSF = fitFrac * dataInt / topInt
-    topSFerror = topSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (topIntError/topInt)**2 )**0.5
+    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, ttgammaHist, topHist, dataHist)
 
-    ttgammaSF = (1.0-fitFrac) * dataInt / ttgammaInt
-    ttgammaSFerror = ttgammaSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (ttgammaIntError/ttgammaInt)**2 )**0.5
+    ttgammaSF = fitFrac * dataInt / ttgammaInt
+    ttgammaSFerror = ttgammaSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (ttgammaIntError/ttgammaInt)**2 )**0.5
+
+    topSF = (1.0-fitFrac) * dataInt / topInt
+    topSFerror = topSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (topIntError/topInt)**2 )**0.5
+
+    purity = ttgammaSF * ttgammaInt_passCut / (ttgammaSF * ttgammaInt_passCut + topSF * topInt_passCut)
+    purityError = ttgammaSFerror*ttgammaSFerror/ttgammaSF/ttgammaSF + topSFerror*topSFerror/topSF/topSF + ttgammaIntError_passCut*ttgammaIntError_passCut/ttgammaInt_passCut/ttgammaInt_passCut + topIntError_passCut*topIntError_passCut/topInt_passCut/topInt_passCut
+    purityError = math.sqrt(purityError) * topSF * topInt_passCut
+    purityError = purityError / (ttgammaSF * ttgammaInt_passCut + topSF * topInt_passCut)
 
     if systematic == '':
         output_ttbar.write('central\t'+
@@ -337,14 +349,14 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
                              str(ttgammaSFerror)+'\n')
 
         output_purity.write('central\t'+
-                            str(1.0-fitFrac)+'\t'+
-                            str(fitFracErr)+'\n')
+                            str(purity)+'\t'+
+                            str(purityError)+'\n')
 
         xaxisLabel = '#sigma_{i#eta i#eta}'
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
-        drawPlots(dataHist, topHist, topSF, 't#bar{t} + Jets', ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots(dataHist, ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', topHist, topSF, 't#bar{t} + Jets', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_ttbar.write(systematic+'\t'+
                            str(topSF)+'\t'+

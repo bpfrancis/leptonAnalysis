@@ -21,18 +21,18 @@ void makeTemplates() {
 
   // sigma fit -- leadSigmaIetaIeta in 'sigmaPlot', bjj, matching, with and without MET cut of 50
   //Float_t metCut = -1.0, , bool cutOnSigma = false, bool cutOnChHadIso = false)
-  CreateTemplates(input_ele, "leadSigmaIetaIeta", kSigmaPlot, "ele_bjj", 80, 0., 0.04, -1.0, true, false);
-  CreateTemplates(input_muon, "leadSigmaIetaIeta", kSigmaPlot, "muon_bjj", 80, 0., 0.04, -1.0, true, false);
+  CreateTemplates(input_ele, "leadSigmaIetaIeta", kSigmaPlot, "ele_bjj", 80, 0., 0.04, -1.0, false, true);
+  CreateTemplates(input_muon, "leadSigmaIetaIeta", kSigmaPlot, "muon_bjj", 80, 0., 0.04, -1.0, false, true);
 
-  CreateTemplates(input_ele, "leadSigmaIetaIeta", kSigmaPlot, "ele_bjj", 80, 0., 0.04, 50.0, true, false);
-  CreateTemplates(input_muon, "leadSigmaIetaIeta", kSigmaPlot, "muon_bjj", 80, 0., 0.04, 50.0, true, false);
+  CreateTemplates(input_ele, "leadSigmaIetaIeta", kSigmaPlot, "ele_bjj", 80, 0., 0.04, 50.0, false, true);
+  CreateTemplates(input_muon, "leadSigmaIetaIeta", kSigmaPlot, "muon_bjj", 80, 0., 0.04, 50.0, false, true);
 
   // chHadIso fit -- leadChargedHadronIso in 'sigmaPlot', bjj, matching, with and without MET cut of 50
   //Float_t metCut = -1.0, , bool cutOnSigma = false, bool cutOnChHadIso = false) {
-  CreateTemplates(input_ele, "leadChargedHadronIso", kSigmaPlot, "ele_bjj", 110, -2.0, 20.0, -1.0, false, true);
-  CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0, -1.0, false, true);
+  CreateTemplates(input_ele, "leadChargedHadronIso", kSigmaPlot, "ele_bjj", 110, -2.0, 20.0, -1.0, true, false);
+  CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0, -1.0, true, false);
 
-  CreateTemplates(input_ele, "leadChargedHadronIso", kSigmaPlot, "ele_bjj", 110, -2.0, 20.0, 50.0, false, true);
-  CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0, 50.0, false, true);
+  CreateTemplates(input_ele, "leadChargedHadronIso", kSigmaPlot, "ele_bjj", 110, -2.0, 20.0, 50.0, true, false);
+  CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0, 50.0, true, false);
 
 }
