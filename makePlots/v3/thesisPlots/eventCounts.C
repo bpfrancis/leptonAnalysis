@@ -38,9 +38,11 @@ void eventCounts() {
 			   "VV, V#gamma", "do not draw", "t#bar{t} + V", "do not draw", "t#bar{t} + #gamma"};
   int bkgColors[10] = {kSpring-6, kGray, kOrange-3, kYellow, kRed, kViolet-2, kAzure-2, kCyan, kOrange-5, 8};
 
-  TString channels[6] = {"ele_Any", "muon_Any",
-			 "ele_SR1", "muon_SR1",
-			 "ele_SR2", "muon_SR2"};
+  TString channels[10] = {"ele_Any", "muon_Any",
+			  "ele_SR1", "muon_SR1",
+			  "ele_SR2", "muon_SR2",
+			  "ele_CR1", "muon_CR1",
+			  "ele_CR2", "muon_CR2"};
 
   TFile * input = new TFile("../limitInputs_bjj.root", "READ");
 
@@ -75,7 +77,7 @@ void eventCounts() {
   TH1D * nphoMuonSigb = new TH1D("npho_muon_sigb", "npho_muon_sigb", 3, 0, 3);
   nphoMuonSigb->Sumw2();
 
-  for(int i = 0; i < 6; i++) {
+  for(int i = 0; i < 10; i++) {
 
     TH1D * h = (TH1D*)input->Get(channels[i]+"/data_obs");
     value = h->IntegralAndError(0, -1, error);
