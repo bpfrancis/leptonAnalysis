@@ -100,53 +100,53 @@ for channel in channels:
     # Now calculate TTGamma sf in kSigmaPlot for lead sigma ieta ieta
     # using the M3 results above, and just normalizing QCD in MET < 20
 
-    ttbarResults_sigma = []
-    ttgammaResults_sigma = []
+    jetResults_sigma = []
+    photonResults_sigma = []
 
-    output_ttjets = open('ttbarSF_sigma_'+channel+'.txt', 'w')
-    output_ttjets.write('systematic\tSF\tError\n')
+    output_jetBkg = open('jetBkgSF_sigma_'+channel+'.txt', 'w')
+    output_jetBkg.write('systematic\tSF\tError\n')
 
-    output_ttgamma = open('ttgammaSF_sigma_'+channel+'.txt', 'w')
-    output_ttgamma.write('systematic\tSF\tError\n')
+    output_photonSig = open('photonSigSF_sigma_'+channel+'.txt', 'w')
+    output_photonSig.write('systematic\tSF\tError\n')
 
     output_purity = open('photonPurity_sigma_'+channel+'.txt', 'w')
     output_purity.write('systematic\tSF\tError\n')
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_ttjets, output_ttgamma, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 500, False)
-        ttbarResults_sigma.append((topSF, topSFerror))
-        ttgammaResults_sigma.append((ttgammaSF, ttgammaSFerror))
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 500, False)
+        jetResults_sigma.append((jetSF, jetSFerror))
+        photonResults_sigma.append((photonSF, photonSFerror))
         isyst += 1
 
-    output_ttjets.close()
-    output_ttgamma.close()
+    output_jetBkg.close()
+    output_photonSig.close()
     output_purity.close()
 
     # Now calculate TTGamma sf in kSigmaPlot for charged hadron isolation
     # using the M3 results above, and just normalizing QCD in MET < 20
 
-    ttbarResults_chHadIso = []
-    ttgammaResults_chHadIso = []
+    jetResults_chHadIso = []
+    photonResults_chHadIso = []
 
-    output_ttjets = open('ttbarSF_chHadIso_'+channel+'.txt', 'w')
-    output_ttjets.write('systematic\tSF\tError\n')
+    output_jetBkg = open('jetBkgSF_chHadIso_'+channel+'.txt', 'w')
+    output_jetBkg.write('systematic\tSF\tError\n')
 
-    output_ttgamma = open('ttgammaSF_chHadIso_'+channel+'.txt', 'w')
-    output_ttgamma.write('systematic\tSF\tError\n')
+    output_photonSig = open('photonSigSF_chHadIso_'+channel+'.txt', 'w')
+    output_photonSig.write('systematic\tSF\tError\n')
 
     output_purity = open('photonPurity_chHadIso_'+channel+'.txt', 'w')
     output_purity.write('systematic\tSF\tError\n')
 
     isyst = 0
     for systematic in systematics:
-        (topSF, topSFerror, ttgammaSF, ttgammaSFerror) = doSigmaFitWithMatching('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_ttjets, output_ttgamma, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 2, 2e3, True)
-        ttbarResults_chHadIso.append((topSF, topSFerror))
-        ttgammaResults_chHadIso.append((ttgammaSF, ttgammaSFerror))
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 2, 2e3, True)
+        jetResults_sigma.append((jetSF, jetSFerror))
+        photonResults_sigma.append((photonSF, photonSFerror))
         isyst += 1
 
-    output_ttjets.close()
-    output_ttgamma.close()
+    output_jetBkg.close()
+    output_photonSig.close()
     output_purity.close()
 
     ichan += 1

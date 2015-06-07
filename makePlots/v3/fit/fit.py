@@ -536,7 +536,7 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi, axisMin,
 
     return (zSF, zSFerror)
 
-def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_ttbar, output_ttgamma, output_purity, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, axisMin, axisMax, doLogy):
+def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_jet, output_photon, output_purity, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, axisMin, axisMax, doLogy):
 
     (wjetsSF, wjetsSFerror) = wjetsResults
     (topM3sf, topM3sfError) = topM3Results
@@ -559,14 +559,21 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_t
 
     dataHist = get1DHist(input, varName+'_gg_'+channel)
 
-    topHist = get1DHist(input, varName+'_ttJetsHadronic_'+channel+systName)
-    topHist.Add(get1DHist(input, varName+'_ttJetsFullLep_'+channel+systName))
-    topHist.Add(get1DHist(input, varName+'_ttJetsSemiLep_'+channel+systName))
-    ScaleWithError(topHist, topM3sf, topM3sfError)
-    topHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchElectron'+systName))
-    topHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchJet'+systName))
+    photonHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchPhoton'+systName)
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchElectron'+systName))
+    ScaleWithError(photonHist, topM3sf, topM3sfError)
+    photonHist.Add(get1DHist(inputMatched, varName+'TTGamma'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'TTGamma'+channel+'_metCut_50_matchElectron'+systName))
 
-    ttgammaHist = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchPhoton'+systName)
+    jetHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchJet'+systName)
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchJet'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchJet'+systName))
+    ScaleWithError(jetHist, topM3sf, topM3sfError)
+    photonHist.Add(get1DHist(inputMatched, varName+'TTGamma'+channel+'_metCut_50_matchJet'+systName))
 
     bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systName)
     bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
@@ -598,30 +605,30 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_t
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
     
     dataHist.Add(bkgHist, -1.0)
-    dataHist.Add(qcdHist, -1.0)
+    #dataHist.Add(qcdHist, -1.0)
     dataHist.Add(wjetsHist, -1.0)
     dataHist.Add(zHist, -1.0)
 
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
-    (topInt, topIntError) = integrateError(topHist, xlo, xhi)
-    (ttgammaInt, ttgammaIntError) = integrateError(ttgammaHist, xlo, xhi)
+    (jetInt, jetIntError) = integrateError(jetHist, xlo, xhi)
+    (photonInt, photonIntError) = integrateError(photonHist, xlo, xhi)
 
-    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, ttgammaHist, topHist, dataHist)
+    (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, photonHist, jetHist, dataHist)
 
-    ttgammaSF = fitFrac * dataInt / ttgammaInt
-    ttgammaSFerror = ttgammaSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (ttgammaIntError/ttgammaInt)**2 )**0.5
+    photonSF = fitFrac * dataInt / photonInt
+    photonSFerror = photonSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (photonIntError/photonInt)**2 )**0.5
 
-    topSF = (1.0-fitFrac) * dataInt / topInt
-    topSFerror = topSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (topIntError/topInt)**2 )**0.5
+    jetSF = (1.0-fitFrac) * dataInt / jetInt
+    jetSFerror = jetSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (jetIntError/jetInt)**2 )**0.5
 
     if systematic == '':
-        output_ttbar.write('central\t'+
-                           str(topSF)+'\t'+
-                           str(topSFerror)+'\n')
+        output_jet.write('central\t'+
+                           str(jetSF)+'\t'+
+                           str(jetSFerror)+'\n')
 
-        output_ttgamma.write('central\t'+
-                             str(ttgammaSF)+'\t'+
-                             str(ttgammaSFerror)+'\n')
+        output_photon.write('central\t'+
+                             str(photonSF)+'\t'+
+                             str(photonSFerror)+'\n')
 
         output_purity.write('central\t'+
                             str(fitFrac)+'\t'+
@@ -631,18 +638,18 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_t
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
-        drawPlots(dataHist, ttgammaHist, ttgammaSF, 't#bar{t} + #gamma', topHist, topSF, 't#bar{t} + Jets', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots(dataHist, photonHist, photonSF, 't#bar{t} + #gamma', jetHist, jetSF, 't#bar{t} + Jets', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
-        output_ttbar.write(systematic+'\t'+
-                           str(topSF)+'\t'+
-                           str(topSFerror)+'\n')
+        output_jet.write(systematic+'\t'+
+                           str(jetSF)+'\t'+
+                           str(jetSFerror)+'\n')
 
-        output_ttgamma.write(systematic+'\t'+
-                             str(ttgammaSF)+'\t'+
-                             str(ttgammaSFerror)+'\n')
+        output_photon.write(systematic+'\t'+
+                             str(photonSF)+'\t'+
+                             str(photonSFerror)+'\n')
 
         output_purity.write(systematic+'\t'+
                             str(1.0-fitFrac)+'\t'+
                             str(fitFracErr)+'\n')
 
-    return (topSF, topSFerror, ttgammaSF, ttgammaSFerror)
+    return (jetSF, jetSFerror, photonSF, photonSFerror)
