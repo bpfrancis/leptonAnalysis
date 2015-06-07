@@ -566,14 +566,14 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchElectron'+systName))
     photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchElectron'+systName))
     ScaleWithError(photonHist, topM3sf, topM3sfError)
-    photonHist.Add(get1DHist(inputMatched, varName+'TTGamma'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'TTGamma'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchElectron'+systName))
 
     jetHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchJet'+systName)
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchJet'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchJet'+systName))
     ScaleWithError(jetHist, topM3sf, topM3sfError)
-    photonHist.Add(get1DHist(inputMatched, varName+'TTGamma'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchJet'+systName))
 
     bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systName)
     bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
@@ -620,6 +620,37 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
 
     jetSF = (1.0-fitFrac) * dataInt / jetInt
     jetSFerror = jetSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (jetIntError/jetInt)**2 )**0.5
+
+    # purity measurement
+
+    regularCut = 0.012
+    if varName == 'leadChargedHadronIso':
+        regularCut = 2.6
+
+    jetHistScaled = jetHist.Clone('jetHistScaled')
+    ScaleWithError(jetHistScaled, jetSF, jetSFerror)
+
+    photonHistScale = photonHist.Clone('photonHistScaled')
+    ScaleWithError(photonHistScaled, photonSF, photonSFerror)
+
+    (nJetMC, nJetMCErr) = integrateAndError(jetHist, 0, regularCut)
+    (nJetData, nJetDataErr) = integrateAndError(jetHistScaled, 0, regularCut)
+
+    (nPhotonMC, nPhotonMCErr) = integrateAndError(photonHist, 0, regularCut)
+    (nPhotonData, nPhotonDataErr) = integrateAndError(photonHistScaled, 0, regularCut)
+        
+    purityMC = nPhotonMC / (nPhotonMC + nJetMC)
+    purityMCError = math.sqrt(nPhotonMCErr*nPhotonMCErr/nPhotonMC/nPhotonMC + nJetMCErr*nJetMCErr/nJetMC/nJetMC)
+    purityMCError = nPhotonMC*nJetMC*purityMCError/(nPhotonMC + nJetMC)/(nPhotonMC + nJetMC)
+
+    purityData = nPhotonData / (nPhotonData + nJetData)
+    purityDataError = math.sqrt(nPhotonDataErr*nPhotonDataErr/nPhotonData/nPhotonData + nJetDataErr*nJetDataErr/nJetData/nJetData)
+    purityDataError = nPhotonData*nJetData*purityDataError/(nPhotonData + nJetData)/(nPhotonData + nJetData)
+
+    print '\n\n\nHEY YOU GUYS:\n'
+    print 'purity in MC   = ', purityMC, ' +/- ', purityMCError
+    print 'purity in Data = ', purityData, ' +/- ', purityDataError
+    print '\n\n\n'
 
     if systematic == '':
         output_jet.write('central\t'+
