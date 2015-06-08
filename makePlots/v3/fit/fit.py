@@ -710,6 +710,15 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
+        if varName == 'leadSigmaIetaIeta':
+            dataHist.Rebin(2)
+            photonHist.Rebin(2)
+            jetHist.Rebin(2)
+        if varName == 'leadChargedHadronIso':
+            dataHist.Rebin(4)
+            photonHist.Rebin(4)
+            jetHist.Rebin(4)
+
         drawPlots(dataHist, photonHist, photonSF, 'Prompt #gamma', jetHist, jetSF, 'Background', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_jet.write(systematic+'\t'+
