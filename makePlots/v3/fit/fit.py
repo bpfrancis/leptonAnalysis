@@ -322,7 +322,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     regularCut = 0.012
     if varName == 'leadChargedHadronIso':
         regularCut = 2.6
-    (dataInt_passCut, dataIntError_passCut) = integrateAndError(dataHist, 0, regularCut)
+    (dataInt_passCut, dataIntError_passCut) = integrateError(dataHist, 0, regularCut)
     (topInt_passCut, topIntError_passCut) = integrateError(topHist, 0, regularCut)
     (ttgammaInt_passCut, ttgammaIntError_passCut) = integrateError(ttgammaHist, 0, regularCut)
 
@@ -543,7 +543,6 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     (dilepSF, dilepSFerror) = dilepResults
     (eleFakeRateSF, eleFakeRateSFerror) = eleFakeRateResults
 
-
     inputMatched = '../fitTemplates.root'
     input = '../histograms_'+channel+'_'+controlRegion+'.root'
 
@@ -566,49 +565,89 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchElectron'+systName))
     photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchElectron'+systName))
     ScaleWithError(photonHist, topM3sf, topM3sfError)
+
     photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_metCut_50_matchPhoton'+systName))
+
     photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_metCut_50_matchElectron'+systName))
+
+    wjetsHist = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_metCut_50_matchPhoton'+systName)
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_metCut_50_matchPhoton'+systName))
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_metCut_50_matchElectron'+systName))
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_metCut_50_matchElectron'+systName))
+    ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
+    photonHist.Add(wjetsHist)
+
+    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName)
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_metCut_50_matchElectron'+systName))
+    ScaleWithError(zHist, dilepSF, dilepSFerror)
+    ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
+    photonHist.Add(wjetsHist)
 
     jetHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchJet'+systName)
     jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchJet'+systName))
     jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchJet'+systName))
     ScaleWithError(jetHist, topM3sf, topM3sfError)
+
     jetHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_metCut_50_matchJet'+systName))
 
-    bkgHist = get1DHist(input, varName+'_TBar_s_'+channel+systName)
-    bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_T_s_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_T_t_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_T_tW_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_WW_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_WZ_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
-    bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
-    
-    wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName)
-    wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
+    wjetsHist = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_metCut_50_matchJet'+systName)
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_metCut_50_matchJet'+systName))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
+    jetHist.Add(wjetsHist)
 
-    zHist = get1DHist(input, varName+'_dy1JetsToLL_'+channel+systName)
-    zHist.Add(get1DHist(input, varName+'_dy2JetsToLL_'+channel+systName))
-    zHist.Add(get1DHist(input, varName+'_dy3JetsToLL_'+channel+systName))
-    zHist.Add(get1DHist(input, varName+'_dy4JetsToLL_'+channel+systName))
-    zHist.Add(get1DHist(input, varName+'_ZGToLLG_'+channel+systName))
-    zHist.Add(get1DHist(input, varName+'_WGToLNuG_'+channel+systName))
+    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_metCut_50_matchJet'+systName)
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_metCut_50_matchJet'+systName))
     ScaleWithError(zHist, dilepSF, dilepSFerror)
     ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
-
-    qcdHist = get1DHist(input, varName+qcdName+channel)
-    (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
-    ScaleWithError(qcdHist, qcdSF, qcdSFerror)
+    jetHist.Add(wjetsHist)
     
-    dataHist.Add(bkgHist, -1.0)
-    #dataHist.Add(qcdHist, -1.0)
-    dataHist.Add(wjetsHist, -1.0)
-    dataHist.Add(zHist, -1.0)
-
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
     (jetInt, jetIntError) = integrateError(jetHist, xlo, xhi)
     (photonInt, photonIntError) = integrateError(photonHist, xlo, xhi)
@@ -630,14 +669,14 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     jetHistScaled = jetHist.Clone('jetHistScaled')
     ScaleWithError(jetHistScaled, jetSF, jetSFerror)
 
-    photonHistScale = photonHist.Clone('photonHistScaled')
+    photonHistScaled = photonHist.Clone('photonHistScaled')
     ScaleWithError(photonHistScaled, photonSF, photonSFerror)
 
-    (nJetMC, nJetMCErr) = integrateAndError(jetHist, 0, regularCut)
-    (nJetData, nJetDataErr) = integrateAndError(jetHistScaled, 0, regularCut)
+    (nJetMC, nJetMCErr) = integrateError(jetHist, 0, regularCut)
+    (nJetData, nJetDataErr) = integrateError(jetHistScaled, 0, regularCut)
 
-    (nPhotonMC, nPhotonMCErr) = integrateAndError(photonHist, 0, regularCut)
-    (nPhotonData, nPhotonDataErr) = integrateAndError(photonHistScaled, 0, regularCut)
+    (nPhotonMC, nPhotonMCErr) = integrateError(photonHist, 0, regularCut)
+    (nPhotonData, nPhotonDataErr) = integrateError(photonHistScaled, 0, regularCut)
         
     purityMC = nPhotonMC / (nPhotonMC + nJetMC)
     purityMCError = math.sqrt(nPhotonMCErr*nPhotonMCErr/nPhotonMC/nPhotonMC + nJetMCErr*nJetMCErr/nJetMC/nJetMC)
