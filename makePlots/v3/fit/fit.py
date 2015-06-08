@@ -701,14 +701,16 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
                              str(photonSFerror)+'\n')
 
         output_purity.write('central\t'+
-                            str(fitFrac)+'\t'+
-                            str(fitFracErr)+'\n')
+                            str(purityMC)+'\t'+
+                            str(purityMCError)+'\t'+
+                            str(purityData)+'\t'+
+                            str(purityDataError)+'\n')
 
         xaxisLabel = '#sigma_{i#eta i#eta}'
         if varName == 'leadChargedHadronIso':
             xaxisLabel = 'Ch. Hadron Iso. (GeV)'
 
-        drawPlots(dataHist, photonHist, photonSF, 't#bar{t} + #gamma', jetHist, jetSF, 't#bar{t} + Jets', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots(dataHist, photonHist, photonSF, 'Prompt #gamma', jetHist, jetSF, 'Background', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_jet.write(systematic+'\t'+
                            str(jetSF)+'\t'+
@@ -719,7 +721,9 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
                              str(photonSFerror)+'\n')
 
         output_purity.write(systematic+'\t'+
-                            str(1.0-fitFrac)+'\t'+
-                            str(fitFracErr)+'\n')
+                            str(purityMC)+'\t'+
+                            str(purityMCError)+'\t'+
+                            str(purityData)+'\t'+
+                            str(purityDataError)+'\n')
 
     return (jetSF, jetSFerror, photonSF, photonSFerror)

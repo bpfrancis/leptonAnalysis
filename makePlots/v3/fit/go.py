@@ -110,11 +110,11 @@ for channel in channels:
     output_photonSig.write('systematic\tSF\tError\n')
 
     output_purity = open('photonPurity_sigma_'+channel+'.txt', 'w')
-    output_purity.write('systematic\tSF\tError\n')
+    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
 
     isyst = 0
     for systematic in systematics:
-        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 800, False)
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 900, False)
         jetResults_sigma.append((jetSF, jetSFerror))
         photonResults_sigma.append((photonSF, photonSFerror))
         isyst += 1
@@ -136,7 +136,7 @@ for channel in channels:
     output_photonSig.write('systematic\tSF\tError\n')
 
     output_purity = open('photonPurity_chHadIso_'+channel+'.txt', 'w')
-    output_purity.write('systematic\tSF\tError\n')
+    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
 
     isyst = 0
     for systematic in systematics:
