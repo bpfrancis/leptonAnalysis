@@ -114,7 +114,7 @@ for channel in channels:
 
     isyst = 0
     for systematic in systematics:
-        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 500, False)
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 0, 800, False)
         jetResults_sigma.append((jetSF, jetSFerror))
         photonResults_sigma.append((photonSF, photonSFerror))
         isyst += 1

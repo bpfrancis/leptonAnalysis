@@ -84,7 +84,7 @@ def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepRe
     qcdScaleError = (pow(sigma_data, 2) + pow(sigma_mc, 2)) / pow(ndata - nmc, 2)
     qcdScaleError += pow(sigma_qcd, 2) / pow(nqcd, 2)
     qcdScaleError = qcdScale * math.sqrt(qcdScaleError)
-    
+
     return (qcdScale, qcdScaleError)
 
 def doQCDFit(channel, controlRegion, systematic, output, output_allMC_qcd, xlo, xhi, dilepResults, axisMin, axisMax, doLogy):
@@ -215,7 +215,7 @@ def doM3Fit(channel, controlRegion, systematic, output_wjets, output_ttbar, xlo,
     bkgHist.Add(get1DHist(input, 'm3_TTWJets_'+channel+systName))
     bkgHist.Add(get1DHist(input, 'm3_TTZJets_'+channel+systName))
     bkgHist.Add(get1DHist(input, 'm3_TTGamma_'+channel+systName))
-   
+
     dataHist.Add(qcdHist, -1.0)
     dataHist.Add(bkgHist, -1.0)
 
@@ -292,7 +292,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     bkgHist.Add(get1DHist(input, varName+'_ZZ_'+channel+systName))
     bkgHist.Add(get1DHist(input, varName+'_TTWJets_'+channel+systName))
     bkgHist.Add(get1DHist(input, varName+'_TTZJets_'+channel+systName))
-    
+
     wjetsHist = get1DHist(input, varName+'_W3JetsToLNu_'+channel+systName)
     wjetsHist.Add(get1DHist(input, varName+'_W4JetsToLNu_'+channel+systName))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
@@ -309,7 +309,7 @@ def doSigmaFit(varName, channel, controlRegion, systematic, output_ttbar, output
     qcdHist = get1DHist(input, varName+qcdName+channel)
     (qcdSF, qcdSFerror) = normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
     ScaleWithError(qcdHist, qcdSF, qcdSFerror)
-    
+
     dataHist.Add(bkgHist, -1.0)
     dataHist.Add(qcdHist, -1.0)
     dataHist.Add(wjetsHist, -1.0)
@@ -416,7 +416,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
     bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchJet'+systName))
 
     ScaleWithError(bkgHist, dilepSF, dilepSFerror)
-    
+
     bkgHist.Add(get1DHist(input, varName+'_TBar_s_'+channel+systName))
     bkgHist.Add(get1DHist(input, varName+'_TBar_t_'+channel+systName))
     bkgHist.Add(get1DHist(input, varName+'_TBar_tW_'+channel+systName))
@@ -447,7 +447,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
     (zInt, zIntError) = integrateError(zHist, xlo, xhi)
     (bkgInt, bkgIntError) = integrateError(bkgHist, xlo, xhi)
-    
+
     (fitFrac, fitFracErr) = makeFit(varName, xlo, xhi, zHist, bkgHist, dataHist)
 
     zSF = fitFrac * dataInt / zInt
@@ -647,7 +647,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     ScaleWithError(zHist, dilepSF, dilepSFerror)
     ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
     jetHist.Add(wjetsHist)
-    
+
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
     (jetInt, jetIntError) = integrateError(jetHist, xlo, xhi)
     (photonInt, photonIntError) = integrateError(photonHist, xlo, xhi)
@@ -677,7 +677,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
 
     (nPhotonMC, nPhotonMCErr) = integrateError(photonHist, 0, regularCut)
     (nPhotonData, nPhotonDataErr) = integrateError(photonHistScaled, 0, regularCut)
-        
+
     purityMC = nPhotonMC / (nPhotonMC + nJetMC)
     purityMCError = math.sqrt(nPhotonMCErr*nPhotonMCErr/nPhotonMC/nPhotonMC + nJetMCErr*nJetMCErr/nJetMC/nJetMC)
     purityMCError = nPhotonMC*nJetMC*purityMCError/(nPhotonMC + nJetMC)/(nPhotonMC + nJetMC)
@@ -686,12 +686,12 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     purityDataError = math.sqrt(nPhotonDataErr*nPhotonDataErr/nPhotonData/nPhotonData + nJetDataErr*nJetDataErr/nJetData/nJetData)
     purityDataError = nPhotonData*nJetData*purityDataError/(nPhotonData + nJetData)/(nPhotonData + nJetData)
 
-    print '\n\n\nHEY YOU GUYS:\n'
-    print 'purity in MC   = ', purityMC, ' +/- ', purityMCError
-    print 'purity in Data = ', purityData, ' +/- ', purityDataError
-    print '\n\n\n'
-
     if systematic == '':
+        print '\n\n\nHEY YOU GUYS:\n'
+        print 'purity in MC   = ', purityMC, ' +/- ', purityMCError
+        print 'purity in Data = ', purityData, ' +/- ', purityDataError
+        print '\n\n\n'
+
         output_jet.write('central\t'+
                            str(jetSF)+'\t'+
                            str(jetSFerror)+'\n')
