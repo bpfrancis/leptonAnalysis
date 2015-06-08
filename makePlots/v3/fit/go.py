@@ -141,8 +141,8 @@ for channel in channels:
     isyst = 0
     for systematic in systematics:
         (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 2, 2e3, True)
-        jetResults_sigma.append((jetSF, jetSFerror))
-        photonResults_sigma.append((photonSF, photonSFerror))
+        jetResults_chHadIso.append((jetSF, jetSFerror))
+        photonResults_chHadIso.append((photonSF, photonSFerror))
         isyst += 1
 
     output_jetBkg.close()

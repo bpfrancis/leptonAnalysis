@@ -666,17 +666,17 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     if varName == 'leadChargedHadronIso':
         regularCut = 2.6
 
-    jetHistScaled = jetHist.Clone('jetHistScaled')
+    jetHistScaled = jetHist.Clone('jetHistScaled_'+channel+systName)
     ScaleWithError(jetHistScaled, jetSF, jetSFerror)
 
-    photonHistScaled = photonHist.Clone('photonHistScaled')
+    photonHistScaled = photonHist.Clone('photonHistScaled_'+channel+systName)
     ScaleWithError(photonHistScaled, photonSF, photonSFerror)
 
-    (nJetMC, nJetMCErr) = integrateError(jetHist, 0, regularCut)
-    (nJetData, nJetDataErr) = integrateError(jetHistScaled, 0, regularCut)
+    (nJetMC, nJetMCErr) = integrateError(jetHist, xlo, regularCut)
+    (nJetData, nJetDataErr) = integrateError(jetHistScaled, xlo, regularCut)
 
-    (nPhotonMC, nPhotonMCErr) = integrateError(photonHist, 0, regularCut)
-    (nPhotonData, nPhotonDataErr) = integrateError(photonHistScaled, 0, regularCut)
+    (nPhotonMC, nPhotonMCErr) = integrateError(photonHist, xlo, regularCut)
+    (nPhotonData, nPhotonDataErr) = integrateError(photonHistScaled, xlo, regularCut)
 
     purityMC = nPhotonMC / (nPhotonMC + nJetMC)
     purityMCError = math.sqrt(nPhotonMCErr*nPhotonMCErr/nPhotonMC/nPhotonMC + nJetMCErr*nJetMCErr/nJetMC/nJetMC)
