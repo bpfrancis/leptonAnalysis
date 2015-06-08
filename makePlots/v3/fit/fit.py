@@ -556,7 +556,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
-    dataHist = get1DHist(input, varName+'_gg_'+channel)
+    dataHist = get1DHist(inputMatched, varName+'_gg_'+channel+'_metCut_50')
 
     photonHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchPhoton'+systName)
     photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchPhoton'+systName))
