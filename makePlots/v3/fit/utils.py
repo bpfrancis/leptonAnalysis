@@ -24,6 +24,18 @@ def integrateError(h, xlo, xhi):
     integral = h.IntegralAndError(lowbin, highbin, err)
     return integral, err
 
+def integrateErrorSum(h1, h2):
+    err1 = ROOT.Double(0.0)
+    integral1 = h1.IntegralAndError(0, -1, err1)
+
+    err2 = ROOT.Double(0.0)
+    integral2 = h2.IntegralAndError(0, -1, err2)
+
+    integral = integral1 + integral2
+    err = ( err1**2 + err2**2 )**0.5
+    
+    return integral, err
+
 def ScaleWithError(h, sf, err):
 
     if sf == 1.0:

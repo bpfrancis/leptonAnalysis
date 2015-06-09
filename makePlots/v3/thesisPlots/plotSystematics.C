@@ -73,6 +73,8 @@ void go(TString channel) {
     double diff_up = fabs(n_up - n_central) / n_central;
     double diff_down = fabs(n_down - n_central) / n_central;
 
+    if(diff_up == 0 && diff_down == 0) continue;
+
     if(diff_up > diff_down) cout << systematics[i] << " -- " << diff_up * 100. << endl;
     else cout << systematics[i] << " -- " << diff_down * 100. << endl;
 
@@ -83,15 +85,37 @@ void go(TString channel) {
     h_up->SetLineColor(kRed);
     h_down->SetLineColor(kBlue);
     
+    h_central->GetXaxis()->SetTitle("MET");
+    h_up->GetXaxis()->SetTitle("MET");
+    h_down->GetXaxis()->SetTitle("MET");
+
     TLegend * leg = new TLegend(0.55, 0.65, 0.85, 0.85, systematics[i].Data(), "brNDC");
     leg->AddEntry(h_up, "Up", "LP");
     leg->AddEntry(h_central, "Central", "LP");
     leg->AddEntry(h_down, "Down", "LP");
+
+    double upMax = h_up->GetBinContent(h_up->GetMaximumBin());
+    double centralMax = h_central->GetBinContent(h_central->GetMaximumBin());
+    double downMax = h_down->GetBinContent(h_down->GetMaximumBin());
     
-    h_up->Draw("hist");
-    h_central->Draw("hist same");
-    h_down->Draw("hist same");
-    leg->Draw("same");
+    if(upMax >= centralMax && upMax >= downMax) {
+      h_up->Draw("hist");
+      h_central->Draw("hist same");
+      h_down->Draw("hist same");
+      leg->Draw("same");
+    }
+    else if(centralMax >= upMax && centralMax >= downMax) {
+      h_central->Draw("hist");
+      h_up->Draw("hist same");
+      h_down->Draw("hist same");
+      leg->Draw("same");
+    }
+    else {
+      h_down->Draw("hist");
+      h_up->Draw("hist same");
+      h_central->Draw("hist same");
+      leg->Draw("same");
+    }
     
     can->SaveAs("systematicPlots/"+channel+"_"+systematics[i]+".pdf");
     

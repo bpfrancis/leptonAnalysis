@@ -96,6 +96,16 @@ void finishInputs() {
     h_systA_muon->SetBinContent(i+1, sqrt(x*x + y*y));
   }
 
+  TFile * fDurp = new TFile("hurr_durr.root", "RECREATE");
+  fDurp->cd();
+  h_diffFraction_ele_cr1->Write("x_ele");
+  h_diffFraction_muon_cr1->Write("x_muon");
+  h_convFactor_ele_sr1->Write("y_ele");
+  h_convFactor_muon_sr1->Write("y_muon");
+  h_systB_ele->Write("z_ele");
+  h_systB_muon->Write("z_muon");
+  fDurp->Close();
+
   // so we have our systematics:
   // h_systA_* for SR1 and SR2
   // h_systB_* for just SR2

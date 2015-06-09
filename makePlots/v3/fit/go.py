@@ -123,6 +123,12 @@ for channel in channels:
     output_photonSig.close()
     output_purity.close()
 
+    isyst = 0
+    for systematic in systematics:
+        wigglePurity('leadPhotonEt', 'sigma', channel, systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_sigma[isyst])
+        wigglePurity('trailPhotonEt', 'sigma', channel, systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_sigma[isyst])
+        isyst += 1        
+
     # Now calculate TTGamma sf in kSigmaPlot for charged hadron isolation
     # using the M3 results above, and just normalizing QCD in MET < 20
 
@@ -148,5 +154,11 @@ for channel in channels:
     output_jetBkg.close()
     output_photonSig.close()
     output_purity.close()
+
+    isyst = 0
+    for systematic in systematics:
+        wigglePurity('leadPhotonEt', 'chHadIso', channel, systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_chHadIso[isyst])
+        wigglePurity('trailPhotonEt', 'chHadIso', channel, systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_chHadIso[isyst])
+        isyst += 1  
 
     ichan += 1
