@@ -741,7 +741,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     (eleFakeRateSF, eleFakeRateSFerror) = eleFakeRateResults
 
     (promptSF, promptSFerror) = promptResults
-    (jetSF, jetSFerror) = nonpromptResults
+    (nonpromptSF, nonpromptSFerror) = nonpromptResults
 
     inputMatched = '../fitTemplates.root'
     outputFile = ROOT.TFile('wigglePurity_'+channel+'_'+controlRegion+'_'+outName+'.root', 'UPDATE')
@@ -843,16 +843,17 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     ScaleWithError(zHistJets, eleFakeRateSF, eleFakeRateSFerror)
     jetHist.Add(zHistJets)
 
-    before = photons.Clone(varName+'_before_'+channel+'_'+controlRegion+systName)
+    before = photonHist.Clone(varName+'_before_'+channel+'_'+controlRegion+systName)
     before.Add(jetHist)
     outputFile.cd()
     before.Write(varName+'_before_'+channel+'_'+controlRegion+systName)
 
-    after = photons.Clone(varName+'_after_'+channel+'_'+controlRegion+systName)
+    after = photonHist.Clone(varName+'_after_'+channel+'_'+controlRegion+systName)
+    ScaleWithError(after, promptSF, promptSFerror)
+    ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
     after.Add(jetHist)
     outputFile.cd()
     after.Write(varName+'_after_'+channel+'_'+controlRegion+systName)
         
-    outputFileScaled.Close()
-    outputFileNonScaled.Close()
+    outputFile.Close()
 

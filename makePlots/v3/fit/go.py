@@ -18,8 +18,7 @@ dilepRegion = 'Any'
 zFitRegion = 'SR1' # maybe SigmaPlot
 qcdFitRegion = 'Any'
 m3FitRegion = 'Any'
-sigmaFitRegion = 'SigmaPlot' # MET < 50, g/f
-chHadIsoFitRegion = 'SigmaPlot'
+purityFitRegion = 'SigmaPlot'
 
 ichan = 0
 for channel in channels:
@@ -100,65 +99,52 @@ for channel in channels:
     # Now calculate TTGamma sf in kSigmaPlot for lead sigma ieta ieta
     # using the M3 results above, and just normalizing QCD in MET < 20
 
-    jetResults_sigma = []
-    photonResults_sigma = []
+    version = 'leadChargedHadronIso'
+    versionShort = 'chHadIso'
+    purity_xlo = 0.0
+    purity_xhi = 20.0
 
-    output_jetBkg = open('jetBkgSF_sigma_'+channel+'.txt', 'w')
-    output_jetBkg.write('systematic\tSF\tError\n')
+    #version = 'leadSigmaIetaIeta'
+    #versionShort = 'sigma'
+    #purity_xlo = 0.006
+    #purity_xhi = 0.02
 
-    output_photonSig = open('photonSigSF_sigma_'+channel+'.txt', 'w')
-    output_photonSig.write('systematic\tSF\tError\n')
+    promptResults = []
+    nonpromptResults = []
 
-    output_purity = open('photonPurity_sigma_'+channel+'.txt', 'w')
+    output_prompt = open('photonSigSF_'+versionShort+'_'+channel+'.txt', 'w')
+    output_nonprompt = open('jetBkgSF_'+versionShort+'_'+channel+'.txt', 'w')
+    output_purity = open('photonPurity_'+versionShort+'_'+channel+'.txt', 'w')
+
+    output_prompt.write('systematic\tSF\tError\n')
+    output_nonprompt.write('systematic\tSF\tError\n')
     output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
-
+    
     isyst = 0
     for systematic in systematics:
-        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadSigmaIetaIeta', channel, sigmaFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.006, 0.02, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 2, 2e3, True)
-        jetResults_sigma.append((jetSF, jetSFerror))
-        photonResults_sigma.append((photonSF, photonSFerror))
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching(version, channel, purityFitRegion, systematic,
+                                                                              output_nonprompt, output_prompt, output_purity,
+                                                                              purity_xlo, purity_xhi,
+                                                                              wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
+                                                                              2, 2e3, True)
+        nonpromptResults.append((jetSF, jetSFerror))
+        promptResults.append((photonSF, photonSFerror))
         isyst += 1
 
-    output_jetBkg.close()
-    output_photonSig.close()
+    output_prompt.close()
+    output_nonprompt.close()
     output_purity.close()
 
     isyst = 0
     for systematic in systematics:
-        wigglePurity('pfMET_t01', 'sigma', channel, 'SR1', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_sigma[isyst])
-        wigglePurity('pfMET_t01', 'sigma', channel, 'SR2', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_sigma[isyst])
-        isyst += 1        
+        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic,
+                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
+                     promptResults[isyst], nonpromptResults[isyst])
 
-    # Now calculate TTGamma sf in kSigmaPlot for charged hadron isolation
-    # using the M3 results above, and just normalizing QCD in MET < 20
-
-    jetResults_chHadIso = []
-    photonResults_chHadIso = []
-
-    output_jetBkg = open('jetBkgSF_chHadIso_'+channel+'.txt', 'w')
-    output_jetBkg.write('systematic\tSF\tError\n')
-
-    output_photonSig = open('photonSigSF_chHadIso_'+channel+'.txt', 'w')
-    output_photonSig.write('systematic\tSF\tError\n')
-
-    output_purity = open('photonPurity_chHadIso_'+channel+'.txt', 'w')
-    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
-
-    isyst = 0
-    for systematic in systematics:
-        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching('leadChargedHadronIso', channel, chHadIsoFitRegion, systematic, output_jetBkg, output_photonSig, output_purity, 0.0, 20.0, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], 2, 2e3, True)
-        jetResults_chHadIso.append((jetSF, jetSFerror))
-        photonResults_chHadIso.append((photonSF, photonSFerror))
-        isyst += 1
-
-    output_jetBkg.close()
-    output_photonSig.close()
-    output_purity.close()
-
-    isyst = 0
-    for systematic in systematics:
-        wigglePurity('pfMET_t01', 'chHadIso', channel, 'SR1', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_chHadIso[isyst])
-        wigglePurity('pfMET_t01', 'chHadIso', channel, 'SR2', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_chHadIso[isyst])
+        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic,
+                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
+                     promptResults[isyst], nonpromptResults[isyst])
+        
         isyst += 1  
 
     ichan += 1

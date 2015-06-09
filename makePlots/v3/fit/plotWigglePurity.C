@@ -6,14 +6,10 @@ void compareWiggle(TString channel, TString version, TString cr) {
 
   TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
 
-  TFile * fBefore = new TFile("prewigglePurity_"+channel+"_"+cr+"_"+version+".root", "READ");
-  TFile * fAfter = new TFile("wigglePurity_"+channel+"_"+cr+"_"+version+".root", "READ");
+  TFile * input = new TFile("wigglePurity_"+channel+"_"+cr+"_"+version+".root", "READ");
 
-  TH1D * before = (TH1D*)fBefore->Get("pfMET_t01_ttjets_"+channel+"_"+cr);
-  for(int i = 1; i < 9; i++) before->Add((TH1D*)fBefore->Get("pfMET_t01_"+namesShort[i]+"_"+channel+"_"+cr));
-
-  TH1D * after = (TH1D*)fAfter->Get("pfMET_t01_ttjets_"+channel+"_"+cr);
-  for(int i = 1; i < 9; i++) after->Add((TH1D*)fAfter->Get("pfMET_t01_"+namesShort[i]+"_"+channel+"_"+cr));
+  TH1D * before = (TH1D*)input->Get("pfMET_t01_before_"+channel+"_"+cr);
+  TH1D * after = (TH1D*)input->Get("pfMET_t01_after_"+channel+"_"+cr);
 
   const int nMetBins_1g = 10;
   Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 800};
