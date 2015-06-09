@@ -779,7 +779,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_ttjets_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
 
     # wjets
     
@@ -803,7 +803,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_wjets_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_wjets_'+channel+'_'+controlRegion+systName)
 
     # zjets
     
@@ -835,7 +835,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_zjets_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_zjets_'+channel+'_'+controlRegion+systName)
 
     # singleTop
 
@@ -869,7 +869,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_singleTop_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
 
     # diboson
 
@@ -894,7 +894,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_diboson_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_diboson_'+channel+'_'+controlRegion+systName)
 
     # ttW
 
@@ -913,7 +913,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_ttW_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_ttW_'+channel+'_'+controlRegion+systName)
 
     # ttZ
 
@@ -932,7 +932,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_ttZ_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
 
     # ttgamma
 
@@ -951,7 +951,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_ttgamma_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
 
     # vgamma
 
@@ -977,7 +977,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     outputFile.cd()
     photons.Add(jets)
-    photons.Write(varName+'_vgamma_'+channel+'_'+controLRegion+systName)
+    photons.Write(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
 
     # write output
 
