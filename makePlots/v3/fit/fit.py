@@ -956,7 +956,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     before_ttZ = photons.Clone(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
     before_ttZ.Add(jets)
     outputFileNonScaled.cd()
-    before_ttZ.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
+    before_ttZ.Write(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
