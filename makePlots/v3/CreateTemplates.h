@@ -93,7 +93,6 @@ class TemplateMaker : public TObject {
   void SetAddresses();
   void BookTemplates();
 
-  //durp
   void FillData();
   void FillQCD();
   void FillMCBackgrounds();
@@ -773,7 +772,7 @@ bool TemplateMaker::LoadMCBackground(TString fileName, TString scanName,
 
 void TemplateMaker::BookTemplates() {
   
-  TString suffix = channel;
+  TString suffix = channel+"_"+crNames[controlRegion];
   if(metCut > 0.) {
     suffix += "_metCut_";
     suffix += Form("%d", (int)metCut);

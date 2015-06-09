@@ -393,27 +393,27 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
 
     dataHist = get1DHist(input, varName+'_gg_'+channel)
 
-    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_matchElectron'+systName)
-    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchElectron'+systName))
+    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName)
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_matchElectron'+systName))
     ScaleWithError(zHist, dilepSF, dilepSFerror)
 
-    bkgHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_matchPhoton'+systName)
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_matchPhoton'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_matchPhoton'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_matchPhoton'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchPhoton'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchPhoton'+systName))
+    bkgHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
 
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_matchJet'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_matchJet'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_matchJet'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_matchJet'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchJet'+systName))
-    bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    bkgHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
     ScaleWithError(bkgHist, dilepSF, dilepSFerror)
 
@@ -556,94 +556,94 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
         qcdName = '_qcd_relIso_m10_'
         systName = ''
 
-    dataHist = get1DHist(inputMatched, varName+'_gg_'+channel+'_metCut_50')
+    dataHist = get1DHist(inputMatched, varName+'_gg_'+channel+'_'+controlRegion+'_metCut_50')
 
-    photonHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchPhoton'+systName)
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName)
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
     ScaleWithError(photonHist, topM3sf, topM3sfError)
 
-    photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_metCut_50_matchPhoton'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
 
-    photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_metCut_50_matchElectron'+systName))
-    photonHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    photonHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
 
-    wjetsHist = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_metCut_50_matchPhoton'+systName)
-    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_metCut_50_matchPhoton'+systName))
-    wjetsHist.Add(get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_metCut_50_matchElectron'+systName))
-    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_metCut_50_matchElectron'+systName))
+    wjetsHist = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName)
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
     photonHist.Add(wjetsHist)
 
-    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName)
-    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_metCut_50_matchPhoton'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_metCut_50_matchPhoton'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_metCut_50_matchPhoton'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_metCut_50_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_metCut_50_matchElectron'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_metCut_50_matchElectron'+systName))
+    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName)
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_metCut_50_matchPhoton'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_metCut_50_matchElectron'+systName))
     ScaleWithError(zHist, dilepSF, dilepSFerror)
     ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
     photonHist.Add(zHist)
 
-    jetHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_metCut_50_matchJet'+systName)
-    jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName)
+    jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
     ScaleWithError(jetHist, topM3sf, topM3sfError)
 
-    jetHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_metCut_50_matchJet'+systName))
-    jetHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    jetHist.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
 
-    wjetsHist = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_metCut_50_matchJet'+systName)
-    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_metCut_50_matchJet'+systName))
+    wjetsHist = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName)
+    wjetsHist.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
     ScaleWithError(wjetsHist, wjetsSF, wjetsSFerror)
     jetHist.Add(wjetsHist)
 
-    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_metCut_50_matchJet'+systName)
-    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_metCut_50_matchJet'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_metCut_50_matchJet'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_metCut_50_matchJet'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_metCut_50_matchJet'+systName))
-    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_metCut_50_matchJet'+systName))
+    zHist = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName)
+    zHist.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
+    zHist.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_metCut_50_matchJet'+systName))
     ScaleWithError(zHist, dilepSF, dilepSFerror)
     ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
     jetHist.Add(zHist)
@@ -666,10 +666,10 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
     if varName == 'leadChargedHadronIso':
         regularCut = 2.6
 
-    jetHistScaled = jetHist.Clone('jetHistScaled_'+channel+systName)
+    jetHistScaled = jetHist.Clone('jetHistScaled_'+channel+'_'+controlRegion+systName)
     ScaleWithError(jetHistScaled, jetSF, jetSFerror)
 
-    photonHistScaled = photonHist.Clone('photonHistScaled_'+channel+systName)
+    photonHistScaled = photonHist.Clone('photonHistScaled_'+channel+'_'+controlRegion+systName)
     ScaleWithError(photonHistScaled, photonSF, photonSFerror)
 
     (nJetMC, nJetMCErr) = integrateError(jetHist, xlo, regularCut)
@@ -714,7 +714,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
             photonHist.Rebin(4)
             jetHist.Rebin(4)
 
-        drawPlots(dataHist, photonHist, photonSF, 'Prompt #gamma', jetHist, jetSF, 'Background', xlo, xhi, varName+'_'+channel+systematic, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots(dataHist, photonHist, photonSF, 'Prompt #gamma', jetHist, jetSF, 'Background', xlo, xhi, varName+'_'+channel+'_'+controlRegion+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
         output_jet.write(systematic+'\t'+
                            str(jetSF)+'\t'+
@@ -733,7 +733,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
 
     return (jetSF, jetSFerror, photonSF, photonSFerror)
 
-def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, promptResults, nonpromptResults):
+def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, promptResults, nonpromptResults):
 
     (wjetsSF, wjetsSFerror) = wjetsResults
     (topM3sf, topM3sfError) = topM3Results
@@ -745,6 +745,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
 
     inputMatched = '../fitTemplates.root'
 
+    outputFile = ROOT.TFile('wigglePurity_'+channel+'_'+controlRegion+'.root', 'UPDATE')
+
     systName = systematic
 
     if systematic == '_qcdDefUp':
@@ -754,17 +756,17 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
 
     # ttjets
 
-    photons = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_matchElectron'+systName))
     ScaleWithError(photons, topM3sf, topM3sfError)
 
-    jets = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_matchJet'+systName)
-    jets.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_matchJet'+systName))
+    jets = get1DHist(inputMatched, varName+'_ttJetsHadronic_'+channel+'_'+controlRegion+'_matchJet'+systName)
+    jets.Add(get1DHist(inputMatched, varName+'_ttJetsFullLep_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, topM3sf, topM3sfError)
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
@@ -775,16 +777,20 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_ttjets = after / before if (before > 0.) else 0.
     scaleError_ttjets = scale_ttjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_ttjets_'+channel+'_'+controLRegion+systName)
+
     # wjets
     
-    photons = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_matchElectron'+systName))
     ScaleWithError(photons, wjetsSF, wjetsSFerror)
     
-    jets = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_matchJet'+systName)
-    jets.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_matchJet'+systName))
+    jets = get1DHist(inputMatched, varName+'_W3JetsToLNu_'+channel+'_'+controlRegion+'_matchJet'+systName)
+    jets.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, wjetsSF, wjetsSFerror)
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
@@ -795,23 +801,27 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_wjets = after / before if (before > 0.) else 0.
     scaleError_wjets = scale_wjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_wjets_'+channel+'_'+controLRegion+systName)
+
     # zjets
     
-    photons = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_matchElectron'+systName))
     ScaleWithError(photons, dilepSF, dilepSFerror)
     ScaleWithError(photons, eleFakeRateSF, eleFakeRateSFerror)
     
-    jets = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_matchJet'+systName)
-    jets.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_matchJet'+systName))
+    jets = get1DHist(inputMatched, varName+'_dy1JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName)
+    jets.Add(get1DHist(inputMatched, varName+'_dy2JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_dy3JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_dy4JetsToLL_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, dilepSF, dilepSFerror)
     ScaleWithError(jets, eleFakeRateSF, eleFakeRateSFerror)
 
@@ -823,27 +833,31 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_zjets = after / before if (before > 0.) else 0.
     scaleError_zjets = scale_zjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_zjets_'+channel+'_'+controLRegion+systName)
+
     # singleTop
 
-    photons = get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_matchElectron'+systName))
 
-    jets = get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_matchJet'+systName)
-    jets.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_matchJet'+systName))
+    jets = get1DHist(inputMatched, varName+'_TBar_s_'+channel+'_'+controlRegion+'_matchJet'+systName)
+    jets.Add(get1DHist(inputMatched, varName+'_TBar_t_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_TBar_tW_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_T_s_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
@@ -853,18 +867,22 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_singleTop = after / before if (before > 0.) else 0.
     scaleError_singleTop = scale_singleTop * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_singleTop_'+channel+'_'+controLRegion+systName)
+
     # diboson
 
-    photons = get1DHist(inputMatched, varName+'_WW_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_WW_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_WW_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_matchElectron'+systName))
 
-    jets = get1DHist(inputMatched, varName+'_WW_'+channel+'_matchJet'+systName)
-    jets.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_matchJet'+systName))
-    jets.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_matchJet'+systName))
+    jets = get1DHist(inputMatched, varName+'_WW_'+channel+'_'+controlRegion+'_matchJet'+systName)
+    jets.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_matchJet'+systName))
+    jets.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
@@ -874,12 +892,16 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_diboson = after / before if (before > 0.) else 0.
     scaleError_diboson = scale_diboson * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_diboson_'+channel+'_'+controLRegion+systName)
+
     # ttW
 
-    photons = get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_matchElectron'+systName))
 
-    jets = get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_matchJet'+systName)
+    jets = get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
@@ -889,12 +911,16 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_ttW = after / before if (before > 0.) else 0.
     scaleError_ttW = scale_ttW * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_ttW_'+channel+'_'+controLRegion+systName)
+
     # ttZ
 
-    photons = get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_matchElectron'+systName))
 
-    jets = get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_matchJet'+systName)
+    jets = get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
@@ -904,12 +930,16 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_ttZ = after / before if (before > 0.) else 0.
     scaleError_ttZ = scale_ttZ * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_ttZ_'+channel+'_'+controLRegion+systName)
+
     # ttgamma
 
-    photons = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_matchElectron'+systName))
 
-    jets = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_matchJet'+systName)
+    jets = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
@@ -919,17 +949,21 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_ttgamma = after / before if (before > 0.) else 0.
     scaleError_ttgamma = scale_ttgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_ttgamma_'+channel+'_'+controLRegion+systName)
+
     # vgamma
 
-    photons = get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchPhoton'+systName)
-    photons.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchPhoton'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchElectron'+systName))
-    photons.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchElectron'+systName))
+    photons = get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+    photons.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+    photons.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_matchElectron'+systName))
     ScaleWithError(photons, dilepSF, dilepSFerror)
     ScaleWithError(photons, eleFakeRateSF, eleFakeRateSFerror)
 
-    jets = get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_matchJet'+systName)
-    jets.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_matchJet'+systName))
+    jets = get1DHist(inputMatched, varName+'_ZGToLLG_'+channel+'_'+controlRegion+'_matchJet'+systName)
+    jets.Add(get1DHist(inputMatched, varName+'_WGToLNuG_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, dilepSF, dilepSFerror)
     ScaleWithError(jets, eleFakeRateSF, eleFakeRateSFerror)
 
@@ -941,17 +975,21 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     scale_vgamma = after / before if (before > 0.) else 0.
     scaleError_vgamma = scale_vgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+    outputFile.cd()
+    photons.Add(jets)
+    photons.Write(varName+'_vgamma_'+channel+'_'+controLRegion+systName)
+
     # write output
 
-    output_ttjets = open('puritySF_ttjets_'+outName+'_'+channel+'.txt', 'a')
-    output_wjets = open('puritySF_wjets_'+outName+'_'+channel+'.txt', 'a')
-    output_zjets = open('puritySF_zjets_'+outName+'_'+channel+'.txt', 'a')
-    output_singleTop = open('puritySF_singleTop_'+outName+'_'+channel+'.txt', 'a')
-    output_diboson = open('puritySF_diboson_'+outName+'_'+channel+'.txt', 'a')
-    output_ttW = open('puritySF_ttW_'+outName+'_'+channel+'.txt', 'a')
-    output_ttZ = open('puritySF_ttZ_'+outName+'_'+channel+'.txt', 'a')
-    output_ttgamma = open('puritySF_ttgamma_'+outName+'_'+channel+'.txt', 'a')
-    output_vgamma = open('puritySF_vgamma_'+outName+'_'+channel+'.txt', 'a')
+    output_ttjets = open('puritySF_ttjets_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_wjets = open('puritySF_wjets_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_zjets = open('puritySF_zjets_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_singleTop = open('puritySF_singleTop_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_diboson = open('puritySF_diboson_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_ttW = open('puritySF_ttW_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_ttZ = open('puritySF_ttZ_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_ttgamma = open('puritySF_ttgamma_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
+    output_vgamma = open('puritySF_vgamma_'+outName+'_'+channel+'_'+controlRegion+'.txt', 'a')
 
     firstLine = systematic
     if systematic == '':
@@ -1001,3 +1039,6 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     output_vgamma.write(firstLine+'\t'+
                         str(scale_vgamma)+'\t'+
                         str(scaleError_vgamma)+'\n')
+
+    outputFile.Write()
+    outputFile.Close()
