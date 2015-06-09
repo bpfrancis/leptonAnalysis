@@ -772,8 +772,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_ttjets = after / before
-    scaleError_ttjets = scale_ttjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_ttjets = after / before if (before > 0.) else 0.
+    scaleError_ttjets = scale_ttjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # wjets
     
@@ -792,8 +792,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_wjets = after / before
-    scaleError_wjets = scale_wjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_wjets = after / before if (before > 0.) else 0.
+    scaleError_wjets = scale_wjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # zjets
     
@@ -820,8 +820,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_zjets = after / before
-    scaleError_zjets = scale_zjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_zjets = after / before if (before > 0.) else 0.
+    scaleError_zjets = scale_zjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # singleTop
 
@@ -850,8 +850,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_singleTop = after / before
-    scaleError_singleTop = scale_singleTop * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_singleTop = after / before if (before > 0.) else 0.
+    scaleError_singleTop = scale_singleTop * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # diboson
 
@@ -871,8 +871,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_diboson = after / before
-    scaleError_diboson = scale_diboson * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_diboson = after / before if (before > 0.) else 0.
+    scaleError_diboson = scale_diboson * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # ttW
 
@@ -886,8 +886,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_ttW = after / before
-    scaleError_ttW = scale_ttW * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_ttW = after / before if (before > 0.) else 0.
+    scaleError_ttW = scale_ttW * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # ttZ
 
@@ -901,8 +901,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_ttZ = after / before
-    scaleError_ttZ = scale_ttZ * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_ttZ = after / before if (before > 0.) else 0.
+    scaleError_ttZ = scale_ttZ * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # ttgamma
 
@@ -916,8 +916,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_ttgamma = after / before
-    scaleError_ttgamma = scale_ttgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_ttgamma = after / before if (before > 0.) else 0.
+    scaleError_ttgamma = scale_ttgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # vgamma
 
@@ -938,8 +938,8 @@ def wigglePurity(varName, outName, channel, systematic, wjetsResults, topM3Resul
     ScaleWithError(jets, jetSF, jetSFerror)
     (after, afterErr) = integrateErrorSum(photons, jets)
 
-    scale_vgamma = after / before
-    scaleError_vgamma = scale_vgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5
+    scale_vgamma = after / before if (before > 0.) else 0.
+    scaleError_vgamma = scale_vgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
     # write output
 
