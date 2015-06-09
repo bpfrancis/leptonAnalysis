@@ -2,10 +2,7 @@
 
 using namespace std;
 
-void compareWiggle(TString channel) {
-
-  TString cr = "SR1";
-  TString version = "chHadIso";
+void compareWiggle(TString channel, TString version, TString cr) {
 
   TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
 
@@ -75,15 +72,12 @@ void compareWiggle(TString channel) {
   padlo->cd();
   ratio->Draw("e1");
 
-  can->SaveAs("plots/compareWiggle_"+channel+"_"+cr+".pdf");
+  can->SaveAs("plots/compareWiggle_"+version+"_"+channel+"_"+cr+".pdf");
   delete can;
 
 }
 
-void compareWiggle(TString channel, TString background) {
-
-  TString cr = "SR1";
-  TString version = "chHadIso";
+void compareWiggle(TString channel, TString background, TString version, TString cr) {
 
   TFile * fBefore = new TFile("prewigglePurity_"+channel+"_"+cr+"_"+version+".root", "READ");
   TFile * fAfter = new TFile("wigglePurity_"+channel+"_"+cr+"_"+version+".root", "READ");
@@ -148,15 +142,12 @@ void compareWiggle(TString channel, TString background) {
   padlo->cd();
   ratio->Draw("e1");
 
-  can->SaveAs("plots/compareWiggle_"+channel+"_"+cr+"_"+background+".pdf");
+  can->SaveAs("plots/compareWiggle_"version+"_"+channel+"_"+cr+"_"+background+".pdf");
   delete can;
 
 }
 
-void compareShapes(TString channel) {
-
-  TString cr = "SR1";
-  TString version = "chHadIso";
+void compareShapes(TString channel, TString version, TString cr) {
 
   TString namesFull[23] = {"ttJetsSemiLep", "ttJetsFullLep", "ttJetsHadronic",
 			   "W3JetsToLNu", "W4JetsToLNu",
@@ -206,7 +197,7 @@ void compareShapes(TString channel) {
   promptReb->Draw("hist same");
   leg->Draw("same");
 
-  can->SaveAs("plots/compareShapes_"+channel+"_"+cr+".pdf");
+  can->SaveAs("plots/compareShapes_"version+"_"+channel+"_"+cr+".pdf");
   delete can;
 
 }
@@ -219,16 +210,32 @@ void plotWigglePurity() {
   gStyle->SetOptStat(0000);
   gStyle->SetOptTitle(0);
 
-  compareWiggle("ele_bjj");
-  compareShapes("ele_bjj");
+  compareWiggle("ele_bjj", "chHadIso", "SR1");
+  compareShapes("ele_bjj", "chHadIso", "SR1");
+  compareWiggle("ele_bjj", "sigma", "SR1");
+  compareShapes("ele_bjj", "sigma", "SR1");
 
-  compareWiggle("muon_bjj");
-  compareShapes("muon_bjj");
+  compareWiggle("muon_bjj", "chHadIso", "SR1");
+  compareShapes("muon_bjj", "chHadIso", "SR1");
+  compareWiggle("muon_bjj", "sigma", "SR1");
+  compareShapes("muon_bjj", "sigma", "SR1");
 
-  TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
-  for(int i = 0; i < 9; i++) {
-    compareWiggle("ele_bjj", namesShort[i]);
-    compareWiggle("muon_bjj", namesShort[i]);
-  }
+  compareWiggle("ele_bjj", "chHadIso", "SR2");
+  compareShapes("ele_bjj", "chHadIso", "SR2");
+  compareWiggle("ele_bjj", "sigma", "SR2");
+  compareShapes("ele_bjj", "sigma", "SR2");
+
+  compareWiggle("muon_bjj", "chHadIso", "SR2");
+  compareShapes("muon_bjj", "chHadIso", "SR2");
+  compareWiggle("muon_bjj", "sigma", "SR2");
+  compareShapes("muon_bjj", "sigma", "SR2");
+
+  /*
+    TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
+    for(int i = 0; i < 9; i++) {
+      compareWiggle("ele_bjj", namesShort[i], "chHadIso", "SR1");
+      compareWiggle("muon_bjj", namesShort[i], "chHadIso, "SR1");
+    }
+  */
 
 }

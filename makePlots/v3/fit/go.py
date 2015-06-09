@@ -126,6 +126,7 @@ for channel in channels:
     isyst = 0
     for systematic in systematics:
         wigglePurity('pfMET_t01', 'sigma', channel, 'SR1', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_sigma[isyst])
+        wigglePurity('pfMET_t01', 'sigma', channel, 'SR2', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_sigma[isyst])
         isyst += 1        
 
     # Now calculate TTGamma sf in kSigmaPlot for charged hadron isolation
@@ -157,6 +158,7 @@ for channel in channels:
     isyst = 0
     for systematic in systematics:
         wigglePurity('pfMET_t01', 'chHadIso', channel, 'SR1', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_chHadIso[isyst])
+        wigglePurity('pfMET_t01', 'chHadIso', channel, 'SR2', systematic, wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst], photonResults_sigma[isyst], jetResults_chHadIso[isyst])
         isyst += 1  
 
     ichan += 1
