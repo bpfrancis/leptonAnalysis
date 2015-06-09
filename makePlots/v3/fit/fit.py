@@ -710,9 +710,9 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, output_j
             photonHist.Rebin(2)
             jetHist.Rebin(2)
         if varName == 'leadChargedHadronIso':
-            dataHist.Rebin(4)
-            photonHist.Rebin(4)
-            jetHist.Rebin(4)
+            dataHist.Rebin(5)
+            photonHist.Rebin(5)
+            jetHist.Rebin(5)
 
         drawPlots(dataHist, photonHist, photonSF, 'Prompt #gamma', jetHist, jetSF, 'Background', xlo, xhi, varName+'_'+channel+'_'+controlRegion+systematic, xaxisLabel, axisMin, axisMax, doLogy)
     else:
@@ -745,7 +745,8 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     inputMatched = '../fitTemplates.root'
 
-    outputFile = ROOT.TFile('wigglePurity_'+channel+'_'+controlRegion+'.root', 'UPDATE')
+    outputFileNonScaled = ROOT.TFile('prewigglePurity_'+channel+'_'+controlRegion+'_'+outName+'.root', 'UPDATE')
+    outputFileScaled = ROOT.TFile('wigglePurity_'+channel+'_'+controlRegion+'_'+outName+'.root', 'UPDATE')
 
     systName = systematic
 
@@ -769,6 +770,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, topM3sf, topM3sfError)
 
+    before_ttjets = photon.Clone(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
+    before_ttjets.Add(jets)
+    outputFileNonScaled.cd()
+    before_ttjets.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
+    
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -777,7 +783,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_ttjets = after / before if (before > 0.) else 0.
     scaleError_ttjets = scale_ttjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
 
@@ -793,6 +799,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, wjetsSF, wjetsSFerror)
 
+    before_wjets = photon.Clone(varName+'_wjets_'+channel+'_'+controlRegion+systName)
+    before_wjets.Add(jets)
+    outputFileNonScaled.cd()
+    before_wjets.Write(varName+'_wjets_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -801,7 +812,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_wjets = after / before if (before > 0.) else 0.
     scaleError_wjets = scale_wjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_wjets_'+channel+'_'+controlRegion+systName)
 
@@ -825,6 +836,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     ScaleWithError(jets, dilepSF, dilepSFerror)
     ScaleWithError(jets, eleFakeRateSF, eleFakeRateSFerror)
 
+    before_zjets = photon.Clone(varName+'_zjets_'+channel+'_'+controlRegion+systName)
+    before_zjets.Add(jets)
+    outputFileNonScaled.cd()
+    before_zjets.Write(varName+'_zjets_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -833,7 +849,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_zjets = after / before if (before > 0.) else 0.
     scaleError_zjets = scale_zjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_zjets_'+channel+'_'+controlRegion+systName)
 
@@ -859,6 +875,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_matchJet'+systName))
     jets.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
+    before_singleTop = photon.Clone(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
+    before_singleTop.Add(jets)
+    outputFileNonScaled.cd()
+    before_singleTop.Write(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -867,7 +888,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_singleTop = after / before if (before > 0.) else 0.
     scaleError_singleTop = scale_singleTop * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
 
@@ -884,6 +905,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_matchJet'+systName))
     jets.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
+    before_diboson = photon.Clone(varName+'_diboson_'+channel+'_'+controlRegion+systName)
+    before_diboson.Add(jets)
+    outputFileNonScaled.cd()
+    before_diboson.Write(varName+'_diboson_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -892,7 +918,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_diboson = after / before if (before > 0.) else 0.
     scaleError_diboson = scale_diboson * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_diboson_'+channel+'_'+controlRegion+systName)
 
@@ -903,6 +929,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     jets = get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
+    before_ttW = photon.Clone(varName+'_ttW_'+channel+'_'+controlRegion+systName)
+    before_ttW.Add(jets)
+    outputFileNonScaled.cd()
+    before_ttW.Write(varName+'_ttW_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -911,7 +942,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_ttW = after / before if (before > 0.) else 0.
     scaleError_ttW = scale_ttW * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_ttW_'+channel+'_'+controlRegion+systName)
 
@@ -922,6 +953,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     jets = get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
+    before_ttZ = photon.Clone(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
+    before_ttZ.Add(jets)
+    outputFileNonScaled.cd()
+    before_ttZ.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -930,7 +966,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_ttZ = after / before if (before > 0.) else 0.
     scaleError_ttZ = scale_ttZ * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
 
@@ -941,6 +977,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     jets = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
+    before_ttgamma = photon.Clone(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
+    before_ttgamma.Add(jets)
+    outputFileNonScaled.cd()
+    before_ttgamma.Write(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -949,7 +990,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_ttgamma = after / before if (before > 0.) else 0.
     scaleError_ttgamma = scale_ttgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
 
@@ -967,6 +1008,11 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     ScaleWithError(jets, dilepSF, dilepSFerror)
     ScaleWithError(jets, eleFakeRateSF, eleFakeRateSFerror)
 
+    before_vgamma = photon.Clone(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
+    before_vgamma.Add(jets)
+    outputFileNonScaled.cd()
+    before_vgamma.Write(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
+
     (before, beforeErr) = integrateErrorSum(photons, jets)
     ScaleWithError(photons, promptSF, promptSFerror)
     ScaleWithError(jets, jetSF, jetSFerror)
@@ -975,7 +1021,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     scale_vgamma = after / before if (before > 0.) else 0.
     scaleError_vgamma = scale_vgamma * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
-    outputFile.cd()
+    outputFileScaled.cd()
     photons.Add(jets)
     photons.Write(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
 
@@ -1040,5 +1086,6 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
                         str(scale_vgamma)+'\t'+
                         str(scaleError_vgamma)+'\n')
 
-    outputFile.Write()
-    outputFile.Close()
+    outputFileScaled.Close()
+    outputFileNonScaled.Close()
+
