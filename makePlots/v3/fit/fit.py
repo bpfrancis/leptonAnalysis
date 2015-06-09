@@ -770,7 +770,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_ttJetsSemiLep_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, topM3sf, topM3sfError)
 
-    before_ttjets = photon.Clone(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
+    before_ttjets = photons.Clone(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
     before_ttjets.Add(jets)
     outputFileNonScaled.cd()
     before_ttjets.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
@@ -799,7 +799,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_W4JetsToLNu_'+channel+'_'+controlRegion+'_matchJet'+systName))
     ScaleWithError(jets, wjetsSF, wjetsSFerror)
 
-    before_wjets = photon.Clone(varName+'_wjets_'+channel+'_'+controlRegion+systName)
+    before_wjets = photons.Clone(varName+'_wjets_'+channel+'_'+controlRegion+systName)
     before_wjets.Add(jets)
     outputFileNonScaled.cd()
     before_wjets.Write(varName+'_wjets_'+channel+'_'+controlRegion+systName)
@@ -836,7 +836,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     ScaleWithError(jets, dilepSF, dilepSFerror)
     ScaleWithError(jets, eleFakeRateSF, eleFakeRateSFerror)
 
-    before_zjets = photon.Clone(varName+'_zjets_'+channel+'_'+controlRegion+systName)
+    before_zjets = photons.Clone(varName+'_zjets_'+channel+'_'+controlRegion+systName)
     before_zjets.Add(jets)
     outputFileNonScaled.cd()
     before_zjets.Write(varName+'_zjets_'+channel+'_'+controlRegion+systName)
@@ -875,7 +875,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_T_t_'+channel+'_'+controlRegion+'_matchJet'+systName))
     jets.Add(get1DHist(inputMatched, varName+'_T_tW_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
-    before_singleTop = photon.Clone(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
+    before_singleTop = photons.Clone(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
     before_singleTop.Add(jets)
     outputFileNonScaled.cd()
     before_singleTop.Write(varName+'_singleTop_'+channel+'_'+controlRegion+systName)
@@ -905,7 +905,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     jets.Add(get1DHist(inputMatched, varName+'_WZ_'+channel+'_'+controlRegion+'_matchJet'+systName))
     jets.Add(get1DHist(inputMatched, varName+'_ZZ_'+channel+'_'+controlRegion+'_matchJet'+systName))
 
-    before_diboson = photon.Clone(varName+'_diboson_'+channel+'_'+controlRegion+systName)
+    before_diboson = photons.Clone(varName+'_diboson_'+channel+'_'+controlRegion+systName)
     before_diboson.Add(jets)
     outputFileNonScaled.cd()
     before_diboson.Write(varName+'_diboson_'+channel+'_'+controlRegion+systName)
@@ -929,7 +929,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     jets = get1DHist(inputMatched, varName+'_TTWJets_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
-    before_ttW = photon.Clone(varName+'_ttW_'+channel+'_'+controlRegion+systName)
+    before_ttW = photons.Clone(varName+'_ttW_'+channel+'_'+controlRegion+systName)
     before_ttW.Add(jets)
     outputFileNonScaled.cd()
     before_ttW.Write(varName+'_ttW_'+channel+'_'+controlRegion+systName)
@@ -953,7 +953,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     jets = get1DHist(inputMatched, varName+'_TTZJets_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
-    before_ttZ = photon.Clone(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
+    before_ttZ = photons.Clone(varName+'_ttZ_'+channel+'_'+controlRegion+systName)
     before_ttZ.Add(jets)
     outputFileNonScaled.cd()
     before_ttZ.Write(varName+'_ttjets_'+channel+'_'+controlRegion+systName)
@@ -977,7 +977,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
 
     jets = get1DHist(inputMatched, varName+'_TTGamma_'+channel+'_'+controlRegion+'_matchJet'+systName)
 
-    before_ttgamma = photon.Clone(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
+    before_ttgamma = photons.Clone(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
     before_ttgamma.Add(jets)
     outputFileNonScaled.cd()
     before_ttgamma.Write(varName+'_ttgamma_'+channel+'_'+controlRegion+systName)
@@ -1008,7 +1008,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, wjetsResu
     ScaleWithError(jets, dilepSF, dilepSFerror)
     ScaleWithError(jets, eleFakeRateSF, eleFakeRateSFerror)
 
-    before_vgamma = photon.Clone(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
+    before_vgamma = photons.Clone(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
     before_vgamma.Add(jets)
     outputFileNonScaled.cd()
     before_vgamma.Write(varName+'_vgamma_'+channel+'_'+controlRegion+systName)
