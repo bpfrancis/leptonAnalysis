@@ -1,5 +1,45 @@
 from fit import *
 
+def durp(version, versionShort, metCutName, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults):
+
+    promptResults = []
+    nonpromptResults = []
+
+    output_prompt = open('photonSigSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+    output_nonprompt = open('jetBkgSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+    output_purity = open('photonPurity_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+
+    output_prompt.write('systematic\tSF\tError\n')
+    output_nonprompt.write('systematic\tSF\tError\n')
+    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
+    
+    isyst = 0
+    for systematic in systematics:
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching(version, channel, purityFitRegion, systematic, metCutName,
+                                                                              output_nonprompt, output_prompt, output_purity,
+                                                                              xlo, xhi,
+                                                                              wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
+                                                                              2, 2e3, True)
+        nonpromptResults.append((jetSF, jetSFerror))
+        promptResults.append((photonSF, photonSFerror))
+        isyst += 1
+
+    output_prompt.close()
+    output_nonprompt.close()
+    output_purity.close()
+
+    isyst = 0
+    for systematic in systematics:
+        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic, metCutName,
+                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
+                     promptResults[isyst], nonpromptResults[isyst])
+
+        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
+                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
+                     promptResults[isyst], nonpromptResults[isyst])
+        
+        isyst += 1
+
 channels = ['ele_bjj', 'muon_bjj']
 channels_noTag = ['ele_jjj', 'muon_jjj']
 
@@ -148,3 +188,5 @@ for channel in channels:
         isyst += 1  
 
     ichan += 1
+
+

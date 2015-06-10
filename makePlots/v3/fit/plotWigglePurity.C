@@ -2,14 +2,14 @@
 
 using namespace std;
 
-void compareWiggle(TString channel, TString version, TString cr) {
+void compareWiggle(TString channel, TString metCutName, TString version, TString cr) {
 
   TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
 
-  TFile * input = new TFile("wigglePurity_"+channel+"_"+cr+"_"+version+".root", "READ");
+  TFile * input = new TFile("wigglePurity_"+channel+metCutName+"_"+cr+"_"+version+".root", "READ");
 
-  TH1D * before = (TH1D*)input->Get("pfMET_t01_before_"+channel+"_"+cr);
-  TH1D * after = (TH1D*)input->Get("pfMET_t01_after_"+channel+"_"+cr);
+  TH1D * before = (TH1D*)input->Get("pfMET_t01_before_"+channel+metCutName+"_"+cr);
+  TH1D * after = (TH1D*)input->Get("pfMET_t01_after_"+channel+metCutName+"_"+cr);
 
   const int nMetBins_1g = 10;
   Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 800};
@@ -138,14 +138,14 @@ void plotWigglePurity() {
   gStyle->SetOptTitle(0);
 
   compareWiggle("ele_bjj", "chHadIso", "SR1");
-  compareWiggle("ele_bjj", "sigma", "SR1");
   compareWiggle("muon_bjj", "chHadIso", "SR1");
-  compareWiggle("muon_bjj", "sigma", "SR1");
+  //compareWiggle("ele_bjj", "sigma", "SR1");
+  //compareWiggle("muon_bjj", "sigma", "SR1");
 
   compareWiggle("ele_bjj", "chHadIso", "SR2");
-  compareWiggle("ele_bjj", "sigma", "SR2");
   compareWiggle("muon_bjj", "chHadIso", "SR2");
-  compareWiggle("muon_bjj", "sigma", "SR2");
+  //compareWiggle("ele_bjj", "sigma", "SR2");
+  //compareWiggle("muon_bjj", "sigma", "SR2");
 
   /*
   compareShapes("ele_bjj", "chHadIso", "SR1");

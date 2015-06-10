@@ -777,6 +777,8 @@ void TemplateMaker::BookTemplates() {
     suffix += "_metCut_";
     suffix += Form("%d", (int)metCut);
   }
+  if(cutSigma) suffix += "_cutSigma";
+  if(cutChHadIso) suffix += "_cutChHadIso";
 
   h_gg = new TH1D(variable+"_gg_"+suffix, variable, nBins, xlo, xhi);
   h_gg->Sumw2();
