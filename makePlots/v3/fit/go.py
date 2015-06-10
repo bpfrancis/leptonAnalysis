@@ -25,9 +25,9 @@ def goPhotonPurity(version, versionShort, metCutName, channel, xlo, xhi, wjetsRe
     promptResults = []
     nonpromptResults = []
 
-    output_prompt = open('photonSigSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
-    output_nonprompt = open('jetBkgSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
-    output_purity = open('photonPurity_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+    output_prompt = open('photonSigSF_'+versionShort+metCutName+'_'+channel+'.txt', 'w')
+    output_nonprompt = open('jetBkgSF_'+versionShort+metCutName+'_'+channel+'.txt', 'w')
+    output_purity = open('photonPurity_'+versionShort+metCutName+'_'+channel+'.txt', 'w')
 
     output_prompt.write('systematic\tSF\tError\n')
     output_nonprompt.write('systematic\tSF\tError\n')

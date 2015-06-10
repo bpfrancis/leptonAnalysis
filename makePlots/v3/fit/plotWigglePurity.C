@@ -6,10 +6,10 @@ void compareWiggle(TString channel, TString metCutName, TString version, TString
 
   TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
 
-  TFile * input = new TFile("wigglePurity_"+channel+metCutName+"_"+cr+"_"+version+".root", "READ");
+  TFile * input = new TFile("wigglePurity_"+channel+"_"+cr+metCutName+"_"+version+".root", "READ");
 
-  TH1D * before = (TH1D*)input->Get("pfMET_t01_before_"+channel+metCutName+"_"+cr);
-  TH1D * after = (TH1D*)input->Get("pfMET_t01_after_"+channel+metCutName+"_"+cr);
+  TH1D * before = (TH1D*)input->Get("pfMET_t01_before_"+channel+"_"+cr);
+  TH1D * after = (TH1D*)input->Get("pfMET_t01_after_"+channel+"_"+cr);
 
   const int nMetBins_1g = 10;
   Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 800};
@@ -68,7 +68,7 @@ void compareWiggle(TString channel, TString metCutName, TString version, TString
   padlo->cd();
   ratio->Draw("e1");
 
-  can->SaveAs("plots/compareWiggle_"+version+"_"+channel+"_"+cr+".pdf");
+  can->SaveAs("plots/compareWiggle_"+version+metCutName+"_"+channel+"_"+cr+".pdf");
   delete can;
 
 }
@@ -137,26 +137,16 @@ void plotWigglePurity() {
   gStyle->SetOptStat(0000);
   gStyle->SetOptTitle(0);
 
-  compareWiggle("ele_bjj", "chHadIso", "SR1");
-  compareWiggle("muon_bjj", "chHadIso", "SR1");
-  //compareWiggle("ele_bjj", "sigma", "SR1");
-  //compareWiggle("muon_bjj", "sigma", "SR1");
+  compareWiggle("ele_bjj", "", "chHadIso", "SR1");
+  compareWiggle("ele_bjj", "_metCut_50", "chHadIso", "SR1");
 
-  compareWiggle("ele_bjj", "chHadIso", "SR2");
-  compareWiggle("muon_bjj", "chHadIso", "SR2");
-  //compareWiggle("ele_bjj", "sigma", "SR2");
-  //compareWiggle("muon_bjj", "sigma", "SR2");
+  compareWiggle("muon_bjj", "", "chHadIso", "SR1");
+  compareWiggle("muon_bjj", "_metCut_50", "chHadIso", "SR1");
 
-  /*
-  compareShapes("ele_bjj", "chHadIso", "SR1");
-  compareShapes("ele_bjj", "sigma", "SR1");
-  compareShapes("muon_bjj", "chHadIso", "SR1");
-  compareShapes("muon_bjj", "sigma", "SR1");
+  compareWiggle("ele_bjj", "", "chHadIso", "SR2");
+  compareWiggle("ele_bjj", "_metCut_50", "chHadIso", "SR2");
 
-  compareShapes("ele_bjj", "chHadIso", "SR2");
-  compareShapes("ele_bjj", "sigma", "SR2");
-  compareShapes("muon_bjj", "chHadIso", "SR2");
-  compareShapes("muon_bjj", "sigma", "SR2");
-  */
-  
+  compareWiggle("muon_bjj", "", "chHadIso", "SR2");
+  compareWiggle("muon_bjj", "_metCut_50", "chHadIso", "SR2");
+
 }
