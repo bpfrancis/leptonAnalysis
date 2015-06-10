@@ -1,45 +1,5 @@
 from fit import *
 
-def durp(version, versionShort, metCutName, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults):
-
-    promptResults = []
-    nonpromptResults = []
-
-    output_prompt = open('photonSigSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
-    output_nonprompt = open('jetBkgSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
-    output_purity = open('photonPurity_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
-
-    output_prompt.write('systematic\tSF\tError\n')
-    output_nonprompt.write('systematic\tSF\tError\n')
-    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
-    
-    isyst = 0
-    for systematic in systematics:
-        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching(version, channel, purityFitRegion, systematic, metCutName,
-                                                                              output_nonprompt, output_prompt, output_purity,
-                                                                              xlo, xhi,
-                                                                              wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
-                                                                              2, 2e3, True)
-        nonpromptResults.append((jetSF, jetSFerror))
-        promptResults.append((photonSF, photonSFerror))
-        isyst += 1
-
-    output_prompt.close()
-    output_nonprompt.close()
-    output_purity.close()
-
-    isyst = 0
-    for systematic in systematics:
-        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic, metCutName,
-                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
-                     promptResults[isyst], nonpromptResults[isyst])
-
-        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
-                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
-                     promptResults[isyst], nonpromptResults[isyst])
-        
-        isyst += 1
-
 channels = ['ele_bjj', 'muon_bjj']
 channels_noTag = ['ele_jjj', 'muon_jjj']
 
@@ -59,6 +19,46 @@ zFitRegion = 'SR1' # maybe SigmaPlot
 qcdFitRegion = 'Any'
 m3FitRegion = 'Any'
 purityFitRegion = 'SigmaPlot'
+
+def goPhotonPurity(version, versionShort, metCutName, channel, xlo, xhi, wjetsResults, topM3Results, dilepResults, eleFakeRateResults):
+
+    promptResults = []
+    nonpromptResults = []
+
+    output_prompt = open('photonSigSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+    output_nonprompt = open('jetBkgSF_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+    output_purity = open('photonPurity_'+versionShort+'_'+metCutName+channel+'.txt', 'w')
+
+    output_prompt.write('systematic\tSF\tError\n')
+    output_nonprompt.write('systematic\tSF\tError\n')
+    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
+    
+    jsyst = 0
+    for systematic in systematics:
+        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching(version, channel, purityFitRegion, systematic, metCutName,
+                                                                              output_nonprompt, output_prompt, output_purity,
+                                                                              xlo, xhi,
+                                                                              wjetsResults[jsyst], ttbarResults_M3[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                                                                              2, 2e3, True)
+        nonpromptResults.append((jetSF, jetSFerror))
+        promptResults.append((photonSF, photonSFerror))
+        jsyst += 1
+
+    output_prompt.close()
+    output_nonprompt.close()
+    output_purity.close()
+
+    jsyst = 0
+    for systematic in systematics:
+        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic, metCutName,
+                     wjetsResults[jsyst], ttbarResults_M3[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                     promptResults[jsyst], nonpromptResults[jsyst])
+
+        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
+                     wjetsResults[jsyst], ttbarResults_M3[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                     promptResults[jsyst], nonpromptResults[jsyst])
+        
+        jsyst += 1
 
 ichan = 0
 for channel in channels:
@@ -138,55 +138,12 @@ for channel in channels:
  
     # Now calculate TTGamma sf in kSigmaPlot for lead sigma ieta ieta
     # using the M3 results above, and just normalizing QCD in MET < 20
+    goPhotonPurity('leadChargedHadronIso', 'chHadIso', '', channel, 0.0, 20.0, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    goPhotonPurity('leadChargedHadronIso', 'chHadIso', '_metCut_50', channel, 0.0, 20.0, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
 
-    version = 'leadChargedHadronIso'
-    versionShort = 'chHadIso'
-    purity_xlo = 0.0
-    purity_xhi = 20.0
-
-    #version = 'leadSigmaIetaIeta'
-    #versionShort = 'sigma'
-    #purity_xlo = 0.006
-    #purity_xhi = 0.02
-
-    promptResults = []
-    nonpromptResults = []
-
-    output_prompt = open('photonSigSF_'+versionShort+'_'+channel+'.txt', 'w')
-    output_nonprompt = open('jetBkgSF_'+versionShort+'_'+channel+'.txt', 'w')
-    output_purity = open('photonPurity_'+versionShort+'_'+channel+'.txt', 'w')
-
-    output_prompt.write('systematic\tSF\tError\n')
-    output_nonprompt.write('systematic\tSF\tError\n')
-    output_purity.write('systematic\tpurityMC\tError\tpurityData\tError\n')
+    goPhotonPurity('leadSigmaIetaIeta', 'sigma', '', channel, 0.006, 0.02, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    goPhotonPurity('leadSigmaIetaIeta', 'sigma', '_metCut_50', channel, 0.006, 0.02, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
     
-    isyst = 0
-    for systematic in systematics:
-        (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching(version, channel, purityFitRegion, systematic,
-                                                                              output_nonprompt, output_prompt, output_purity,
-                                                                              purity_xlo, purity_xhi,
-                                                                              wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
-                                                                              2, 2e3, True)
-        nonpromptResults.append((jetSF, jetSFerror))
-        promptResults.append((photonSF, photonSFerror))
-        isyst += 1
-
-    output_prompt.close()
-    output_nonprompt.close()
-    output_purity.close()
-
-    isyst = 0
-    for systematic in systematics:
-        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic,
-                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
-                     promptResults[isyst], nonpromptResults[isyst])
-
-        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic,
-                     wjetsResults[isyst], ttbarResults_M3[isyst], dilepResults[isyst], eleFakeRateResults[isyst],
-                     promptResults[isyst], nonpromptResults[isyst])
-        
-        isyst += 1  
-
     ichan += 1
 
 
