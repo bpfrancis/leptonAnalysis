@@ -38,7 +38,7 @@ def goPhotonPurity(version, versionShort, metCutName, channel, xlo, xhi, wjetsRe
         (jetSF, jetSFerror, photonSF, photonSFerror) = doSigmaFitWithMatching(version, channel, purityFitRegion, systematic, metCutName,
                                                                               output_nonprompt, output_prompt, output_purity,
                                                                               xlo, xhi,
-                                                                              wjetsResults[jsyst], ttbarResults_M3[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                                                                              wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                                                                               2, 2e3, True)
         nonpromptResults.append((jetSF, jetSFerror))
         promptResults.append((photonSF, photonSFerror))
@@ -51,11 +51,11 @@ def goPhotonPurity(version, versionShort, metCutName, channel, xlo, xhi, wjetsRe
     jsyst = 0
     for systematic in systematics:
         wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic, metCutName,
-                     wjetsResults[jsyst], ttbarResults_M3[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                     wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                      promptResults[jsyst], nonpromptResults[jsyst])
 
         wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
-                     wjetsResults[jsyst], ttbarResults_M3[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                     wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                      promptResults[jsyst], nonpromptResults[jsyst])
         
         jsyst += 1
@@ -138,10 +138,10 @@ for channel in channels:
  
     # Now calculate TTGamma sf in kSigmaPlot for lead sigma ieta ieta
     # using the M3 results above, and just normalizing QCD in MET < 20
-    goPhotonPurity('leadChargedHadronIso', 'chHadIso', '', channel, 0.0, 20.0, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    goPhotonPurity('leadChargedHadronIso', 'chHadIso', '', channel, 0.0, 20.0, wjetsResults, ttbarResults_M3, dilepResults, eleFakeRateResults)
     goPhotonPurity('leadChargedHadronIso', 'chHadIso', '_metCut_50', channel, 0.0, 20.0, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
 
-    goPhotonPurity('leadSigmaIetaIeta', 'sigma', '', channel, 0.006, 0.02, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    goPhotonPurity('leadSigmaIetaIeta', 'sigma', '', channel, 0.006, 0.02, wjetsResults, ttbarResults_M3, dilepResults, eleFakeRateResults)
     goPhotonPurity('leadSigmaIetaIeta', 'sigma', '_metCut_50', channel, 0.006, 0.02, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
     
     ichan += 1
