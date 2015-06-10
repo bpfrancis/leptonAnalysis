@@ -139,10 +139,10 @@ for channel in channels:
     # Now calculate TTGamma sf in kSigmaPlot for lead sigma ieta ieta
     # using the M3 results above, and just normalizing QCD in MET < 20
     goPhotonPurity('leadChargedHadronIso', 'chHadIso', '', channel, 0.0, 20.0, wjetsResults, ttbarResults_M3, dilepResults, eleFakeRateResults)
-    goPhotonPurity('leadChargedHadronIso', 'chHadIso', '_metCut_50', channel, 0.0, 20.0, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    goPhotonPurity('leadChargedHadronIso', 'chHadIso', '_metCut_50', channel, 0.0, 20.0, wjetsResults, ttbarResults_M3, dilepResults, eleFakeRateResults)
 
     goPhotonPurity('leadSigmaIetaIeta', 'sigma', '', channel, 0.006, 0.02, wjetsResults, ttbarResults_M3, dilepResults, eleFakeRateResults)
-    goPhotonPurity('leadSigmaIetaIeta', 'sigma', '_metCut_50', channel, 0.006, 0.02, wjetsResults, topM3Results, dilepResults, eleFakeRateResults)
+    goPhotonPurity('leadSigmaIetaIeta', 'sigma', '_metCut_50', channel, 0.006, 0.02, wjetsResults, ttbarResults_M3, dilepResults, eleFakeRateResults)
     
     ichan += 1
 
