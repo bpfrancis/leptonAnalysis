@@ -201,6 +201,9 @@ go('../scaleFactors/wjetsSF_muon_bjj.txt')
 purityTable('../fit/photonPurity_chHadIso_ele_bjj.txt', '../fit/photonSigSF_chHadIso_ele_bjj.txt', '../fit/jetBkgSF_chHadIso_ele_bjj.txt')
 purityTable('../fit/photonPurity_chHadIso_muon_bjj.txt', '../fit/photonSigSF_chHadIso_muon_bjj.txt', '../fit/jetBkgSF_chHadIso_muon_bjj.txt')
 
-purityTable('../fit/photonPurity_sigma_ele_bjj.txt', '../fit/photonSigSF_sigma_ele_bjj.txt', '../fit/jetBkgSF_sigma_ele_bjj.txt')
-purityTable('../fit/photonPurity_sigma_muon_bjj.txt', '../fit/photonSigSF_sigma_muon_bjj.txt', '../fit/jetBkgSF_sigma_muon_bjj.txt')
+purityTable('../fit/photonPurity_chHadIso_metCut_50_ele_bjj.txt', '../fit/photonSigSF_chHadIso_metCut_50_ele_bjj.txt', '../fit/jetBkgSF_chHadIso_metCut_50_ele_bjj.txt')
+purityTable('../fit/photonPurity_chHadIso_metCut_50_muon_bjj.txt', '../fit/photonSigSF_chHadIso_metCut_50_muon_bjj.txt', '../fit/jetBkgSF_chHadIso_metCut_50_muon_bjj.txt')
+
+#purityTable('../fit/photonPurity_sigma_ele_bjj.txt', '../fit/photonSigSF_sigma_ele_bjj.txt', '../fit/jetBkgSF_sigma_ele_bjj.txt')
+#purityTable('../fit/photonPurity_sigma_muon_bjj.txt', '../fit/photonSigSF_sigma_muon_bjj.txt', '../fit/jetBkgSF_sigma_muon_bjj.txt')
 

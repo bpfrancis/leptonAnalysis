@@ -1119,6 +1119,9 @@ void TemplateMaker::FillMCBackgrounds() {
 
       Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
       addError2 *= totalWeight*totalWeight;
+
+      if(addError2 != addError2) continue;
+
       FillWithError(mcHistograms[i], value, totalWeight, addError2);
       if(leadMatchGamma == 1) FillWithError(mcHistograms_matchPhoton[i], value, totalWeight, addError2);
       if(leadMatchElectron == 1) FillWithError(mcHistograms_matchElectron[i], value, totalWeight, addError2);

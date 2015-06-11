@@ -660,8 +660,8 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, metCutNa
     photonSF = fitFrac * dataInt / photonInt
     photonSFerror = photonSF * ( (fitFracErr/fitFrac)**2 + (dataIntError/dataInt)**2 + (photonIntError/photonInt)**2 )**0.5
 
-    jetSF = (1.0-fitFrac) * dataInt / jetInt
-    jetSFerror = jetSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (jetIntError/jetInt)**2 )**0.5
+    jetSF = (1.0-fitFrac) * dataInt / jetInt if (jetInt > 0.) else 0.
+    jetSFerror = jetSF * ( (fitFracErr/(1.0-fitFrac))**2 + (dataIntError/dataInt)**2 + (jetIntError/jetInt)**2 )**0.5 if (jetInt > 0. and fitFrac < 1.) else 0.
 
     # purity measurement
 
@@ -747,6 +747,7 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, metCutNam
     (nonpromptSF, nonpromptSFerror) = nonpromptResults
 
     inputMatched = '../fitTemplates.root'
+
     outputFile = ROOT.TFile('wigglePurity_'+channel+'_'+controlRegion+metCutName+'_'+outName+'.root', 'UPDATE')
 
     systName = systematic
@@ -864,3 +865,69 @@ def wigglePurity(varName, outName, channel, controlRegion, systematic, metCutNam
         
     outputFile.Close()
 
+def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjetsResults, topM3Results, dilepResults, eleFakeRateResults, promptResults, nonpromptResults):
+
+    (wjetsSF, wjetsSFerror) = wjetsResults
+    (topM3sf, topM3sfError) = topM3Results
+    (dilepSF, dilepSFerror) = dilepResults
+    (eleFakeRateSF, eleFakeRateSFerror) = eleFakeRateResults
+
+    (promptSF, promptSFerror) = promptResults
+    (nonpromptSF, nonpromptSFerror) = nonpromptResults
+
+    inputMatched = '../fitTemplates.root'
+    output = ROOT.TFile('limitInputs_'+channel+'_'+controlRegion+'_'+version+metCutName+'.root', 'RECREATE')
+
+    systName = systematic
+
+    if systematic == '_qcdDefUp':
+        systName = ''
+    elif systematic == '_qcdDefDown':
+        systName = ''
+
+    names = ['ttjets', 'wjets', 'zjets', 'singleTop', 'diboson', 'vgamma', 'ttW', 'ttZ', 'ttgamma']
+
+    namesFull = [['ttJetsSemiLep', 'ttJetsFullLep', 'ttJetsHadronic'],
+                 ['W3JetsToLNu', 'W4JetsToLNu'],
+                 ['dy1JetsToLL', 'dy2JetsToLL', 'dy3JetsToLL', 'dy4JetsToLL'],
+                 ['TBar_s', 'TBar_t', 'TBar_tW', 'T_s', 'T_t', 'T_tW'],
+                 ['WW', 'WZ', 'ZZ'],
+                 ['WGToLNuG', 'ZGToLLG'],
+                 ['TTWJets'],
+                 ['TTZJets'],
+                 ['TTGamma']]
+
+    for i in range(0, len(names)):
+        photonHist = get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][0]+'_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
+        photonHist.Add(get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][0]+'_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+
+        jetHist = get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][0]+'_'+channel+'_'+controlRegion+'_matchJet'+systName)
+        
+        for j in range (1, len(namesFull[i])):
+            photonHist.Add(get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][j]+'_'+channel+'_'+controlRegion+'_matchPhoton'+systName))
+            photonHist.Add(get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][j]+'_'+channel+'_'+controlRegion+'_matchElectron'+systName))
+            jetHist.Add(get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][j]+'_'+channel+'_'+controlRegion+'_matchJet'+systName))
+
+        if names[i] == 'ttjets':
+            ScaleWithError(photonHist, topM3sf, topM3sfError)
+            ScaleWithError(jetHist, topM3sf, topM3sfError)
+
+        if names[i] == 'wjets':
+            ScaleWithError(photonHist, wjetsSF, wjetsSFerror)
+            ScaleWithError(jetHist, wjetsSF, wjetsSFerror)
+
+        if names[i] == 'zjets':
+            ScaleWithError(photonHist, dilepSF, dilepSFerror)
+            ScaleWithError(photonHist, eleFakeRateSF, eleFakeRateSFerror)
+            ScaleWithError(jetHist, dilepSF, dilepSFerror)
+            ScaleWithError(jetHist, eleFakeRateSF, eleFakeRateSFerror)
+
+        ScaleWithError(photonHist, promptSF, promptSFerror)
+        ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
+
+        photonHist.Add(jetHist)
+
+        output.cd()
+        photonHist.Write(names[i]+systName)
+
+    output.Close()
