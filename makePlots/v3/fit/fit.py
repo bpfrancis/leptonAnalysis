@@ -1,4 +1,5 @@
 from utils import *
+from array import array
 
 def normalizeQCD(input, channel, systematic, wjetsResults, topM3Results, dilepResults, eleFakeRateResults):
 
@@ -930,9 +931,9 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
 
         photonHist.Add(jetHist)
 
-        photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', xbins)
+        photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', array('d', xbins))
 
         output.cd()
-        photonHist.Write(names[i]+systName)
+        photonRebinned.Write(names[i]+systName)
 
     output.Close()

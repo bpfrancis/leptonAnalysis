@@ -1120,81 +1120,112 @@ void TemplateMaker::FillMCBackgrounds() {
       Float_t addError2 = puWeightErr*puWeightErr/puWeight/puWeight + btagWeightErr*btagWeightErr/btagWeight/btagWeight;
       addError2 *= totalWeight*totalWeight;
 
+      if(totalWeight < 1.e-6) continue;
       if(addError2 != addError2) continue;
 
       FillWithError(mcHistograms[i], value, totalWeight, addError2);
-      if(leadMatchGamma == 1) FillWithError(mcHistograms_matchPhoton[i], value, totalWeight, addError2);
-      if(leadMatchElectron == 1) FillWithError(mcHistograms_matchElectron[i], value, totalWeight, addError2);
-      if(leadMatchJet == 1) FillWithError(mcHistograms_matchJet[i], value, totalWeight, addError2);
+      
+      mcHistograms_btagWeightUp[i][k]->Fill(value, totalWeight * btagWeightUp/btagWeight);
+      mcHistograms_btagWeightDown[i][k]->Fill(value, totalWeight * btagWeightDown/btagWeight);
+	
+      mcHistograms_puWeightUp[i][k]->Fill(value, totalWeight * puWeightUp/puWeight);
+      mcHistograms_puWeightDown[i][k]->Fill(value, totalWeight * puWeightDown/puWeight);
+      
+      mcHistograms_leptonSFup[i][k]->Fill(value, totalWeight * leptonSFup/leptonSF);
+      mcHistograms_leptonSFdown[i][k]->Fill(value, totalWeight * leptonSFdown/leptonSF);
+      
+      mcHistograms_photonSFup[i][k]->Fill(value, totalWeight * photonSFup/photonSF);
+      mcHistograms_photonSFdown[i][k]->Fill(value, totalWeight * photonSFdown/photonSF);
+      
+      if(reweightTopPt[i]) {
+	mcHistograms_topPtUp[i][k]->Fill(value, totalWeight * topPtReweighting);
+	mcHistograms_topPtDown[i][k]->Fill(value, totalWeight / topPtReweighting);
+      }
+      else {
+	mcHistograms_topPtUp[i][k]->Fill(value, totalWeight);
+	mcHistograms_topPtDown[i][k]->Fill(value, totalWeight);
+      }
 
-      totalWeight = puWeight * btagWeightUp * leptonSF * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_btagWeightUp[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_btagWeightUp[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_btagWeightUp[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_btagWeightUp[i]->Fill(value, totalWeight);
+      if(leadMatchGamma == 1) {
 
-      totalWeight = puWeight * btagWeightDown * leptonSF * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_btagWeightDown[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_btagWeightDown[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_btagWeightDown[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_btagWeightDown[i]->Fill(value, totalWeight);
+	FillWithError(mcHistograms_matchPhoton[i], value, totalWeight, addError2);
+	
+	mcHistograms_matchPhoton_btagWeightUp[i][k]->Fill(value, totalWeight * btagWeightUp/btagWeight);
+	mcHistograms_matchPhoton_btagWeightDown[i][k]->Fill(value, totalWeight * btagWeightDown/btagWeight);
+	
+	mcHistograms_matchPhoton_puWeightUp[i][k]->Fill(value, totalWeight * puWeightUp/puWeight);
+	mcHistograms_matchPhoton_puWeightDown[i][k]->Fill(value, totalWeight * puWeightDown/puWeight);
+	
+	mcHistograms_matchPhoton_leptonSFup[i][k]->Fill(value, totalWeight * leptonSFup/leptonSF);
+	mcHistograms_matchPhoton_leptonSFdown[i][k]->Fill(value, totalWeight * leptonSFdown/leptonSF);
+	
+	mcHistograms_matchPhoton_photonSFup[i][k]->Fill(value, totalWeight * photonSFup/photonSF);
+	mcHistograms_matchPhoton_photonSFdown[i][k]->Fill(value, totalWeight * photonSFdown/photonSF);
+	
+	if(reweightTopPt[i]) {
+	  mcHistograms_matchPhoton_topPtUp[i][k]->Fill(value, totalWeight * topPtReweighting);
+	  mcHistograms_matchPhoton_topPtDown[i][k]->Fill(value, totalWeight / topPtReweighting);
+	}
+	else {
+	  mcHistograms_matchPhoton_topPtUp[i][k]->Fill(value, totalWeight);
+	  mcHistograms_matchPhoton_topPtDown[i][k]->Fill(value, totalWeight);
+	}
+	
+      } // if match gamma
 
-      totalWeight = puWeightUp * btagWeight * leptonSF * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_puWeightUp[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_puWeightUp[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_puWeightUp[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_puWeightUp[i]->Fill(value, totalWeight);
+      if(leadMatchElectron == 1) {
 
-      totalWeight = puWeightDown * btagWeight * leptonSF * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_puWeightDown[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_puWeightDown[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_puWeightDown[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_puWeightDown[i]->Fill(value, totalWeight);
+	FillWithError(mcHistograms_matchElectron[i], value, totalWeight, addError2);
+	
+	mcHistograms_matchElectron_btagWeightUp[i][k]->Fill(value, totalWeight * btagWeightUp/btagWeight);
+	mcHistograms_matchElectron_btagWeightDown[i][k]->Fill(value, totalWeight * btagWeightDown/btagWeight);
+	
+	mcHistograms_matchElectron_puWeightUp[i][k]->Fill(value, totalWeight * puWeightUp/puWeight);
+	mcHistograms_matchElectron_puWeightDown[i][k]->Fill(value, totalWeight * puWeightDown/puWeight);
+	
+	mcHistograms_matchElectron_leptonSFup[i][k]->Fill(value, totalWeight * leptonSFup/leptonSF);
+	mcHistograms_matchElectron_leptonSFdown[i][k]->Fill(value, totalWeight * leptonSFdown/leptonSF);
+	
+	mcHistograms_matchElectron_photonSFup[i][k]->Fill(value, totalWeight * photonSFup/photonSF);
+	mcHistograms_matchElectron_photonSFdown[i][k]->Fill(value, totalWeight * photonSFdown/photonSF);
+	
+	if(reweightTopPt[i]) {
+	  mcHistograms_matchElectron_topPtUp[i][k]->Fill(value, totalWeight * topPtReweighting);
+	  mcHistograms_matchElectron_topPtDown[i][k]->Fill(value, totalWeight / topPtReweighting);
+	}
+	else {
+	  mcHistograms_matchElectron_topPtUp[i][k]->Fill(value, totalWeight);
+	  mcHistograms_matchElectron_topPtDown[i][k]->Fill(value, totalWeight);
+	}
+	
+      } // if match electron
 
-      totalWeight = puWeight * btagWeight * leptonSFup * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_leptonSFup[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_leptonSFup[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_leptonSFup[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_leptonSFup[i]->Fill(value, totalWeight);
+      else { // else match jet
 
-      totalWeight = puWeight * btagWeight * leptonSFdown * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_leptonSFdown[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_leptonSFdown[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_leptonSFdown[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_leptonSFdown[i]->Fill(value, totalWeight);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSFup;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_photonSFup[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_photonSFup[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_photonSFup[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_photonSFup[i]->Fill(value, totalWeight);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSFdown;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting;
-      mcHistograms_photonSFdown[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_photonSFdown[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_photonSFdown[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_photonSFdown[i]->Fill(value, totalWeight);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-      if(reweightTopPt[i]) totalWeight *= topPtReweighting * topPtReweighting;
-      mcHistograms_topPtUp[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_topPtUp[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_topPtUp[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_topPtUp[i]->Fill(value, totalWeight);
-
-      totalWeight = puWeight * btagWeight * leptonSF * photonSF;
-      mcHistograms_topPtDown[i]->Fill(value, totalWeight);
-      if(leadMatchGamma == 1) mcHistograms_matchPhoton_topPtDown[i]->Fill(value, totalWeight);
-      if(leadMatchElectron == 1) mcHistograms_matchElectron_topPtDown[i]->Fill(value, totalWeight);
-      if(leadMatchJet == 1) mcHistograms_matchJet_topPtDown[i]->Fill(value, totalWeight);
+	FillWithError(mcHistograms_matchJet[i], value, totalWeight, addError2);
+	
+	mcHistograms_matchJet_btagWeightUp[i][k]->Fill(value, totalWeight * btagWeightUp/btagWeight);
+	mcHistograms_matchJet_btagWeightDown[i][k]->Fill(value, totalWeight * btagWeightDown/btagWeight);
+	
+	mcHistograms_matchJet_puWeightUp[i][k]->Fill(value, totalWeight * puWeightUp/puWeight);
+	mcHistograms_matchJet_puWeightDown[i][k]->Fill(value, totalWeight * puWeightDown/puWeight);
+	
+	mcHistograms_matchJet_leptonSFup[i][k]->Fill(value, totalWeight * leptonSFup/leptonSF);
+	mcHistograms_matchJet_leptonSFdown[i][k]->Fill(value, totalWeight * leptonSFdown/leptonSF);
+	
+	mcHistograms_matchJet_photonSFup[i][k]->Fill(value, totalWeight * photonSFup/photonSF);
+	mcHistograms_matchJet_photonSFdown[i][k]->Fill(value, totalWeight * photonSFdown/photonSF);
+	
+	if(reweightTopPt[i]) {
+	  mcHistograms_matchJet_topPtUp[i][k]->Fill(value, totalWeight * topPtReweighting);
+	  mcHistograms_matchJet_topPtDown[i][k]->Fill(value, totalWeight / topPtReweighting);
+	}
+	else {
+	  mcHistograms_matchJet_topPtUp[i][k]->Fill(value, totalWeight);
+	  mcHistograms_matchJet_topPtDown[i][k]->Fill(value, totalWeight);
+	}
+	
+      } // if match jet
 
     }
 
