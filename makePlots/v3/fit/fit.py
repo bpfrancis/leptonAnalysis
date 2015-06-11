@@ -876,7 +876,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
     (nonpromptSF, nonpromptSFerror) = nonpromptResults
 
     inputMatched = '../fitTemplates.root'
-    output = ROOT.TFile('limitInputs_'+channel+'_'+controlRegion+'_'+version+metCutName+'.root', 'RECREATE')
+    output = ROOT.TFile('limitInputs_'+channel+'_'+controlRegion+'_'+version+metCutName+'.root', 'UPDATE')
 
     systName = systematic
 
@@ -896,6 +896,9 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
                  ['TTWJets'],
                  ['TTZJets'],
                  ['TTGamma']]
+
+    nBins = 10
+    xbins = [0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 800]
 
     for i in range(0, len(names)):
         photonHist = get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][0]+'_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
@@ -926,6 +929,8 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
         ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
 
         photonHist.Add(jetHist)
+
+        photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', xbins)
 
         output.cd()
         photonHist.Write(names[i]+systName)
