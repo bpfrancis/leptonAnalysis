@@ -931,19 +931,40 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             ScaleWithError(jetHist, dilepSF, dilepSFerror)
             ScaleWithError(jetHist, eleFakeRateSF, eleFakeRateSFerror)
 
-        sumNoScale = photonHist.Clone(names[i]+systName+'_noScale')
-        sumNoScale.Add(jetHist)
-        sumNoScaleReb = sumNoScale.Rebin(nBins, names[i]+systName+'_noScale_reb', array('d', xbins))
+        (before, beforeErr) = integrateErrorSum(photonHist, jetHist)
+
+        simpleScaling = photonHist.Clone(names[i]+systName+'_simpleScaling')
+        simpleScaling.Add(jetHist)
 
         ScaleWithError(photonHist, promptSF, promptSFerror)
         ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
 
-        photonHist.Add(jetHist)
+        (after, afterErr) = integrateErrorSum(photonHist, jetHist)
+        
+        scale_this = after / before if (before > 0.) else 0.
+        scaleError_this = scale_ttjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
+        ScaleWithError(simpleScaling, scale_this, scaleError_this)
+        simpleScalingRebinned = simpleScaling.Rebin(nBins, names[i]+systName+'_simpleScaling_reb', array('d', xbins))
+
+        photonHist.Add(jetHist)
         photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', array('d', xbins))
 
         output.cd(outputFolder)
-        sumNoScaleReb.Write(names[i]+'_noScale'+systematic)
         photonRebinned.Write(names[i]+systematic)
+        simpleScalingRebinned.Write(names[i]+'_simpleScaling'+systematic)
+
+        if controlRegion == 'SR1':
+            output_simpleScaling = open('puritySF_'+names[i]+'_'+channel+'_'+version+metCutName+'.txt', 'a')
+            firstLine = systematic
+            if systematic == '':
+                firstLine = 'central'
+                output_simpleScaling.write('systematic\tSF\tError\n')
+
+                output_simpleScaling.write(firstLine+'\t'+
+                                           str(scale_this)+'\t'+
+                                           str(scaleError_this)+'\n')
+
+                output_simpleScaling.close()
 
     output.Close()
