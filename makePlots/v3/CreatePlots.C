@@ -27,6 +27,29 @@ void readFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& 
 
 }
 
+void CombineFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t>& errors) {
+
+  vector<Float_t> newScales, newErrors;
+  readFitResults(fileName, newScales, newErrors);
+
+  for(unsigned int i = 0; i < scales.size(); i++) {
+    Float_t a = scales[i];
+    Float_t b = newScales[i];
+
+    Float_t sa = errors[i];
+    Float_t sb = newErrors[i];
+
+    if(a == 0. || b == 0.) continue;
+
+    Float_t val = a*b;
+    Float_t err = a*b*sqrt(sa*sa/a/a + sb*sb/b/b);
+
+    scales[i] = val;
+    errors[i] = err;
+  }
+
+}
+
 void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
 
   gROOT->Reset();
@@ -40,56 +63,110 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   //          (either zero fake rate or zero photons required)
   // else: dilepton * fake rate
   
-  vector<Float_t> sf_vgamma, sfError_vgamma;
-  readFitResults("scaleFactors/dilepSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
-  if(channels[channel].Contains("ele") && controlRegion != kAny && controlRegion != kCR0) {
-    vector<Float_t> sf_vgamma_fakeRate, sfError_vgamma_fakeRate;
-    readFitResults("scaleFactors/eleFakeRateSF_"+channels[channel]+".txt", sf_vgamma_fakeRate, sfError_vgamma_fakeRate);
-    for(unsigned int i = 0; i < sf_vgamma.size(); i++) {
-      Float_t a = sf_vgamma[i];
-      Float_t b = sf_vgamma_fakeRate[i];
+  vector<Float_t> sf_qcd, sf_ttjets, sf_wjets, sf_zjets, sf_singleTop, sf_diboson, sf_vgamma, sf_ttW, sf_ttZ, sf_ttgamma;
+  vector<Float_t> sfError_qcd, sfError_ttjets, sfError_wjets, sfError_zjets, sfError_singleTop, sfError_diboson, sfError_vgamma, sfError_ttW, sfError_ttZ, sfError_ttgamma;
 
-      Float_t erra = sfError_vgamma[i];
-      Float_t errb = sfError_vgamma_fakeRate[i];
-
-      sf_vgamma[i] = a*b;
-      sfError_vgamma[i] = a*b * sqrt(erra*erra/a/a + errb*errb/b/b);
-    }
-  }
-
-  // doQCDFit -- only for *_bjj_Any
-  vector<Float_t> sf_qcd, sfError_qcd;
+  // qcd
   if(controlRegion == kAny && channels[channel].Contains("bjj")) readFitResults("scaleFactors/qcdSF_kAny_"+channels[channel]+".txt", sf_qcd, sfError_qcd);
 
-  // doM3Fit
-  vector<Float_t> sf_ttbar, sfError_ttbar;
-  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttbar, sfError_ttbar);
-
-  vector<Float_t> sf_wjets, sfError_wjets;
-  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
-
-  // doSigmaFit
-  vector<Float_t> sf_ttgamma, sfError_ttgamma;
-  /*
-  if(controlRegion != kCR0 && controlRegion != kAny && channels[channel].Contains("bjj")) {
-    vector<Float_t> sf_ttbar_extra, sfError_ttbar_extra;
-    readFitResults("scaleFactors/ttbarSF_sigma_"+channels[channel]+".txt", sf_ttbar_extra, sfError_ttbar_extra);
-    for(unsigned int i = 0; i < sf_ttbar.size(); i++) {
-      sf_ttbar[i] *= sf_ttbar_extra[i];
-      sfError_ttbar[i] = sqrt(sfError_ttbar_extra[i]*sfError_ttbar_extra[i] + sfError_ttbar[i]*sfError_ttbar[i]);
-    }
-
-    readFitResults("scaleFactors/ttgammaSF_sigma_"+channels[channel]+".txt", sf_ttgamma, sfError_ttgamma);
+  // ttjets
+  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttjets, sfError_ttjets);
+  if(controlRegion == kSR1) {
+    CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
   }
-  */
+  if(controlRegion == kSR2) {
+    CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
+    CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
+  }
   
+  // wjets
+  if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
+  if(controlRegion == kSR1) {
+    CombineFitResults("scaleFactors/puritySF_wjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_wjets, sfError_wjets);
+  }
+  if(controlRegion == kSR2) {
+    CombineFitResults("scaleFactors/puritySF_wjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_wjets, sfError_wjets);
+    CombineFitResults("scaleFactors/puritySF_wjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_wjets, sfError_wjets);
+  }
+
+  // zjets
+  readFitResults("scaleFactors/dilepSF_"+channels[channel]+".txt", sf_zjets, sfError_zjets);
+  if(channels[channel].Contains("ele") && controlRegion != kAny && controlRegion != kCR0) {
+    CombineFitResults("scaleFactors/eleFakeRateSF_"+channels[channel]+".txt", sf_zjets, sfError_zjets);
+  }
+  if(controlRegion == kSR1) {
+    CombineFitResults("scaleFactors/puritySF_zjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_zjets, sfError_zjets);
+  }
+  if(controlRegion == kSR2) {
+    CombineFitResults("scaleFactors/puritySF_zjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_zjets, sfError_zjets);
+    CombineFitResults("scaleFactors/puritySF_zjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_zjets, sfError_zjets);
+  }
+
+  // singleTop
+  if(controlRegion == kSR1) {
+    readFitResults("scaleFactors/puritySF_singleTop_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_singleTop, sfError_singleTop);
+  }
+  if(controlRegion == kSR2) {
+    readFitResults("scaleFactors/puritySF_singleTop_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_singleTop, sfError_singleTop);
+    CombineFitResults("scaleFactors/puritySF_singleTop_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_singleTop, sfError_singleTop);
+  }
+
+  // diboson
+  if(controlRegion == kSR1) {
+    readFitResults("scaleFactors/puritySF_diboson_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_diboson, sfError_diboson);
+  }
+  if(controlRegion == kSR2) {
+    readFitResults("scaleFactors/puritySF_diboson_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_diboson, sfError_diboson);
+    CombineFitResults("scaleFactors/puritySF_diboson_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_diboson, sfError_diboson);
+  }
+
+  // vgamma
+  readFitResults("scaleFactors/dilepSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+  if(channels[channel].Contains("ele") && controlRegion != kAny && controlRegion != kCR0) {
+    CombineFitResults("scaleFactors/eleFakeRateSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
+  }
+  if(controlRegion == kSR1) {
+    CombineFitResults("scaleFactors/puritySF_vgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_vgamma, sfError_vgamma);
+  }
+  if(controlRegion == kSR2) {
+    CombineFitResults("scaleFactors/puritySF_vgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_vgamma, sfError_vgamma);
+    CombineFitResults("scaleFactors/puritySF_vgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_vgamma, sfError_vgamma);
+  }
+
+  // ttW
+  if(controlRegion == kSR1) {
+    readFitResults("scaleFactors/puritySF_ttW_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttW, sfError_ttW);
+  }
+  if(controlRegion == kSR2) {
+    readFitResults("scaleFactors/puritySF_ttW_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttW, sfError_ttW);
+    CombineFitResults("scaleFactors/puritySF_ttW_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttW, sfError_ttW);
+  }
+
+  // ttZ
+  if(controlRegion == kSR1) {
+    readFitResults("scaleFactors/puritySF_ttZ_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttZ, sfError_ttZ);
+  }
+  if(controlRegion == kSR2) {
+    readFitResults("scaleFactors/puritySF_ttZ_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttZ, sfError_ttZ);
+    CombineFitResults("scaleFactors/puritySF_ttZ_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttZ, sfError_ttZ);
+  }
+
+  // ttgamma
+  if(controlRegion == kSR1) {
+    readFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+  }
+  if(controlRegion == kSR2) {
+    readFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+    CombineFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+  }
+
   PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
 
   vector<TString> ttJets;
   ttJets.push_back("ttJetsSemiLep");
   ttJets.push_back("ttJetsFullLep");
   ttJets.push_back("ttJetsHadronic");
-  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} + Jets", kGG, kTTbar, sf_ttbar, sfError_ttbar);
+  pMaker->BookMCLayer(ttJets, kGray, "ttjets", "t#bar{t} + Jets", kGG, kTTbar, sf_ttjets, sfError_ttjets);
 
   vector<TString> wJets;
   //wJets.push_back("W1JetsToLNu");
@@ -104,7 +181,7 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   zJets.push_back("dy2JetsToLL");
   zJets.push_back("dy3JetsToLL");
   zJets.push_back("dy4JetsToLL");
-  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV, sf_vgamma, sfError_vgamma);
+  pMaker->BookMCLayer(zJets, kYellow, "zjets", "Z/#gamma* + Jets", kQQ, kV, sf_zjets, sfError_zjets);
 
   vector<TString> singleTop;
   singleTop.push_back("TBar_s");
@@ -113,13 +190,13 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   singleTop.push_back("T_s");
   singleTop.push_back("T_t");
   singleTop.push_back("T_tW");
-  pMaker->BookMCLayer(singleTop, kRed, "singleTop", "Single top", kQG, kTTbar);
+  pMaker->BookMCLayer(singleTop, kRed, "singleTop", "Single top", kQG, kTTbar, sf_singleTop, sfError_singleTop);
 
   vector<TString> diboson;
   diboson.push_back("WW");
   diboson.push_back("WZ");
   diboson.push_back("ZZ");
-  pMaker->BookMCLayer(diboson, kViolet-2, "diboson", "VV, V#gamma", kQQ, kVV);
+  pMaker->BookMCLayer(diboson, kViolet-2, "diboson", "VV, V#gamma", kQQ, kVV, sf_diboson, sfError_diboson);
 
   vector<TString> vgamma;
   vgamma.push_back("WGToLNuG");
@@ -128,11 +205,11 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
   vector<TString>  ttW;
   ttW.push_back("TTWJets");
-  pMaker->BookMCLayer(ttW, kCyan, "ttW", "t#bar{t} + V", kQQ, kTTbar);
+  pMaker->BookMCLayer(ttW, kCyan, "ttW", "t#bar{t} + V", kQQ, kTTbar, sf_ttW, sfError_ttW);
 
   vector<TString>  ttZ;
   ttZ.push_back("TTZJets");
-  pMaker->BookMCLayer(ttZ, kOrange-5, "ttZ", "t#bar{t} + V", kGG, kTTbar);
+  pMaker->BookMCLayer(ttZ, kOrange-5, "ttZ", "t#bar{t} + V", kGG, kTTbar, sf_ttZ, sfError_ttZ);
 
   vector<TString> ttgamma;
   if(useWhizard) ttgamma.push_back("ttA_2to5");

@@ -942,7 +942,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
         (after, afterErr) = integrateErrorSum(photonHist, jetHist)
         
         scale_this = after / before if (before > 0.) else 0.
-        scaleError_this = scale_ttjets * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
+        scaleError_this = scale_this * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
         ScaleWithError(simpleScaling, scale_this, scaleError_this)
         simpleScalingRebinned = simpleScaling.Rebin(nBins, names[i]+systName+'_simpleScaling_reb', array('d', xbins))
