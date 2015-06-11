@@ -36,10 +36,10 @@ void makeTemplates() {
   CreateTemplates(input_muon, "leadChargedHadronIso", kSigmaPlot, "muon_bjj", 110, -2.0, 20.0, 50.0, true, false);
 
   // dis-entangling the purity scale factor
-  CreateTemplates(input_ele, "pfMET_t01", kSR1, "ele_bjj", 200, 0., 2000.);
-  CreateTemplates(input_muon, "pfMET_t01", kSR1, "muon_bjj", 200, 0., 2000.);
+  CreateTemplates(input_ele, "pfMET_t01", kSR1, "ele_bjj", 400, 0., 2000.);
+  CreateTemplates(input_muon, "pfMET_t01", kSR1, "muon_bjj", 400, 0., 2000.);
   
-  CreateTemplates(input_ele, "pfMET_t01", kSR2, "ele_bjj", 200, 0., 2000.);
-  CreateTemplates(input_muon, "pfMET_t01", kSR2, "muon_bjj", 200, 0., 2000.);
+  CreateTemplates(input_ele, "pfMET_t01", kSR2, "ele_bjj", 400, 0., 2000.);
+  CreateTemplates(input_muon, "pfMET_t01", kSR2, "muon_bjj", 400, 0., 2000.);
 
 }
