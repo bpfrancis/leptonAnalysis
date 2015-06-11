@@ -877,7 +877,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
     (nonpromptSF, nonpromptSFerror) = nonpromptResults
 
     inputMatched = '../fitTemplates.root'
-    output = ROOT.TFile('limitInputsScaled_bjj.root', 'UPDATE')
+    output = ROOT.TFile('limitInputsScaled_bjj_'+version+metCutName+'.root', 'UPDATE')
 
     outputFolder = 'ele_'+controlRegion if ('ele' in channel) else 'muon_'+controlRegion
 
@@ -931,6 +931,10 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             ScaleWithError(jetHist, dilepSF, dilepSFerror)
             ScaleWithError(jetHist, eleFakeRateSF, eleFakeRateSFerror)
 
+        sumNoScale = photonHist.Clone(names[i]+systName+'_noScale')
+        sumNoScale.Add(jetHist)
+        sumNoScaleReb = sumNoScale.Rebin(nBins, names[i]+systName+'_noScale_reb', array('d', xbins))
+
         ScaleWithError(photonHist, promptSF, promptSFerror)
         ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
 
@@ -939,6 +943,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
         photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', array('d', xbins))
 
         output.cd(outputFolder)
+        sumNoScaleReb.Write(names[i]+'_noScale'+systematic)
         photonRebinned.Write(names[i]+systematic)
 
     output.Close()
