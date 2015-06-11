@@ -881,7 +881,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
 
     outputFolder = 'ele_'+controlRegion if ('ele' in channel) else 'muon_'+controlRegion
 
-    if(!(output.GetDirectory(outputFolder))):
+    if not output.GetDirectory(outputFolder):
         output.mkdir(outputFolder)
 
     systName = systematic
