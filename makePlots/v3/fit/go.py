@@ -54,13 +54,15 @@ def goPhotonPurity(version, versionShort, metCutName, channel, xlo, xhi, wjetsRe
                      wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                      promptResults[jsyst], nonpromptResults[jsyst])
         fixLimitInputs(channel, 'SR1', systematic, versionShort, metCutName,
-                       wjetsResults, topM3Results, dilepResults, eleFakeRateResults, promptResults, nonpromptResults)
+                       wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                       promptResults[jsyst], nonpromptResults[jsyst])
 
         wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
                      wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                      promptResults[jsyst], nonpromptResults[jsyst])
         fixLimitInputs(channel, 'SR2', systematic, versionShort, metCutName,
-                       wjetsResults, topM3Results, dilepResults, eleFakeRateResults, promptResults, nonpromptResults)
+                       wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+                       promptResults[jsyst], nonpromptResults[jsyst])
         
         jsyst += 1
 
