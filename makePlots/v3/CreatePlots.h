@@ -551,18 +551,18 @@ void PlotMaker::GetHistograms(unsigned int n) {
       ScaleByFit(i, mc_btagWeightDown, fitScales[i][2], fitScaleErrors[i][2]);
       ScaleByFit(i, mc_puWeightUp, fitScales[i][3], fitScaleErrors[i][3]);
       ScaleByFit(i, mc_puWeightDown, fitScales[i][4], fitScaleErrors[i][4]);
-      ScaleByFit(i, mc_scaleUp, fitScales[i][0], fitScaleErrors[i][0]);
-      ScaleByFit(i, mc_scaleDown, fitScales[i][0], fitScaleErrors[i][0]);
-      ScaleByFit(i, mc_pdfUp, fitScales[i][0], fitScaleErrors[i][0]);
-      ScaleByFit(i, mc_pdfDown, fitScales[i][0], fitScaleErrors[i][0]);
-      ScaleByFit(i, mc_topPtUp, fitScales[i][5], fitScaleErrors[i][5]);
-      ScaleByFit(i, mc_topPtDown, fitScales[i][6], fitScaleErrors[i][6]);
-      ScaleByFit(i, mc_JECUp, fitScales[i][7], fitScaleErrors[i][7]);
-      ScaleByFit(i, mc_JECDown, fitScales[i][8], fitScaleErrors[i][8]);
-      ScaleByFit(i, mc_leptonSFUp, fitScales[i][9], fitScaleErrors[i][9]);
-      ScaleByFit(i, mc_leptonSFDown, fitScales[i][10], fitScaleErrors[i][10]);
-      ScaleByFit(i, mc_photonSFUp, fitScales[i][11], fitScaleErrors[i][11]);
-      ScaleByFit(i, mc_photonSFDown, fitScales[i][12], fitScaleErrors[i][12]);
+      ScaleByFit(i, mc_scaleUp, fitScales[i][5], fitScaleErrors[i][5]);
+      ScaleByFit(i, mc_scaleDown, fitScales[i][6], fitScaleErrors[i][6]);
+      ScaleByFit(i, mc_pdfUp, fitScales[i][7], fitScaleErrors[i][7]);
+      ScaleByFit(i, mc_pdfDown, fitScales[i][8], fitScaleErrors[i][8]);
+      ScaleByFit(i, mc_topPtUp, fitScales[i][9], fitScaleErrors[i][9]);
+      ScaleByFit(i, mc_topPtDown, fitScales[i][10], fitScaleErrors[i][10]);
+      ScaleByFit(i, mc_JECUp, fitScales[i][11], fitScaleErrors[i][11]);
+      ScaleByFit(i, mc_JECDown, fitScales[i][12], fitScaleErrors[i][12]);
+      ScaleByFit(i, mc_leptonSFUp, fitScales[i][13], fitScaleErrors[i][13]);
+      ScaleByFit(i, mc_leptonSFDown, fitScales[i][14], fitScaleErrors[i][14]);
+      ScaleByFit(i, mc_photonSFUp, fitScales[i][15], fitScaleErrors[i][15]);
+      ScaleByFit(i, mc_photonSFDown, fitScales[i][16], fitScaleErrors[i][16]);
     }
   }
 
