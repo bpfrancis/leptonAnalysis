@@ -834,7 +834,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             photonHist.Add(jetHist)
             photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', array('d', xbins))
 
-            noScalingRebinning = noScaling.Rebin(nBins, names[i]+systName+'_noScaling_reb', array('d', xbins))
+            noScalingRebinned = noScaling.Rebin(nBins, names[i]+systName+'_noScaling_reb', array('d', xbins))
 
             output.cd(outputFolder)
             photonRebinned.Write(names[i]+systematic)

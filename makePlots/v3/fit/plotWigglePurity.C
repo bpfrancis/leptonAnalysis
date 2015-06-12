@@ -22,7 +22,7 @@ void compareWiggle(TString folder, TString metCutName, TString version) {
   ratio->Reset();
   ratio->SetTitle("Scaled / Nominal");
   for(int i = 0; i < ratio->GetNbinsX(); i++) {
-    if(beforeReb->GetBinContent(i+1) == 0.) continue;
+    if(before->GetBinContent(i+1) == 0.) continue;
     ratio->SetBinContent(i+1, after->GetBinContent(i+1) / before->GetBinContent(i+1));
     ratio->SetBinError(i+1, after->GetBinError(i+1) / before->GetBinContent(i+1));
   }
