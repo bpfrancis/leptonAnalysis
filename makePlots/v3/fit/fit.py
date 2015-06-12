@@ -834,10 +834,12 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             photonHist.Add(jetHist)
             photonRebinned = photonHist.Rebin(nBins, names[i]+systName+'_reb', array('d', xbins))
 
+            noScalingRebinning = noScaling.Rebin(nBins, names[i]+systName+'_noScaling_reb', array('d', xbins))
+
             output.cd(outputFolder)
             photonRebinned.Write(names[i]+systematic)
             simpleScalingRebinned.Write(names[i]+'_simpleScaling'+systematic)
-            noScaling.Write(names[i]+'_noScaling'+systematic)
+            noScalingRebinned.Write(names[i]+'_noScaling'+systematic)
 
             if controlRegion == 'SR1':
                 output_simpleScaling = open('puritySF_'+names[i]+'_'+channel+'_'+version+metCutName+'.txt', 'a')
