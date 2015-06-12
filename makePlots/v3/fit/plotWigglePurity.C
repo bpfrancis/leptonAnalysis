@@ -2,28 +2,29 @@
 
 using namespace std;
 
-void compareWiggle(TString channel, TString metCutName, TString version, TString cr) {
+void compareWiggle(TString folder, TString metCutName, TString version) {
 
-  TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
+  TString names[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
 
-  TFile * input = new TFile("wigglePurity_"+channel+"_"+cr+metCutName+"_"+version+".root", "READ");
+  TFile * input = new TFile("limitInputsScaled_bjj_"+version+metCutName+".root", "READ");
 
-  TH1D * before = (TH1D*)input->Get("pfMET_t01_before_"+channel+"_"+cr);
-  TH1D * after = (TH1D*)input->Get("pfMET_t01_after_"+channel+"_"+cr);
+  TH1D * before = (TH1D*)input->Get(folder+"/ttjets_noScaling");
+  TH1D * after = (TH1D*)input->Get(folder+"/ttjets");
 
-  const int nMetBins_1g = 10;
-  Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 800};
+  for(int i = 1; i < 9; i++) {
+    if(names[i] == "ttgamma") before->Add((TH1D*)input->Get(folder+"/"+names[i]+"_noScaling"));
+    else before->Add((TH1D*)input->Get(folder+"/"+names[i]));
 
-  TH1D * beforeReb = (TH1D*)before->Rebin(nMetBins_1g, "beforeReb", xbins_met_1g);
-  TH1D * afterReb = (TH1D*)after->Rebin(nMetBins_1g, "afterReb", xbins_met_1g);
+    after->Add((TH1D*)input->Get(folder+"/"+names[i]));
+  }
 
-  TH1D * ratio = (TH1D*)afterReb->Clone("ratio");
+  TH1D * ratio = (TH1D*)after->Clone("ratio");
   ratio->Reset();
   ratio->SetTitle("Scaled / Nominal");
   for(int i = 0; i < ratio->GetNbinsX(); i++) {
     if(beforeReb->GetBinContent(i+1) == 0.) continue;
-    ratio->SetBinContent(i+1, afterReb->GetBinContent(i+1) / beforeReb->GetBinContent(i+1));
-    ratio->SetBinError(i+1, afterReb->GetBinError(i+1) / beforeReb->GetBinContent(i+1));
+    ratio->SetBinContent(i+1, after->GetBinContent(i+1) / before->GetBinContent(i+1));
+    ratio->SetBinError(i+1, after->GetBinError(i+1) / before->GetBinContent(i+1));
   }
 
   TCanvas * can = new TCanvas("can", "Plot", 10, 10, 2000, 2000);
@@ -39,7 +40,7 @@ void compareWiggle(TString channel, TString metCutName, TString version, TString
   padhi->Draw();
   padlo->Draw();
 
-  afterReb->SetLineColor(kRed);
+  after->SetLineColor(kRed);
 
   ratio->GetXaxis()->SetTitle("MET");
   ratio->GetXaxis()->SetLabelFont(63);
@@ -55,76 +56,20 @@ void compareWiggle(TString channel, TString metCutName, TString version, TString
   ratio->GetYaxis()->SetNdivisions(508);
 
   TLegend * leg = new TLegend(0.45, 0.6, 0.85, 0.85, "", "brNDC");
-  leg->AddEntry(beforeReb, "MC Background", "LP");
-  leg->AddEntry(afterReb, "Photon purity adjusted", "LP");
+  leg->AddEntry(before, "MC Background", "LP");
+  leg->AddEntry(after, "Photon purity adjusted", "LP");
   leg->SetFillColor(0);
   leg->SetTextSize(0.028);
 
   padhi->cd();
-  afterReb->Draw("hist");
-  beforeReb->Draw("hist same");
+  after->Draw("hist");
+  before->Draw("hist same");
   leg->Draw("same");
 
   padlo->cd();
   ratio->Draw("e1");
 
-  can->SaveAs("plots/compareWiggle_"+version+metCutName+"_"+channel+"_"+cr+".pdf");
-  delete can;
-
-}
-
-void compareShapes(TString channel, TString version, TString cr) {
-
-  TString namesFull[23] = {"ttJetsSemiLep", "ttJetsFullLep", "ttJetsHadronic",
-			   "W3JetsToLNu", "W4JetsToLNu",
-			   "dy1JetsToLL", "dy2JetsToLL", "dy3JetsToLL", "dy4JetsToLL",
-			   "TBar_s", "TBar_t", "TBar_tW", "T_s", "T_t", "T_tW",
-			   "WW", "WZ", "ZZ",
-			   "WGToLNuG", "ZGToLLG",
-			   "TTWJets", "TTZJets",
-			   "TTGamma"};
-
-  TString namesShort[9] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
-
-  TFile * fBefore = new TFile("../fitTemplates.root", "READ");
-
-  TH1D * prompt = (TH1D*)fBefore->Get("pfMET_t01_ttJetsSemiLep_"+channel+"_"+cr+"_matchPhoton");
-  prompt->Add((TH1D*)fBefore->Get("pfMET_t01_ttJetsSemiLep_"+channel+"_"+cr+"_matchElectron"));
-
-  for(int i = 1; i < 23; i++) {
-    prompt->Add((TH1D*)fBefore->Get("pfMET_t01_"+namesFull[i]+"_"+channel+"_"+cr+"_matchPhoton"));
-    prompt->Add((TH1D*)fBefore->Get("pfMET_t01_"+namesFull[i]+"_"+channel+"_"+cr+"_matchElectron"));
-  }
-
-  TH1D * nonprompt = (TH1D*)fBefore->Get("pfMET_t01_ttJetsSemiLep_"+channel+"_"+cr+"_matchJet");
-  for(int i = 1; i < 23; i++) nonprompt->Add((TH1D*)fBefore->Get("pfMET_t01_"+namesFull[i]+"_"+channel+"_"+cr+"_matchJet"));
-
-  const int nMetBins_1g = 10;
-  Double_t xbins_met_1g[nMetBins_1g+1] = {0, 10, 20, 30, 40, 50, 75, 100, 150, 300, 800};
-
-  TH1D * promptReb = (TH1D*)prompt->Rebin(nMetBins_1g, "promptReb", xbins_met_1g);
-  TH1D * nonpromptReb = (TH1D*)nonprompt->Rebin(nMetBins_1g, "nonpromptReb", xbins_met_1g);
-
-  promptReb->Scale(1./promptReb->Integral());
-  nonpromptReb->Scale(1./nonpromptReb->Integral());
-
-  TCanvas * can = new TCanvas("can", "Plot", 10, 10, 2000, 2000);
-  can->SetLogy(true);
-
-  nonpromptReb->SetLineColor(kRed);
-  nonpromptReb->GetXaxis()->SetTitle("MET");
-
-  TLegend * leg = new TLegend(0.45, 0.6, 0.85, 0.85, "", "brNDC");
-  leg->AddEntry(promptReb, "Prompt MC", "LP");
-  leg->AddEntry(nonpromptReb, "Non-prompt MC", "LP");
-  leg->SetFillColor(0);
-  leg->SetTextSize(0.028);
-
-  nonpromptReb->Draw("hist");
-  promptReb->Draw("hist same");
-  leg->Draw("same");
-
-  can->SaveAs("plots/compareShapes_"+version+"_"+channel+"_"+cr+".pdf");
+  can->SaveAs("plots/compareWiggle_"+version+metCutName+"_"+folder+".pdf");
   delete can;
 
 }
@@ -137,16 +82,16 @@ void plotWigglePurity() {
   gStyle->SetOptStat(0000);
   gStyle->SetOptTitle(0);
 
-  compareWiggle("ele_bjj", "", "chHadIso", "SR1");
-  compareWiggle("ele_bjj", "_metCut_50", "chHadIso", "SR1");
+  compareWiggle("ele_SR1", "", "chHadIso");
+  compareWiggle("ele_SR1", "_metCut_50", "chHadIso");
 
-  compareWiggle("muon_bjj", "", "chHadIso", "SR1");
-  compareWiggle("muon_bjj", "_metCut_50", "chHadIso", "SR1");
+  compareWiggle("muon_SR1", "", "chHadIso");
+  compareWiggle("muon_SR1", "_metCut_50", "chHadIso");
 
-  compareWiggle("ele_bjj", "", "chHadIso", "SR2");
-  compareWiggle("ele_bjj", "_metCut_50", "chHadIso", "SR2");
+  compareWiggle("ele_SR2", "", "chHadIso");
+  compareWiggle("ele_SR2", "_metCut_50", "chHadIso");
 
-  compareWiggle("muon_bjj", "", "chHadIso", "SR2");
-  compareWiggle("muon_bjj", "_metCut_50", "chHadIso", "SR2");
+  compareWiggle("muon_SR2", "", "chHadIso");
+  compareWiggle("muon_SR2", "_metCut_50", "chHadIso");
 
 }

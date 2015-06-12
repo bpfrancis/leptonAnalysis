@@ -813,8 +813,15 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             simpleScaling = photonHist.Clone(names[i]+systName+'_simpleScaling')
             simpleScaling.Add(jetHist)
 
+            noScaling = photonHist.Clone(names[i]+systName+'_noScaling')
+            noScaling.Add(jetHist)
+
             ScaleWithError(photonHist, promptSF, promptSFerror)
             ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
+
+            if controlRegion == 'SR2':
+                ScaleWithError(photonHist, promptSF, promptSFerror)
+                ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
 
             (after, afterErr) = integrateErrorSum(photonHist, jetHist)
             
@@ -830,6 +837,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             output.cd(outputFolder)
             photonRebinned.Write(names[i]+systematic)
             simpleScalingRebinned.Write(names[i]+'_simpleScaling'+systematic)
+            noScaling.Write(names[i]+'_noScaling'+systematic)
 
             if controlRegion == 'SR1':
                 output_simpleScaling = open('puritySF_'+names[i]+'_'+channel+'_'+version+metCutName+'.txt', 'a')
