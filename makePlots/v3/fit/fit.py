@@ -607,7 +607,7 @@ def doSigmaFitWithMatching(varName, channel, controlRegion, systematic, metCutNa
     ScaleWithError(zHist, eleFakeRateSF, eleFakeRateSFerror)
     bkgHist.Add(zHist)
 
-    data.Add(bkgHist, -1.0)
+    dataHist.Add(bkgHist, -1.0)
 
     (dataInt, dataIntError) = integrateError(dataHist, xlo, xhi)
     (jetInt, jetIntError) = integrateError(jetHist, xlo, xhi)
@@ -793,7 +793,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
 
     for i in range(0, len(names)):
 
-         if names[i] == 'ttjets' or names[i] == 'ttgamma':
+        if names[i] == 'ttjets' or names[i] == 'ttgamma':
             photonHist = get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][0]+'_'+channel+'_'+controlRegion+'_matchPhoton'+systName)
             photonHist.Add(get1DHist(inputMatched, 'pfMET_t01_'+namesFull[i][0]+'_'+channel+'_'+controlRegion+'_matchElectron'+systName))
 
@@ -817,7 +817,7 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
             ScaleWithError(jetHist, nonpromptSF, nonpromptSFerror)
 
             (after, afterErr) = integrateErrorSum(photonHist, jetHist)
-        
+            
             scale_this = after / before if (before > 0.) else 0.
             scaleError_this = scale_this * ( (afterErr/after)**2 + (beforeErr/before)**2 )**0.5 if (after > 0. and before > 0.) else 0.
 
@@ -857,7 +857,6 @@ def fixLimitInputs(channel, controlRegion, systematic, version, metCutName, wjet
                 ScaleWithError(hist, dilepSF, dilepSFerror)
                 ScaleWithError(hist, eleFakeRateSF, eleFakeRateSFerror)
 
-            Rebin(nBins, names[i]+systName+'_simpleScaling_reb', array('d', xbins))
             histReb = hist.Rebin(nBins, names[i]+systName+'_reb', array('d', xbins))
 
             output.cd(outputFolder)

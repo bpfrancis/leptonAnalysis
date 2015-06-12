@@ -76,75 +76,26 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   
   // wjets
   if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/wjetsSF_"+channels[channel]+".txt", sf_wjets, sfError_wjets);
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_wjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_wjets, sfError_wjets);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_wjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_wjets, sfError_wjets);
-    CombineFitResults("scaleFactors/puritySF_wjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_wjets, sfError_wjets);
-  }
 
   // zjets
   readFitResults("scaleFactors/dilepSF_"+channels[channel]+".txt", sf_zjets, sfError_zjets);
   if(channels[channel].Contains("ele") && controlRegion != kAny && controlRegion != kCR0) {
     CombineFitResults("scaleFactors/eleFakeRateSF_"+channels[channel]+".txt", sf_zjets, sfError_zjets);
   }
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_zjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_zjets, sfError_zjets);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_zjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_zjets, sfError_zjets);
-    CombineFitResults("scaleFactors/puritySF_zjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_zjets, sfError_zjets);
-  }
 
   // singleTop
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_singleTop_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_singleTop, sfError_singleTop);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_singleTop_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_singleTop, sfError_singleTop);
-    CombineFitResults("scaleFactors/puritySF_singleTop_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_singleTop, sfError_singleTop);
-  }
 
   // diboson
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_diboson_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_diboson, sfError_diboson);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_diboson_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_diboson, sfError_diboson);
-    CombineFitResults("scaleFactors/puritySF_diboson_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_diboson, sfError_diboson);
-  }
 
   // vgamma
   readFitResults("scaleFactors/dilepSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
   if(channels[channel].Contains("ele") && controlRegion != kAny && controlRegion != kCR0) {
     CombineFitResults("scaleFactors/eleFakeRateSF_"+channels[channel]+".txt", sf_vgamma, sfError_vgamma);
   }
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_vgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_vgamma, sfError_vgamma);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_vgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_vgamma, sfError_vgamma);
-    CombineFitResults("scaleFactors/puritySF_vgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_vgamma, sfError_vgamma);
-  }
 
   // ttW
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_ttW_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttW, sfError_ttW);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_ttW_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttW, sfError_ttW);
-    CombineFitResults("scaleFactors/puritySF_ttW_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttW, sfError_ttW);
-  }
 
   // ttZ
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_ttZ_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttZ, sfError_ttZ);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_ttZ_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttZ, sfError_ttZ);
-    CombineFitResults("scaleFactors/puritySF_ttZ_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttZ, sfError_ttZ);
-  }
 
   // ttgamma
   if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
