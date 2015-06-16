@@ -8,7 +8,7 @@ void makePlots() {
 
   int controlRegion = PHOTON_REGION;
 
-  bool needsQCD = (controlRegion == kCR0 || controlRegion == kAny);
+  bool needsQCD = (controlRegion == kCR0 || controlRegion == kAny || controlRegion == kCR1);
 
   bool useWhizard = false;
 

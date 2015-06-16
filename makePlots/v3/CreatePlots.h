@@ -824,6 +824,7 @@ void PlotMaker::SetStyles(unsigned int n) {
 
   data->SetMarkerStyle(20);
   data->SetMarkerSize(1.5);
+  data->SetLineColor(kBlack);
   
   errors_stat->SetFillColor(kOrange+10);
   errors_stat->SetFillStyle(3154);
@@ -862,6 +863,7 @@ void PlotMaker::SetStyles(unsigned int n) {
   ratio->GetXaxis()->SetLabelSize(48);
   ratio->GetXaxis()->SetTitleSize(0.12);
   ratio->GetXaxis()->SetTitleOffset(0.6);
+  ratio->SetLineColor(kBlack);
 
   //DetermineAxisRanges(n);
   //DetermineLegendRanges(n);
