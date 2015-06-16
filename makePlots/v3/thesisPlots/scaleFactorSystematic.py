@@ -4,6 +4,7 @@ def go(path):
 
     syst = 0.0
     values = []
+    errors = []
 
     f = open(path, 'r')
     
@@ -14,6 +15,7 @@ def go(path):
             continue
         name, val, err = line.split()
         values.append(float(val))
+        errors.append(float(err))
         
     for i in range(1, len(values), 2):
         up = abs(values[i] - values[0])
@@ -22,7 +24,7 @@ def go(path):
             
         syst = math.sqrt(syst*syst + avg*avg)
             
-    print path, ' -- ', syst
+    print path, ' -- ', round(values[0], 2), ' $\\pm$ ', round(errors[0], 2), ' $\\pm$ ', round(syst, 2)
 
     f.close()
 
@@ -82,7 +84,17 @@ def purityError(path):
 
     f.close()
 
-def purityTable(purityPath, photonPath, jetPath):
+def purityTable(version, metCutName, channel):
+
+    useSampleSFs = True
+
+    print 'purityTable('+version+metCutName+'_'+channel+')'
+
+    purityPath = '../scaleFactors/photonPurity_'+version+metCutName+'_'+channel+'.txt'
+    photonPath = '../scaleFactors/photonSigSF_'+version+metCutName+'_'+channel+'.txt'
+    jetPath = '../scaleFactors/jetBkgSF_'+version+metCutName+'_'+channel+'.txt'
+    ttgammaPath = '../scaleFactors/puritySF_ttgamma_'+channel+'_'+version+metCutName+'.txt'
+    ttjetsPath = '../scaleFactors/puritySF_ttjets_'+channel+'_'+version+metCutName+'.txt'
 
     value = [0.0, 0.0, 0.0, 0.0]
     statistic = [0.0, 0.0, 0.0, 0.0]
@@ -95,8 +107,13 @@ def purityTable(purityPath, photonPath, jetPath):
     jetSFs = []
     
     purityFile = open(purityPath, 'r')
-    photonFile = open(photonPath, 'r')
-    jetFile = open(jetPath, 'r')
+
+    if useSampleSFs:
+        photonFile = open(ttgammaPath, 'r')
+        jetFile = open(ttjetsPath, 'r')
+    else:
+        photonFile = open(photonPath, 'r')
+        jetFile = open(jetPath, 'r')
 
     for line in purityFile:
         if 'systematic' in line:
@@ -198,12 +215,14 @@ go('../scaleFactors/ttbarSF_M3_muon_bjj.txt')
 go('../scaleFactors/wjetsSF_ele_bjj.txt')
 go('../scaleFactors/wjetsSF_muon_bjj.txt')
 
-purityTable('../fit/photonPurity_chHadIso_ele_bjj.txt', '../fit/photonSigSF_chHadIso_ele_bjj.txt', '../fit/jetBkgSF_chHadIso_ele_bjj.txt')
-purityTable('../fit/photonPurity_chHadIso_muon_bjj.txt', '../fit/photonSigSF_chHadIso_muon_bjj.txt', '../fit/jetBkgSF_chHadIso_muon_bjj.txt')
+purityTable('chHadIso', '_metCut_50', 'ele_bjj')
+purityTable('chHadIso', '_metCut_50', 'muon_bjj')
 
-purityTable('../fit/photonPurity_chHadIso_metCut_50_ele_bjj.txt', '../fit/photonSigSF_chHadIso_metCut_50_ele_bjj.txt', '../fit/jetBkgSF_chHadIso_metCut_50_ele_bjj.txt')
-purityTable('../fit/photonPurity_chHadIso_metCut_50_muon_bjj.txt', '../fit/photonSigSF_chHadIso_metCut_50_muon_bjj.txt', '../fit/jetBkgSF_chHadIso_metCut_50_muon_bjj.txt')
+purityTable('chHadIso', '', 'ele_bjj')
+purityTable('chHadIso', '', 'muon_bjj')
 
-#purityTable('../fit/photonPurity_sigma_ele_bjj.txt', '../fit/photonSigSF_sigma_ele_bjj.txt', '../fit/jetBkgSF_sigma_ele_bjj.txt')
-#purityTable('../fit/photonPurity_sigma_muon_bjj.txt', '../fit/photonSigSF_sigma_muon_bjj.txt', '../fit/jetBkgSF_sigma_muon_bjj.txt')
+purityTable('sigma', '_metCut_50', 'ele_bjj')
+purityTable('sigma', '_metCut_50', 'muon_bjj')
 
+purityTable('sigma', '', 'ele_bjj')
+purityTable('sigma', '', 'muon_bjj')

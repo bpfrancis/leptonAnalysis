@@ -36,6 +36,11 @@ void eventCounts() {
   TString backgrounds[10] = {"qcd", "ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
   TString bkgLabels[10] = {"QCD", "t#bar{t} + Jets", "W + Jets", "Z/#gamma* + Jets", "Single top", 
 			   "VV, V#gamma", "do not draw", "t#bar{t} + V", "do not draw", "t#bar{t} + #gamma"};
+
+  TString latexLabels[14] = {"QCD", "$t\\bar{t}$ + jets", "$W$ + jets", "$Z$ + jets", "Single $t$",
+			     "Diboson", "V$\\gamma$", "$t\\bar{t} + W$", "$t\\bar{t} + Z$", "$t\\bar{t} + \\gamma$",
+			     "Total Background", "GMSB (460\\_175)", "GMSB (560\\_325)", "Data"};
+
   int bkgColors[10] = {kSpring-6, kGray, kOrange-3, kYellow, kRed, kViolet-2, kAzure-2, kCyan, kOrange-5, 8};
 
   TString channels[10] = {"ele_Any", "muon_Any",
@@ -43,6 +48,12 @@ void eventCounts() {
 			  "ele_SR2", "muon_SR2",
 			  "ele_CR1", "muon_CR1",
 			  "ele_CR2", "muon_CR2"};
+
+  TString latexChannels[10] = {"Pre-selection", "Pre-selection",
+			       "SR1", "SR1",
+			       "SR2", "SR2",
+			       "CR1", "CR1",
+			       "CR2", "CR2"};
 
   TFile * input = new TFile("../limitInputs_bjj.root", "READ");
 
@@ -77,11 +88,20 @@ void eventCounts() {
   TH1D * nphoMuonSigb = new TH1D("npho_muon_sigb", "npho_muon_sigb", 3, 0, 3);
   nphoMuonSigb->Sumw2();
 
+  vector< vector<double> > tableValues, tableErrors;
+  tableValues.resize(10); // tableValues[channel][row]
+  tableErrors.resize(10);
+  for(int i = 0; i < 10; i++) {
+    tableValues[i].resize(14, 0.); // 10 backgrounds, total, siga, sigb, data
+    tableErrors[i].resize(14, 0.);
+  }
+
   for(int i = 0; i < 10; i++) {
 
     TH1D * h = (TH1D*)input->Get(channels[i]+"/data_obs");
     value = h->IntegralAndError(0, -1, error);
-    cout << "data_obs " << channels[i] << " = " << value << " pm " << error << endl;
+    tableValues[i][13] = value;
+    tableErrors[i][13] = error;
 
     if(channels[i] == "ele_Any") {
       int bin = nphoEleData->GetXaxis()->FindBin(0.);
@@ -141,7 +161,8 @@ void eventCounts() {
 
       h = (TH1D*)input->Get(channels[i]+"/"+backgrounds[j]);
       value = h->IntegralAndError(0, -1, error);
-      cout << backgrounds[j] << " " << channels[i] << " = " << value << " pm " << error << endl;
+      tableValues[i][j] = value;
+      tableErrors[i][j] = error;
 
       if(i > 1 && j == 0) continue; // don't add QCD to total for SR1/2
 
@@ -200,12 +221,16 @@ void eventCounts() {
 
 	total += value;
 	totalError = sqrt(totalError*totalError + error*error);
+
+	tableValues[i][10] += value;
+	tableErrors[i][10] = sqrt(tableErrors[i][10]*tableErrors[i][10] + error*error);
       }
     }
 
     h = (TH1D*)input->Get(channels[i]+"/signal_mst_460_m1_175");
     value = h->IntegralAndError(0, -1, error);
-    cout << "signal 460/175 " << channels[i] << " = " << value << " pm " << error << endl;
+    tableValues[i][11] = value;
+    tableErrors[i][11] = error;
 
     if(channels[i] == "ele_Any") {
       int bin = nphoEleSiga->GetXaxis()->FindBin(0.);
@@ -260,7 +285,8 @@ void eventCounts() {
 
     h = (TH1D*)input->Get(channels[i]+"/signal_mst_560_m1_325");
     value = h->IntegralAndError(0, -1, error);
-    cout << "signal 560/325 " << channels[i] << " = " << value << " pm " << error << endl;
+    tableValues[i][12] = value;
+    tableErrors[i][12] = error;
 
     if(channels[i] == "ele_Any") {
       int bin = nphoEleSigb->GetXaxis()->FindBin(0.);
@@ -313,10 +339,47 @@ void eventCounts() {
       nphoMuonSigb->SetBinError(bin-2, sqrt(olderror*olderror - error*error));
     }
 
-    cout << "total background = " << total << " pm " << totalError << endl;
+  }
+
+  //durp
+
+  int channelsInTables[4][3] = {{0, 2, 4}, // ele any/sr1/sr2
+				{1, 3, 5}, // mu  any/sr1/sr2
+				{6, 8, -1}, // ele cr1/cr2
+				{7, 9, -1}};
+
+  TString tableHeaders[4] = {"Channel & Pre-selection & SR1 & SR2 \\\\ \\hline",
+			     "Channel & Pre-selection & SR1 & SR2 \\\\ \\hline",
+			     "Channel & CR1 & CR2 \\\\ \\hline",
+			     "Channel & CR1 & CR2 \\\\ \\hline"};
+
+  for(int iTable = 0; iTable < 4; iTable++) { // make 4 tables
 
     cout << endl << endl;
-  }
+
+    cout << tableHeaders[iTable] << endl;
+
+    for(int iRow = 0; iRow < 14; iRow++) {
+
+      cout << latexLabels[iRow];
+      
+      for(int jTable = 0; jTable < 3; jTable++) { // with up to 3 columns each
+
+	if(channelsInTables[iTable][jTable] >= 0) {
+	  int chan = channelsInTables[iTable][jTable];
+	  if(tableValues[chan][iRow] < 1.e-4) cout << " & --";
+	  else cout << " & " << tableValues[chan][iRow] << " $\\pm$ " << tableErrors[chan][iRow];
+	}
+
+      } // for columns in a row
+      cout << " \\\\ \\hline";
+      if(iRow == 9 || iRow == 10 || iRow == 12) cout << " \\hline";
+      cout << endl;
+      
+    } // for rows in the table
+
+  } // for tables
+
 
   for(int i = 0; i < 10; i++) {
     for(int j = i+1; j < 10; j++) {

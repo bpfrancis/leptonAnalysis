@@ -12,10 +12,14 @@ void compareWiggle(TString folder, TString metCutName, TString version) {
   TH1D * after = (TH1D*)input->Get(folder+"/ttjets");
 
   for(int i = 1; i < 9; i++) {
-    if(names[i] == "ttgamma") before->Add((TH1D*)input->Get(folder+"/"+names[i]+"_noScaling"));
-    else before->Add((TH1D*)input->Get(folder+"/"+names[i]));
-
-    after->Add((TH1D*)input->Get(folder+"/"+names[i]));
+    if(names[i] == "ttgamma") {
+      before->Add((TH1D*)input->Get(folder+"/"+names[i]+"_noScaling"));
+      after->Add((TH1D*)input->Get(folder+"/"+names[i]));
+    }
+    else {
+      before->Add((TH1D*)input->Get(folder+"/"+names[i]));
+      after->Add((TH1D*)input->Get(folder+"/"+names[i]));
+    }
   }
 
   TH1D * ratio = (TH1D*)after->Clone("ratio");

@@ -8,16 +8,18 @@ void makePlots() {
 
   int controlRegion = PHOTON_REGION;
 
-  bool needsQCD = true;
+  bool needsQCD = (controlRegion == kCR0 || controlRegion == kAny);
 
   bool useWhizard = false;
+
+  bool usePurityScaleFactors = false;
 
   const int nChannels = 4;
   TString channels[nChannels] = {"ele_bjj", "muon_bjj",
 				 "ele_jjj", "muon_jjj"};
 
   for(int i = 0; i < nChannels; i++) {
-    CreatePlots(i, controlRegion, needsQCD, metType, useWhizard);
+    CreatePlots(i, controlRegion, needsQCD, metType, useWhizard, usePurityScaleFactors);
   }  
 
 }

@@ -462,6 +462,11 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
                        str(zSF)+'\t'+
                        str(zSFerror)+'\n')
 
+        mcRate = zInt / (zInt+bkgInt)
+        output_eleMisIDRate = open('eleMisIDRate_'+channel+'.txt', 'w')
+        output_eleMisIDRate.write(str(mcRate)+'\t'+str(fitFrac)+'\n')
+        output_eleMisIDRate.close()
+
         drawPlots(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(l, #gamma) (GeV/c^2)', axisMin, axisMax, doLogy)
     else:
         output_z.write(systematic+'\t'+

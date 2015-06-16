@@ -50,7 +50,7 @@ void CombineFitResults(TString fileName, vector<Float_t>& scales, vector<Float_t
 
 }
 
-void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard) {
+void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType, bool useWhizard, bool usePurityScaleFactors) {
 
   gROOT->Reset();
   gROOT->SetBatch(true);
@@ -66,12 +66,14 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
   // ttjets
   if(channels[channel].Contains("bjj")) readFitResults("scaleFactors/ttbarSF_M3_"+channels[channel]+".txt", sf_ttjets, sfError_ttjets);
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
-    CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
+  if(usePurityScaleFactors) {
+    if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
+      CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
+    }
+    if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
+      CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
+      CombineFitResults("scaleFactors/puritySF_ttjets_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttjets, sfError_ttjets);
+    }
   }
   
   // wjets
@@ -98,12 +100,14 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   // ttZ
 
   // ttgamma
-  if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
-  }
-  if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
-    readFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
-    CombineFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+  if(usePurityScaleFactors) {
+    if(controlRegion == kSR1 && channels[channel].Contains("bjj")) {
+      readFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+    }
+    if(controlRegion == kSR2 && channels[channel].Contains("bjj")) {
+      readFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+      CombineFitResults("scaleFactors/puritySF_ttgamma_"+channels[channel]+"_chHadIso_metCut_50.txt", sf_ttgamma, sfError_ttgamma);
+    }
   }
 
   PlotMaker * pMaker = new PlotMaker(channel, controlRegion, needsQCD, metType, sf_qcd, sfError_qcd);
