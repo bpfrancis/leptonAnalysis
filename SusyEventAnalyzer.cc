@@ -2054,11 +2054,11 @@ void SusyEventAnalyzer::CutFlowData() {
     "nJets #geq 3",
     "nBtags #geq 1",
     "",
-    "SR1 (N_#gamma == 1)",
-    "CR1 (N_#gamma == 0, N_{fake} == 1)",
+    "SR1 (N_{#gamma} == 1)",
+    "CR1 (N_{#gamma} == 0, N_{fake} == 1)",
     "",
-    "SR2 (N_#gamma #geq 2)",
-    "CR2 (N_#gamma == 0, N_{fake} #geq 2)"};
+    "SR2 (N_{#gamma} #geq 2)",
+    "CR2 (N_{#gamma} == 0, N_{fake} #geq 2)"};
     
   TH1D * h_cutflow_ele = new TH1D("cutflow_ele", "cutflow_ele", nCuts, 0, nCuts);
   TH1D * h_cutflow_muon = new TH1D("cutflow_muon", "cutflow_muon", nCuts, 0, nCuts);
@@ -2104,7 +2104,6 @@ void SusyEventAnalyzer::CutFlowData() {
 	 event.passMetFilter(susy::kEcalLaserCorr) != 1 ||
 	 event.passMetFilter(susy::kManyStripClus53X) != 1 ||
 	 event.passMetFilter(susy::kTooManyStripClus53X) != 1) {
-	nCnt[21][0]++;
 	continue;
       }
     }
@@ -2114,7 +2113,6 @@ void SusyEventAnalyzer::CutFlowData() {
 
     int nPVertex = GetNumberPV(event);
     if(nPVertex == 0) {
-      nCnt[22][0]++;
       continue;
     }
 
@@ -2146,14 +2144,17 @@ void SusyEventAnalyzer::CutFlowData() {
     if(tightEles.size() > 1 || looseEles.size() > 0) continue;
     
     if(tightMuons.size() + tightEles.size() != 1) continue;
+
+    bool isEleEvent = (tightEles.size() == 1);
+
     // == 1 tight lepton
-    h_cutflow_ele->Fill(4);
-    h_cutflow_muon->Fill(4);
+    if(isEleEvent) h_cutflow_ele->Fill(4);
+    else h_cutflow_muon->Fill(4);
 
     if(looseMuons.size() + looseEles.size() != 0) continue;
     // == 0 loose leptons
-    h_cutflow_ele->Fill(5);
-    h_cutflow_muon->Fill(5);
+    if(isEleEvent) h_cutflow_ele->Fill(5);
+    else h_cutflow_muon->Fill(5);
     
     bool passHLT = true;
     if(useTrigger) {
@@ -2166,8 +2167,8 @@ void SusyEventAnalyzer::CutFlowData() {
     }
     if(!passHLT) continue;
     // HLT
-    h_cutflow_ele->Fill(6);
-    h_cutflow_muon->Fill(6);
+    if(isEleEvent) h_cutflow_ele->Fill(6);
+    else h_cutflow_muon->Fill(6);
     
     findPhotons(event, 
 		photons,
@@ -2193,13 +2194,13 @@ void SusyEventAnalyzer::CutFlowData() {
 
     if(pfJets.size() < 3) continue;
     // nJets #geq 3
-    h_cutflow_ele->Fill(7);
-    h_cutflow_muon->Fill(7);
+    if(isEleEvent) h_cutflow_ele->Fill(7);
+    else h_cutflow_muon->Fill(7);
     
     if(btags.size() < 1) continue;
     // nBtags #geq 1
-    h_cutflow_ele->Fill(8);
-    h_cutflow_muon->Fill(8);
+    if(isEleEvent) h_cutflow_ele->Fill(8);
+    else h_cutflow_muon->Fill(8);
     
   } // for entries
   
