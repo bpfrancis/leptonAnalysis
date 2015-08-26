@@ -2042,12 +2042,12 @@ void SusyEventAnalyzer::CutFlowData() {
   TFile* out = new TFile("cutflow_"+outputName+"_"+btagger+".root", "RECREATE");
   out->cd();
 
-  const int nCuts = 15;
+  const int nCuts = 17;
   TString cutNames[nCuts] = {
     "All events",
     "JSON",
     "MET filters",
-    "nPV #geq 1"
+    "nPV #geq 1",
     "== 1 tight lepton",
     "==0 loose leptons",
     "HLT",
@@ -2055,10 +2055,12 @@ void SusyEventAnalyzer::CutFlowData() {
     "nBtags #geq 1",
     "",
     "SR1 (N_{#gamma} == 1)",
-    "CR1 (N_{#gamma} == 0, N_{fake} == 1)",
+    "CR1 (N_{#gamma} == 0",
+    "N_{fake} == 1)",
     "",
     "SR2 (N_{#gamma} #geq 2)",
-    "CR2 (N_{#gamma} == 0, N_{fake} #geq 2)"};
+    "CR2 (N_{#gamma} == 0",
+    "N_{fake} #geq 2)"};
     
   TH1D * h_cutflow_ele = new TH1D("cutflow_ele", "cutflow_ele", nCuts, 0, nCuts);
   TH1D * h_cutflow_muon = new TH1D("cutflow_muon", "cutflow_muon", nCuts, 0, nCuts);
