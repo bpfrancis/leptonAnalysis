@@ -11,8 +11,6 @@ def go(path):
     for line in f:
         if 'systematic' in line:
             continue
-        if 'scale' in line or 'pdf' in line:
-            continue
         name, val, err = line.split()
         values.append(float(val))
         errors.append(float(err))
@@ -86,35 +84,34 @@ def purityError(path):
 
 def purityTable(version, metCutName, channel):
 
-    useSampleSFs = True
-
     print 'purityTable('+version+metCutName+'_'+channel+')'
 
-    purityPath = '../scaleFactors/photonPurity_'+version+metCutName+'_'+channel+'.txt'
-    photonPath = '../scaleFactors/photonSigSF_'+version+metCutName+'_'+channel+'.txt'
-    jetPath = '../scaleFactors/jetBkgSF_'+version+metCutName+'_'+channel+'.txt'
-    ttgammaPath = '../scaleFactors/puritySF_ttgamma_'+channel+'_'+version+metCutName+'.txt'
-    ttjetsPath = '../scaleFactors/puritySF_ttjets_'+channel+'_'+version+metCutName+'.txt'
+    purityPath = '../fit/photonPurity_'+version+metCutName+'_'+channel+'.txt'
+    photonPath = '../fit/photonSigSF_'+version+metCutName+'_'+channel+'.txt'
+    jetPath = '../fit/jetBkgSF_'+version+metCutName+'_'+channel+'.txt'
+    ttgammaPath = '../fit/puritySF_ttgamma_'+channel+'_'+version+metCutName+'.txt'
+    ttjetsPath = '../fit/puritySF_ttjets_'+channel+'_'+version+metCutName+'.txt'
 
-    value = [0.0, 0.0, 0.0, 0.0]
-    statistic = [0.0, 0.0, 0.0, 0.0]
-    systematic = [0.0, 0.0, 0.0, 0.0]
+    value = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    statistic = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    systematic = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
     mcPurities = []
     dataPurities = []
 
     photonSFs = []
     jetSFs = []
+
+    ttgammaSFs = []
+    ttjetsSFs = []
     
     purityFile = open(purityPath, 'r')
+    photonFile = open(photonPath, 'r')
+    jetFile = open(jetPath, 'r')
+    ttgammaFile = open(ttgammaPath, 'r')
+    ttjetsFile = open(ttjetsPath, 'r')
 
-    if useSampleSFs:
-        photonFile = open(ttgammaPath, 'r')
-        jetFile = open(ttjetsPath, 'r')
-    else:
-        photonFile = open(photonPath, 'r')
-        jetFile = open(jetPath, 'r')
-
+    # fill purity stuff
     for line in purityFile:
         if 'systematic' in line:
             continue
@@ -146,6 +143,7 @@ def purityTable(version, metCutName, channel):
             
         systematic[1] = math.sqrt(systematic[1]*systematic[1] + avg*avg)
 
+    # fill prompt sf stuff
     for line in photonFile:
         if 'systematic' in line:
             continue
@@ -167,6 +165,7 @@ def purityTable(version, metCutName, channel):
             
         systematic[2] = math.sqrt(systematic[2]*systematic[2] + avg*avg)
 
+    # fill non-prompt sf stuff
     for line in jetFile:
         if 'systematic' in line:
             continue
@@ -188,6 +187,51 @@ def purityTable(version, metCutName, channel):
             
         systematic[3] = math.sqrt(systematic[3]*systematic[3] + avg*avg)
 
+    # fill ttgamma sf stuff
+    for line in ttgammaFile:
+        if 'systematic' in line:
+            continue
+        if 'scale' in line or 'pdf' in line:
+            continue
+        
+        name, x, xerr = line.split()
+
+        if value[4] == 0.0:
+            value[4] = float(x)
+            statistic[4] = float(xerr)
+
+        ttgammaSFs.append(float(x))
+        
+    for i in range(1, len(ttgammaSFs), 2):
+        up = abs(ttgammaSFs[i] - ttgammaSFs[0])
+        down = abs(ttgammaSFs[i+1] - ttgammaSFs[0])
+        avg = (up+down)/2
+            
+        systematic[4] = math.sqrt(systematic[4]*systematic[4] + avg*avg)
+
+    # fill ttjets sf stuff
+    for line in ttjetsFile:
+        if 'systematic' in line:
+            continue
+        if 'scale' in line or 'pdf' in line:
+            continue
+        
+        name, x, xerr = line.split()
+
+        if value[5] == 0.0:
+            value[5] = float(x)
+            statistic[5] = float(xerr)
+
+        ttjetsSFs.append(float(x))
+        
+    for i in range(1, len(ttjetsSFs), 2):
+        up = abs(ttjetsSFs[i] - ttjetsSFs[0])
+        down = abs(ttjetsSFs[i+1] - ttjetsSFs[0])
+        avg = (up+down)/2
+            
+        systematic[5] = math.sqrt(systematic[5]*systematic[5] + avg*avg)
+
+    # table stuff
     channel = 'e'
     if 'muon' in purityPath:
         channel = '$\\mu$'
@@ -196,19 +240,22 @@ def purityTable(version, metCutName, channel):
     columnBreak = ' & '
 
     parts = []
-    for i in range(0, 4):
+    for i in range(0, 6):
         precision = 3 if (i < 2) else 2
         x = round(value[i], precision)
         y = round(statistic[i], precision)
         z = round(systematic[i], precision)
-        parts.append(str(x) + plusMinus + str(y) + plusMinus + str(z))
+        parts.append(str(x)+plusMinus+str(y)+plusMinus+str(z))
 
-    print channel, columnBreak, parts[0], columnBreak, parts[1], columnBreak, parts[2], columnBreak, parts[3], ' \\\\'
-
+    print channel, columnBreak, parts[0], columnBreak, parts[1], ' \\\\'
+    print channel, columnBreak, parts[2], columnBreak, parts[3], columnBreak, parts[4], columnBreak, parts[5], ' \\\\'
+    print '\n'
 
     purityFile.close()
     photonFile.close()
     jetFile.close()
+    ttgammaFile.close()
+    ttjetsFile.close()
 
 go('../scaleFactors/ttbarSF_M3_ele_bjj.txt')
 go('../scaleFactors/ttbarSF_M3_muon_bjj.txt')
@@ -218,11 +265,5 @@ go('../scaleFactors/wjetsSF_muon_bjj.txt')
 purityTable('chHadIso', '_metCut_50', 'ele_bjj')
 purityTable('chHadIso', '_metCut_50', 'muon_bjj')
 
-purityTable('chHadIso', '', 'ele_bjj')
-purityTable('chHadIso', '', 'muon_bjj')
-
 purityTable('sigma', '_metCut_50', 'ele_bjj')
 purityTable('sigma', '_metCut_50', 'muon_bjj')
-
-purityTable('sigma', '', 'ele_bjj')
-purityTable('sigma', '', 'muon_bjj')

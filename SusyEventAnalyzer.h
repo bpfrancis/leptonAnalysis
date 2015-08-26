@@ -73,6 +73,7 @@ class SusyEventAnalyzer {
   virtual void PileupWeights(TString puFile, TString puFile_up, TString puFile_down);
   virtual void ZGammaData();
   virtual void ZGammaAcceptance();
+  virtual void CutFlowData();
 
   // utility functions
   float deltaR(TLorentzVector& p1, TLorentzVector& p2);

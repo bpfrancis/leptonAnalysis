@@ -37,11 +37,14 @@ parser.add_option ('--json', dest='json', type='string',
                    default = 'Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt',
                    help="JSON file used to select events. Default is the 22Jan2013 re-reco.")
 parser.add_option ('--inputFolders', dest='inputFolders', type='string',
-		   default='',
-		   help='Colon-separated list of folders containing nTuple files to run over. Using ALL will give the full 22Jan2013 DoublePhoton re-reco (tag cms538v1).')
+                   default='',
+                   help='Colon-separated list of folders containing nTuple files to run over. Using ALL will give the full 22Jan2013 DoublePhoton re-reco (tag cms538v1).')
 parser.add_option ('--zgamma', action="store_true",
                    dest="zgamma", default=False,
                    help="Submit this job as ZGamma seleciton -- require two leptons instead of one.")
+parser.add_option ('--cutflow', action="store_true",
+                   dest="cutflow", default=False,
+                   help="Make cut flow plots only.")
 
 options, args = parser.parse_args()
 
@@ -53,12 +56,17 @@ njobs = options.njobs
 test = options.test
 json = options.json
 zgamma = options.zgamma
+cutflow = options.cutflow
 inputFolders = options.inputFolders
 
 if zgamma:
     anaBase = 'scripts/zgamma_ana_data.C'
     scriptBase = 'scripts/zgamma_go_data.sh'
 
+if cutflow:
+    anaBase = 'scripts/cutflow_ana_data.C'
+    scriptBase = 'scripts/cutflow_go_data.sh'
+    
 baseOutdir = baseOutdir+"_"+datetime.datetime.now().strftime("%b%d")
 
 if inputFolders == 'ALL':

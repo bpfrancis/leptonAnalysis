@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 #include <map>
@@ -348,16 +349,21 @@ void eventCounts() {
 				{6, 8, -1}, // ele cr1/cr2
 				{7, 9, -1}};
 
-  TString tableHeaders[4] = {"Channel & Pre-selection & SR1 & SR2 \\\\ \\hline",
-			     "Channel & Pre-selection & SR1 & SR2 \\\\ \\hline",
-			     "Channel & CR1 & CR2 \\\\ \\hline",
-			     "Channel & CR1 & CR2 \\\\ \\hline"};
+  TString tableHeaders[4] = {"Channel & Pre-selection & SR1 & SR2",
+			     "Channel & Pre-selection & SR1 & SR2",
+			     "Channel & CR1 & CR2",
+			     "Channel & CR1 & CR2"};
+
+  TString hline = "\\hline";
+  TString double_hline = "\\hline\\hline";
+  TString rowBreak = " \\\\";
 
   for(int iTable = 0; iTable < 4; iTable++) { // make 4 tables
 
     cout << endl << endl;
 
-    cout << tableHeaders[iTable] << endl;
+    cout << hline << endl << tableHeaders[iTable] << rowBreak << endl;
+    cout << double_hline << endl;
 
     for(int iRow = 0; iRow < 14; iRow++) {
 
@@ -367,14 +373,26 @@ void eventCounts() {
 
 	if(channelsInTables[iTable][jTable] >= 0) {
 	  int chan = channelsInTables[iTable][jTable];
-	  if(tableValues[chan][iRow] < 1.e-4) cout << " & --";
-	  else cout << " & " << tableValues[chan][iRow] << " $\\pm$ " << tableErrors[chan][iRow];
+	  double x = tableValues[chan][iRow];
+	  double y = tableErrors[chan][iRow];
+
+	  if(iRow == 13) { // data row
+	    cout << " & " << setprecision(0) << fixed << x;
+	    continue;
+	  }
+	  
+	  if(x < 1.e-4) cout << " & --";
+	  else {
+	    if(x >= 20.0) cout << " & " << setprecision(0) << fixed << x << " $\\pm$ " << y;
+	    else if(x >= 2.0) cout << " & " << setprecision(1) << fixed << x << " $\\pm$ " << y;
+	    else cout << " & " << setprecision(2) << fixed << x << " $\\pm$ " << y;
+	  }
 	}
 
       } // for columns in a row
-      cout << " \\\\ \\hline";
-      if(iRow == 9 || iRow == 10 || iRow == 12) cout << " \\hline";
-      cout << endl;
+      cout << rowBreak << endl;
+      if(iRow == 9 || iRow == 10 || iRow == 12) cout << double_hline << endl;
+      else cout << hline << endl;
       
     } // for rows in the table
 

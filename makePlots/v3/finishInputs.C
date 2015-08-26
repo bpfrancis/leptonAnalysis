@@ -28,8 +28,8 @@ void finishInputs() {
   //and chi = sr2/sr1 (systC)
   // already have h_bkg_*_cr1 available
 
-  TH1D * h_systB_ele_sr1 = (TH1D*)fInputs->Get("ele_SR1/ttjets");
-  TH1D * h_systB_muon_sr1 = (TH1D*)fInputs->Get("muon_SR1/ttjets");
+  TH1D * h_systB_ele = (TH1D*)fInputs->Get("ele_SR1/ttjets");
+  TH1D * h_systB_muon = (TH1D*)fInputs->Get("muon_SR1/ttjets");
 
   TH1D * h_systC_ele = (TH1D*)fInputs->Get("ele_SR2/ttjets");
   TH1D * h_systC_muon = (TH1D*)fInputs->Get("muon_SR2/ttjets");
@@ -37,30 +37,30 @@ void finishInputs() {
   for(int i = 1; i < nBackgrounds; i++) {
     if(names[i] == "qcd") continue;
 
-    h_systB_ele_sr1->Add((TH1D*)fInputs->Get("ele_SR1/"+names[i]));
-    h_systB_muon_sr1->Add((TH1D*)fInputs->Get("muon_SR1/"+names[i]));
+    h_systB_ele->Add((TH1D*)fInputs->Get("ele_SR1/"+names[i]));
+    h_systB_muon->Add((TH1D*)fInputs->Get("muon_SR1/"+names[i]));
 
     h_systC_ele->Add((TH1D*)fInputs->Get("ele_SR2/"+names[i]));
     h_systC_muon->Add((TH1D*)fInputs->Get("muon_SR2/"+names[i]));
   }
 
-  h_systC_ele->Divide(h_systB_ele_sr1);
-  h_systC_muon->Divide(h_systB_muon_sr1);
+  h_systC_ele->Divide(h_systB_ele);
+  h_systC_muon->Divide(h_systB_muon);
 
-  h_systB_ele_sr1->Divide(h_bkg_ele_cr1);
-  h_systB_muon_sr1->Divide(h_bkg_muon_cr1);
+  h_systB_ele->Divide(h_bkg_ele_cr1);
+  h_systB_muon->Divide(h_bkg_muon_cr1);
 
   // now set the convFactors to sig(it)/it
-  for(int i = 0; i < h_systB_ele_sr1->GetNbinsX(); i++) {
-    double val = h_systB_ele_sr1->GetBinContent(i+1);
-    double err = h_systB_ele_sr1->GetBinError(i+1);
-    h_systB_ele_sr1->SetBinContent(i+1, err/val);
+  for(int i = 0; i < h_systB_ele->GetNbinsX(); i++) {
+    double val = h_systB_ele->GetBinContent(i+1);
+    double err = h_systB_ele->GetBinError(i+1);
+    h_systB_ele->SetBinContent(i+1, err/val);
   }
 
-  for(int i = 0; i < h_systB_muon_sr1->GetNbinsX(); i++) {
-    double val = h_systB_muon_sr1->GetBinContent(i+1);
-    double err = h_systB_muon_sr1->GetBinError(i+1);
-    h_systB_muon_sr1->SetBinContent(i+1, err/val);
+  for(int i = 0; i < h_systB_muon->GetNbinsX(); i++) {
+    double val = h_systB_muon->GetBinContent(i+1);
+    double err = h_systB_muon->GetBinError(i+1);
+    h_systB_muon->SetBinContent(i+1, err/val);
   }
 
   for(int i = 0; i < h_systC_ele->GetNbinsX(); i++) {

@@ -17,9 +17,10 @@ void go(TString channel) {
 
   TString names[10] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "ttW", "ttZ", "ttgamma", "vgamma", "qcd"};
 
-  TString systematics[19] = {"btagWeight", "puWeight", "JEC", "eleSF", "muonSF", "photonSF", "topPt",
+  TString systematics[21] = {"btagWeight", "puWeight", "JEC", "eleSF", "muonSF", "photonSF", "topPt",
 			     "userSystA_ele", "userSystA_muon",
 			     "userSystB_ele", "userSystB_muon",
+			     "userSystC_ele", "userSysC_muon",
 			     "scale_tt", "scale_V", "scale_VV",
 			     "pdf_gg", "pdf_qq", "pdf_gq",
 			     "ele_qcdDef", "muon_qcdDef"};
@@ -31,10 +32,11 @@ void go(TString channel) {
   TH1D * h_down;
 
   TCanvas * can = new TCanvas("can", "Plot", 10, 10, 800, 800);
+  can->SetLogy(true);
 
   cout << endl << endl << "Channel: " << channel << endl;
     
-  for(int i = 0; i < 19; i++) {
+  for(int i = 0; i < 21; i++) {
 
     h_central = (TH1D*)input->Get(channel+"/ttjets");
     h_up = (TH1D*)h_central->Clone(systematics[i]+"Up");
@@ -84,15 +86,16 @@ void go(TString channel) {
     
     h_up->SetLineColor(kRed);
     h_down->SetLineColor(kBlue);
+    h_central->SetLineColor(kBlack);
     
-    h_central->GetXaxis()->SetTitle("MET");
-    h_up->GetXaxis()->SetTitle("MET");
-    h_down->GetXaxis()->SetTitle("MET");
+    h_central->GetXaxis()->SetTitle("#slash{E}_{T} (GeV)");
+    h_up->GetXaxis()->SetTitle("#slash{E}_{T} (GeV)");
+    h_down->GetXaxis()->SetTitle("#slash{E}_{T} (GeV)");
 
-    TLegend * leg = new TLegend(0.55, 0.65, 0.85, 0.85, systematics[i].Data(), "brNDC");
-    leg->AddEntry(h_up, "Up", "LP");
-    leg->AddEntry(h_central, "Central", "LP");
-    leg->AddEntry(h_down, "Down", "LP");
+    TLegend * leg = new TLegend(0.55, 0.65, 0.85, 0.85, channel.Data(), "brNDC");
+    leg->AddEntry(h_up, "Up", "L");
+    leg->AddEntry(h_central, "Central", "L");
+    leg->AddEntry(h_down, "Down", "L");
 
     double upMax = h_up->GetBinContent(h_up->GetMaximumBin());
     double centralMax = h_central->GetBinContent(h_central->GetMaximumBin());
