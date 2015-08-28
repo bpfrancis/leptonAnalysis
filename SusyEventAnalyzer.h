@@ -74,6 +74,7 @@ class SusyEventAnalyzer {
   virtual void ZGammaData();
   virtual void ZGammaAcceptance();
   virtual void CutFlowData();
+  virtual void CutFlowMC();
 
   // utility functions
   float deltaR(TLorentzVector& p1, TLorentzVector& p2);

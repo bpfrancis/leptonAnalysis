@@ -2042,7 +2042,7 @@ void SusyEventAnalyzer::CutFlowData() {
   TFile* out = new TFile("cutflow_"+outputName+"_"+btagger+".root", "RECREATE");
   out->cd();
 
-  const int nCuts = 17;
+  const int nCuts = 18;
   TString cutNames[nCuts] = {
     "All events",
     "JSON",
@@ -2053,6 +2053,7 @@ void SusyEventAnalyzer::CutFlowData() {
     "HLT",
     "nJets #geq 3",
     "nBtags #geq 1",
+    "N_{#gamma/f} #geq 1",
     "",
     "SR1 (N_{#gamma} == 1)",
     "CR1 (N_{#gamma} == 0",
@@ -2203,10 +2204,190 @@ void SusyEventAnalyzer::CutFlowData() {
     // nBtags #geq 1
     if(isEleEvent) h_cutflow_ele->Fill(8);
     else h_cutflow_muon->Fill(8);
+
+    if(photons.size() > 0) {
+      if(isEleEvent) h_cutflow_ele->Fill(9);
+      else h_cutflow_muon->Fill(9);
+    }
     
   } // for entries
   
   out->cd();
+  out->Write();
+  out->Close();
+
+}
+
+void SusyEventAnalyzer::CutFlowMC() {
+
+  TString output_code_t = FormatName(scan);
+
+  // open histogram file and define histograms
+  TFile * out = new TFile("cutflow"+output_code_t+".root", "RECREATE");
+  out->cd();
+
+  const int nCuts = 18;
+  TString cutNames[nCuts] = {
+    "All events",
+    "JSON",
+    "MET filters",
+    "nPV #geq 1",
+    "== 1 tight lepton",
+    "==0 loose leptons",
+    "HLT",
+    "nJets #geq 3",
+    "nBtags #geq 1",
+    "N_{#gamma/f} #geq 1",
+    "",
+    "SR1 (N_{#gamma} == 1)",
+    "CR1 (N_{#gamma} == 0",
+    "N_{fake} == 1)",
+    "",
+    "SR2 (N_{#gamma} #geq 2)",
+    "CR2 (N_{#gamma} == 0",
+    "N_{fake} #geq 2)"};
+    
+  TH1D * h_cutflow_ele = new TH1D("cutflow_ele", "cutflow_ele", nCuts, 0, nCuts);
+  TH1D * h_cutflow_muon = new TH1D("cutflow_muon", "cutflow_muon", nCuts, 0, nCuts);
+
+  for(int i = 0; i < nCuts; i++) {
+    h_cutflow_ele->GetXaxis()->SetBinLabel(i+1, cutNames[i]);
+    h_cutflow_muon->GetXaxis()->SetBinLabel(i+1, cutNames[i]);
+  }
+  
+  ScaleFactorInfo sf(btagger);
+
+  Long64_t nEntries = fTree->GetEntries();
+  cout << "Total events in files : " << nEntries << endl;
+  cout << "Events to be processed : " << processNEvents << endl;
+
+  vector<susy::Muon*> tightMuons, looseMuons;
+  vector<susy::Electron*> tightEles, looseEles;
+  vector<susy::PFJet*> pfJets, btags;
+  vector<TLorentzVector> pfJets_corrP4, btags_corrP4;
+  vector<float> csvValues;
+  vector<susy::Photon*> photons;
+  vector<BtagInfo> tagInfos;
+
+  // start event looping
+  Long64_t jentry = 0;
+  while(jentry != processNEvents && event.getEntry(jentry++) != 0) {
+
+    if(printLevel > 0 || (printInterval > 0 && (jentry >= printInterval && jentry%printInterval == 0))) {
+      cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
+    }
+
+    // All events
+    h_cutflow_ele->Fill(0);
+    h_cutflow_muon->Fill(0);
+
+    // JSON
+    h_cutflow_ele->Fill(1);
+    h_cutflow_muon->Fill(1);
+    
+    // MET filters
+    h_cutflow_ele->Fill(2);
+    h_cutflow_muon->Fill(2);
+    
+    int nPVertex = GetNumberPV(event);
+    if(nPVertex == 0) continue;
+
+    // nPV #geq 1
+    h_cutflow_ele->Fill(3);
+    h_cutflow_muon->Fill(3);
+				 
+    int qcdMode = kSignal;
+    int jetSyst = kCentral;
+    int photonMode = kSignalPhotons;
+    
+    float HT = 0.;
+    
+    tightMuons.clear();
+    looseMuons.clear();
+    tightEles.clear();
+    looseEles.clear();
+    pfJets.clear();
+    btags.clear();
+    pfJets_corrP4.clear();
+    btags_corrP4.clear();
+    csvValues.clear();
+    photons.clear();
+    tagInfos.clear();
+    
+    findMuons(event, tightMuons, looseMuons, HT, qcdMode);
+    if(tightMuons.size() > 1 || looseMuons.size() > 0) continue;
+    
+    findElectrons(event, tightMuons, looseMuons, tightEles, looseEles, HT, qcdMode);
+    if(tightEles.size() > 1 || looseEles.size() > 0) continue;
+    
+    if(tightMuons.size() + tightEles.size() != 1) continue;
+
+    bool isEleEvent = (tightEles.size() == 1);
+
+    // == 1 tight lepton
+    if(isEleEvent) h_cutflow_ele->Fill(4);
+    else h_cutflow_muon->Fill(4);
+
+
+    if(looseMuons.size() + looseEles.size() != 0) continue;
+    // == 0 loose leptons
+    if(isEleEvent) h_cutflow_ele->Fill(5);
+    else h_cutflow_muon->Fill(5);
+    
+    bool passHLT = true;
+    if(useTrigger) {
+      if(tightEles.size() == 1) passHLT = PassTriggers(1);
+      
+      else if(tightMuons.size() == 1) {
+	if(qcdMode == kSignal) passHLT = PassTriggers(2);
+	if(kSignal == kMuonQCD) passHLT = PassTriggers(3);
+      }
+    }
+    if(!passHLT) continue;
+    // HLT
+    if(isEleEvent) h_cutflow_ele->Fill(6);
+    else h_cutflow_muon->Fill(6);
+    
+    findPhotons(event, 
+		photons,
+		tightMuons, looseMuons,
+		tightEles, looseEles,
+		HT,
+		photonMode);
+    
+    float HT_jets = 0.;
+    TLorentzVector hadronicSystem(0., 0., 0., 0.);
+    
+    findJets_inMC(event, 
+		  tightMuons, looseMuons,
+		  tightEles, looseEles,
+		  photons,
+		  pfJets, btags,
+		  sf,
+		  tagInfos, csvValues, 
+		  pfJets_corrP4, btags_corrP4, 
+		  HT_jets, hadronicSystem,
+		  jetSyst);
+    
+    ////////////////////
+
+    if(pfJets.size() < 3) continue;
+    // nJets #geq 3
+    if(isEleEvent) h_cutflow_ele->Fill(7);
+    else h_cutflow_muon->Fill(7);
+    
+    if(btags.size() < 1) continue;
+    // nBtags #geq 1
+    if(isEleEvent) h_cutflow_ele->Fill(8);
+    else h_cutflow_muon->Fill(8);
+
+    if(photons.size() > 0) {
+      if(isEleEvent) h_cutflow_ele->Fill(9);
+      else h_cutflow_muon->Fill(9);
+    }
+
+  } // for entries
+
   out->Write();
   out->Close();
 
