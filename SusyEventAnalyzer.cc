@@ -2042,7 +2042,7 @@ void SusyEventAnalyzer::CutFlowData() {
   TFile* out = new TFile("cutflow_"+outputName+"_"+btagger+".root", "RECREATE");
   out->cd();
 
-  const int nCuts = 18;
+  const int nCuts = 14;
   TString cutNames[nCuts] = {
     "All events",
     "JSON",
@@ -2053,15 +2053,11 @@ void SusyEventAnalyzer::CutFlowData() {
     "HLT",
     "nJets #geq 3",
     "nBtags #geq 1",
-    "N_{#gamma/f} #geq 1",
-    "",
-    "SR1 (N_{#gamma} == 1)",
-    "CR1 (N_{#gamma} == 0",
-    "N_{fake} == 1)",
-    "",
-    "SR2 (N_{#gamma} #geq 2)",
-    "CR2 (N_{#gamma} == 0",
-    "N_{fake} #geq 2)"};
+    "N(#gamma, f) #geq 1",
+    "SR1",
+    "CR1",
+    "SR2",
+    "CR2"};
     
   TH1D * h_cutflow_ele = new TH1D("cutflow_ele", "cutflow_ele", nCuts, 0, nCuts);
   TH1D * h_cutflow_muon = new TH1D("cutflow_muon", "cutflow_muon", nCuts, 0, nCuts);
@@ -2226,7 +2222,7 @@ void SusyEventAnalyzer::CutFlowMC() {
   TFile * out = new TFile("cutflow"+output_code_t+".root", "RECREATE");
   out->cd();
 
-  const int nCuts = 18;
+  const int nCuts = 14;
   TString cutNames[nCuts] = {
     "All events",
     "JSON",
@@ -2237,23 +2233,37 @@ void SusyEventAnalyzer::CutFlowMC() {
     "HLT",
     "nJets #geq 3",
     "nBtags #geq 1",
-    "N_{#gamma/f} #geq 1",
-    "",
-    "SR1 (N_{#gamma} == 1)",
-    "CR1 (N_{#gamma} == 0",
-    "N_{fake} == 1)",
-    "",
-    "SR2 (N_{#gamma} #geq 2)",
-    "CR2 (N_{#gamma} == 0",
-    "N_{fake} #geq 2)"};
+    "N(#gamma, f) #geq 1",
+    "SR1",
+    "CR1",
+    "SR2",
+    "CR2"};
+
+  const int nPhotonCuts = 10;
+  TString photonCutNames[nPhotonCuts] = {
+    "All candidates",
+    "|#eta| < 1.4442",
+    "E_{T} > 20 GeV",
+    "H/E < 0.05",
+    "passElectronVeto",
+    "neutralHadIso"
+    "photonIso",
+    "chHadIso",
+    "sIetaIeta",
+    "#Delta R(#gamma, #mu) #geq 0.7",
+    "#Delta R(#gamma, ele) #geq 0.7"};
     
   TH1D * h_cutflow_ele = new TH1D("cutflow_ele", "cutflow_ele", nCuts, 0, nCuts);
   TH1D * h_cutflow_muon = new TH1D("cutflow_muon", "cutflow_muon", nCuts, 0, nCuts);
 
+  TH1D * h_cutflow_photons = new TH1D("cutflow_photons", "cutflow_photons", nPhotonCuts, 0, nPhotonCuts);
+  
   for(int i = 0; i < nCuts; i++) {
     h_cutflow_ele->GetXaxis()->SetBinLabel(i+1, cutNames[i]);
     h_cutflow_muon->GetXaxis()->SetBinLabel(i+1, cutNames[i]);
   }
+
+  for(int i = 0; i < nPhotonCuts; i++) h_cutflow_photons->GetXaxis()->SetBinLabel(i+1, photonCutNames[i]);
   
   ScaleFactorInfo sf(btagger);
 
@@ -2347,13 +2357,13 @@ void SusyEventAnalyzer::CutFlowMC() {
     // HLT
     if(isEleEvent) h_cutflow_ele->Fill(6);
     else h_cutflow_muon->Fill(6);
-    
-    findPhotons(event, 
-		photons,
-		tightMuons, looseMuons,
-		tightEles, looseEles,
-		HT,
-		photonMode);
+
+    findPhotonsWithCutflow(event, 
+			   photons,
+			   tightMuons, looseMuons,
+			   tightEles, looseEles,
+			   HT,
+			   h_cutflow_photons);
     
     float HT_jets = 0.;
     TLorentzVector hadronicSystem(0., 0., 0., 0.);

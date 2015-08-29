@@ -145,7 +145,13 @@ class SusyEventAnalyzer {
 		   vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
 		   float& HT, 
 		   int photonMode);
-
+  void findPhotonsWithCutflow(susy::Event& ev, 
+			      vector<susy::Photon*>& photons,
+			      vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
+			      vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
+			      float& HT, 
+			      TH1D*& hist);
+    
   // in data
   void findJets(susy::Event& ev, 
 		vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
@@ -526,6 +532,94 @@ void SusyEventAnalyzer::findPhotons(susy::Event& ev,
 	HT += it->momentum.Pt();
 	
       }
+      
+    } // for photon
+  } // if
+
+  sort(photons.begin(), photons.end(), EtGreater<susy::Photon>);
+    
+  return;
+
+}
+
+//durp
+void SusyEventAnalyzer::findPhotonsWithCutflow(susy::Event& ev, 
+					       vector<susy::Photon*>& photons,
+					       vector<susy::Muon*> tightMuons, vector<susy::Muon*> looseMuons,
+					       vector<susy::Electron*> tightEles, vector<susy::Electron*> looseEles,
+					       float& HT, 
+					       TH1D*& hist) {
+  
+  map<TString, vector<susy::Photon> >::iterator phoMap = ev.photons.find("photons");
+  if(phoMap != event.photons.end()) {
+    for(vector<susy::Photon>::iterator it = phoMap->second.begin();
+	it != phoMap->second.end(); it++) {
+
+      hist->Fill(0);
+      
+      if(fabs(it->caloPosition.Eta()) >= 1.4442) continue;
+      hist->Fill(1);
+
+      if(it->momentum.Et() <= 20.0) continue;
+      hist->Fill(2);
+      
+      if(it->hadTowOverEm >= 0.05) continue;
+      hist->Fill(3);
+
+      if(!(it->passelectronveto)) continue;
+      hist->Fill(4);
+      
+      if(neutralHadronIso_corrected(*it, rho) >= 3.5 + 0.04*it->momentum.Pt()) continue;
+      hist->Fill(5);
+
+      if(photonIso_corrected(*it, rho) >= 1.3 + 0.005*it->momentum.Pt()) continue;
+      hist->Fill(6);
+
+      if(chargedHadronIso_corrected(*it, rho) >= 2.6) continue;
+      hist->Fill(7);
+      
+      if(it->sigmaIetaIeta >= 0.012) continue;
+      hist->Fill(8);
+      
+      bool overlap = false;
+      
+      float this_dR;
+      
+      if(useDeltaRCutsOnPhotons) { // default true
+	for(unsigned int i = 0; i < tightMuons.size(); i++) {
+	  this_dR = deltaR(tightMuons[i]->momentum, it->momentum);
+	  if(this_dR < 0.7) {
+	    overlap = true;
+	    hist->Fill(9);
+	  }
+	}
+	
+	for(unsigned int i = 0; i < looseMuons.size(); i++) {
+	  if(deltaR(looseMuons[i]->momentum, it->momentum) <= 0.7) overlap = true;
+	}
+	
+	for(unsigned int i = 0; i < tightEles.size(); i++) {
+	  this_dR = deltaR(tightEles[i]->momentum, it->momentum);
+	  if(this_dR < 0.7) {
+	    overlap = true;
+	    hist->Fill(10);
+	  }
+	}
+	  
+	for(unsigned int i = 0; i < looseEles.size(); i++) {
+	  if(deltaR(looseEles[i]->momentum, it->momentum) <= 0.7) overlap = true;
+	}
+      }
+      
+      for(unsigned int i = 0; i < photons.size(); i++) {
+	this_dR = deltaR(photons[i]->momentum, it->momentum);
+	if(this_dR < 0.1) overlap = true;
+      }
+      
+      if(overlap) continue;
+      
+      photons.push_back(&*it);
+      HT += it->momentum.Pt();
       
     } // for photon
   } // if
