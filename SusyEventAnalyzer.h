@@ -569,13 +569,13 @@ void SusyEventAnalyzer::findPhotonsWithCutflow(susy::Event& ev,
       if(!(it->passelectronveto)) continue;
       hist->Fill(4);
       
-      if(neutralHadronIso_corrected(*it, rho) >= 3.5 + 0.04*it->momentum.Pt()) continue;
+      if(neutralHadronIso_corrected(*it, ev.rho25) >= 3.5 + 0.04*it->momentum.Pt()) continue;
       hist->Fill(5);
 
-      if(photonIso_corrected(*it, rho) >= 1.3 + 0.005*it->momentum.Pt()) continue;
+      if(photonIso_corrected(*it, ev.rho25) >= 1.3 + 0.005*it->momentum.Pt()) continue;
       hist->Fill(6);
 
-      if(chargedHadronIso_corrected(*it, rho) >= 2.6) continue;
+      if(chargedHadronIso_corrected(*it, ev.rho25) >= 2.6) continue;
       hist->Fill(7);
       
       if(it->sigmaIetaIeta >= 0.012) continue;
