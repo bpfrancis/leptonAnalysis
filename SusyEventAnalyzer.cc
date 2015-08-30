@@ -2239,14 +2239,14 @@ void SusyEventAnalyzer::CutFlowMC() {
     "SR2",
     "CR2"};
 
-  const int nPhotonCuts = 10;
+  const int nPhotonCuts = 11;
   TString photonCutNames[nPhotonCuts] = {
     "All candidates",
     "|#eta| < 1.4442",
     "E_{T} > 20 GeV",
     "H/E < 0.05",
     "passElectronVeto",
-    "neutralHadIso"
+    "neutralHadIso",
     "photonIso",
     "chHadIso",
     "sIetaIeta",

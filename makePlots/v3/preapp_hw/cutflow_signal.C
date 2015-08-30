@@ -25,6 +25,9 @@ void cutflow_signal() {
   TFile * inputA = new TFile("cutflow_mst_460_m1_175.root", "READ");
   TFile * inputB = new TFile("cutflow_mst_560_m1_375.root", "READ");
 
+  TH1D * h_photon_A = (TH1D*)inputA->Get("cutflow_photons");
+  TH1D * h_photon_B = (TH1D*)inputB->Get("cutflow_photons");
+  
   TH1D * h_ele_A = (TH1D*)inputA->Get("cutflow_ele");
   TH1D * h_ele_B = (TH1D*)inputB->Get("cutflow_ele");
   TH1D * h_muon_A = (TH1D*)inputA->Get("cutflow_muon");
@@ -134,6 +137,50 @@ void cutflow_signal() {
 
     lastEleValue = thisEleValue;
     lastMuonValue = thisMuonValue;
+  }
+  cout << "\\hline" << endl;
+
+  cout << endl << endl << endl;
+
+  const int nPhotonCuts = 11;
+  TString photonCutNames[nPhotonCuts] = {
+    "All candidates",
+    "$|\\eta| < 1.4442$",
+    "$E_{T} > 20$ GeV",
+    "$H/E < 0.05$",
+    "Conv.-safe ele veto",
+    "Neutral had. iso",
+    "Photon iso",
+    "Charged had. iso",
+    "$\\sigma_{i\\eta i\\eta} < 0.012$",
+    "$\\Delta R(\\gamma, \\mu) \\geq 0.7$",
+    "$\\Delta R(\\gamma, e) \\geq 0.7$"};
+
+  int thisValueA, thisValueB;
+  int lastValueA, lastValueB;
+  
+  cout << "Photon Table" << endl << endl;
+
+  cout << "\\hline \\hline" << endl;
+  cout << "Cut & \\multicolumn{2}{|c|}{Number of photons (\\% of previous)} \\\\" << endl;
+  cout << " & 460\\_175 & 560\\_375 \\\\" << endl;
+  cout << "\\hline" << endl;
+  for(int i = 0; i < nPhotonCuts; i++) {
+    thisValueA = h_photon_A->GetBinContent(i+1);
+    thisValueB = h_photon_B->GetBinContent(i+1);
+    
+    cout << photonCutNames[i] << " & ";
+    if(i == 0) {
+      cout << thisValueA << " & ";
+      cout << thisValueB << " \\\\" << endl;
+    }
+    else {
+      cout << thisValueA << " (" << setprecision(0) << fixed << 100. * (double)thisValueA / (double)lastValueA << ") & ";
+      cout << thisValueB << " (" << 100. * (double)thisValueB / (double)lastValueB << ") \\\\" << endl;
+    }
+
+    lastValueA = thisValueA;
+    lastValueB = thisValueB;
   }
   cout << "\\hline" << endl;
   
