@@ -581,18 +581,21 @@ void SusyEventAnalyzer::findPhotonsWithCutflow(susy::Event& ev,
       if(it->sigmaIetaIeta >= 0.012) continue;
       hist->Fill(8);
       
-      bool overlap = false;
-      
       float this_dR;
+
+      bool overlap = false;
+      bool overlapsAMuon = false;
+      bool overlapsAnElectron = false;
       
       if(useDeltaRCutsOnPhotons) { // default true
 	for(unsigned int i = 0; i < tightMuons.size(); i++) {
 	  this_dR = deltaR(tightMuons[i]->momentum, it->momentum);
 	  if(this_dR < 0.7) {
 	    overlap = true;
-	    hist->Fill(9);
+	    overlapsAMuon = true;
 	  }
 	}
+	if(!overlapsAMuon) hist->Fill(9);
 	
 	for(unsigned int i = 0; i < looseMuons.size(); i++) {
 	  if(deltaR(looseMuons[i]->momentum, it->momentum) <= 0.7) overlap = true;
@@ -600,11 +603,12 @@ void SusyEventAnalyzer::findPhotonsWithCutflow(susy::Event& ev,
 	
 	for(unsigned int i = 0; i < tightEles.size(); i++) {
 	  this_dR = deltaR(tightEles[i]->momentum, it->momentum);
-	  if(this_dR < 0.7) {
+	  if(this_dR < 0.7){
 	    overlap = true;
-	    hist->Fill(10);
+	    overlapsAnElectron = true;
 	  }
 	}
+	if(!overlapsAMuon && !overlapsAnElectron) hist->Fill(10);
 	  
 	for(unsigned int i = 0; i < looseEles.size(); i++) {
 	  if(deltaR(looseEles[i]->momentum, it->momentum) <= 0.7) overlap = true;
