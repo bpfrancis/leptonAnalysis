@@ -477,7 +477,7 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
 
 def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi, axisMin, axisMax, doLogy):
 
-    input = '../../zgamma/histograms_'+channel+'_'+controlRegion+'.root'
+    input = '../zgamma/histograms_'+channel+'_'+controlRegion+'.root'
 
     varName = 'z_mass'
 
