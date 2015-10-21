@@ -11,8 +11,8 @@ systematics = ['',
                '_topPtUp', '_topPtDown',
                '_JECUp', '_JECDown',
                '_leptonSFUp', '_leptonSFDown',
-               '_photonSFUp', '_photonSFDown',
-               '_qcdDefUp', '_qcdDefDown']
+               '_photonSFUp', '_photonSFDown']
+#               '_qcdDefUp', '_qcdDefDown']
 
 dilepRegion = 'Any'
 zFitRegion = 'SR1' # maybe SigmaPlot
@@ -50,16 +50,16 @@ def goPhotonPurity(version, versionShort, metCutName, channel, xlo, xhi, wjetsRe
 
     jsyst = 0
     for systematic in systematics:
-        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic, metCutName,
-                     wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
-                     promptResults[jsyst], nonpromptResults[jsyst])
+#        wigglePurity('pfMET_t01', versionShort, channel, 'SR1', systematic, metCutName,
+#                     wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+#                     promptResults[jsyst], nonpromptResults[jsyst])
         fixLimitInputs(channel, 'SR1', systematic, versionShort, metCutName,
                        wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                        promptResults[jsyst], nonpromptResults[jsyst])
 
-        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
-                     wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
-                     promptResults[jsyst], nonpromptResults[jsyst])
+#        wigglePurity('pfMET_t01', versionShort, channel, 'SR2', systematic, metCutName,
+#                     wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
+#                     promptResults[jsyst], nonpromptResults[jsyst])
         fixLimitInputs(channel, 'SR2', systematic, versionShort, metCutName,
                        wjetsResults[jsyst], topM3Results[jsyst], dilepResults[jsyst], eleFakeRateResults[jsyst],
                        promptResults[jsyst], nonpromptResults[jsyst])
