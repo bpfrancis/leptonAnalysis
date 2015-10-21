@@ -1,0 +1,262 @@
+ele_Any
+
+\begin{table}\footnotesize
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|}
+\hline
+Channel & \multicolumn{5}{|c|}{MET (GeV)} \\
+\hline
+ & 0--25 & 25--50 & 50--100 & 100--300 & $\geq$ 300 \\
+\hline\hline
+QCD & 20606 $\pm$ 300 & 28216 $\pm$ 344 & 4128 $\pm$ 105 & 178 $\pm$ 25 & 2.0 $\pm$ 2.2 \\
+\hline
+$t\bar{t}$ + jets & 21633 $\pm$ 122 & 81402 $\pm$ 339 & 85840 $\pm$ 292 & 28072 $\pm$ 77 & 242 $\pm$ 1 \\
+\hline
+$W$ + jets & 12528 $\pm$ 166 & 41116 $\pm$ 401 & 28984 $\pm$ 246 & 7776 $\pm$ 47 & 247 $\pm$ 3 \\
+\hline
+$Z$ + jets & 5560 $\pm$ 67 & 6458 $\pm$ 65 & 1113 $\pm$ 11 & 221 $\pm$ 2 & 4.5 $\pm$ 0.1 \\
+\hline
+Single $t$ & 2466 $\pm$ 10 & 8753 $\pm$ 18 & 8310 $\pm$ 19 & 2699 $\pm$ 11 & 52 $\pm$ 1 \\
+\hline
+Diboson & 275 $\pm$ 1 & 719 $\pm$ 1 & 550 $\pm$ 1 & 187 $\pm$ 1 & 6.0 $\pm$ 0.2 \\
+\hline
+V$\gamma$ & 525 $\pm$ 7 & 1287 $\pm$ 14 & 657 $\pm$ 7 & 191 $\pm$ 3 & 17.4 $\pm$ 0.3 \\
+\hline
+$t\bar{t} + W$ & 27 $\pm$ 0 & 98 $\pm$ 0 & 126 $\pm$ 0 & 83 $\pm$ 0 & 3.4 $\pm$ 0.1 \\
+\hline
+$t\bar{t} + Z$ & 23 $\pm$ 0 & 74 $\pm$ 0 & 92 $\pm$ 0 & 73 $\pm$ 0 & 3.0 $\pm$ 0.1 \\
+\hline
+$t\bar{t} + \gamma$ & 323 $\pm$ 1 & 1168 $\pm$ 3 & 1272 $\pm$ 3 & 524 $\pm$ 2 & 5.2 $\pm$ 0.2 \\
+\hline\hline
+Total Background & 63965 $\pm$ 371 & 169291 $\pm$ 632 & 131071 $\pm$ 396 & 40004 $\pm$ 95 & 583 $\pm$ 4 \\
+\hline\hline
+GMSB (460\_175) & 10.5 $\pm$ 0.5 & 64 $\pm$ 2 & 83 $\pm$ 3 & -- & -- \\
+\hline
+GMSB (560\_325) & 1.50 $\pm$ 0.11 & 11.9 $\pm$ 0.6 & 28 $\pm$ 1 & -- & -- \\
+\hline\hline
+Data & 62840 & 166158 & 133805 & 41034 & 500 \\
+\hline
+\end{tabular}
+\caption{durp}
+\end{center}
+\end{table}
+
+
+muon_Any
+
+\begin{table}\footnotesize
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|}
+\hline
+Channel & \multicolumn{5}{|c|}{MET (GeV)} \\
+\hline
+ & 0--25 & 25--50 & 50--100 & 100--300 & $\geq$ 300 \\
+\hline\hline
+QCD & 4600 $\pm$ 177 & 7695 $\pm$ 233 & 1901 $\pm$ 56 & 96 $\pm$ 4 & 0.35 $\pm$ 0.17 \\
+\hline
+$t\bar{t}$ + jets & 23988 $\pm$ 127 & 88206 $\pm$ 344 & 91929 $\pm$ 293 & 31100 $\pm$ 79 & 259 $\pm$ 1 \\
+\hline
+$W$ + jets & 13084 $\pm$ 178 & 41082 $\pm$ 414 & 27812 $\pm$ 243 & 8047 $\pm$ 50 & 232 $\pm$ 2 \\
+\hline
+$Z$ + jets & 3597 $\pm$ 40 & 4997 $\pm$ 44 & 1454 $\pm$ 12 & 325 $\pm$ 2 & 2.9 $\pm$ 0.1 \\
+\hline
+Single $t$ & 2597 $\pm$ 10 & 9220 $\pm$ 18 & 8672 $\pm$ 19 & 2844 $\pm$ 12 & 65 $\pm$ 2 \\
+\hline
+Diboson & 246 $\pm$ 1 & 730 $\pm$ 1 & 549 $\pm$ 1 & 201 $\pm$ 1 & 5.7 $\pm$ 0.2 \\
+\hline
+V$\gamma$ & 572 $\pm$ 7 & 1419 $\pm$ 13 & 804 $\pm$ 8 & 293 $\pm$ 3 & 3.5 $\pm$ 1.2 \\
+\hline
+$t\bar{t} + W$ & 26 $\pm$ 0 & 104 $\pm$ 0 & 133 $\pm$ 0 & 89 $\pm$ 0 & 3.7 $\pm$ 0.1 \\
+\hline
+$t\bar{t} + Z$ & 21 $\pm$ 0 & 74 $\pm$ 0 & 93 $\pm$ 0 & 71 $\pm$ 0 & 3.1 $\pm$ 0.1 \\
+\hline
+$t\bar{t} + \gamma$ & 305 $\pm$ 1 & 1126 $\pm$ 2 & 1213 $\pm$ 3 & 531 $\pm$ 2 & 5.8 $\pm$ 0.3 \\
+\hline\hline
+Total Background & 49035 $\pm$ 285 & 154653 $\pm$ 589 & 134560 $\pm$ 386 & 43597 $\pm$ 95 & 581 $\pm$ 3 \\
+\hline\hline
+GMSB (460\_175) & 12.2 $\pm$ 0.4 & 65 $\pm$ 2 & 78 $\pm$ 2 & -- & -- \\
+\hline
+GMSB (560\_325) & 1.25 $\pm$ 0.07 & 12.3 $\pm$ 0.6 & 31 $\pm$ 1 & -- & -- \\
+\hline\hline
+Data & 47947 & 151191 & 137196 & 44928 & 510 \\
+\hline
+\end{tabular}
+\caption{durp}
+\end{center}
+\end{table}
+
+
+ele_SR1
+
+\begin{table}\footnotesize
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|}
+\hline
+Channel & \multicolumn{5}{|c|}{MET (GeV)} \\
+\hline
+ & 0--25 & 25--50 & 50--100 & 100--300 & $\geq$ 300 \\
+\hline\hline
+QCD & -- & -- & -- & -- & -- \\
+\hline
+$t\bar{t}$ + jets & 72 $\pm$ 1 & 280 $\pm$ 2 & 384 $\pm$ 3 & 164 $\pm$ 1 & 0.87 $\pm$ 0.06 \\
+\hline
+$W$ + jets & 13.6 $\pm$ 0.2 & 42 $\pm$ 1 & 34 $\pm$ 1 & 11.0 $\pm$ 0.5 & -- \\
+\hline
+$Z$ + jets & 352 $\pm$ 7 & 406 $\pm$ 7 & 54 $\pm$ 1 & 4.0 $\pm$ 0.2 & -- \\
+\hline
+Single $t$ & 5.6 $\pm$ 0.3 & 23 $\pm$ 1 & 26 $\pm$ 1 & 8.1 $\pm$ 0.6 & 0.79 $\pm$ 0.02 \\
+\hline
+Diboson & 4.7 $\pm$ 0.1 & 6.4 $\pm$ 0.1 & 3.0 $\pm$ 0.1 & 0.80 $\pm$ 0.03 & -- \\
+\hline
+V$\gamma$ & 62 $\pm$ 2 & 103 $\pm$ 2 & 35 $\pm$ 1 & 33 $\pm$ 2 & 6.0 $\pm$ 0.2 \\
+\hline
+$t\bar{t} + W$ & 0.32 $\pm$ 0.02 & 0.83 $\pm$ 0.04 & 1.51 $\pm$ 0.05 & 1.03 $\pm$ 0.05 & 0.08 $\pm$ 0.02 \\
+\hline
+$t\bar{t} + Z$ & 0.70 $\pm$ 0.03 & 1.33 $\pm$ 0.05 & 1.39 $\pm$ 0.05 & 0.85 $\pm$ 0.05 & 0.02 $\pm$ 0.01 \\
+\hline
+$t\bar{t} + \gamma$ & 91 $\pm$ 1 & 328 $\pm$ 1 & 373 $\pm$ 2 & 159 $\pm$ 1 & 1.63 $\pm$ 0.11 \\
+\hline\hline
+Total Background & 603 $\pm$ 7 & 1190 $\pm$ 8 & 911 $\pm$ 4 & 382 $\pm$ 3 & 9.4 $\pm$ 0.2 \\
+\hline\hline
+GMSB (460\_175) & 0.36 $\pm$ 0.02 & 2.5 $\pm$ 0.1 & 16.4 $\pm$ 0.7 & 56 $\pm$ 2 & 7.6 $\pm$ 1.5 \\
+\hline
+GMSB (560\_325) & 0.28 $\pm$ 0.02 & 0.54 $\pm$ 0.08 & 2.7 $\pm$ 0.1 & 14.0 $\pm$ 0.6 & 3.9 $\pm$ 0.3 \\
+\hline\hline
+Data & 585 & 1257 & 1002 & 413 & 9 \\
+\hline
+\end{tabular}
+\caption{durp}
+\end{center}
+\end{table}
+
+
+muon_SR1
+
+\begin{table}\footnotesize
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|}
+\hline
+Channel & \multicolumn{5}{|c|}{MET (GeV)} \\
+\hline
+ & 0--25 & 25--50 & 50--100 & 100--300 & $\geq$ 300 \\
+\hline\hline
+QCD & -- & -- & -- & -- & -- \\
+\hline
+$t\bar{t}$ + jets & 76 $\pm$ 1 & 307 $\pm$ 2 & 388 $\pm$ 3 & 171 $\pm$ 1 & 1.38 $\pm$ 0.09 \\
+\hline
+$W$ + jets & 10.1 $\pm$ 0.8 & 39 $\pm$ 1 & 30 $\pm$ 1 & 4.9 $\pm$ 0.6 & -- \\
+\hline
+$Z$ + jets & 42 $\pm$ 1 & 49 $\pm$ 1 & 7.0 $\pm$ 0.3 & 1.56 $\pm$ 0.13 & -- \\
+\hline
+Single $t$ & 4.7 $\pm$ 0.4 & 27 $\pm$ 1 & 23 $\pm$ 1 & 12.4 $\pm$ 0.7 & -- \\
+\hline
+Diboson & 1.21 $\pm$ 0.05 & 3.2 $\pm$ 0.1 & 2.4 $\pm$ 0.1 & 0.89 $\pm$ 0.04 & 0.07 $\pm$ 0.00 \\
+\hline
+V$\gamma$ & 35 $\pm$ 1 & 59 $\pm$ 1 & 57 $\pm$ 2 & 41 $\pm$ 2 & -- \\
+\hline
+$t\bar{t} + W$ & 0.29 $\pm$ 0.03 & 1.07 $\pm$ 0.05 & 1.32 $\pm$ 0.05 & 1.07 $\pm$ 0.06 & 0.09 $\pm$ 0.00 \\
+\hline
+$t\bar{t} + Z$ & 0.17 $\pm$ 0.02 & 0.76 $\pm$ 0.04 & 1.14 $\pm$ 0.06 & 0.70 $\pm$ 0.03 & 0.02 $\pm$ 0.00 \\
+\hline
+$t\bar{t} + \gamma$ & 89 $\pm$ 1 & 342 $\pm$ 1 & 373 $\pm$ 1 & 166 $\pm$ 1 & 2.4 $\pm$ 0.2 \\
+\hline\hline
+Total Background & 259 $\pm$ 2 & 828 $\pm$ 3 & 883 $\pm$ 4 & 400 $\pm$ 3 & 4.0 $\pm$ 0.2 \\
+\hline\hline
+GMSB (460\_175) & 1.39 $\pm$ 0.17 & 4.5 $\pm$ 0.2 & 14.4 $\pm$ 0.5 & 51 $\pm$ 2 & 8.8 $\pm$ 1.5 \\
+\hline
+GMSB (560\_325) & 0.07 $\pm$ 0.00 & 0.37 $\pm$ 0.05 & 2.6 $\pm$ 0.2 & 12.5 $\pm$ 0.4 & 6.2 $\pm$ 0.4 \\
+\hline\hline
+Data & 241 & 866 & 930 & 434 & 4 \\
+\hline
+\end{tabular}
+\caption{durp}
+\end{center}
+\end{table}
+
+
+ele_SR2
+
+\begin{table}\footnotesize
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|}
+\hline
+Channel & \multicolumn{5}{|c|}{MET (GeV)} \\
+\hline
+ & 0--25 & 25--50 & 50--100 & 100--300 & $\geq$ 300 \\
+\hline\hline
+QCD & -- & -- & -- & -- & -- \\
+\hline
+$t\bar{t}$ + jets & -- & 0.06 $\pm$ 0.00 & 0.29 $\pm$ 0.04 & 0.12 $\pm$ 0.01 & -- \\
+\hline
+$W$ + jets & -- & -- & -- & -- & -- \\
+\hline
+$Z$ + jets & 0.68 $\pm$ 0.13 & 1.10 $\pm$ 0.03 & 0.02 $\pm$ 0.00 & -- & -- \\
+\hline
+Single $t$ & -- & -- & -- & -- & -- \\
+\hline
+Diboson & 0.09 $\pm$ 0.00 & 0.02 $\pm$ 0.00 & 0.01 $\pm$ 0.00 & -- & -- \\
+\hline
+V$\gamma$ & -- & 5.2 $\pm$ 0.1 & 1.02 $\pm$ 0.03 & -- & -- \\
+\hline
+$t\bar{t} + W$ & -- & 0.03 $\pm$ 0.02 & -- & -- & -- \\
+\hline
+$t\bar{t} + Z$ & -- & 0.04 $\pm$ 0.01 & 0.05 $\pm$ 0.00 & -- & -- \\
+\hline
+$t\bar{t} + \gamma$ & 0.46 $\pm$ 0.04 & 3.1 $\pm$ 0.1 & 2.5 $\pm$ 0.1 & 1.18 $\pm$ 0.10 & 0.05 $\pm$ 0.02 \\
+\hline\hline
+Total Background & 1.22 $\pm$ 0.13 & 9.6 $\pm$ 0.2 & 3.9 $\pm$ 0.1 & 1.30 $\pm$ 0.10 & 0.05 $\pm$ 0.02 \\
+\hline\hline
+GMSB (460\_175) & 4.9 $\pm$ 0.3 & 39 $\pm$ 2 & -- & -- & -- \\
+\hline
+GMSB (560\_325) & 0.19 $\pm$ 0.03 & 7.2 $\pm$ 0.3 & -- & -- & -- \\
+\hline\hline
+Data & 4 & 4 & 4 & 2 & 0 \\
+\hline
+\end{tabular}
+\caption{durp}
+\end{center}
+\end{table}
+
+
+muon_SR2
+
+\begin{table}\footnotesize
+\begin{center}
+\begin{tabular}{l|c|c|c|c|c|}
+\hline
+Channel & \multicolumn{5}{|c|}{MET (GeV)} \\
+\hline
+ & 0--25 & 25--50 & 50--100 & 100--300 & $\geq$ 300 \\
+\hline\hline
+QCD & 1.20 $\pm$ 2.31 & 1.07 $\pm$ 2.15 & 1.19 $\pm$ 2.29 & 1.29 $\pm$ 2.44 & -- \\
+\hline
+$t\bar{t}$ + jets & 0.06 $\pm$ 0.04 & 0.34 $\pm$ 0.07 & 0.35 $\pm$ 0.09 & 0.21 $\pm$ 0.02 & -- \\
+\hline
+$W$ + jets & -- & 0.11 $\pm$ 0.01 & -- & -- & -- \\
+\hline
+$Z$ + jets & 0.22 $\pm$ 0.00 & -- & -- & -- & -- \\
+\hline
+Single $t$ & -- & -- & -- & -- & -- \\
+\hline
+Diboson & -- & -- & 0.08 $\pm$ 0.00 & -- & -- \\
+\hline
+V$\gamma$ & -- & -- & -- & -- & -- \\
+\hline
+$t\bar{t} + W$ & -- & -- & 0.04 $\pm$ 0.00 & -- & -- \\
+\hline
+$t\bar{t} + Z$ & -- & -- & -- & -- & -- \\
+\hline
+$t\bar{t} + \gamma$ & 0.52 $\pm$ 0.05 & 2.4 $\pm$ 0.2 & 2.4 $\pm$ 0.1 & 1.30 $\pm$ 0.08 & 0.05 $\pm$ 0.02 \\
+\hline\hline
+Total Background & 0.80 $\pm$ 0.06 & 2.9 $\pm$ 0.2 & 2.9 $\pm$ 0.2 & 1.51 $\pm$ 0.09 & 0.05 $\pm$ 0.02 \\
+\hline\hline
+GMSB (460\_175) & 3.2 $\pm$ 0.2 & 40 $\pm$ 2 & -- & -- & -- \\
+\hline
+GMSB (560\_325) & 0.57 $\pm$ 0.05 & 10.1 $\pm$ 0.6 & -- & -- & -- \\
+\hline\hline
+Data & 2 & 4 & 6 & 4 & 0 \\
+\hline
+\end{tabular}
+\caption{durp}
+\end{center}
+\end{table}
