@@ -26,7 +26,7 @@ mv *.pdf $file
 cd $file
 
 tar -czf $file.tgz *
-scp $file.tgz $HEP
+#scp $file.tgz $HEP
 
 mv $file.tgz ..
 cd ..

@@ -1,42 +1,26 @@
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kNumControlRegions};
+enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 
 void makePlots() {
 
-  gSystem->AddIncludePath("-I$ROOFITSYS/include"); 
-  gROOT->LoadMacro("analyze.C+");
+  gROOT->LoadMacro("CreatePlots.C+");
 
-  TStopwatch ts;
-  ts.Start();
+  TString metType = "pfMET_t01";
 
-  TString input_ele = "ELE_FILE_TO_RUN";
-  TString input_muon = "MUON_FILE_TO_RUN";
-  bool addMC = true;
-  int intLumi = 19712; // quote to 19.7
+  int controlRegion = PHOTON_REGION;
 
-  double metCut = -1.;
+  bool needsQCD = (controlRegion == kCR0 || controlRegion == kAny || controlRegion == kCR1);
 
-  int controlRegion = NUM_PHOTONS_REQUIRED;
+  bool useWhizard = false;
 
-  bool displayKStest = false;
-  bool blinded = false;
+  bool usePurityScaleFactors = false;
 
   const int nChannels = 4;
-  TString channels[nChannels] = {"ele_jjj", "ele_bjj",
-				 "muon_jjj", "muon_bjj"};
-  int nBtagReq[nChannels] = {0, 1,
-			     0, 1};
+  TString channels[nChannels] = {"ele_bjj", "muon_bjj",
+				 "ele_jjj", "muon_jjj"};
 
   for(int i = 0; i < nChannels; i++) {
-    if(i != 1 && i != 3) continue;
-
-    if(i < 2) analyze(input_ele, addMC, i, intLumi, metCut, nBtagReq[i], displayKStest, blinded, controlRegion);
-    else analyze(input_muon, addMC, i, intLumi, metCut, nBtagReq[i], displayKStest, blinded, controlRegion);
-
+    CreatePlots(i, controlRegion, needsQCD, metType, useWhizard, usePurityScaleFactors);
   }  
 
-  ts.Stop();
-
-  std::cout << "RealTime : " << ts.RealTime()/60.0 << " minutes" << std::endl;
-  std::cout << "CPUTime  : " << ts.CpuTime()/60.0 << " minutes" << std::endl;
-
 }
+

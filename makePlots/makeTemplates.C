@@ -4,8 +4,8 @@ void makeTemplates() {
 
   gROOT->LoadMacro("CreateTemplates.C+");
 
-  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v8/SingleElectron.root";
-  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v8/SingleMu.root";
+  TString input_ele = "/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/SingleElectron.root";
+  TString input_muon = "/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/SingleMu.root";
 
   // zFit -- mLepGammaLead in SR1, no b-tag (jjj), z+vgamma matched to ele, all else
   CreateTemplates(input_ele, "mLepGammaLead", kSR1, "ele_jjj", 40, 0., 400.);

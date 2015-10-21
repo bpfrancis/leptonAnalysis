@@ -11,7 +11,7 @@ void qcdContamination() {
 
   TString channel = "ele_bjj_eQCDTree";
 
-  TString prefix = "/eos/uscms/store/user/bfrancis/inputs_v8/signal_contamination_";
+  TString prefix = "/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/signal_contamination_";
 
   const int nBkgs = 23;
 
@@ -33,8 +33,8 @@ void qcdContamination() {
 			0.2057, 0.232,
 			0.033 * 9 + 0.148 * 12 + 0.8};
 
-  TFile * fData = channel.Contains("ele") ? new TFile("/eos/uscms/store/user/bfrancis/inputs_v8/SingleElectron.root") : 
-    new TFile("/eos/uscms/store/user/bfrancis/inputs_v8/SingleMu.root");
+  TFile * fData = channel.Contains("ele") ? new TFile("/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/SingleElectron.root") : 
+    new TFile("/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/SingleMu.root");
   TTree * tData = (TTree*)fData->Get(channel);
 
   const int nMetBins = 10;

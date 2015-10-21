@@ -26,7 +26,7 @@ void maxMET(TFile * input, TString treeName, int region, Float_t& max) {
 
 void findOverflow() {
 
-  TString prefix = "/eos/uscms/store/user/bfrancis/inputs_v8/";
+  TString prefix = "/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/";
 
   const int nBkgs = 23;
 

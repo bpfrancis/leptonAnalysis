@@ -33,18 +33,18 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   Double_t ttbar_semiLep_xsec  = 245.8 * 0.438;
   Double_t ttbar_fullLep_xsec  = 245.8 * 0.105;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ttJetsHadronic.root", "ttJetsHadronic", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ttJetsHadronic.root", "ttJetsHadronic", 
 					  ttbar_hadronic_xsec, ttbar_hadronic_xsec * 0.025, ttbar_hadronic_xsec * 0.034, ttbar_hadronic_xsec * 0.026, ttbar_hadronic_xsec * 0.026,
 					  useWhizard, !useWhizard, true);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ttJetsSemiLep.root", "ttJetsSemiLep", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ttJetsSemiLep.root", "ttJetsSemiLep", 
 					  ttbar_semiLep_xsec, ttbar_semiLep_xsec * 0.025, ttbar_semiLep_xsec * 0.034, ttbar_semiLep_xsec * 0.026, ttbar_semiLep_xsec * 0.026,
 					  useWhizard, !useWhizard, true);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ttJetsFullLep.root", "ttJetsFullLep", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ttJetsFullLep.root", "ttJetsFullLep", 
 					  ttbar_fullLep_xsec, ttbar_fullLep_xsec * 0.025, ttbar_fullLep_xsec * 0.034, ttbar_fullLep_xsec * 0.026, ttbar_fullLep_xsec * 0.026,
 					  useWhizard, !useWhizard, true);
 
   /*
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_WJetsToLNu.root", "WJetsToLNu", 
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_WJetsToLNu.root", "WJetsToLNu", 
     12234.4 * 3, 79.0, 39.7, 414.7, 414.7,
     false, false);
   */
@@ -71,24 +71,24 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   double pdf_w3 = 414.7 * 640. / 37509.;
   double pdf_w4 = 414.7 * 264. / 37509.;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_W1JetsToLNu.root", "W1JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_W1JetsToLNu.root", "W1JetsToLNu", 
 					  xsec_w1,
 					  scaleUp_w1, scaleDown_w1,
 					  pdf_w1, pdf_w1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_W2JetsToLNu.root", "W2JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_W2JetsToLNu.root", "W2JetsToLNu", 
 					  xsec_w2,
 					  scaleUp_w2, scaleDown_w2,
 					  pdf_w2, pdf_w2);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_W3JetsToLNu.root", "W3JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_W3JetsToLNu.root", "W3JetsToLNu", 
 					  xsec_w3,
 					  scaleUp_w3, scaleDown_w3,
 					  pdf_w3, pdf_w3);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_W4JetsToLNu.root", "W4JetsToLNu", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_W4JetsToLNu.root", "W4JetsToLNu", 
 					  xsec_w4,
 					  scaleUp_w4, scaleDown_w4,
 					  pdf_w4, pdf_w4);
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_dyJetsToLL.root", "dyJetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_dyJetsToLL.root", "dyJetsToLL", 
 					  1177.3 * 3, 5.9, 3.6, 38.8, 38.8);
   
   double fix_zjets_xsec = 3. * 1177.3 / 3503.71;
@@ -113,66 +113,66 @@ void CreateHistograms(TString input, int channel, double metCut, bool blinded, i
   double pdf_dy3 = 38.8 * 66.07 / 3503.71;
   double pdf_dy4 = 38.8 * 27.38 / 3503.71;
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_dy1JetsToLL.root", "dy1JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_dy1JetsToLL.root", "dy1JetsToLL", 
 					  xsec_dy1,
 					  scaleUp_dy1, scaleDown_dy1,
 					  pdf_dy1, pdf_dy1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_dy2JetsToLL.root", "dy2JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_dy2JetsToLL.root", "dy2JetsToLL", 
 					  xsec_dy2,
 					  scaleUp_dy2, scaleDown_dy2,
 					  pdf_dy2, pdf_dy2);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_dy3JetsToLL.root", "dy3JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_dy3JetsToLL.root", "dy3JetsToLL", 
 					  xsec_dy3,
 					  scaleUp_dy3, scaleDown_dy3,
 					  pdf_dy3, pdf_dy3);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_dy4JetsToLL.root", "dy4JetsToLL", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_dy4JetsToLL.root", "dy4JetsToLL", 
 					  xsec_dy4,
 					  scaleUp_dy4, scaleDown_dy4,
 					  pdf_dy4, pdf_dy4);
   
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_TBar_s.root", "TBar_s", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_TBar_s.root", "TBar_s", 
 					  1.76, 0.01, 0.01, 0.08, 0.08);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_TBar_t.root", "TBar_t", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_TBar_t.root", "TBar_t", 
 					  30.7, 0.7, 0.7, 0.9, 1.1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_TBar_tW.root", "TBar_tW", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_TBar_tW.root", "TBar_tW", 
 					  11.1, 0.3, 0.3, 0.7, 0.7);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_T_s.root", "T_s", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_T_s.root", "T_s", 
 					  3.79, 0.07, 0.07, 0.13, 0.13);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_T_t.root", "T_t", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_T_t.root", "T_t", 
 					  56.4, 2.1, 0.3, 1.1, 1.1);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_T_tW.root", "T_tW", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_T_tW.root", "T_tW", 
 					  11.1, 0.3, 0.3, 0.7, 0.7);
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_WW.root", "WW",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_WW.root", "WW",
 					  57.1097, 2.3, 2.3, 2.0, 2.0);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_WZ.root", "WZ",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_WZ.root", "WZ",
 					  32.3161, 1.3, 1.3, 1.3, 1.3);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ZZ.root", "ZZ",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ZZ.root", "ZZ",
 					  8.25561, 0.3, 0.3, 0.3, 0.3);
   
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_WGToLNuG.root", "WGToLNuG",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_WGToLNuG.root", "WGToLNuG",
 					  553.9, 0.5 * 553.9, 0.5 * 553.9, 0.5 * 553.9, 0.5 * 553.9);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ZGToLLG.root", "ZGToLLG",
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ZGToLLG.root", "ZGToLLG",
 					  159.1, 0.5 * 159.1, 0.5 * 159.1, 0.5 * 159.1, 0.5 * 159.1);
 
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_TTWJets.root", "TTWJets", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_TTWJets.root", "TTWJets", 
 					  0.232, 0.067, 0.067, 0.03, 0.03);
-  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_TTZJets.root", "TTZJets", 
+  loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_TTZJets.root", "TTZJets", 
 					  0.2057, 0., 0., 0.019, 0.024);
 
   // http://arxiv.org/abs/1102.1967
-  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ttgjets.root", "ttgjets", 
+  //loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ttgjets.root", "ttgjets", 
   //2.166, 2.166 * .25, 2.166 * .25, 2.166 * 0.076, 2.166 * 0.099);
 
   if(useWhizard) {
     // https://twiki.cern.ch/twiki/bin/viewauth/CMS/WhizardMCTeeTeeGamma#2_to_5_All_ttbar_decay_channels
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_ttA_2to5.root", "ttA_2to5", 
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_ttA_2to5.root", "ttA_2to5", 
 					    .9081 * 2, .9081 * .5, .9081 * .5, .9081 * 2 * 0.076, .9081 * 2 * 0.099);
   }
   else {
     // else use madgraph TTGamma 2to7
     double ttgamma_xsec = 0.033 * 9 + 0.148 * 12 + 0.8; // 2l(NLO) + l+jets(NLO) + all_had (approx)
-    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/bfrancis/inputs_zgamma/zgamma_TTGamma.root", "TTGamma",
+    loadSuccess |= hMaker->LoadMCBackground("/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/zgamma_TTGamma.root", "TTGamma",
 					    ttgamma_xsec, 0.5 * ttgamma_xsec, 0.5 * ttgamma_xsec, 0.076 * ttgamma_xsec, 0.099 * ttgamma_xsec);
   }
 

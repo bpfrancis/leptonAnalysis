@@ -53,7 +53,7 @@ then
 elif [ "$STAGING" == "acceptance" ];
 then
 	#mv zgamma_DATASETNAME.root $WORK_DIR/zgamma_DATASETNAME_$JOB_NUMBER.root
-	mv zgamma_DATASETNAME.root /eos/uscms/store/user/bfrancis/inputs_zgamma/parts/zgamma_DATASETNAME_$JOB_NUMBER.root
+	mv zgamma_DATASETNAME.root /eos/uscms/store/user/MYUSERNAME/inputs_zgamma/parts/zgamma_DATASETNAME_$JOB_NUMBER.root
 else
 	mv *.root $WORK_DIR
 fi

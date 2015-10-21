@@ -53,7 +53,7 @@ then
 elif [ "$STAGING" == "acceptance" ];
 then
 	#mv signal_contamination_DATASETNAME.root $WORK_DIR/signal_contamination_DATASETNAME_$JOB_NUMBER.root
-	mv signal_contamination_DATASETNAME.root /eos/uscms/store/user/bfrancis/inputs_v8/parts/signal_contamination_DATASETNAME_$JOB_NUMBER.root
+	mv signal_contamination_DATASETNAME.root /eos/uscms/store/user/MYUSERNAME/stopBino_inputs/parts/signal_contamination_DATASETNAME_$JOB_NUMBER.root
 else
 	mv *.root $WORK_DIR
 fi

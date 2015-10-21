@@ -4,8 +4,8 @@ void makeHistograms() {
 
   gROOT->LoadMacro("CreateHistograms.C+");
 
-  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_v8/SingleElectron.root";
-  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_v8/SingleMu.root";
+  TString input_ele = "/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/SingleElectron.root";
+  TString input_muon = "/eos/uscms/store/user/MYUSERNAME/stopBino_inputs/SingleMu.root";
 
   TString metType = "pfMET_t01";
   bool useNormalTopReweighting = true;

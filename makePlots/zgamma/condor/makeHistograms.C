@@ -6,8 +6,8 @@ void makeHistograms() {
   gROOT->Reset();
   gROOT->LoadMacro("CreateHistograms_C.so");
 
-  TString input_ele = "/eos/uscms/store/user/bfrancis/inputs_zgamma/SingleElectron.root";
-  TString input_muon = "/eos/uscms/store/user/bfrancis/inputs_zgamma/SingleMu.root";
+  TString input_ele = "/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/SingleElectron.root";
+  TString input_muon = "/eos/uscms/store/user/MYUSERNAME/inputs_zgamma/SingleMu.root";
 
   TString metType = "pfMET_t01";
   bool useNormalTopReweighting = true;
