@@ -1031,6 +1031,12 @@ void SusyEventAnalyzer::GeneratorInfo() {
   TH1D * h_genMET = new TH1D("genMET", "genMET", 400, 0, 2000);
   TH1D * h_top_invmass = new TH1D("top_invmass", "top_invmass", 400, 0, 2000);
 
+  // compare to older samples
+  TH1D * h_squark_olderCompare_pt = new TH1D("squark_olderCompare_pt", "squark_olderCompare_pt", 400, 0, 2000);
+  TH1D * h_gluino_olderCompare_pt = new TH1D("gluino_olderCompare_pt", "gluino_olderCompare_pt", 400, 0, 2000);
+  TH1D * h_stop_olderCompare_pt = new TH1D("stop_olderCompare_pt", "stop_olderCompare_pt", 400, 0, 2000);
+  TH1D * h_bino_olderCompare_pt = new TH1D("bino_olderCompare_pt", "bino_olderCompare_pt", 400, 0, 2000);
+    
   TH1D * h_charm_pt = new TH1D("charm_pt", "charm_pt", 400, 0, 2000);
   TH1D * h_strange_pt = new TH1D("strange_pt", "strange_pt", 400, 0, 2000);
   TH1D * h_up_pt = new TH1D("up_pt", "up_pt", 400, 0, 2000);
@@ -1055,6 +1061,14 @@ void SusyEventAnalyzer::GeneratorInfo() {
       cout << int(jentry) << " events processed with run = " << event.runNumber << ", event = " << event.eventNumber << endl;
     }
 
+    // compare to older samples
+    for(vector<susy::Particle>::iterator it = event.genParticles.begin(); it != event.genParticles.end(); it++) {
+      if(abs(it->pdgId) >= 1000001 && abs(it->pdgId) <= 1000003) h_squark_olderCompare_pt->Fill(it->momentum.Pt());
+      if(abs(it->pdgId) == 1000021) h_gluino_olderCompare_pt->Fill(it->momentum.Pt());
+      if(abs(it->pdgId) == 1000006) h_stop_olderCompare_pt->Fill(it->momentum.Pt());
+      if(abs(it->pdgId) == 1000022) h_bino_olderCompare_pt->Fill(it->momentum.Pt());
+    }
+      
     susy::Particle * stop = 0;
     susy::Particle * antistop = 0;
 
