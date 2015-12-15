@@ -2,6 +2,7 @@ import ROOT
 from ROOT import gROOT
 from ROOT import gStyle
 import math
+import CMS_lumi, tdrstyle
 
 openfiles = {}
 
@@ -171,6 +172,120 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
     can.SaveAs('plots/'+name+'.pdf')
     #can.SaveAs('canvases/'+name+'.C')
 
+def drawPlots_tdrstyle(data, signal, signalSF, signalName, background, backgroundSF, backgroundName, xlo, xhi, name, xaxisLabel, axisMin, axisMax, doLogy):
+
+    tdrstyle.setTDRStyle()
+    CMS_lumi.lumi_8TeV = '19.7 fb^{-1}'
+    CMS_lumi.extraText = 'Preliminary'
+    CMS_lumi.writeExtraText = 1
+    CMS_lumi.lumi_sqrtS = '8 TeV'
+
+    iPos = 11
+    H = 600
+    W = 800
+    # iPeriod = 1*(0/1 7 TeV) + 2*(0/1 8 TeV)  + 4*(0/1 13 TeV) 
+    iPeriod = 2
+
+    # references for T, B, L, R
+    T = 0.08*H
+    B = 0.12*H
+    L = 0.12*W
+    R = 0.04*W
+
+    can = ROOT.TCanvas('can', 'plot', 50, 50, W, H)
+    
+
+    padhi = ROOT.TPad('padhi', 'padhi', 0, 0.3, 1, 1)
+    padhi.SetFillColor(0)
+    padhi.SetBorderMode(0)
+    padhi.SetFrameFillStyle(0)
+    padhi.SetFrameBorderMode(0)
+    padhi.SetTickx(0)
+    padhi.SetTicky(0)
+    padhi.SetLogy(doLogy)
+    padhi.SetLeftMargin( L/W )
+    padhi.SetRightMargin( R/W )
+    padhi.SetTopMargin(T/H)
+    padhi.SetBottomMargin(0)
+
+    padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, 0.3)
+    padlo.SetFillColor(0)
+    padlo.SetBorderMode(0)
+    padlo.SetFrameFillStyle(0)
+    padlo.SetFrameBorderMode(0)
+    padlo.SetTickx(0)
+    padlo.SetTicky(0)
+    padlo.SetLeftMargin( L/W )
+    padlo.SetRightMargin( R/W )
+    padlo.SetTopMargin(0)
+    padlo.SetBottomMargin(B/H)
+
+    padhi.Draw()
+    padlo.Draw()
+    
+    signal.Scale(signalSF)
+    background.Scale(backgroundSF)
+
+    background.SetFillColor(8)
+    
+    sumHist = signal.Clone('sumHist')
+    sumHist.Add(background)
+    sumHist.SetFillColor(ROOT.kGray)
+    sumHist.GetXaxis().SetRangeUser(xlo, xhi)
+    sumHist.GetYaxis().SetRangeUser(axisMin, axisMax)
+
+    ratio = data.Clone('ratio')
+    ratio.Reset()
+    for ibin in range(ratio.GetNbinsX()):
+        if(sumHist.GetBinContent(ibin+1) == 0):
+            continue
+        ratio.SetBinContent(ibin+1, data.GetBinContent(ibin+1) / sumHist.GetBinContent(ibin+1))
+        ratio.SetBinError(ibin+1, data.GetBinError(ibin+1) / sumHist.GetBinContent(ibin+1))
+
+    ratio.GetYaxis().SetRangeUser(0.0, 1.9)
+    ratio.GetYaxis().SetTitle('Data / Background')
+
+    ratio.GetXaxis().SetRangeUser(xlo, xhi)
+    ratio.GetXaxis().SetTitle(xaxisLabel)
+
+    oneLine = ROOT.TLine(xlo, 1.0, xhi, 1.0)
+    oneLine.SetLineStyle(2)
+
+    reqtitle = ''
+    if 'ele_bjj' in name or 'ele_jjj' in name:
+        reqtitle = 'ee'
+    else:
+        reqtitle = '#mu#mu'
+
+    if 'bjj' in name:
+        reqtitle = reqtitle + '+bjj'
+    else:
+        reqtitle = reqtitle + '+jjj'
+
+    leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85)
+    leg.AddEntry(data, 'Data', 'LP')
+    leg.AddEntry(sumHist, signalName, 'F')
+    leg.AddEntry(background, backgroundName, 'F')
+
+    padhi.cd()
+    
+    CMS_lumi.CMS_lumi(padhi, iPeriod, iPos, reqtitle)
+    
+    sumHist.Draw('hist')
+    background.Draw('hist same')
+    data.Draw('e1 same')
+    data.Draw('axis same')
+    leg.Draw()
+    lumiHeader.Draw()
+    
+    padlo.cd()
+    oneLine.Draw()
+    ratio.Draw('e1 same')
+    ratio.Draw('axis same')
+    
+    can.SaveAs('plots/'+name+'.pdf')
+    #can.SaveAs('canvases/'+name+'.C')
+    
 def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
 
     # RooFit variables
