@@ -80,8 +80,8 @@ for channel in channels:
     output_dilepton_noTag.write('systematic\tSF\tError\n')
 
     for systematic in systematics:
-        dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, 0.0, 180.0, 0.9, 2e4, True))
-        dilepResults_noTag.append(doDileptonFit(channels_noTag[ichan], dilepRegion, systematic, output_dilepton_noTag, 0.0, 180.0, 0.9, 2e5, True))
+        dilepResults.append(doDileptonFit(channel, dilepRegion, systematic, output_dilepton, 0.0, 180.0, 2, 2e4, True))
+        dilepResults_noTag.append(doDileptonFit(channels_noTag[ichan], dilepRegion, systematic, output_dilepton_noTag, 0.0, 180.0, 2, 2e5, True))
 
     output_dilepton.close()
     output_dilepton_noTag.close()

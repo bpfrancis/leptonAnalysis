@@ -122,9 +122,9 @@ def drawPlots(data, signal, signalSF, signalName, background, backgroundSF, back
 
     legtitle = ''
     if 'ele_bjj' in name or 'ele_jjj' in name:
-        legtitle = ' ele'
+        legtitle = 'ele'
     else:
-        legtitle = ' muon'
+        legtitle = 'muon'
 
     if 'jjj' in name:
         legtitle = legtitle + ' (no b-tag)'
@@ -191,38 +191,31 @@ def drawPlots_tdrstyle(data, signal, signalSF, signalName, background, backgroun
     B = 0.12*H
     L = 0.12*W
     R = 0.04*W
-
-    can = ROOT.TCanvas('can', 'plot', 50, 50, W, H)
     
+    can = ROOT.TCanvas('can', 'plot', 50, 50, W, H)
 
-    padhi = ROOT.TPad('padhi', 'padhi', 0, 0.3, 1, 1)
-    padhi.SetFillColor(0)
-    padhi.SetBorderMode(0)
-    padhi.SetFrameFillStyle(0)
-    padhi.SetFrameBorderMode(0)
-    padhi.SetTickx(0)
-    padhi.SetTicky(0)
-    padhi.SetLogy(doLogy)
+    padFraction = 0.3
+    
+    padhi = ROOT.TPad('padhi', 'padhi', 0, padFraction, 1, 1)
     padhi.SetLeftMargin( L/W )
     padhi.SetRightMargin( R/W )
-    padhi.SetTopMargin(T/H)
+    padhi.SetTopMargin(T/H/(1.0 - padFraction))
     padhi.SetBottomMargin(0)
-
-    padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, 0.3)
-    padlo.SetFillColor(0)
-    padlo.SetBorderMode(0)
-    padlo.SetFrameFillStyle(0)
-    padlo.SetFrameBorderMode(0)
-    padlo.SetTickx(0)
-    padlo.SetTicky(0)
+    padhi.SetTickx(0)
+    padhi.SetTicky(0)    
+    padhi.SetLogy(doLogy)
+    
+    padlo = ROOT.TPad('padlo', 'padlo', 0, 0, 1, padFraction)
     padlo.SetLeftMargin( L/W )
     padlo.SetRightMargin( R/W )
     padlo.SetTopMargin(0)
-    padlo.SetBottomMargin(B/H)
+    padlo.SetBottomMargin(B/H/padFraction)
+    padlo.SetTickx(0)
+    padlo.SetTicky(0)
 
     padhi.Draw()
     padlo.Draw()
-    
+        
     signal.Scale(signalSF)
     background.Scale(backgroundSF)
 
@@ -233,6 +226,7 @@ def drawPlots_tdrstyle(data, signal, signalSF, signalName, background, backgroun
     sumHist.SetFillColor(ROOT.kGray)
     sumHist.GetXaxis().SetRangeUser(xlo, xhi)
     sumHist.GetYaxis().SetRangeUser(axisMin, axisMax)
+    sumHist.GetYaxis().SetTitle('Events / 10 GeV')
 
     ratio = data.Clone('ratio')
     ratio.Reset()
@@ -242,49 +236,70 @@ def drawPlots_tdrstyle(data, signal, signalSF, signalName, background, backgroun
         ratio.SetBinContent(ibin+1, data.GetBinContent(ibin+1) / sumHist.GetBinContent(ibin+1))
         ratio.SetBinError(ibin+1, data.GetBinError(ibin+1) / sumHist.GetBinContent(ibin+1))
 
-    ratio.GetYaxis().SetRangeUser(0.0, 1.9)
+    ratio.GetYaxis().SetRangeUser(0.45, 1.55)
     ratio.GetYaxis().SetTitle('Data / Background')
+    ratio.GetYaxis().SetLabelSize(0.06)
+    ratio.GetYaxis().SetTitleSize(0.06)
+    ratio.GetYaxis().SetTitleOffset(0.5)
+    #ratio.GetYaxis().SetNdivisions(512)
 
     ratio.GetXaxis().SetRangeUser(xlo, xhi)
     ratio.GetXaxis().SetTitle(xaxisLabel)
+    ratio.GetXaxis().SetLabelSize(0.10)
+    ratio.GetXaxis().SetTitleSize(0.12)
+    ratio.GetXaxis().SetTitleOffset(1.2)
 
-    oneLine = ROOT.TLine(xlo, 1.0, xhi, 1.0)
+    oneLine = ROOT.TLine(xlo, 1.0, xhi + 10.0, 1.0)
     oneLine.SetLineStyle(2)
 
     reqtitle = ''
     if 'ele_bjj' in name or 'ele_jjj' in name:
-        reqtitle = 'ee'
+        if 'z_mass' in name:
+            reqtitle = 'ee'
+        else:
+            reqtitle = 'e#gamma'
     else:
-        reqtitle = '#mu#mu'
+        if 'z_mass' in name:
+            reqtitle = '#mu#mu'
+        else:
+            reqtitle = '#mu#gamma'
 
     if 'bjj' in name:
         reqtitle = reqtitle + '+bjj'
     else:
         reqtitle = reqtitle + '+jjj'
 
-    leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85)
+    leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85, '', 'brNDC')
+    leg.SetFillColor(0)
+    leg.SetTextSize(0.028)
+    leg.SetBorderSize(0)
     leg.AddEntry(data, 'Data', 'LP')
     leg.AddEntry(sumHist, signalName, 'F')
     leg.AddEntry(background, backgroundName, 'F')
 
     padhi.cd()
-    
-    CMS_lumi.CMS_lumi(padhi, iPeriod, iPos, reqtitle)
-    
     sumHist.Draw('hist')
     background.Draw('hist same')
     data.Draw('e1 same')
-    data.Draw('axis same')
+    sumHist.Draw('axis same')
     leg.Draw()
-    lumiHeader.Draw()
-    
+
     padlo.cd()
+    ratio.Draw('e1')
     oneLine.Draw()
-    ratio.Draw('e1 same')
     ratio.Draw('axis same')
+
+    padhi.cd()
+    CMS_lumi.CMS_lumi(padhi, iPeriod, iPos, reqtitle)
+
+    can.cd()
     
+    padFix = ROOT.TPad('pad4', 'pad4', .09, .295, .118, .33)
+    if not doLogy:
+        padFix.Draw()
+
     can.SaveAs('plots/'+name+'.pdf')
-    #can.SaveAs('canvases/'+name+'.C')
+    can.SaveAs('canvases/'+name+'.C')
     
 def makeFit(varname, varmin, varmax, signalHist, backgroundHist, dataHist):
 

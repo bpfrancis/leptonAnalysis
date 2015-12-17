@@ -168,48 +168,50 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
 
   ///////////////////////////////////////////////////////
 
+  bool usePasStyle = true;
+  
   // aps15
   if(controlRegion == kAny) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 300., 7.e-3, 2.5e6,
 		     0., 1.9,
-		     true, true, true);
+		     true, true, true, usePasStyle);
   }
   else if(controlRegion == kCR1) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 800., 2.e-3, 1.e2,
 		     0., 1.9,
-		     false, true, true);
+		     false, true, true, usePasStyle);
   }
   else if(controlRegion == kCR2) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 799.9, 3.e-4, 40.0,
 		     0., 1.9,
-		     false, true, true);
+		     false, true, true, usePasStyle);
   }
   else if(controlRegion == kSR1) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 799.9, 9.e-4, 1.e2,
 		     0., 1.9,
-		     true, true, true);
+		     true, true, true, usePasStyle);
   }
   else if(controlRegion == kSR2) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 799.9, 3.e-4, 4.0,
 		     0., 1.9,
-		     true, true, true);
+		     true, true, true, usePasStyle);
   }
   else {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
 		     0., 300., 7.e-3, 2.5e5,
 		     0., 1.9,
-		     true, true, true);
+		     true, true, true, usePasStyle);
   }
   
   //if(controlRegion == kCR1) pMaker->SetDoRebinMET(true);

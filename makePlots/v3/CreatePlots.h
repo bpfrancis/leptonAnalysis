@@ -95,7 +95,8 @@ class PlotMaker : public TObject {
 		TString xaxisTitle, TString yaxisTitle,
 		Float_t xmin, Float_t xmax, Float_t ymin, Float_t ymax,
 		Float_t ratiomin, Float_t ratiomax,
-		bool drawSignal, bool drawLegend, bool drawPrelim);
+		bool drawSignal, bool drawLegend, bool drawPrelim,
+		bool isPubCommStyle = false);
 
   void DivideWidth() {
     data = (TH1D*)DivideByBinWidth(data);
@@ -311,6 +312,8 @@ class PlotMaker : public TObject {
   TPaveText * reqText;
   TPaveText * lumiHeader;
 
+  TLatex pasLumiLatex, pasCMSLatex, pasPrelimLatex;
+
   // these three stay the same for all MC and all variables
 
   vector< vector<TString> > layerNames;
@@ -333,7 +336,8 @@ class PlotMaker : public TObject {
   vector<Float_t> xMinimums, xMaximums, yMinimums, yMaximums;
   vector<Float_t> ratioMinimums, ratioMaximums;
   vector<bool> doDrawSignal, doDrawLegend, doDrawPrelim;
-
+  vector<bool> usePubCommStyle;
+  
   // channel-wide qualities
 
   TString channel;
@@ -412,7 +416,8 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<F
   doDrawSignal.clear();
   doDrawLegend.clear();
   doDrawPrelim.clear();
-
+  usePubCommStyle.clear();
+  
   input = new TFile("histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
 
 }
@@ -465,7 +470,8 @@ PlotMaker::~PlotMaker() {
   doDrawSignal.clear();
   doDrawLegend.clear();
   doDrawPrelim.clear();
-
+  usePubCommStyle.clear();
+  
   delete leg;
   delete legDrawSignal;
   delete ratioLeg;
@@ -572,7 +578,8 @@ void PlotMaker::BookPlot(TString variable, bool divideByWidth,
 			 TString xaxisTitle, TString yaxisTitle,
 			 Float_t xmin, Float_t xmax, Float_t ymin, Float_t ymax,
 			 Float_t ratiomin, Float_t ratiomax,
-			 bool drawSignal, bool drawLegend, bool drawPrelim) {
+			 bool drawSignal, bool drawLegend, bool drawPrelim,
+			 bool isPubCommStyle) {
 
   variables.push_back(variable);
   divideByBinWidth.push_back(divideByWidth);
@@ -587,7 +594,8 @@ void PlotMaker::BookPlot(TString variable, bool divideByWidth,
   doDrawSignal.push_back(drawSignal);
   doDrawLegend.push_back(drawLegend);
   doDrawPrelim.push_back(drawPrelim);
-
+  usePubCommStyle.push_back(isPubCommStyle);
+  
 }
 
 void PlotMaker::StackHistograms(unsigned int n) {
@@ -817,7 +825,28 @@ void PlotMaker::MakeLegends() {
   lumiHeader->SetLineColor(0);
   lumiHeader->AddText("CMS Preliminary 2015     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
   //aps15 lumiHeader->AddText("Work in Progress     #sqrt{s} = 8 TeV     #intL = 19.7 fb^{-1}");
+  
+  pasLumiLatex.SetNDC();
+  pasLumiLatex.SetTextAngle(0);
+  pasLumiLatex.SetTextColor(kBlack);
+  pasLumiLatex.SetTextFont(42);
+  pasLumiLatex.SetTextAlign(31);
+  pasLumiLatex.SetTextSize(0.06);
 
+  pasCMSLatex.SetNDC();
+  pasCMSLatex.SetTextAngle(0);
+  pasCMSLatex.SetTextColor(kBlack);
+  pasCMSLatex.SetTextFont(61);
+  pasCMSLatex.SetTextAlign(11);
+  pasCMSLatex.SetTextSize(0.075);
+
+  pasPrelimLatex.SetNDC();
+  pasPrelimLatex.SetTextAngle(0);
+  pasPrelimLatex.SetTextColor(kBlack);
+  pasPrelimLatex.SetTextFont(52);
+  pasPrelimLatex.SetTextAlign(13);
+  pasPrelimLatex.SetTextSize(0.76*0.075);
+  
 }
 
 void PlotMaker::SetStyles(unsigned int n) {
@@ -1072,7 +1101,13 @@ void PlotMaker::CreatePlot(unsigned int n) {
     sigb->Draw("same hist");
   }
 
-  lumiHeader->Draw("same");
+  if(usePubCommStyle[n]) {
+    pasLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) channel");
+    pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
+    pasPrelimLatex.DrawLatex(.1 + 0.045*.8, 1 - .1 - 0.035*.8, "Preliminary");
+  }
+  else lumiHeader->Draw("same");
+
   if(doDrawLegend[n]) {
     if(doDrawSignal[n]) legDrawSignal->Draw("same");
     else leg->Draw("same");

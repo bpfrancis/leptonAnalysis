@@ -467,7 +467,8 @@ def doElectronFit(channel, controlRegion, systematic, output_z, xlo, xhi, dilepR
         output_eleMisIDRate.write(str(mcRate)+'\t'+str(fitFrac)+'\n')
         output_eleMisIDRate.close()
 
-        drawPlots(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm(l, #gamma) (GeV/c^2)', axisMin, axisMax, doLogy)
+        #drawPlots(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm_{l, #gamma} (GeV)', axisMin, axisMax, doLogy)
+        drawPlots_tdrstyle(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systematic, 'm_{l, #gamma} (GeV)', axisMin, axisMax, doLogy)
     else:
         output_z.write(systematic+'\t'+
                        str(zSF)+'\t'+
@@ -529,11 +530,12 @@ def doDileptonFit(channel, controlRegion, systematic, output, xlo, xhi, axisMin,
                      str(zSF)+'\t'+
                      str(zSFerror)+'\n')
 
-        xaxisLabel = 'm(ee) (GeV/c^2)'
+        xaxisLabel = 'm_{ee} (GeV)'
         if channel == 'muon_bjj':
-            xaxisLabel = 'm(#mu#mu) (GeV/c^2)'
+            xaxisLabel = 'm_{#mu#mu} (GeV)'
 
-        drawPlots(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systName, xaxisLabel, axisMin, axisMax, doLogy)
+        #drawPlots(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systName, xaxisLabel, axisMin, axisMax, doLogy)
+        drawPlots_tdrstyle(dataHist, zHist, zSF, 'Z(#gamma) + Jets', bkgHist, bkgSF, 'Bkg', xlo, xhi, varName+'_'+channel+systName, xaxisLabel, axisMin, axisMax, doLogy)
 
     else:
         output.write(systematic+'\t'+
