@@ -14,6 +14,7 @@
 #include "TPaveText.h"
 #include "TGraphAsymmErrors.h"
 #include "TGraphErrors.h"
+#include "TLatex.h"
 
 #include <vector>
 #include <iostream>
@@ -39,6 +40,7 @@ TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
 TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Pre-selection"};
+TString crLatexNames[kNumControlRegions] = {"#gamma+bjj", "#gamma#gamma+bjj", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "+bjj"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
@@ -1102,9 +1104,13 @@ void PlotMaker::CreatePlot(unsigned int n) {
   }
 
   if(usePubCommStyle[n]) {
-    pasLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) channel");
+    TString pasChannelName = crLatexNames[controlRegion];
+    if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
+    else pasChannelName = "#mu" + pasChannelName;
+
+    pasLumiLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) channel");
     pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
-    pasPrelimLatex.DrawLatex(.1 + 0.045*.8, 1 - .1 - 0.035*.8, "Preliminary");
+    pasPrelimLatexDrawLatex(0.2178, 0.936, "Preliminary");
   }
   else lumiHeader->Draw("same");
 
@@ -1112,7 +1118,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
     if(doDrawSignal[n]) legDrawSignal->Draw("same");
     else leg->Draw("same");
   }
-  if(doDrawPrelim[n] && doDrawLegend[n]) reqText->Draw("same");
+  if(doDrawPrelim[n] && doDrawLegend[n] && !usePubCommStyle[n]) reqText->Draw("same");
 
   padlo->cd();
 
