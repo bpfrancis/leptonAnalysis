@@ -40,7 +40,7 @@ TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
 TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Pre-selection"};
-TString crLatexNames[kNumControlRegions] = {"#gamma+bjj", "#gamma#gamma+bjj", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "+bjj"};
+TString crLatexNames[kNumControlRegions] = {"#gamma+bjj", "#gamma#gamma+bjj", "#gamma_{j}+bjj", "#gamma_{j}#gamma_{j}+bjj", "CR2a", "CR0", "SigmaPlot", "+bjj"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
@@ -390,6 +390,7 @@ class PlotMaker : public TObject {
   TLegend * ratioLeg;
 
   TLegend * pasLegDrawSignal;
+  TLegend * pasLeg;
   
 };
 
@@ -455,7 +456,7 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<F
   usePubCommStyle.clear();
 
   // durp arc use saved versions
-  input = new TFile("save_papers/histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
+  input = new TFile("save_paper/histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
 
 }
 
@@ -513,6 +514,7 @@ PlotMaker::~PlotMaker() {
   delete legDrawSignal;
   delete ratioLeg;
 
+  delete pasLeg;
   delete pasLegDrawSignal;
   
   delete can;
@@ -846,7 +848,7 @@ void PlotMaker::MakeLegends() {
   legDrawSignal->AddEntry(siga, "GGM (460_175)", "L");
   legDrawSignal->AddEntry(sigb, "GGM (560_325)", "L");
 
-  pasLegDrawSignal = new TLegend(0.5, 0.6, 0.85, 0.8, NULL, "brNDC");
+  pasLegDrawSignal = new TLegend(0.55, 0.53, 0.9, 0.83, NULL, "brNDC");
   pasLegDrawSignal->SetNColumns(2);
   pasLegDrawSignal->AddEntry(data, "Data", "LP");
   pasLegDrawSignal->AddEntry((TObject*)0, "", "");
@@ -865,6 +867,24 @@ void PlotMaker::MakeLegends() {
   pasLegDrawSignal->SetTextSize(0.028 / 0.7);
   pasLegDrawSignal->AddEntry(siga, "GGM (460_175)", "L");
   pasLegDrawSignal->AddEntry(sigb, "GGM (560_325)", "L");
+
+  pasLeg = new TLegend(0.55, 0.53, 0.9, 0.83, NULL, "brNDC");
+  pasLeg->SetNColumns(2);
+  pasLeg->AddEntry(data, "Data", "LP");
+  pasLeg->AddEntry((TObject*)0, "", "");
+  pasLeg->AddEntry(errors_sys, "Stat. #oplus Syst. Errors", "F");
+  pasLeg->AddEntry((TObject*)0, "", "");
+  if(needsQCD) pasLeg->AddEntry(bkg, "QCD", "F");
+
+  pasLeg->AddEntry(mc[0], layerLegends[0], "F");
+  for(unsigned int i = 1; i < mc.size(); i++) {
+    if(layerLegends[i] == layerLegends[i-1]) continue;
+    pasLeg->AddEntry(mc[i], layerLegends[i], "F");
+  }
+  if(!needsQCD) pasLeg->AddEntry((TObject*)0, "", "");
+  pasLeg->SetFillColor(0);
+  pasLeg->SetBoderSize(0);
+  pasLeg->SetTextSize(0.028 / 0.7);
   
   ratioLeg = new TLegend(0.78, 0.7, 0.88, 0.95, NULL, "brNDC");
   ratioLeg->AddEntry(ratio_stat, "Stat.", "F");
@@ -1306,7 +1326,7 @@ void PlotMaker::CreatePasPlot(unsigned int n) {
 
   if(doDrawLegend[n]) {
     if(doDrawSignal[n]) pasLegDrawSignal->Draw("same");
-    else leg->Draw("same");
+    else pasLeg->Draw("same");
   }
   if(doDrawPrelim[n] && doDrawLegend[n] && !usePubCommStyle[n]) reqText->Draw("same");
 

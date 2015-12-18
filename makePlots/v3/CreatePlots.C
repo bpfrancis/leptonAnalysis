@@ -181,8 +181,8 @@ void CreatePlots(int channel, int controlRegion, bool needsQCD, TString metType,
   else if(controlRegion == kCR1) {
     pMaker->BookPlot(metType, true,
 		     "#slash{E}_{T} (GeV)", "Number of Events / GeV",
-		     0., 800., 2.e-3, 1.e2,
-		     0., 1.9,
+		     0., 800., 3.e-4, 1.e2,
+		     0.45, 1.55,
 		     false, true, true, usePasStyle);
   }
   else if(controlRegion == kCR2) {
