@@ -221,12 +221,16 @@ class PlotMaker : public TObject {
     pasPadhi->SetLogy(true);
     pasPadhi->SetTickx(true);
     pasPadhi->SetTicky(true);
-    //pasPadhi->SetGridx(true);
-    //pasPadhi->SetGridy(true);
+
+    pasPadhi->SetLeftMargin(0.12);
+    pasPadhi->SetRightMargin(0.04);
+    pasPadhi->SetTopMargin(0.08/(1.0 - 0.3));
     pasPadhi->SetBottomMargin(0);
 
+    pasPadhi->SetLeftMargin(0.12);
+    pasPadhi->SetRightMargin(0.04);
     pasPadlo->SetTopMargin(0);
-    pasPadlo->SetBottomMargin(0.2);
+    pasPadlo->SetBottomMargin(0.2/0.3);
 
     pasPadhi->Draw();
     pasPadlo->Draw();
@@ -240,6 +244,7 @@ class PlotMaker : public TObject {
   void StackHistograms(unsigned int n);
   void CalculateRatio(unsigned int n);
   void SetStyles(unsigned int n);
+  void SetPasStyles(unsigned int n);
 
   void ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfError);
 
@@ -250,11 +255,14 @@ class PlotMaker : public TObject {
   void DetermineLegendRanges(unsigned int n);
 
   void CreatePlot(unsigned int n);
+  void CreatePasPlot(unsigned int n);
   void CreatePlots() {
     MakeCanvas();
     MakePasCanvas();
     CalculateQCDNormalization();
-    for(unsigned int i = 0; i < variables.size(); i++) CreatePlot(i);
+    for(unsigned int i = 0; i < variables.size(); i++) {
+      if(usePubCommStyle[i]) CreatePasPlot(i);
+      else CreatePlot(i);
   };
   
   void METDifference();
@@ -950,6 +958,76 @@ void PlotMaker::SetStyles(unsigned int n) {
 
 }
 
+void PlotMaker::SetPasStyles(unsigned int n) {
+  // durp
+  data->SetMarkerStyle(20);
+  data->SetMarkerSize(1.0);
+  data->SetLineColor(kBlack);
+  
+  errors_stat->SetFillColor(kOrange+10);
+  errors_stat->SetFillStyle(3154);
+  errors_stat->SetMarkerSize(0);
+  
+  errors_sys->SetFillColor(kOrange+10);
+  errors_sys->SetFillStyle(3154);
+  errors_sys->SetMarkerSize(0);
+
+  ratio_stat->SetFillStyle(1001);
+  ratio_stat->SetFillColor(kGray+1);
+  ratio_stat->SetLineColor(kGray+1);
+  ratio_stat->SetMarkerColor(kGray+1);
+
+  ratio_sys->SetFillStyle(1001);
+  ratio_sys->SetFillColor(kGray);
+  ratio_sys->SetLineColor(kGray);
+  ratio_sys->SetMarkerColor(kGray);
+  
+  if(needsQCD) bkg->SetFillColor(kSpring-6);
+  else bkg->SetFillColor(layerColors[0]);
+  bkg->SetMarkerSize(0);
+  bkg->SetLineColor(1);
+
+  for(unsigned int i = 0; i < mc.size(); i++) {
+    mc[i]->SetFillColor(layerColors[i]);
+    mc[i]->SetMarkerSize(0);
+    mc[i]->SetLineColor(1);
+  }
+
+  bkg->SetTitle(variables[n]);
+
+  bkg->GetXaxis()->SetTitle(xaxisTitles[n]);
+  ratio->GetXaxis()->SetTitle(xaxisTitles[n]);
+  ratio->GetXaxis()->SetLabelSize(0.10);
+  ratio->GetXaxis()->SetTitleSize(0.12);
+  ratio->GetXaxis()->SetTitleOffset(1.2);
+  ratio->SetLineColor(kBlack);
+
+  if(xMaximums[n] > xMinimums[n]) {
+    bkg->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
+    ratio->GetXaxis()->SetRangeUser(xMinimums[n], xMaximums[n]);
+  }
+
+  bkg->GetYaxis()->SetTitle(yaxisTitles[n]);
+  ratio->GetYaxis()->SetTitle("Data / Background");
+  ratio->GetYaxis()->SetLabelSize(0.06);
+  ratio->GetYaxis()->SetTitleSize(0.06);
+  ratio->GetYaxis()->SetTitleOffset(0.5);
+  ratio->GetYaxis()->SetNdivisions(508);
+
+  bkg->GetYaxis()->SetRangeUser(yMinimums[n], yMaximums[n]);
+  ratio->GetYaxis()->SetRangeUser(ratioMinimums[n], ratioMaximums[n]);
+
+  oneLine = new TLine(xMinimums[n], 1, xMaximums[n], 1);
+  oneLine->SetLineStyle(2);
+
+  siga->SetLineColor(kMagenta);
+  siga->SetLineWidth(3);
+  
+  sigb->SetLineColor(kBlue);
+  sigb->SetLineWidth(3);
+
+}
+ 
 void PlotMaker::ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfError) {
 
   if(n >= h.size()) return;
@@ -1109,8 +1187,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   SetStyles(n);
 
-  if(usePubCommStyle[n]) pasPadhi->cd();
-  else padhi->cd();
+  padhi->cd();
 
   bkg->Draw("hist");
   for(unsigned int i = 0; i < mc.size(); i++) {
@@ -1128,16 +1205,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
     sigb->Draw("same hist");
   }
 
-  if(usePubCommStyle[n]) {
-    TString pasChannelName = crLatexNames[controlRegion];
-    if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
-    else pasChannelName = "#mu" + pasChannelName;
-
-    pasLumiLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) channel");
-    pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
-    pasPrelimLatex.DrawLatex(0.2178, 0.936, "Preliminary");
-  }
-  else lumiHeader->Draw("same");
+  lumiHeader->Draw("same");
 
   if(doDrawLegend[n]) {
     if(doDrawSignal[n]) legDrawSignal->Draw("same");
@@ -1145,8 +1213,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
   }
   if(doDrawPrelim[n] && doDrawLegend[n] && !usePubCommStyle[n]) reqText->Draw("same");
 
-  if(usePubCommStyle[n]) pasPadlo->cd();
-  else padlo->cd();
+  padlo->cd();
 
   ratio->Draw("e1");
   ratio_sys->Draw("e2 same");
@@ -1157,11 +1224,82 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   oneLine->Draw();  
 
-  if(usePubCommStyle[n]) pasCan->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
-  else can->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
+  can->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
 
 }
 
+void PlotMaker::CreatePasPlot(unsigned int n) {
+
+  if(n > 0) GetHistograms(n);
+
+  if(doRebinMET) RebinMET();
+
+  ScaleQCD();
+  if(n == 0) {
+    SaveLimitOutputs();
+    // KillZeroBins doesn't quite work yet -- it gives a weird bin ~ -600 to 20
+    //if(controlRegion != kSR1) SaveLimitOutputs();
+    //else SaveLimitOutputs_KillZeroBin();
+  }
+
+  StackHistograms(n);
+  if(n == 0) METDifference();
+
+  CalculateRatio(n);
+  if(n == 0)  MakeLegends();
+
+  if(divideByBinWidth[n]) DivideWidth();
+
+  SetPasStyles(n);
+
+  pasPadhi->cd();
+
+  bkg->Draw("hist");
+  for(unsigned int i = 0; i < mc.size(); i++) {
+    if(!needsQCD && i == 0) continue;
+    if(i > 0 && layerLegends[i] == layerLegends[i-1]) continue;
+    mc[i]->Draw("same hist");
+  }
+  //errors_stat->Draw("same e2");
+  errors_sys->Draw("same e2");
+  data->Draw("same e1");
+  bkg->Draw("same axis");
+
+  if(doDrawSignal[n]) {
+    siga->Draw("same hist");
+    sigb->Draw("same hist");
+  }
+
+  TString pasChannelName = crLatexNames[controlRegion];
+  if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
+  else pasChannelName = "#mu" + pasChannelName;
+  
+  pasLumiLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
+  pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
+  pasPrelimLatex.DrawLatex(0.2178, 0.936, "Preliminary");
+
+  if(doDrawLegend[n]) {
+    if(doDrawSignal[n]) legDrawSignal->Draw("same");
+    else leg->Draw("same");
+  }
+  if(doDrawPrelim[n] && doDrawLegend[n] && !usePubCommStyle[n]) reqText->Draw("same");
+
+  pasPadlo->cd();
+
+  ratio->Draw("e1");
+  ratio_sys->Draw("e2 same");
+  //ratio_stat->Draw("e2 same");
+  ratio->Draw("e1 same");
+  ratio->Draw("axis same");
+  // not in pas style?
+  //ratioLeg->Draw("same");
+
+  oneLine->Draw();  
+
+  pasCan->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
+
+}
+ 
 void PlotMaker::METDifference() {
 
   TH1D * h = (TH1D*)data->Clone(channel+"_"+crNames[controlRegion]);
