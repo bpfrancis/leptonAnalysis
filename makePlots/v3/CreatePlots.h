@@ -389,6 +389,8 @@ class PlotMaker : public TObject {
   TLegend * legDrawSignal;
   TLegend * ratioLeg;
 
+  TLegend * pasLegDrawSignal;
+  
 };
 
 PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_) {
@@ -451,8 +453,9 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<F
   doDrawLegend.clear();
   doDrawPrelim.clear();
   usePubCommStyle.clear();
-  
-  input = new TFile("histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
+
+  // durp arc use saved versions
+  input = new TFile("save_papers/histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
 
 }
 
@@ -510,6 +513,8 @@ PlotMaker::~PlotMaker() {
   delete legDrawSignal;
   delete ratioLeg;
 
+  delete pasLegDrawSignal;
+  
   delete can;
   delete pasCan;
   
@@ -841,6 +846,26 @@ void PlotMaker::MakeLegends() {
   legDrawSignal->AddEntry(siga, "GGM (460_175)", "L");
   legDrawSignal->AddEntry(sigb, "GGM (560_325)", "L");
 
+  pasLegDrawSignal = new TLegend(0.5, 0.6, 0.85, 0.8, NULL, "brNDC");
+  pasLegDrawSignal->SetNColumns(2);
+  pasLegDrawSignal->AddEntry(data, "Data", "LP");
+  pasLegDrawSignal->AddEntry((TObject*)0, "", "");
+  pasLegDrawSignal->AddEntry(errors_sys, "Stat. #oplus Syst. Errors", "F");
+  pasLegDrawSignal->AddEntry((TObject*)0, "", "");
+  if(needsQCD) pasLegDrawSignal->AddEntry(bkg, "QCD", "F");
+
+  pasLegDrawSignal->AddEntry(mc[0], layerLegends[0], "F");
+  for(unsigned int i = 1; i < mc.size(); i++) {
+    if(layerLegends[i] == layerLegends[i-1]) continue;
+    pasLegDrawSignal->AddEntry(mc[i], layerLegends[i], "F");
+  }
+  if(!needsQCD) pasLegDrawSignal->AddEntry((TObject*)0, "", "");
+  pasLegDrawSignal->SetFillColor(0);
+  pasLegDrawSignal->SetBorderSize(0);
+  pasLegDrawSignal->SetTextSize(0.028 / 0.7);
+  pasLegDrawSignal->AddEntry(siga, "GGM (460_175)", "L");
+  pasLegDrawSignal->AddEntry(sigb, "GGM (560_325)", "L");
+  
   ratioLeg = new TLegend(0.78, 0.7, 0.88, 0.95, NULL, "brNDC");
   ratioLeg->AddEntry(ratio_stat, "Stat.", "F");
   ratioLeg->AddEntry(ratio_sys, "Stat. #oplus Syst.", "F");
@@ -961,8 +986,8 @@ void PlotMaker::SetStyles(unsigned int n) {
 
 void PlotMaker::SetPasStyles(unsigned int n) {
 
-  data->SetMarkerStyle(20);
-  data->SetMarkerSize(1.0);
+  //data->SetMarkerStyle(20);
+  //data->SetMarkerSize(1.0);
   data->SetLineColor(kBlack);
   
   errors_stat->SetFillColor(kOrange+10);
@@ -1275,12 +1300,12 @@ void PlotMaker::CreatePasPlot(unsigned int n) {
   if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
   else pasChannelName = "#mu" + pasChannelName;
   
-  pasLumiLatex.DrawLatex(0.96, 0.936 * 0.7, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
-  pasCMSLatex.DrawLatex(0.12, 0.9 * 0.7, "CMS");
-  pasPrelimLatex.DrawLatex(0.2178, 0.9 * 0.7, "Preliminary");
+  pasLumiLatex.DrawLatex(0.96, 0.9, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
+  pasCMSLatex.DrawLatex(0.12, 0.9, "CMS");
+  pasPrelimLatex.DrawLatex(0.2178, 0.9, "Preliminary");
 
   if(doDrawLegend[n]) {
-    if(doDrawSignal[n]) legDrawSignal->Draw("same");
+    if(doDrawSignal[n]) pasLegDrawSignal->Draw("same");
     else leg->Draw("same");
   }
   if(doDrawPrelim[n] && doDrawLegend[n] && !usePubCommStyle[n]) reqText->Draw("same");
