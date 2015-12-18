@@ -866,21 +866,21 @@ void PlotMaker::MakeLegends() {
   pasLumiLatex.SetTextColor(kBlack);
   pasLumiLatex.SetTextFont(42);
   pasLumiLatex.SetTextAlign(31);
-  pasLumiLatex.SetTextSize(0.048);
+  pasLumiLatex.SetTextSize(0.0685714289546);
 
   pasCMSLatex.SetNDC();
   pasCMSLatex.SetTextAngle(0);
   pasCMSLatex.SetTextColor(kBlack);
   pasCMSLatex.SetTextFont(61);
-  pasCMSLatex.SetTextAlign(11);
-  pasCMSLatex.SetTextSize(0.06);
+  pasCMSLatex.SetTextAlign(13);
+  pasCMSLatex.SetTextSize(0.0857142861933);
 
   pasPrelimLatex.SetNDC();
   pasPrelimLatex.SetTextAngle(0);
   pasPrelimLatex.SetTextColor(kBlack);
   pasPrelimLatex.SetTextFont(52);
-  pasPrelimLatex.SetTextAlign(11);
-  pasPrelimLatex.SetTextSize(0.0456);
+  pasPrelimLatex.SetTextAlign(13);
+  pasPrelimLatex.SetTextSize(0.0651428575069);
   
 }
 
@@ -1275,9 +1275,9 @@ void PlotMaker::CreatePasPlot(unsigned int n) {
   if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
   else pasChannelName = "#mu" + pasChannelName;
   
-  pasLumiLatex.DrawLatex(0.96, 0.936, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
-  pasCMSLatex.DrawLatex(0.12, 0.936, "CMS");
-  pasPrelimLatex.DrawLatex(0.2178, 0.936, "Preliminary");
+  pasLumiLatex.DrawLatex(0.96, 0.908571428061, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
+  pasCMSLatex.DrawLatex(0.1578, 0.854714285098, "CMS");
+  pasPrelimLatex.DrawLatex(0.1578, 0.751857141666, "Preliminary");
 
   if(doDrawLegend[n]) {
     if(doDrawSignal[n]) legDrawSignal->Draw("same");
