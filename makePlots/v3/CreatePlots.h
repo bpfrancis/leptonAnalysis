@@ -214,6 +214,24 @@ class PlotMaker : public TObject {
     padlo->Draw();
   };
 
+  void MakePasCanvas() {
+    pasCan = new TCanvas("can", "Plot", 50, 50, 800, 600);
+    pasPadhi = new TPad("padhi", "padhi", 0, 0.3, 1, 1);
+    pasPadlo = new TPad("padlo", "padlo", 0, 0, 1, 0.3);
+    pasPadhi->SetLogy(true);
+    pasPadhi->SetTickx(true);
+    pasPadhi->SetTicky(true);
+    //pasPadhi->SetGridx(true);
+    //pasPadhi->SetGridy(true);
+    pasPadhi->SetBottomMargin(0);
+
+    pasPadlo->SetTopMargin(0);
+    pasPadlo->SetBottomMargin(0.2);
+
+    pasPadhi->Draw();
+    pasPadlo->Draw();
+  };
+
   void MakeLegends();
 
   // done for each variable
@@ -234,6 +252,7 @@ class PlotMaker : public TObject {
   void CreatePlot(unsigned int n);
   void CreatePlots() {
     MakeCanvas();
+    MakePasCanvas();
     CalculateQCDNormalization();
     for(unsigned int i = 0; i < variables.size(); i++) CreatePlot(i);
   };
@@ -310,6 +329,10 @@ class PlotMaker : public TObject {
   TCanvas * can;
   TPad * padhi;
   TPad * padlo;
+
+  TCanvas * pasCan;
+  TPad * pasPadhi;
+  TPad * pasPadlo;
 
   TPaveText * reqText;
   TPaveText * lumiHeader;
@@ -479,7 +502,8 @@ PlotMaker::~PlotMaker() {
   delete ratioLeg;
 
   delete can;
-
+  delete pasCan;
+  
   input->Close();
 
 }
@@ -1085,7 +1109,8 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   SetStyles(n);
 
-  padhi->cd();
+  if(usePubCommStyle[n]) pasPadhi->cd();
+  else padhi->cd();
 
   bkg->Draw("hist");
   for(unsigned int i = 0; i < mc.size(); i++) {
@@ -1107,10 +1132,10 @@ void PlotMaker::CreatePlot(unsigned int n) {
     TString pasChannelName = crLatexNames[controlRegion];
     if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
     else pasChannelName = "#mu" + pasChannelName;
-
+durp
     pasLumiLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) channel");
     pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
-    pasPrelimLatexDrawLatex(0.2178, 0.936, "Preliminary");
+    pasPrelimLatex.DrawLatex(0.2178, 0.936, "Preliminary");
   }
   else lumiHeader->Draw("same");
 
@@ -1120,7 +1145,8 @@ void PlotMaker::CreatePlot(unsigned int n) {
   }
   if(doDrawPrelim[n] && doDrawLegend[n] && !usePubCommStyle[n]) reqText->Draw("same");
 
-  padlo->cd();
+  if(usePubCommStyle[n]) pasPadlo->cd();
+  else padlo->cd();
 
   ratio->Draw("e1");
   ratio_sys->Draw("e2 same");
@@ -1131,7 +1157,8 @@ void PlotMaker::CreatePlot(unsigned int n) {
 
   oneLine->Draw();  
 
-  can->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
+  if(usePubCommStyle[n]) pasCan->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
+  else can->SaveAs(variables[n]+"_"+channel+"_"+crNames[controlRegion]+".pdf");
 
 }
 
