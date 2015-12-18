@@ -263,6 +263,7 @@ class PlotMaker : public TObject {
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(usePubCommStyle[i]) CreatePasPlot(i);
       else CreatePlot(i);
+    }
   };
   
   void METDifference();
@@ -959,7 +960,7 @@ void PlotMaker::SetStyles(unsigned int n) {
 }
 
 void PlotMaker::SetPasStyles(unsigned int n) {
-  // durp
+
   data->SetMarkerStyle(20);
   data->SetMarkerSize(1.0);
   data->SetLineColor(kBlack);
