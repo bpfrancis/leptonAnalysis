@@ -227,10 +227,10 @@ class PlotMaker : public TObject {
     pasPadhi->SetTopMargin(0.08/(1.0 - 0.3));
     pasPadhi->SetBottomMargin(0);
 
-    pasPadhi->SetLeftMargin(0.12);
-    pasPadhi->SetRightMargin(0.04);
+    pasPadlo->SetLeftMargin(0.12);
+    pasPadlo->SetRightMargin(0.04);
     pasPadlo->SetTopMargin(0);
-    pasPadlo->SetBottomMargin(0.2/0.3);
+    pasPadlo->SetBottomMargin(0.12/0.3);
 
     pasPadhi->Draw();
     pasPadlo->Draw();
@@ -866,21 +866,21 @@ void PlotMaker::MakeLegends() {
   pasLumiLatex.SetTextColor(kBlack);
   pasLumiLatex.SetTextFont(42);
   pasLumiLatex.SetTextAlign(31);
-  pasLumiLatex.SetTextSize(0.06);
+  pasLumiLatex.SetTextSize(0.048);
 
   pasCMSLatex.SetNDC();
   pasCMSLatex.SetTextAngle(0);
   pasCMSLatex.SetTextColor(kBlack);
   pasCMSLatex.SetTextFont(61);
   pasCMSLatex.SetTextAlign(11);
-  pasCMSLatex.SetTextSize(0.075);
+  pasCMSLatex.SetTextSize(0.06);
 
   pasPrelimLatex.SetNDC();
   pasPrelimLatex.SetTextAngle(0);
   pasPrelimLatex.SetTextColor(kBlack);
   pasPrelimLatex.SetTextFont(52);
-  pasPrelimLatex.SetTextAlign(13);
-  pasPrelimLatex.SetTextSize(0.76*0.075);
+  pasPrelimLatex.SetTextAlign(11);
+  pasPrelimLatex.SetTextSize(0.0456);
   
 }
 
@@ -1275,8 +1275,8 @@ void PlotMaker::CreatePasPlot(unsigned int n) {
   if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
   else pasChannelName = "#mu" + pasChannelName;
   
-  pasLumiLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
-  pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
+  pasLumiLatex.DrawLatex(0.96, 0.936, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
+  pasCMSLatex.DrawLatex(0.12, 0.936, "CMS");
   pasPrelimLatex.DrawLatex(0.2178, 0.936, "Preliminary");
 
   if(doDrawLegend[n]) {
