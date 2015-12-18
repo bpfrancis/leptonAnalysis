@@ -215,9 +215,9 @@ class PlotMaker : public TObject {
   };
 
   void MakePasCanvas() {
-    pasCan = new TCanvas("can", "Plot", 50, 50, 800, 600);
-    pasPadhi = new TPad("padhi", "padhi", 0, 0.3, 1, 1);
-    pasPadlo = new TPad("padlo", "padlo", 0, 0, 1, 0.3);
+    pasCan = new TCanvas("pasCan", "Plot", 50, 50, 800, 600);
+    pasPadhi = new TPad("pasPadhi", "pasPadhi", 0, 0.3, 1, 1);
+    pasPadlo = new TPad("pasPadlo", "pasPadlo", 0, 0, 1, 0.3);
     pasPadhi->SetLogy(true);
     pasPadhi->SetTickx(true);
     pasPadhi->SetTicky(true);
@@ -1132,7 +1132,7 @@ void PlotMaker::CreatePlot(unsigned int n) {
     TString pasChannelName = crLatexNames[controlRegion];
     if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
     else pasChannelName = "#mu" + pasChannelName;
-durp
+
     pasLumiLatex.DrawLatex(0.9, 0.92, "19.7 fb^{-1} (8 TeV) channel");
     pasCMSLatex.DrawLatex(0.1, 0.92, "CMS");
     pasPrelimLatex.DrawLatex(0.2178, 0.936, "Preliminary");
