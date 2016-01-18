@@ -40,7 +40,7 @@ TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
 enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
 TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
 TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Pre-selection"};
-TString crLatexNames[kNumControlRegions] = {"#gamma+bjj", "#gamma#gamma+bjj", "#gamma_{j}+bjj", "#gamma_{j}#gamma_{j}+bjj", "CR2a", "CR0", "SigmaPlot", "+bjj"};
+TString crLatexNames[kNumControlRegions] = {"#gamma+bjj", "#gamma#gamma+bjj", " CR1", " CR2", "CR2a", "CR0", "SigmaPlot", "+bjj"};
 
 enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
 enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
@@ -794,8 +794,36 @@ void PlotMaker::CalculateRatio(unsigned int n) {
       errors_sys->SetBinError(i+1, sqrt(totalError2));
       ratio_sys->SetBinError(i+1, sqrt(totalError2) / bkg->GetBinContent(i+1));
     }
-
+    
     ratio_sys->SetBinContent(i+1, 1.);
+
+  }
+
+  //durp
+  // PAS ARC answers only, add CR stuff to the MET plot
+  bool addCRdiff = false;
+  if(addCRdiff && n == 0) {
+    TFile * fMoreErrors = new TFile("save_paper/hurr_durr.root", "READ");
+
+    TString channelWord = (channel.Contains("ele")) ? "ele" : "muon";
+      
+    TH1D * systA = (TH1D*)fMoreErrors->Get("systA_"+channelWord);
+    TH1D * systB = (TH1D*)fMoreErrors->Get("systB_"+channelWord);
+    TH1D * systC = (TH1D*)fMoreErrors->Get("systC_"+channelWord);
+      
+    for(int i = 0; i < errors_sys->GetNbinsX(); i++) {
+      double rateA = systA->GetBinContent(i+1) * bkg->GetBinContent(i+1);
+      double rateB = systB->GetBinContent(i+1) * bkg->GetBinContent(i+1);
+      double rateC = systC->GetBinContent(i+1) * bkg->GetBinContent(i+1);
+
+      double oldError = errors_sys->GetBinContent(i+1);
+      double totalError2 = oldError*oldError + rateA*rateA + rateB*rateB;
+
+      if(controlRegion == kSR2) totalError2 += rateC*rateC;
+
+      errors_sys->SetBinError(i+1, sqrt(totalError2));
+      ratio_sys->SetBinError(i+1, sqrt(totalError2) / bkg->GetBinContent(i+1));
+    }
 
   }
 
@@ -883,7 +911,7 @@ void PlotMaker::MakeLegends() {
   }
   if(!needsQCD) pasLeg->AddEntry((TObject*)0, "", "");
   pasLeg->SetFillColor(0);
-  pasLeg->SetBoderSize(0);
+  pasLeg->SetBorderSize(0);
   pasLeg->SetTextSize(0.028 / 0.7);
   
   ratioLeg = new TLegend(0.78, 0.7, 0.88, 0.95, NULL, "brNDC");
@@ -1317,8 +1345,10 @@ void PlotMaker::CreatePasPlot(unsigned int n) {
   }
 
   TString pasChannelName = crLatexNames[controlRegion];
-  if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
-  else pasChannelName = "#mu" + pasChannelName;
+  if(!(crNames[controlRegion].Contains("CR"))) {
+    if(channel.Contains("ele")) pasChannelName = "e" + pasChannelName;
+    else pasChannelName = "#mu" + pasChannelName;
+  }
   
   pasLumiLatex.DrawLatex(0.96, 0.9, "19.7 fb^{-1} (8 TeV) "+pasChannelName);
   pasCMSLatex.DrawLatex(0.12, 0.9, "CMS");

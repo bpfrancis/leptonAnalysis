@@ -26,13 +26,7 @@
 
 using namespace std;
 
-void remakeTables() {
-
-  gROOT->Reset();
-  gROOT->SetBatch(true);
-  gROOT->SetStyle("Plain");
-  gStyle->SetOptStat(0000);
-  gStyle->SetOptTitle(0);
+void remakeANTables() {
 
   TString backgrounds[10] = {"qcd", "ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
   TString bkgLabels[10] = {"QCD", "t#bar{t} + Jets", "W + Jets", "Z/#gamma* + Jets", "Single top", 
@@ -201,5 +195,183 @@ void remakeTables() {
   } // for tables
 
   input->Close();
+
+}
+
+void remakePasTables() {
+
+  const int nBkgs = 9;
+  const int nLines = 11;
+  const int nSystematics = 15;
+  const int nChannels = 4;
+  
+  TString backgrounds[nBkgs] = {"ttjets", "wjets", "zjets", "singleTop", "diboson", "vgamma", "ttW", "ttZ", "ttgamma"};
+  int bkgGroups[nBkgs] = {0, 1, 1, 2, 3, 4, 5, 5, 6};
+  
+  TString groupedLabels[nLines] = {"$t\\bar{t}$",
+				   "$W/Z$ + jets",
+				   "Single $t$",
+				   "Diboson", 
+				   "$V\\gamma$",
+				   "$t\\bar{t} + W/Z$",
+				   "$t\\bar{t} + \\gamma$",
+				   "Total Background",
+				   "GMSB (460\\_175)",
+				   "GMSB (560\\_325)",
+				   "Data"};
+
+  const int index_total = 7;
+  const int index_siga = 8;
+  const int index_sigb = 9;
+  const int index_data = 10;
+
+  TString systematics[nSystematics] = {"btagWeight", "puWeight", "JEC", "eleSF", "muonSF", "photonSF", "topPt",
+				       "scale_tt", "scale_V", "scale_VV",
+				       "pdf_gg", "pdf_qq", "pdf_gq",
+				       "ele_qcdDef", "muon_qcdDef"};
+  
+  TString channels[nChannels] = {"ele_SR1", "muon_SR1",
+				 "ele_SR2", "muon_SR2"}
+
+  TFile * input = new TFile("../save_paper/limitInputs_bjj.root", "READ");
+
+  double value, error;
+
+  vector< vector<double> > tableValues, tableErrors;
+  tableValues.resize(nChannels); // tableValues[channel][row]
+  tableErrors.resize(nChannels);
+  for(int i = 0; i < nChannels; i++) {
+    tableValues[i].resize(nLines, 0.); // 7 backgrounds, total, siga, sigb, data
+    tableErrors[i].resize(nLines, 0.);
+  }
+
+  for(int i = 0; i < nChannels; i++) {
+
+    TH1D * h = (TH1D*)input->Get(channels[i]+"/data_obs");
+    value = h->IntegralAndError(0, -1, error);
+    tableValues[i][index_data] = value;
+    tableErrors[i][index_data] = error;
+
+    int index_line = 0; // j iterates backgrounds, but only iterate index_line if bkgGroups[j] != bkgGroups[j-1]
+    
+    for(int j = 0; j < nBkgs; j++) {
+
+      if(j > 0 && bkgGroups[j] != bkgGroups[j-1]) index_line++;
+      
+      h = (TH1D*)input->Get(channels[i]+"/"+backgrounds[j]);
+      value = h->IntegralAndError(0, -1, error);
+      tableValues[i][index_line] += value;
+
+      for(int k = 0; k < nSystematics; k++) {
+	TH1D * h_up = (TH1D*)input->Get(channels[i]+"/"+backgrounds[j]+"_"+systematics[k]+"Up");
+	TH1D * h_down = (TH1D*)input->Get(channels[i]+"/"+backgrounds[j]+"_"+systematics[k]+"Down");
+
+	if(!h_up || !h_down) continue;
+
+	double value_up = fabs(h_up->Integral() - value);
+	double value_down = fabs(h_down->Integral() - value);
+	double value_avg = (value_up + value_down)/2.;
+	error = sqrt(error*error + value_avg*value_avg);
+      }
+
+      tableErrors[i][index_line] = sqrt(tableErrors[i][index_line]*tableErrors[i][index_line] + error*error);
+      
+      if(value > 0) {
+	tableValues[i][index_total] += value;
+	tableErrors[i][index_total] = sqrt(tableErrors[i][index_total]*tableErrors[i][index_total] + error*error);
+      }
+      
+    }
+
+    h = (TH1D*)input->Get(channels[i]+"/signal_mst_460_m1_175");
+    value = h->IntegralAndError(0, -1, error);
+    tableValues[i][index_siga] = value;
+    
+    for(int k = 0; k < 15; k++) {
+	TH1D * h_up = (TH1D*)input->Get(channels[i]+"/signal_mst_460_m1_175"+"_"+systematics[k]+"Up");
+	TH1D * h_down = (TH1D*)input->Get(channels[i]+"/signal_mst_460_m1_175"+"_"+systematics[k]+"Down");
+
+	if(!h_up || !h_down) continue;
+
+	double value_up = fabs(h_up->Integral() - value);
+	double value_down = fabs(h_down->Integral() - value);
+	double value_avg = (value_up + value_down)/2.;
+	error = sqrt(error*error + value_avg*value_avg);
+    }
+
+    tableErrors[i][index_siga] = error;
+
+    h = (TH1D*)input->Get(channels[i]+"/signal_mst_560_m1_325");
+    value = h->IntegralAndError(0, -1, error);
+    tableValues[i][index_sigb] = value;
+
+    for(int k = 0; k < 15; k++) {
+	TH1D * h_up = (TH1D*)input->Get(channels[i]+"/signal_mst_560_m1_325"+"_"+systematics[k]+"Up");
+	TH1D * h_down = (TH1D*)input->Get(channels[i]+"/signal_mst_560_m1_325"+"_"+systematics[k]+"Down");
+
+	if(!h_up || !h_down) continue;
+
+	double value_up = fabs(h_up->Integral() - value);
+	double value_down = fabs(h_down->Integral() - value);
+	double value_avg = (value_up + value_down)/2.;
+	error = sqrt(error*error + value_avg*value_avg);
+    }
+
+    tableErrors[i][index_sigb] = error;
+    
+  }
+
+  TString tableHeader = "\\multirow{2}{*}{Channel} & \\multicolumn{2}{c|}{SR1} & \\multicolumn{2}{c|}{SR2}";
+  TString channelHeader = " & e & $\\mu$ & e & $\\mu$";
+  
+  TString hline = "\\hline";
+  TString double_hline = "\\hline\\hline";
+  TString rowBreak = " \\\\";
+
+  cout << endl << endl;
+
+  cout << double_hline << endl;
+  cout << tableHeader << rowBreak << endl;
+  cout << "\\cline{2-5}" << endl;
+  cout << channelHeader << rowBreak << endl;
+  cout << hline << endl;
+
+  for(int iRow = 0; iRow < nLines; iRow++) {
+
+    cout << groupedLabels[iRow];
+
+    for(int jColumn = 0; jColumn < nChannels; jColumn++) {
+    
+      double x = tableValues[jColumn][iRow];
+      double y = tableErrors[jColumn][iRow];
+
+      if(iRow == index_data) {
+	cout << " & " << setprecision(0) << fixed << x;
+	continue;
+      }
+
+      if(x < 1.e-4) cout << " & --";
+      else {
+	if(x >= 20.0) cout << " & " << setprecision(0) << fixed << x << " $\\pm$ " << sqrt(x) << " $\\pm$ " << y;
+	else if(x >= 2.0) cout << " & " << setprecision(1) << fixed << x << " $\\pm$ " << sqrt(x) << " $\\pm$ " << y;
+	else cout << " & " << setprecision(2) << fixed << x << " $\\pm$ " << sqrt(x) << " $\\pm$ " << y;
+      }
+
+    } // for columns in a row
+
+    cout << rowBreak << endl;
+    if(iRow == index_total-1 || iRow == index_sigb-1 || iRow == index_data-1) cout << hline << endl;
+    if(iRow == index_data) cout << double_hline << endl;
+    
+  } // for rows in the table
+
+  input->Close();
+
+}
+
+void remakeTables() {
+
+  remakeANTables();
+  remakePasTables();
 
 }
