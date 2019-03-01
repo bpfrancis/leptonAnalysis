@@ -29,68 +29,50 @@
 
 using namespace std;
 
-const int nChannels = 4;
-
-TString channels[nChannels] = {"ele_bjj", "muon_bjj",
-			       "ele_jjj", "muon_jjj"};
-
-TString channelLabels[nChannels] = {"XYZ ele", "XYZ muon",
-				    "XYZ ele (no b-tag)", "XYZ muon (no b-tag)"};
-
-enum controlRegions {kSR1, kSR2, kCR1, kCR2, kCR2a, kCR0, kSigmaPlot, kAny, kNumControlRegions};
-TString crNames[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Any"};
-TString crLabels[kNumControlRegions] = {"SR1", "SR2", "CR1", "CR2", "CR2a", "CR0", "SigmaPlot", "Pre-selection"};
-TString crLatexNames[kNumControlRegions] = {"#gamma+bjj", "#gamma#gamma+bjj", " CR1", " CR2", "CR2a", "CR0", "SigmaPlot", "+bjj"};
-
-enum pdfCorrelatesWith {kGG, kQQ, kQG, kNpdfCorrelations};
-enum scaleCorrelatesWith {kTTbar, kV, kVV, kNscaleCorrelations};
+const int nSystematics = 13;
+TString systematics[nSystematics] = {"btagWeight", "puWeight", "topPt",
+				     "scale_tt", "scale_V", "scale_VV",
+				     "pdf_gg", "pdf_qq", "pdf_qg",
+				     "JEC", "photonSF", "eleSF", "muonSF"};
 
 class PlotMaker : public TObject {
 
   ClassDef(PlotMaker, 1);
 
  public:
-  PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_);
+  PlotMaker(int cr);
   virtual ~PlotMaker();
+  
+  void BookMCLayer(TString name, int color, TString legend) {
 
-  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr, 
-		   vector<Float_t> scale, vector<Float_t> scaleErr) { 
-    TH1D * h;
-    mc.push_back(h);
+    mc.push_back(inputDir->Get(name));
+    mc_syst.push_back(mc.last()->Clone(name+"_syst"));
+    mc_syst.last()->Reset();
 
-    mc_btagWeightUp.push_back(h); 
-    mc_btagWeightDown.push_back(h);
-    mc_puWeightUp.push_back(h); 
-    mc_puWeightDown.push_back(h);
-    mc_scaleUp.push_back(h); 
-    mc_scaleDown.push_back(h);
-    mc_pdfUp.push_back(h);
-    mc_pdfDown.push_back(h);
-    mc_topPtUp.push_back(h);
-    mc_topPtDown.push_back(h);
-    mc_JECUp.push_back(h);
-    mc_JECDown.push_back(h);
-    mc_leptonSFUp.push_back(h);
-    mc_leptonSFDown.push_back(h);
-    mc_photonSFUp.push_back(h);
-    mc_photonSFDown.push_back(h);
+    for(int iSyst = 0; iSyst < nSystematics; iSyst++) {
+    
+      TH1D * systUp = (TH1D*)inputDir->Get(name + systematics[iSyst] + "Up");
+      TH1D * systDown = (TH1D*)inputDir->Get(name + systematic[iSyst] + "Down");
 
-    layerNames.push_back(newNames);
+      if(!systUp || !systDown) continue;
+      
+      for(int i = 0; i < (mc.last())->GetNbinsX(); i++) {
+	
+	Double_t valUp = systUp->GetBinContent(i+1);
+	Double_t valDown = systDown->GetBinContent(i+1);
+	Double_t avg = fabs(valUp - valDown) / 2.;
+	
+	Double_t current = mc_syst.last()->GetBinContent(i+1);
+	mc_syst.last()->SetBinContent(i+1, sqrt(current*current + avg*avg));
+	
+      }
+
+    }
+    
+    layerNames.push_back(name);
     layerColors.push_back(color);
-    layerLegends.push_back(legendEntry);
+    layerLegends.push_back(legend);
 
-    limitNames.push_back(limitName);
-
-    pdfCorrelations.push_back(pdfCorr);
-    scaleCorrelations.push_back(scaleCorr);
-
-    fitScales.push_back(scale);
-    fitScaleErrors.push_back(scaleErr);
-  };
-
-  void BookMCLayer(vector<TString> newNames, int color, TString limitName, TString legendEntry, int pdfCorr, int scaleCorr) {
-    vector<Float_t> emptyVector;
-    BookMCLayer(newNames, color, limitName, legendEntry, pdfCorr, scaleCorr, emptyVector, emptyVector);
   };
 
   void BookPlot(TString variable, bool divideByWidth,
@@ -102,46 +84,15 @@ class PlotMaker : public TObject {
 
   void DivideWidth() {
     data = (TH1D*)DivideByBinWidth(data);
-    qcd = (TH1D*)DivideByBinWidth(qcd);
     siga = (TH1D*)DivideByBinWidth(siga);
     sigb = (TH1D*)DivideByBinWidth(sigb);
     
     bkg = (TH1D*)DivideByBinWidth(bkg);
-    bkg_btagWeightUp = (TH1D*)DivideByBinWidth(bkg_btagWeightUp);
-    bkg_btagWeightDown = (TH1D*)DivideByBinWidth(bkg_btagWeightDown);
-    bkg_puWeightUp = (TH1D*)DivideByBinWidth(bkg_puWeightUp);
-    bkg_puWeightDown = (TH1D*)DivideByBinWidth(bkg_puWeightDown);
-    bkg_scaleUp = (TH1D*)DivideByBinWidth(bkg_scaleUp);
-    bkg_scaleDown = (TH1D*)DivideByBinWidth(bkg_scaleDown);
-    bkg_pdfUp = (TH1D*)DivideByBinWidth(bkg_pdfUp);
-    bkg_pdfDown = (TH1D*)DivideByBinWidth(bkg_pdfDown);
-    bkg_topPtUp = (TH1D*)DivideByBinWidth(bkg_topPtUp);
-    bkg_topPtDown = (TH1D*)DivideByBinWidth(bkg_topPtDown);
-    bkg_JECUp = (TH1D*)DivideByBinWidth(bkg_JECUp);
-    bkg_JECDown = (TH1D*)DivideByBinWidth(bkg_JECDown);
-    bkg_leptonSFUp = (TH1D*)DivideByBinWidth(bkg_leptonSFUp);
-    bkg_leptonSFDown = (TH1D*)DivideByBinWidth(bkg_leptonSFDown);
-    bkg_photonSFUp = (TH1D*)DivideByBinWidth(bkg_photonSFUp);
-    bkg_photonSFDown = (TH1D*)DivideByBinWidth(bkg_photonSFDown);
+    bkg_syst = (TH1D*)DivideByBinWidth(bkg_syst);
 
     for(unsigned int i = 0; i < mc.size(); i++) {
       mc[i] = (TH1D*)DivideByBinWidth(mc[i]);
-      mc_btagWeightUp[i] = (TH1D*)DivideByBinWidth(mc_btagWeightUp[i]);
-      mc_btagWeightDown[i] = (TH1D*)DivideByBinWidth(mc_btagWeightDown[i]);
-      mc_puWeightUp[i] = (TH1D*)DivideByBinWidth(mc_puWeightUp[i]);
-      mc_puWeightDown[i] = (TH1D*)DivideByBinWidth(mc_puWeightDown[i]);
-      mc_scaleUp[i] = (TH1D*)DivideByBinWidth(mc_scaleUp[i]);
-      mc_scaleDown[i] = (TH1D*)DivideByBinWidth(mc_scaleDown[i]);
-      mc_pdfUp[i] = (TH1D*)DivideByBinWidth(mc_pdfUp[i]);
-      mc_pdfDown[i] = (TH1D*)DivideByBinWidth(mc_pdfDown[i]);
-      mc_topPtUp[i] = (TH1D*)DivideByBinWidth(mc_topPtUp[i]);
-      mc_topPtDown[i] = (TH1D*)DivideByBinWidth(mc_topPtDown[i]);
-      mc_JECUp[i] = (TH1D*)DivideByBinWidth(mc_JECUp[i]);
-      mc_JECDown[i] = (TH1D*)DivideByBinWidth(mc_JECDown[i]);
-      mc_leptonSFUp[i] = (TH1D*)DivideByBinWidth(mc_leptonSFUp[i]);
-      mc_leptonSFDown[i] = (TH1D*)DivideByBinWidth(mc_leptonSFDown[i]);
-      mc_photonSFUp[i] = (TH1D*)DivideByBinWidth(mc_photonSFUp[i]);
-      mc_photonSFDown[i] = (TH1D*)DivideByBinWidth(mc_photonSFDown[i]);
+      mc_syst[i] = (TH1D*)DivideByBinWidth(mc_syst[i]);
     }
 
     errors_stat = (TH1D*)DivideByBinWidth(errors_stat);
@@ -159,37 +110,10 @@ class PlotMaker : public TObject {
 
     siga = (TH1D*)siga->Rebin(nMetBins_2g, "siga_reb", xbins_met_2g);
     sigb = (TH1D*)sigb->Rebin(nMetBins_2g, "sigb_reb", xbins_met_2g);
-
-    qcd = (TH1D*)qcd->Rebin(nMetBins_2g, "qcd_reb", xbins_met_2g);
-    qcd_defUp = (TH1D*)qcd_defUp->Rebin(nMetBins_2g, "qcd_defUp_reb", xbins_met_2g);
-    qcd_defDown = (TH1D*)qcd_defDown->Rebin(nMetBins_2g, "qcd_defDown_reb", xbins_met_2g);
   
     for(unsigned int i = 0; i < mc.size(); i++) {
       mc[i] = (TH1D*)mc[i]->Rebin(nMetBins_2g, "mc_reb", xbins_met_2g);
-
-      mc_btagWeightUp[i] = (TH1D*)mc_btagWeightUp[i]->Rebin(nMetBins_2g, "mc_btagWeightUp_reb", xbins_met_2g);
-      mc_btagWeightDown[i] = (TH1D*)mc_btagWeightDown[i]->Rebin(nMetBins_2g, "mc_btagWeightDown_reb", xbins_met_2g);
-
-      mc_puWeightUp[i] = (TH1D*)mc_puWeightUp[i]->Rebin(nMetBins_2g, "mc_puWeightUp_reb", xbins_met_2g);
-      mc_puWeightDown[i] = (TH1D*)mc_puWeightDown[i]->Rebin(nMetBins_2g, "mc_puWeightDown_reb", xbins_met_2g);
-
-      mc_scaleUp[i] = (TH1D*)mc_scaleUp[i]->Rebin(nMetBins_2g, "mc_scaleUp_reb", xbins_met_2g);
-      mc_scaleDown[i] = (TH1D*)mc_scaleDown[i]->Rebin(nMetBins_2g, "mc_scaleDown_reb", xbins_met_2g);
-
-      mc_pdfUp[i] = (TH1D*)mc_pdfUp[i]->Rebin(nMetBins_2g, "mc_pdfUp_reb", xbins_met_2g);
-      mc_pdfDown[i] = (TH1D*)mc_pdfDown[i]->Rebin(nMetBins_2g, "mc_pdfDown_reb", xbins_met_2g);
-
-      mc_topPtUp[i] = (TH1D*)mc_topPtUp[i]->Rebin(nMetBins_2g, "mc_topPtUp_reb", xbins_met_2g);
-      mc_topPtDown[i] = (TH1D*)mc_topPtDown[i]->Rebin(nMetBins_2g, "mc_topPtDown_reb", xbins_met_2g);
-
-      mc_JECUp[i] = (TH1D*)mc_JECUp[i]->Rebin(nMetBins_2g, "mc_JECUp_reb", xbins_met_2g);
-      mc_JECDown[i] = (TH1D*)mc_JECDown[i]->Rebin(nMetBins_2g, "mc_JECDown_reb", xbins_met_2g);
-
-      mc_leptonSFUp[i] = (TH1D*)mc_leptonSFUp[i]->Rebin(nMetBins_2g, "mc_leptonSFUp_reb", xbins_met_2g);
-      mc_leptonSFDown[i] = (TH1D*)mc_leptonSFDown[i]->Rebin(nMetBins_2g, "mc_leptonSFDown_reb", xbins_met_2g);
-
-      mc_photonSFUp[i] = (TH1D*)mc_photonSFUp[i]->Rebin(nMetBins_2g, "mc_photonSFUp_reb", xbins_met_2g);
-      mc_photonSFDown[i] = (TH1D*)mc_photonSFDown[i]->Rebin(nMetBins_2g, "mc_photonSFDown_reb", xbins_met_2g);
+      mc_syst[i] = (TH1D*)mc_syst[i]->Rebin(nMetBins_2g, "mc_syst_reb", xbins_met_2g);
     }
 
   };
@@ -246,11 +170,6 @@ class PlotMaker : public TObject {
   void SetStyles(unsigned int n);
   void SetPasStyles(unsigned int n);
 
-  void ScaleByFit(unsigned int n, vector<TH1D*>& h, float sf, float sfError);
-
-  void CalculateQCDNormalization();
-  void ScaleQCD();
-
   void DetermineAxisRanges(unsigned int n);
   void DetermineLegendRanges(unsigned int n);
 
@@ -259,36 +178,12 @@ class PlotMaker : public TObject {
   void CreatePlots() {
     MakeCanvas();
     MakePasCanvas();
-    CalculateQCDNormalization();
     for(unsigned int i = 0; i < variables.size(); i++) {
       if(usePubCommStyle[i]) CreatePasPlot(i);
       else CreatePlot(i);
     }
   };
   
-  void METDifference();
-  void SaveLimitOutputs();
-  void SaveLimitOutputs_KillZeroBin();
-
-  bool inControlRegion(Float_t ngamma, Float_t nfake) {
-    switch(controlRegion) {
-    case kSR1:
-      return ngamma == 1;
-    case kSR2:
-      return ngamma >= 2;
-    case kCR1:
-      return (ngamma == 0 && nfake == 1);
-    case kCR2:
-      return (ngamma == 0 && nfake >= 2);
-    case kCR2a:
-      return (ngamma == 1 && nfake == 1) || (ngamma == 0 && nfake >= 2);
-    case kCR0:
-      return ngamma == 0;
-    default:
-      return false;
-    }
-  };
-
  private:
   TFile * input;
 
@@ -302,29 +197,10 @@ class PlotMaker : public TObject {
   TH1D * siga;
   TH1D * sigb;
 
-  TH1D * qcd;
-  TH1D * qcd_defUp;
-  TH1D * qcd_defDown;
-
   vector<TH1D*> mc;
-  vector<TH1D*> mc_btagWeightUp, mc_btagWeightDown;
-  vector<TH1D*> mc_puWeightUp, mc_puWeightDown;
-  vector<TH1D*> mc_scaleUp, mc_scaleDown;
-  vector<TH1D*> mc_pdfUp, mc_pdfDown;
-  vector<TH1D*> mc_topPtUp, mc_topPtDown;
-  vector<TH1D*> mc_JECUp, mc_JECDown;
-  vector<TH1D*> mc_leptonSFUp, mc_leptonSFDown;
-  vector<TH1D*> mc_photonSFUp, mc_photonSFDown;
+  vector<TH1D*> mc_syst;
 
-  TH1D *bkg, 
-    *bkg_btagWeightUp, *bkg_btagWeightDown, 
-    *bkg_puWeightUp, *bkg_puWeightDown, 
-    *bkg_scaleUp, *bkg_scaleDown, 
-    *bkg_pdfUp, *bkg_pdfDown, 
-    *bkg_topPtUp, *bkg_topPtDown, 
-    *bkg_JECUp, *bkg_JECDown,
-    *bkg_leptonSFUp, *bkg_leptonSFDown,
-    *bkg_photonSFUp, *bkg_photonSFDown;
+  TH1D *bkg, *bkg_syst;
 
   TH1D * errors_stat;
   TH1D * errors_sys;
@@ -355,12 +231,6 @@ class PlotMaker : public TObject {
   vector<TString> layerLegends;
 
   vector<TString> limitNames;
-
-  vector<int> pdfCorrelations;
-  vector<int> scaleCorrelations;
-
-  vector< vector<Float_t> > fitScales;
-  vector< vector<Float_t> > fitScaleErrors;
 
   // below exist vectors of qualities for each variable -- these are what is looped over
 
@@ -394,39 +264,12 @@ class PlotMaker : public TObject {
   
 };
 
-PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<Float_t> sf_qcd_, vector<Float_t> sfError_qcd_) {
+PlotMaker::PlotMaker(int cr) {
 
-  channel = channels[chanNo];
-  channelLabel = channelLabels[chanNo];
   controlRegion = cr;
-  needsQCD = useQCD;
-  metType = metType_;
-
-  doRebinMET = false;
-
-  sf_qcd.clear();
-  sfError_qcd.clear();
-
-  for(unsigned int i = 0; i < sf_qcd_.size(); i++) sf_qcd.push_back(sf_qcd_[i]);
-  for(unsigned int i = 0; i < sfError_qcd_.size(); i++) sfError_qcd.push_back(sfError_qcd_[i]);
 
   mc.clear();
-  mc_btagWeightUp.clear();
-  mc_btagWeightDown.clear();
-  mc_puWeightUp.clear();
-  mc_puWeightDown.clear();
-  mc_scaleUp.clear();
-  mc_scaleDown.clear();
-  mc_pdfUp.clear();
-  mc_pdfDown.clear();
-  mc_topPtUp.clear();
-  mc_topPtDown.clear();
-  mc_JECUp.clear();
-  mc_JECDown.clear();
-  mc_leptonSFUp.clear();
-  mc_leptonSFDown.clear();
-  mc_photonSFUp.clear();
-  mc_photonSFDown.clear();
+  mc_syst.clear();
   
   layerNames.clear();
   layerColors.clear();
@@ -455,45 +298,20 @@ PlotMaker::PlotMaker(int chanNo, int cr, bool useQCD, TString metType_, vector<F
   doDrawPrelim.clear();
   usePubCommStyle.clear();
 
-  // durp arc use saved versions
-  input = new TFile("save_paper/histograms_"+channel+"_"+crNames[controlRegion]+".root", "READ"); 
+  input = new TFile("limitInputs_combined_bjj.root", "READ");
 
 }
 
 PlotMaker::~PlotMaker() {
 
-  sf_qcd.clear();
-  sfError_qcd.clear();
-
   mc.clear();
-  mc_btagWeightUp.clear();
-  mc_btagWeightDown.clear();
-  mc_puWeightUp.clear();
-  mc_puWeightDown.clear();
-  mc_scaleUp.clear();
-  mc_scaleDown.clear();
-  mc_pdfUp.clear();
-  mc_pdfDown.clear();
-  mc_topPtUp.clear();
-  mc_topPtDown.clear();
-  mc_JECUp.clear();
-  mc_JECDown.clear();
-  mc_leptonSFUp.clear();
-  mc_leptonSFDown.clear();
-  mc_photonSFUp.clear();
-  mc_photonSFDown.clear();
+  mc_syst.clear();
 
   layerNames.clear();
   layerColors.clear();
   layerLegends.clear();
 
   limitNames.clear();
-
-  pdfCorrelations.clear();
-  scaleCorrelations.clear();
-
-  fitScales.clear();
-  fitScaleErrors.clear();
 
   variables.clear();
   divideByBinWidth.clear();

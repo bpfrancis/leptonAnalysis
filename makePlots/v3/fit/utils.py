@@ -269,9 +269,11 @@ def drawPlots_tdrstyle(data, signal, signalSF, signalName, background, backgroun
     else:
         reqtitle = reqtitle + '+jjj'
 
-    leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85, '', 'brNDC')
+    #leg = ROOT.TLegend(0.7, 0.6, 0.85, 0.85, '', 'brNDC')
+    leg = ROOT.TLegend(0.72, 0.6, 0.89, 0.85, '', 'brNDC')
     leg.SetFillColor(0)
-    leg.SetTextSize(0.028)
+    #leg.SetTextSize(0.028)
+    leg.SetTextSize(0.028 / 0.6)
     leg.SetBorderSize(0)
     leg.AddEntry(data, 'Data', 'LP')
     leg.AddEntry(sumHist, signalName, 'F')
